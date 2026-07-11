@@ -9,7 +9,7 @@ An installable, mobile-first relocation companion for international healthcare p
 - Local progress saving
 - Destination-aware cost calculator
 - Learning centre foundation
-- Ayo, a cautious built-in journey guide
+- Zibur, a cautious built-in journey guide
 - Dark mode and offline support
 
 ## Safety
