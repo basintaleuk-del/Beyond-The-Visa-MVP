@@ -1,89 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#123e43">
-  <title>CBT Learning | Beyond The Visa</title>
-  <link rel="stylesheet" href="cbt.css">
-</head>
-<body>
-  <div id="loading" class="loading"><div class="spinner"></div><p>Loading your learning centre…</p></div>
-  <div id="app" hidden>
-    <header class="topbar">
-      <a class="brand" href="index.html"><img src="brand-logo.png" alt=""><span><b>Beyond The Visa</b><small>CBT Learning Centre</small></span></a>
-      <div class="topActions"><span id="planBadge" class="badge">FREE</span><button id="logoutBtn" class="iconBtn" type="button">Sign out</button></div>
-    </header>
-
-    <main>
-      <section id="hubView" class="view active">
-        <div class="hero">
-          <div><span class="eyebrow">NMC CBT PREPARATION</span><h1>Study smarter. Practise confidently.</h1><p>Build knowledge through focused practice, explanations and timed mock exams.</p></div>
-          <div class="readiness"><div id="scoreRing" class="scoreRing"><b id="accuracyValue">0%</b></div><span>Overall accuracy</span></div>
-        </div>
-        <div class="stats">
-          <article><small>Questions answered</small><b id="answeredStat">0</b></article>
-          <article><small>Correct answers</small><b id="correctStat">0</b></article>
-          <article><small>Mock exams</small><b id="mockStat">0</b></article>
-          <article><small>Study streak</small><b id="streakStat">0 days</b></article>
-        </div>
-        <div class="sectionHead"><div><span>CHOOSE YOUR MODE</span><h2>Continue learning</h2></div></div>
-        <div class="modeGrid">
-          <button class="modeCard featured" data-action="practice"><i>✓</i><span>FOCUSED PRACTICE</span><h3>Practice questions</h3><p>Choose a subject, answer at your pace and get an explanation immediately.</p><em>Start practice →</em></button>
-          <button class="modeCard" data-action="mock"><i>⏱</i><span>EXAM CONDITIONS</span><h3>Timed mock exam</h3><p>Work through randomised questions, flag items and review your performance.</p><em>Start mock exam →</em></button>
-          <button class="modeCard" data-action="incorrect"><i>↻</i><span>PERSONALISED REVIEW</span><h3>Incorrect answers</h3><p>Revisit questions you previously missed and strengthen weak areas.</p><em>Review mistakes →</em></button>
-          <button class="modeCard" data-action="bookmarks"><i>☆</i><span>SAVED FOR LATER</span><h3>Bookmarked questions</h3><p>Return to important questions and explanations whenever you need them.</p><em>Open bookmarks →</em></button>
-        </div>
-        <div class="dashboardGrid">
-          <article class="panel"><div class="panelHead"><h3>Subject performance</h3><button id="refreshBtn">Refresh</button></div><div id="topicPerformance" class="topicList"></div></article>
-          <article class="panel"><div class="panelHead"><h3>Recent mock results</h3><button data-action="history">View all</button></div><div id="recentResults" class="resultList"></div></article>
-        </div>
-      </section>
-
-      <section id="setupView" class="view">
-        <button class="backBtn" data-action="hub">← Learning centre</button>
-        <div class="setupCard">
-          <span class="eyebrow" id="setupEyebrow">PRACTICE MODE</span><h1 id="setupTitle">Choose your practice</h1><p id="setupIntro">Select a subject and number of questions.</p>
-          <form id="setupForm">
-            <label>Profession<select id="professionSelect"><option value="nurse">Nurse</option><option value="midwife">Midwife</option></select></label>
-            <label>Subject<select id="categorySelect"><option value="all">All subjects</option></select></label>
-            <label id="questionCountLabel">Number of questions<select id="questionCount"><option value="10">10 questions</option><option value="20">20 questions</option><option value="50">50 questions</option><option value="115">Full mock (up to 115)</option></select></label>
-            <div id="timerNote" class="infoBox" hidden>Time allowance is calculated at approximately one minute per question. Your timer begins when the first question loads.</div>
-            <button class="primaryBtn" type="submit">Begin</button>
-          </form>
-        </div>
-      </section>
-
-      <section id="questionView" class="view">
-        <div class="examTop"><button class="backBtn" id="exitSession">← Exit</button><div class="examMeta"><span id="modeLabel">Practice</span><b id="timer">Untimed</b></div></div>
-        <div class="progressLine"><i id="sessionProgress"></i></div>
-        <div class="questionLayout">
-          <article class="questionCard">
-            <div class="questionMeta"><span id="questionNumber">Question 1 of 10</span><button id="bookmarkBtn" class="bookmarkBtn" aria-label="Bookmark">☆</button></div>
-            <span id="questionCategory" class="categoryPill"></span>
-            <h1 id="questionText"></h1>
-            <div id="options" class="options"></div>
-            <div id="explanation" class="explanation" hidden></div>
-            <div class="questionActions"><button id="flagBtn" class="secondaryBtn">⚑ Flag for review</button><button id="nextBtn" class="primaryBtn" disabled>Check answer</button></div>
-          </article>
-          <aside class="navigator"><h3>Question navigator</h3><div id="questionNav" class="questionNav"></div><div class="navLegend"><span><i class="answered"></i>Answered</span><span><i class="flagged"></i>Flagged</span></div></aside>
-        </div>
-      </section>
-
-      <section id="resultsView" class="view">
-        <button class="backBtn" data-action="hub">← Learning centre</button>
-        <div class="resultsHero"><span id="resultLabel">MOCK EXAM COMPLETE</span><div id="resultCircle" class="resultCircle"><b id="resultPercent">0%</b></div><h1 id="resultTitle">Keep building your confidence</h1><p id="resultSummary"></p></div>
-        <div class="stats resultStats"><article><small>Correct</small><b id="resultCorrect">0</b></article><article><small>Incorrect</small><b id="resultIncorrect">0</b></article><article><small>Unanswered</small><b id="resultUnanswered">0</b></article><article><small>Time used</small><b id="resultTime">0m</b></article></div>
-        <article class="panel"><div class="panelHead"><h3>Performance by subject</h3></div><div id="resultTopics" class="topicList"></div></article>
-        <div class="resultActions"><button class="secondaryBtn" id="reviewExamBtn">Review answers</button><button class="primaryBtn" data-action="hub">Return to dashboard</button></div>
-      </section>
-
-      <section id="historyView" class="view"><button class="backBtn" data-action="hub">← Learning centre</button><div class="sectionHead"><div><span>YOUR PROGRESS</span><h1>Mock exam history</h1></div></div><div id="fullHistory" class="historyGrid"></div></section>
-    </main>
-    <div id="toast" class="toast"></div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-client.js"></script>
-  <script src="cbt.js"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#133e43"><title>CBT Learning | Beyond The Visa</title><link rel="stylesheet" href="cbt.css"></head><body>
+<header class="top"><a href="index.html" class="back">← Dashboard</a><div><b>Beyond The Visa</b><small>CBT Learning Centre</small></div><button id="logout" type="button">Sign out</button></header>
+<main>
+<section id="loading" class="panel center"><h1>Loading your learning centre…</h1></section>
+<section id="app" hidden>
+<div class="hero"><div><span>CBT LEARNING</span><h1>Practise. Understand. Improve.</h1><p>Work through clinically reviewed-style questions and save your progress securely.</p></div><div class="score"><b id="accuracy">0%</b><small>practice accuracy</small></div></div>
+<div class="stats"><article><small>Answered</small><b id="answered">0</b></article><article><small>Correct</small><b id="correct">0</b></article><article><small>Bookmarked</small><b id="bookmarked">0</b></article><article><small>Mock exams</small><b id="mockCount">0</b></article></div>
+<div class="tabs"><button class="active" data-view="practice">Practice</button><button data-view="mock">Mock exam</button><button data-view="history">Results</button></div>
+<section id="practiceView" class="view active"><div class="filters"><select id="profession"><option value="nurse">Nurse</option><option value="midwife">Midwife</option></select><select id="subject"><option value="all">All subjects</option></select><button id="loadPractice">New question</button></div><div id="practiceCard" class="questionCard"></div></section>
+<section id="mockView" class="view"><div id="mockIntro" class="panel"><h2>Timed mock exam</h2><p>The starter build uses up to 10 questions from your database. As your bank grows, this can be increased to the full exam format.</p><label>Profession<select id="mockProfession"><option value="nurse">Nurse</option><option value="midwife">Midwife</option></select></label><button id="startMock" class="primary">Start mock exam</button></div><div id="mockExam" hidden><div class="examTop"><b id="mockProgress"></b><time id="timer">20:00</time></div><div id="mockCard" class="questionCard"></div></div><div id="mockResult" class="panel center" hidden></div></section>
+<section id="historyView" class="view"><div class="panel"><h2>Your mock exam history</h2><div id="historyList"></div></div></section>
+<p class="disclaimer">Educational practice only. Questions must be independently reviewed before commercial release and do not replace official regulator materials.</p>
+</section></main>
+<div id="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><script src="cbt.js"></script></body></html>
