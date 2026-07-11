@@ -1,3 +1,25 @@
-function serviceMarket(){const profile=JSON.parse(localStorage.getItem('btv-profile')||'null'),origin=(profile?.qualificationCountry||'').toLowerCase(),dest=profile?.destination||'uk';const has=(...names)=>names.some(n=>origin.includes(n));if(has('nigeria'))return{market:'Nigeria',currency:'NGN',symbol:'₦',mock:15000,intensive:25000,review:8000,writing:18000};if(has('ghana'))return{market:'Ghana',currency:'GHS',symbol:'GH₵',mock:250,intensive:420,review:120,writing:280};if(has('kenya'))return{market:'Kenya',currency:'KES',symbol:'KSh',mock:3500,intensive:6000,review:1800,writing:4000};if(has('south africa'))return{market:'South Africa',currency:'ZAR',symbol:'R',mock:450,intensive:750,review:220,writing:500};if(has('uganda'))return{market:'Uganda',currency:'UGX',symbol:'USh',mock:90000,intensive:150000,review:45000,writing:100000};if(has('zimbabwe','zambia','botswana','cameroon','ethiopia','malawi','rwanda','sierra leone','gambia','liberia','tanzania'))return{market:'Africa regional',currency:'USD',symbol:'US$',mock:20,intensive:35,review:10,writing:25};const byDestination={uk:{market:'United Kingdom',currency:'GBP',symbol:'£',mock:35,intensive:60,review:20,writing:45},ca:{market:'Canada',currency:'CAD',symbol:'C$',mock:55,intensive:95,review:30,writing:70},au:{market:'Australia',currency:'AUD',symbol:'A$',mock:65,intensive:110,review:35,writing:80},nz:{market:'New Zealand',currency:'NZD',symbol:'NZ$',mock:70,intensive:120,review:38,writing:85},ie:{market:'Ireland',currency:'EUR',symbol:'€',mock:40,intensive:70,review:22,writing:50},us:{market:'United States',currency:'USD',symbol:'US$',mock:45,intensive:75,review:25,writing:55}};return byDestination[dest]||byDestination.us}
-function servicePrice(id){if(id==='trial')return'Free';const p=serviceMarket(),amount=p[id];return`${p.symbol}${Number(amount).toLocaleString('en-GB')}`}
-function regionalPriceNote(){const p=serviceMarket();return`Regional launch pricing for ${p.market} · charged in ${p.currency}`}
+# Beyond The Visa MVP
+
+An installable, mobile-first relocation companion for international healthcare professionals.
+
+## Included
+
+- Six destination pathways
+- Country-specific progress checklists
+- Local progress saving
+- Destination-aware cost calculator
+- Learning centre foundation
+- Zibur, a cautious built-in journey guide
+- Dark mode and offline support
+
+## Safety
+
+The content is general planning guidance. Immigration and professional registration requirements can change. Users are directed to verify decisions with official government and professional-regulator sources.
+
+## Run
+
+Serve this folder through any static web server or GitHub Pages. Opening `index.html` directly works for most features, but installation and offline caching require HTTPS or localhost.
+
+
+## v15 focus
+This version is designed specifically for internationally educated nurses and midwives. The Learning Centre separates drug calculations from CBT-style questions and explanations.
