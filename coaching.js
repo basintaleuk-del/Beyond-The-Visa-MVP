@@ -1,10 +1,105 @@
-const coachingPackages=[
- {id:'trial',name:'Trial interview',price:'Free',duration:'10 minutes',tag:'START HERE',features:['Two realistic interview questions','Short practice conversation','Brief verbal feedback'],cta:'Book free trial'},
- {id:'mock',name:'Full mock interview',price:'£35',duration:'45 minutes',tag:'MOST POPULAR',features:['Role-specific mock interview','NHS values and competency questions','Detailed strengths and improvements','Written feedback summary'],cta:'Request mock interview'},
- {id:'intensive',name:'Interview intensive',price:'£60',duration:'75 minutes',tag:'DEEP PREPARATION',features:['Application and job-description review','Full tailored mock interview','STAR answer coaching','Personal preparation plan','Written feedback and next steps'],cta:'Request intensive'}
-];
-function buildCoaching(){if(document.getElementById('coaching'))return;const section=document.createElement('section');section.id='coaching';section.className='screen';section.innerHTML=`<div class="pageTitle"><button class="back" data-coach-back>←</button><div><span>LIVE COACHING</span><h1>Interview preparation</h1></div></div><div class="coachHero"><span>PREPARE WITH A REAL INTERVIEWER</span><h2>Walk into your healthcare interview with confidence.</h2><p>Practise realistic questions, strengthen your examples and receive clear, constructive feedback.</p><button data-coach-scroll>View coaching options</button></div><div class="coachTrust"><article><b>Role-specific</b><small>Preparation shaped around your job and level</small></article><article><b>Practical feedback</b><small>Clear actions, not generic interview tips</small></article><article><b>Healthcare focused</b><small>Values, safety, leadership and clinical judgement</small></article></div><div class="coachSection"><span>HOW IT WORKS</span><h2>Simple, focused preparation</h2><ol><li><b>Tell me about the role</b><small>Share the job, organisation and interview date.</small></li><li><b>Practise live questions</b><small>Complete a realistic interview with follow-up questions.</small></li><li><b>Improve your answers</b><small>Receive feedback and a personal preparation plan.</small></li></ol></div><div id="coachPackages" class="coachPackages"></div><div class="coachSection prep"><span>YOUR PREPARATION</span><h2>What we can practise</h2><div class="prepGrid"><article>★<b>NHS values</b><small>Turn values into convincing examples</small></article><article>◎<b>STAR answers</b><small>Structure answers clearly and naturally</small></article><article>♡<b>Patient safety</b><small>Escalation, prioritisation and judgement</small></article><article>↗<b>Leadership</b><small>Conflict, change and team development</small></article><article>＋<b>Clinical scenarios</b><small>Explain safe, evidence-based decisions</small></article><article>✓<b>Closing strongly</b><small>Questions to ask and final impressions</small></article></div></div><div id="bookingPanel" class="bookingPanel"><span>REQUEST A SESSION</span><h2 id="bookingTitle">Book your free trial</h2><p id="bookingDescription">Choose a suitable request and provide the details needed to tailor your practice.</p><form id="coachingForm"><label>Full name<input id="coachName" required autocomplete="name"></label><label>Email address<input id="coachEmail" type="email" required autocomplete="email"></label><label>Package<select id="coachPackage"></select></label><label>Role or band<input id="coachRole" required placeholder="e.g. Band 6 Ward Manager"></label><label>Interview date<input id="coachDate" type="date"></label><label class="coachWide">What would you most like help with?<textarea id="coachNotes" rows="4" placeholder="Tell me about the role, organisation or questions you find difficult."></textarea></label><button class="coachWide coachSubmit">Request this session</button></form><p class="paymentNote">No card details are collected in this preview. Paid sessions require confirmation and secure payment setup.</p><div id="bookingSuccess" hidden></div></div>`;document.querySelector('main').append(section);const explore=document.querySelector('.quick');const card=document.createElement('button');card.dataset.open='coaching';card.innerHTML='<i>🎤</i><span>Interview coaching</span><small>Trial and live preparation</small>';explore.append(card);card.onclick=()=>{renderCoachingPackages();setupCoachingForm();openScreen('coaching')};section.querySelector('[data-coach-back]').onclick=()=>openScreen('home');section.querySelector('[data-coach-scroll]').onclick=()=>section.querySelector('#coachPackages').scrollIntoView({behavior:'smooth'});const css=document.createElement('style');css.textContent='.coachHero{background:linear-gradient(145deg,var(--brand),#205f62);color:#fff;border-radius:24px;padding:22px}.coachHero>span,.coachSection>span,.bookingPanel>span{font-size:10px;letter-spacing:.14em;color:#eac66f;font-weight:900}.coachHero h2{font-family:Georgia,serif;font-size:27px;margin:8px 0}.coachHero p{color:#d7e5e4;line-height:1.5}.coachHero button{border:0;border-radius:12px;background:var(--gold);color:#2d2718;padding:12px 15px;font-weight:900}.coachTrust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.coachTrust article,.coachSection,.coachPackage,.bookingPanel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}.coachTrust b,.coachTrust small{display:block}.coachTrust small{color:var(--muted);margin-top:4px;font-size:10px;line-height:1.4}.coachSection{margin-top:13px}.coachSection h2,.bookingPanel h2{font-family:Georgia,serif;margin:6px 0}.coachSection ol{padding:0;list-style:none;counter-reset:steps}.coachSection li{counter-increment:steps;display:grid;grid-template-columns:35px 1fr;column-gap:10px;margin:14px 0}.coachSection li:before{content:counter(steps);grid-row:1/3;width:34px;height:34px;border-radius:11px;background:var(--mint);display:grid;place-items:center;color:var(--teal);font-weight:900}.coachSection li small{color:var(--muted);margin-top:3px}.coachPackages{display:grid;gap:10px;margin-top:14px}.coachPackage{position:relative}.coachPackage.popular{border:2px solid var(--teal)}.coachTag{font-size:9px;letter-spacing:.12em;color:var(--teal);font-weight:900}.coachPackage h3{font-family:Georgia,serif;font-size:22px;margin:6px 0}.coachPrice{font-size:25px;font-weight:900}.coachPrice small{font-size:11px;color:var(--muted);font-weight:500}.coachPackage ul{padding-left:20px;color:var(--muted);line-height:1.7}.coachPackage button{width:100%;border:0;border-radius:12px;background:var(--brand);color:#fff;padding:12px;font-weight:900}.prepGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prepGrid article{background:var(--bg);border-radius:13px;padding:11px;color:var(--teal)}.prepGrid b,.prepGrid small{display:block;color:var(--ink);margin-top:5px}.prepGrid small{color:var(--muted)}.bookingPanel{margin-top:14px}.bookingPanel>p{color:var(--muted)}#coachingForm{display:grid;grid-template-columns:1fr 1fr;gap:11px}#coachingForm label{display:grid;gap:5px;font-size:11px;font-weight:800;color:var(--muted)}#coachingForm input,#coachingForm select,#coachingForm textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;background:var(--bg);color:var(--ink)}.coachWide{grid-column:1/-1}.coachSubmit{border:0;border-radius:12px;background:var(--teal);color:#fff;padding:13px;font-weight:900}.paymentNote{font-size:10px;text-align:center}.bookingSuccess{background:var(--mint);padding:14px;border-radius:13px;line-height:1.5}@media(max-width:500px){.coachTrust{grid-template-columns:1fr}.prepGrid,#coachingForm{grid-template-columns:1fr}.coachWide{grid-column:auto}}';document.head.append(css);renderCoachingPackages()}
-function renderCoachingPackages(){const box=document.getElementById('coachPackages');box.innerHTML=`<p class="notice">${regionalPriceNote()}</p>`+coachingPackages.map(p=>`<article class="coachPackage ${p.id==='mock'?'popular':''}"><span class="coachTag">${p.tag}</span><h3>${p.name}</h3><div class="coachPrice">${servicePrice(p.id)} <small>· ${p.duration}</small></div><ul>${p.features.map(f=>`<li>${f}</li>`).join('')}</ul><button data-package="${p.id}">${p.cta}</button></article>`).join('');document.getElementById('coachPackage').innerHTML=coachingPackages.map(p=>`<option value="${p.id}">${p.name} — ${servicePrice(p.id)}</option>`).join('');box.querySelectorAll('[data-package]').forEach(b=>b.onclick=()=>selectCoachingPackage(b.dataset.package))}
-function selectCoachingPackage(id){const p=coachingPackages.find(x=>x.id===id);document.getElementById('coachPackage').value=id;document.getElementById('bookingTitle').textContent=p.id==='trial'?'Book your free trial':`Request ${p.name.toLowerCase()}`;document.getElementById('bookingDescription').textContent=`${p.duration} · ${servicePrice(p.id)}. Complete the details below so the session can be tailored.`;document.getElementById('bookingPanel').scrollIntoView({behavior:'smooth'})}
-function setupCoachingForm(){const account=authAccount?.();if(account){document.getElementById('coachName').value=account.name;document.getElementById('coachEmail').value=account.email}document.getElementById('coachingForm').onsubmit=e=>{e.preventDefault();const request={id:Date.now(),name:document.getElementById('coachName').value.trim(),email:document.getElementById('coachEmail').value.trim(),package:document.getElementById('coachPackage').value,role:document.getElementById('coachRole').value.trim(),interviewDate:document.getElementById('coachDate').value,notes:document.getElementById('coachNotes').value.trim(),price:servicePrice(document.getElementById('coachPackage').value),market:serviceMarket().market,status:'Request saved'};const all=JSON.parse(localStorage.getItem('btv-coaching-requests')||'[]');all.push(request);localStorage.setItem('btv-coaching-requests',JSON.stringify(all));const success=document.getElementById('bookingSuccess');success.hidden=false;success.className='bookingSuccess';success.innerHTML='<b>Request saved on this device.</b><br>This preview cannot yet send the request or take payment. Connect a secure booking backend before accepting real customers.';success.scrollIntoView({behavior:'smooth'})}}
-buildCoaching();setupCoachingForm();
+const authAccount=()=>JSON.parse(localStorage.getItem('btv-account')||'null');
+const authSession=()=>sessionStorage.getItem('btv-session')==='yes';
+const userProfile=()=>JSON.parse(localStorage.getItem('btv-profile')||'null');
+
+function setVisible(element,visible,display='block'){
+  element.hidden=!visible;
+  element.style.display=visible?display:'none';
+}
+
+function personalise(){
+  const account=authAccount(),profile=userProfile();
+  const heading=document.querySelector('.welcome h1');
+  if(heading&&account)heading.textContent='Welcome back, '+account.name.split(' ')[0];
+  if(profile){
+    const stored=JSON.parse(localStorage.getItem('btv-v1')||'{}');
+    stored.country=profile.destination;
+    localStorage.setItem('btv-v1',JSON.stringify(stored));
+    if(typeof state!=='undefined'){state.country=profile.destination;render()}
+    let card=document.getElementById('profileSummary');
+    if(!card){card=document.createElement('button');card.id='profileSummary';card.type='button';card.style.cssText='width:100%;margin:14px 0 0;padding:13px 15px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);text-align:left;box-shadow:var(--shadow)';document.querySelector('.welcome').after(card)}
+    card.innerHTML=`<b>${profile.profession} · ${country().name}</b><small style="display:block;color:var(--muted);margin-top:4px">${profile.stage} · Edit profile →</small>`;
+    card.onclick=showOnboarding;
+  }
+}
+
+function showApp(){
+  setVisible(document.getElementById('auth'),false);
+  const onboarding=document.getElementById('onboarding');
+  if(onboarding)setVisible(onboarding,false);
+  setVisible(document.getElementById('appShell'),true);
+  personalise();
+}
+
+function showAuth(){
+  setVisible(document.getElementById('appShell'),false);
+  const onboarding=document.getElementById('onboarding');
+  if(onboarding)setVisible(onboarding,false);
+  setVisible(document.getElementById('auth'),true,'grid');
+}
+
+function authTab(login){
+  const signup=document.getElementById('signupForm'),signin=document.getElementById('loginForm');
+  setVisible(signup,!login,'grid');
+  setVisible(signin,login,'grid');
+  document.getElementById('showSignup').classList.toggle('active',!login);
+  document.getElementById('showLogin').classList.toggle('active',login);
+  document.getElementById('loginError').textContent='';
+}
+
+function buildOnboarding(){
+  if(document.getElementById('onboarding'))return;
+  const style=document.createElement('style');
+  style.textContent='.onboard{min-height:100vh;background:linear-gradient(155deg,#0e3338,#1f6869);padding:35px 18px;color:#fff;display:grid;place-items:center}.onboardCard{width:min(100%,520px);background:#fff;color:#183034;border-radius:24px;padding:22px;box-shadow:0 22px 50px #061b1e55}.onboardStep{font-size:11px;letter-spacing:.14em;color:#247c7c;font-weight:900}.onboardCard h1{font:30px Georgia,serif;margin:7px 0}.onboardCard>p{color:#6e7d7e;line-height:1.45}.onboardGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.onboardGrid label{font-size:12px;font-weight:800;display:grid;gap:6px}.onboardGrid select,.onboardGrid input{width:100%;border:1px solid #dce3e0;border-radius:12px;padding:12px;background:#fafbf9;color:#183034}.onboardWide{grid-column:1/-1}.onboardSubmit{grid-column:1/-1;border:0;border-radius:13px;padding:14px;background:#133e43;color:#fff;font-weight:900}.onboardPrivacy{display:block;text-align:center;color:#788686;margin-top:13px;font-size:11px}@media(max-width:500px){.onboardGrid{grid-template-columns:1fr}.onboardWide,.onboardSubmit{grid-column:auto}}';
+  document.head.append(style);
+  const section=document.createElement('section');
+  section.id='onboarding';section.className='onboard';section.hidden=true;
+  section.innerHTML='<div class="onboardCard"><span class="onboardStep">PERSONALISE YOUR JOURNEY</span><h1>Tell us where you are heading</h1><p>Zibur will use these answers to tailor your checklist and next steps.</p><form id="onboardForm" class="onboardGrid"><label>Destination<select id="obDestination"><option value="uk">United Kingdom</option><option value="au">Australia</option><option value="ca">Canada</option><option value="nz">New Zealand</option><option value="ie">Ireland</option><option value="us">United States</option></select></label><label>Profession<select id="obProfession"><option>Nurse</option><option>Doctor</option><option>Midwife</option><option>Pharmacist</option><option>Physiotherapist</option><option>Radiographer</option><option>Biomedical scientist</option><option>Healthcare assistant</option><option>Other healthcare professional</option></select></label><label>Country of qualification<input id="obQualification" required placeholder="e.g. Nigeria"></label><label>Registration stage<select id="obStage"><option>Just researching</option><option>Preparing documents</option><option>Application started</option><option>Tests in progress</option><option>Registration completed</option></select></label><label>Job-offer status<select id="obJob"><option>No job offer yet</option><option>Currently applying</option><option>Interview arranged</option><option>Job offer received</option></select></label><label>Travelling with dependants?<select id="obDependants"><option value="no">No</option><option value="yes">Yes</option><option value="unsure">Not sure yet</option></select></label><button class="onboardSubmit">Build my journey</button></form><small class="onboardPrivacy">You can change these answers later. This preview saves them on this device.</small></div>';
+  document.body.prepend(section);
+  section.querySelector('#onboardForm').onsubmit=e=>{
+    e.preventDefault();
+    const profile={destination:section.querySelector('#obDestination').value,profession:section.querySelector('#obProfession').value,qualificationCountry:section.querySelector('#obQualification').value.trim(),stage:section.querySelector('#obStage').value,jobStatus:section.querySelector('#obJob').value,dependants:section.querySelector('#obDependants').value};
+    localStorage.setItem('btv-profile',JSON.stringify(profile));
+    showApp();
+  };
+}
+
+function showOnboarding(){
+  buildOnboarding();
+  const profile=userProfile();
+  if(profile){
+    document.getElementById('obDestination').value=profile.destination;
+    document.getElementById('obProfession').value=profile.profession;
+    document.getElementById('obQualification').value=profile.qualificationCountry;
+    document.getElementById('obStage').value=profile.stage;
+    document.getElementById('obJob').value=profile.jobStatus;
+    document.getElementById('obDependants').value=profile.dependants;
+    document.querySelector('#onboarding h1').textContent='Update your journey';
+    document.querySelector('.onboardSubmit').textContent='Save changes';
+  }
+  setVisible(document.getElementById('auth'),false);
+  setVisible(document.getElementById('appShell'),false);
+  setVisible(document.getElementById('onboarding'),true,'grid');
+}
+
+document.getElementById('showSignup').onclick=()=>authTab(false);
+document.getElementById('showLogin').onclick=()=>authTab(true);
+document.getElementById('signupForm').onsubmit=e=>{
+  e.preventDefault();
+  const account={name:document.getElementById('signupName').value.trim(),email:document.getElementById('signupEmail').value.trim().toLowerCase(),password:document.getElementById('signupPassword').value};
+  localStorage.setItem('btv-account',JSON.stringify(account));
+  sessionStorage.setItem('btv-session','yes');
+  showOnboarding();
+};
+document.getElementById('loginForm').onsubmit=e=>{
+  e.preventDefault();
+  const account=authAccount(),email=document.getElementById('loginEmail').value.trim().toLowerCase(),password=document.getElementById('loginPassword').value;
+  if(account&&account.email===email&&account.password===password){
+    sessionStorage.setItem('btv-session','yes');
+    userProfile()?showApp():showOnboarding();
+  }else document.getElementById('loginError').textContent='Email or password not recognised on this device.';
+};
+document.getElementById('logout').onclick=()=>{sessionStorage.removeItem('btv-session');showAuth();authTab(true)};
+buildOnboarding();
+authTab(false);
+authAccount()&&authSession()?(userProfile()?showApp():showOnboarding()):showAuth();
