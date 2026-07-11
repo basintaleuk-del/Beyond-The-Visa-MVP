@@ -1,0 +1,1 @@
+{"name":"Beyond The Visa","short_name":"Beyond Visa","description":"Your relocation companion for a healthcare career abroad.","start_url":"./index.html","scope":"./","display":"standalone","background_color":"#f5f3ed","theme_color":"#133e43","icons":[]}
