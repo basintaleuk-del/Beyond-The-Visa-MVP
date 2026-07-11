@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173f5f">
+  <title>NCLEX Learning | Beyond The Visa</title>
+  <link rel="stylesheet" href="nclex.css">
+</head>
+<body>
+<header class="top">
+  <a href="index.html" class="back">← Dashboard</a>
+  <div><b>Beyond The Visa</b><small>NCLEX Learning Centre</small></div>
+  <button id="logout" type="button">Sign out</button>
+</header>
+<main>
+  <section id="loading" class="panel center"><h1>Loading your NCLEX centre…</h1></section>
+  <section id="app" hidden>
+    <div class="hero">
+      <div><span>NCLEX-RN PREPARATION</span><h1>Think safely. Prioritise. Decide.</h1><p>Practise original NCLEX-style questions, adaptive sessions and timed mock exams.</p></div>
+      <div class="score"><b id="readiness">New</b><small>readiness band</small></div>
+    </div>
+    <div class="stats">
+      <article><small>Answered</small><b id="answered">0</b></article>
+      <article><small>Accuracy</small><b id="accuracy">0%</b></article>
+      <article><small>Bookmarked</small><b id="bookmarked">0</b></article>
+      <article><small>Mock exams</small><b id="mockCount">0</b></article>
+    </div>
+    <div class="tabs">
+      <button class="active" data-view="practice">Practice</button>
+      <button data-view="adaptive">Adaptive</button>
+      <button data-view="mock">Mock exam</button>
+      <button data-view="history">Results</button>
+    </div>
+    <section id="practiceView" class="view active">
+      <div class="filters">
+        <select id="category"><option value="all">All categories</option></select>
+        <select id="difficulty"><option value="all">All difficulties</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+        <button id="loadPractice">New question</button>
+      </div>
+      <div id="practiceCard" class="questionCard"></div>
+    </section>
+    <section id="adaptiveView" class="view">
+      <div id="adaptiveIntro" class="panel">
+        <h2>Adaptive practice</h2>
+        <p>Begin at medium difficulty. Correct answers move the session upward; incorrect answers move it downward. This is a learning simulation, not the official NCLEX CAT algorithm.</p>
+        <label>Session length<select id="adaptiveLength"><option value="5">5 questions</option><option value="10">10 questions</option><option value="15">15 questions</option></select></label>
+        <button id="startAdaptive" class="primary">Start adaptive session</button>
+      </div>
+      <div id="adaptiveExam" hidden><div class="examTop"><b id="adaptiveProgress"></b><span id="adaptiveLevel"></span></div><div id="adaptiveCard" class="questionCard"></div></div>
+      <div id="adaptiveResult" class="panel center" hidden></div>
+    </section>
+    <section id="mockView" class="view">
+      <div id="mockIntro" class="panel"><h2>Timed NCLEX-style mock</h2><p>This starter build uses up to 15 questions from your bank. Add more reviewed questions before commercial release.</p><label>Time limit<select id="mockMinutes"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label><button id="startMock" class="primary">Start mock exam</button></div>
+      <div id="mockExam" hidden><div class="examTop"><b id="mockProgress"></b><time id="timer">30:00</time></div><div id="mockCard" class="questionCard"></div></div>
+      <div id="mockResult" class="panel center" hidden></div>
+    </section>
+    <section id="historyView" class="view"><div class="panel"><h2>Your NCLEX results</h2><div id="historyList"></div></div></section>
+    <p class="disclaimer">Educational practice only. This module is not affiliated with or endorsed by NCSBN. It contains original practice items, not official NCLEX questions.</p>
+  </section>
+</main>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="nclex.js"></script>
+</body>
+</html>

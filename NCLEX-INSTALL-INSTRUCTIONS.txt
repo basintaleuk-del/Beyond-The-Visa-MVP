@@ -1,0 +1,13 @@
+BEYOND THE VISA — NCLEX INSTALLATION
+
+1. Open BTV-NCLEX-SETUP.sql in Notepad.
+2. Copy all of the SQL.
+3. In Supabase, open SQL Editor > New query.
+4. Paste and click Run.
+5. Upload all files in this folder to your existing GitHub repository.
+6. Replace matching files, especially index.html.
+7. Wait for GitHub Pages to redeploy.
+8. Sign in, open Learning, then select Open NCLEX Learning Centre.
+
+Do not put any Supabase secret/service-role key in GitHub.
+The included questions are original starter content and should be independently clinically reviewed and expanded before commercial release.
