@@ -16,6 +16,10 @@ function personalise(){
     stored.country=profile.destination;
     localStorage.setItem('btv-v1',JSON.stringify(stored));
     if(typeof state!=='undefined'){state.country=profile.destination;render()}
+    let card=document.getElementById('profileSummary');
+    if(!card){card=document.createElement('button');card.id='profileSummary';card.type='button';card.style.cssText='width:100%;margin:14px 0 0;padding:13px 15px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);text-align:left;box-shadow:var(--shadow)';document.querySelector('.welcome').after(card)}
+    card.innerHTML=`<b>${profile.profession} · ${country().name}</b><small style="display:block;color:var(--muted);margin-top:4px">${profile.stage} · Edit profile →</small>`;
+    card.onclick=showOnboarding;
   }
 }
 
@@ -62,6 +66,17 @@ function buildOnboarding(){
 
 function showOnboarding(){
   buildOnboarding();
+  const profile=userProfile();
+  if(profile){
+    document.getElementById('obDestination').value=profile.destination;
+    document.getElementById('obProfession').value=profile.profession;
+    document.getElementById('obQualification').value=profile.qualificationCountry;
+    document.getElementById('obStage').value=profile.stage;
+    document.getElementById('obJob').value=profile.jobStatus;
+    document.getElementById('obDependants').value=profile.dependants;
+    document.querySelector('#onboarding h1').textContent='Update your journey';
+    document.querySelector('.onboardSubmit').textContent='Save changes';
+  }
   setVisible(document.getElementById('auth'),false);
   setVisible(document.getElementById('appShell'),false);
   setVisible(document.getElementById('onboarding'),true,'grid');
