@@ -19,3 +19,7 @@ The content is general planning guidance. Immigration and professional registrat
 ## Run
 
 Serve this folder through any static web server or GitHub Pages. Opening `index.html` directly works for most features, but installation and offline caching require HTTPS or localhost.
+
+
+## v15 focus
+This version is designed specifically for internationally educated nurses and midwives. The Learning Centre separates drug calculations from CBT-style questions and explanations.
