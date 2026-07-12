@@ -7,8 +7,8 @@ WHAT IS INCLUDED
 - generate-study-plan: creates and saves personalised learning plans
 - generate-pdf: produces downloadable study-plan/progress PDFs
 - send-email: sends only approved email templates to the signed-in user
-- create-checkout: creates Stripe Checkout from server-approved services
-- stripe-webhook: verifies Stripe signatures and records completed payments
+- create-checkout: creates Paystack Checkout from server-approved services
+- paystack-webhook: verifies Paystack signatures and records completed payments
 
 STEP 1 - DATABASE
 Run supabase/EDGE-FUNCTIONS-SETUP.sql in Supabase Dashboard > SQL Editor.
@@ -24,8 +24,7 @@ RESEND_API_KEY=your Resend API key
 EMAIL_FROM=Beyond The Visa <noreply@your-verified-domain.com>
 
 Optional payments:
-STRIPE_SECRET_KEY=your Stripe secret key
-STRIPE_WEBHOOK_SECRET=your Stripe webhook signing secret
+PAYSTACK_SECRET_KEY=your Paystack secret key
 
 Never add these values to index.html, GitHub files or supabase-client.js.
 
@@ -42,12 +41,13 @@ supabase functions deploy generate-study-plan
 supabase functions deploy generate-pdf
 supabase functions deploy send-email
 supabase functions deploy create-checkout
-supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy paystack-webhook --no-verify-jwt
 
-STEP 4 - STRIPE CATALOG
-Payments remain safely disabled until genuine Stripe Price IDs are configured.
-After creating prices in Stripe, update service_catalog in Supabase and set
-active=true. Never accept an amount or Price ID directly from the browser.
+STEP 4 - PAYSTACK CATALOG
+Run supabase/PAYSTACK-MIGRATION.sql if the earlier Stripe schema was installed.
+Payments remain safely disabled until real amounts and currencies are entered
+in service_catalog and active is set to true. Never accept an amount directly
+from the browser.
 
 STEP 5 - WEBSITE
 Upload index.html, edge-functions-v22.js and edge-functions-v22.css with the
@@ -55,8 +55,8 @@ rest of the website files. Open index.html?edge=22 after GitHub Pages deploys.
 
 SECURITY NOTES
 - All normal functions require a signed-in Supabase user.
-- stripe-webhook is public only because Stripe calls it; the code verifies the
-  Stripe-Signature header before processing anything.
+- paystack-webhook is public only because Paystack calls it; the code verifies
+  the x-paystack-signature header before processing anything.
 - Mock exams are marked from database answer keys, not answers supplied by the
   browser.
 - Email accepts a small allowlist of templates and sends only to the signed-in
