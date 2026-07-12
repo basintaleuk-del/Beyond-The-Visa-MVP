@@ -1,14 +1,14 @@
 (function(){
   'use strict';
   if(window.__btvPremiumV29)return;window.__btvPremiumV29=true;
-  if(!document.querySelector('link[href^="premium-v29.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href='premium-v29.css?v=29';document.head.append(link)}
+  if(!document.querySelector('link[href^="premium-v29.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href='premium-v29.css?v=30.4';document.head.append(link)}
   const sb=window.btvSupabase,$=s=>document.querySelector(s),premiumKey='btv-premium';
   let membership={plan:'free',active:false,subscription:null},price=null,loading=false;
   const symbols={GHS:'GH₵',NGN:'₦',KES:'KSh',ZAR:'R',UGX:'USh',GBP:'£',USD:'US$',CAD:'C$',AUD:'A$',NZD:'NZ$',EUR:'€'};
   function currency(){try{return window.serviceMarket?.().currency||'USD'}catch{return'USD'}}
   function money(p){return p?`${symbols[p.currency]||p.currency+' '}${Number(p.amount).toLocaleString('en-GB',{maximumFractionDigits:2})}`:'Regional price'}
   function fmtDate(value){return value?new Date(value).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'—'}
-  async function invoke(name,body={}){const {data,error}=await sb.functions.invoke(name,{body});if(error){try{const detail=await error.context?.clone().json();throw Error(detail?.error||detail?.message||error.message)}catch(e){if(e.message!==error.message)throw e;throw Error(error.message)}}return data}
+  async function invoke(name,body={}){const {data,error}=await sb.functions.invoke(name,{body});if(error){let message=error.message||`${name} failed`;try{const context=error.context;if(context&&typeof context.json==='function'){const detail=await context.json();message=detail?.error||detail?.message||message}else if(context&&typeof context.text==='function'){const text=await context.text();if(text)message=text}}catch{}throw Error(message)}return data}
   function build(){
     if($('#premium'))return;
     const s=document.createElement('section');s.id='premium';s.className='screen premiumV29';s.innerHTML=`<div class="pageTitle"><button class="back" data-premium-back>←</button><div><span>BEYOND THE VISA PREMIUM</span><h1>Move forward with confidence</h1></div></div><div id="premiumBody"></div>`;document.querySelector('main').append(s);s.querySelector('[data-premium-back]').onclick=()=>window.openScreen?.('home');
