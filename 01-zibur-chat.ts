@@ -26,12 +26,22 @@ async function requireUser(req:Request){
   return data.user;
 }
 async function rateLimit(userId:string,action:string,limit:number,windowSeconds=60){
-  const db=admin(),since=new Date(Date.now()-windowSeconds*1000).toISOString();
-  const {count}=await db.from('edge_usage_events').select('*',{count:'exact',head:true}).eq('user_id',userId).eq('action',action).gte('created_at',since);
-  if((count||0)>=limit)throw Object.assign(Error('Too many requests. Please wait and try again.'),{status:429});
-  await db.from('edge_usage_events').insert({user_id:userId,action});
+  // Rate limiting should never take the whole assistant offline if the optional
+  // usage table has not been created yet. Log the problem and continue.
+  try{
+    const db=admin(),since=new Date(Date.now()-windowSeconds*1000).toISOString();
+    const {count,error:countError}=await db.from('edge_usage_events').select('*',{count:'exact',head:true}).eq('user_id',userId).eq('action',action).gte('created_at',since);
+    if(countError){console.warn('Rate-limit lookup skipped:',countError.message);return}
+    if((count||0)>=limit)throw Object.assign(Error('Too many requests. Please wait and try again.'),{status:429});
+    const {error:insertError}=await db.from('edge_usage_events').insert({user_id:userId,action});
+    if(insertError)console.warn('Rate-limit event was not saved:',insertError.message);
+  }catch(error){
+    const e=error as {status?:number};
+    if(e?.status===429)throw error;
+    console.warn('Rate limiting unavailable; request allowed.',error);
+  }
 }
-function fail(error:unknown){const e=error as {message?:string;status?:number};console.error(e);return json({error:e.message||'Unexpected server error.'},e.status||500)}
+function fail(error:unknown){const e=error as {message?:string;status?:number};console.error(e);const message=e.message||'Unexpected server error.';const code=message.includes('AI service is not configured')?'OPENAI_NOT_CONFIGURED':message.includes('session')?'AUTH_ERROR':'ZIBUR_ERROR';return json({error:message,code},e.status||500)}
 
 async function openai(instructions:string,input:unknown,maxOutput=1200){
   const key=Deno.env.get('OPENAI_API_KEY');if(!key)throw Object.assign(Error('AI service is not configured.'),{status:503});
