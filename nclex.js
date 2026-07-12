@@ -1,10 +1,21 @@
+async function verifyPremiumAccess(session){
+ const normalize=v=>{v=String(v||'').trim().toLowerCase();if(['uk','gb','united kingdom'].includes(v))return'uk';if(['us','usa','united states','united states of america'].includes(v))return'us';if(['ca','canada'].includes(v))return'ca';return v};
+ let destination='';try{destination=normalize(JSON.parse(localStorage.getItem('btv-v1')||'{}').country)}catch{}
+ const {data:profile,error}=await sb.from('profiles').select('destination,account_type,role').eq('id',session.user.id).maybeSingle();
+ if(error)console.warn('Premium access check failed',error);
+ if(profile)destination=normalize(profile.destination)||destination;
+ const premium=profile&&(String(profile.account_type).toLowerCase()==='premium'||String(profile.role).toLowerCase()==='admin');
+ const allowed=['us', 'ca'].includes(destination);
+ if(premium&&allowed)return true;
+ document.body.innerHTML=`<main style="max-width:620px;margin:8vh auto;padding:24px;font-family:Inter,system-ui;color:#173438"><section style="background:#fff;border:1px solid #dfe6e4;border-radius:24px;padding:28px;box-shadow:0 16px 45px rgba(18,63,67,.12)"><div style="font-size:42px">🔒</div><h1 style="font-family:Georgia,serif">NCLEX Premium access required</h1><p style="line-height:1.6;color:#667">${!allowed?'This learning centre is not included for your selected destination. Change your destination in Beyond The Visa to access the relevant examination centre.':'Purchase Premium membership to unlock the full question bank, explanations, progress tracking and mock exams.'}</p><a href="index.html" style="display:inline-block;padding:12px 16px;border-radius:12px;background:#133e43;color:white;text-decoration:none;font-weight:800">Return to Beyond The Visa</a></section></main>`;return false;
+}
 const sb=window.btvSupabase,$=id=>document.getElementById(id);
 let user=null,questions=[],current=null,selected=new Set(),answeredCurrent=false,bookmarks=new Set();
 let session=[],sessionIndex=0,sessionCorrect=0,sessionAnswers=[],sessionMode='mock',adaptiveDifficulty='medium';
 let timerId=null,remaining=1800,startedAt=0;
 const order={easy:0,medium:1,hard:2};
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2300)}
-async function init(){const {data:{session:s}}=await sb.auth.getSession();if(!s){location.href='index.html';return}user=s.user;$('loading').hidden=true;$('app').hidden=false;await Promise.all([loadQuestions(),loadBookmarks(),refreshStats(),loadHistory()]);bind();populateCategories();showPractice()}
+async function init(){const {data:{session:s}}=await sb.auth.getSession();if(!s){location.href='index.html';return}if(!await verifyPremiumAccess(s))return;user=s.user;$('loading').hidden=true;$('app').hidden=false;await Promise.all([loadQuestions(),loadBookmarks(),refreshStats(),loadHistory()]);bind();populateCategories();showPractice()}
 function bind(){document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('category').onchange=showPractice;$('difficulty').onchange=showPractice;$('loadPractice').onclick=showPractice;$('startAdaptive').onclick=startAdaptive;$('startMock').onclick=startMock;$('logout').onclick=async()=>{await sb.auth.signOut();location.href='index.html'}}
 async function loadQuestions(){const {data,error}=await sb.from('nclex_questions').select('*').eq('is_active',true);if(error){toast(error.message);return}questions=data||[]}
 async function loadBookmarks(){const {data}=await sb.from('nclex_bookmarks').select('question_id').eq('user_id',user.id);bookmarks=new Set((data||[]).map(x=>x.question_id))}

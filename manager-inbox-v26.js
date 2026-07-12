@@ -30,19 +30,7 @@
     try{
       const {data,error}=await sb.functions.invoke('zibur-chat',{body:{question,history:history.slice(-10),context:context()}});if(error)throw error;
       const answer=data?.answer||'I could not prepare an answer just now.';wait.textContent=answer;wait.classList.remove('ziburThinking');history.push({role:'user',content:question},{role:'assistant',content:answer});localStorage.setItem('btv-zibur-history',JSON.stringify(history.slice(-20)));record('zibur_question','Zibur conversation',question,{assistant_answer:answer,recent_history:history.slice(-8),destination:context().country},'normal').then(request=>localStorage.setItem('btv-last-zibur-request',request.id)).catch(error=>console.warn('Conversation log:',error.message))
-    }catch(error){
-      console.warn('Zibur secure service:',error);
-      // Supabase FunctionHttpError often exposes only “non-2xx status code”.
-      // Keep the assistant useful by falling back to the app's local guide.
-      let fallback='';
-      try{if(typeof window.contextualZibur==='function')fallback=window.contextualZibur(question)}catch{}
-      wait.textContent=fallback||'I could not reach the secure AI service. Please try again shortly.';
-      wait.classList.remove('ziburThinking');
-      if(fallback){
-        history.push({role:'user',content:question},{role:'assistant',content:fallback});
-        localStorage.setItem('btv-zibur-history',JSON.stringify(history.slice(-20)));
-      }
-    }
+    }catch(error){wait.textContent=error.message||'I could not reach the secure AI service. Please try again.';wait.classList.remove('ziburThinking')}
   }
   document.addEventListener('submit',event=>{
     if(event.target?.id==='chatForm'){
