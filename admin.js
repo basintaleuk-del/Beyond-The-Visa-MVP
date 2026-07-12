@@ -1,6 +1,6 @@
 import './admin-inbox-v26.js?v=26';
 import './admin-premium-v29.js?v=29';
-import './admin-platform-v30.js?v=30';
+import './admin-platform-v30.js?v=30.2';
 const sb=window.btvSupabase;
 const state={profiles:[],cbt:[],nclex:[],editing:null};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
