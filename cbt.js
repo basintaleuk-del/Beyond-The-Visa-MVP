@@ -1,17 +1,6 @@
-async function verifyPremiumAccess(session){
- const normalize=v=>{v=String(v||'').trim().toLowerCase();if(['uk','gb','united kingdom'].includes(v))return'uk';if(['us','usa','united states','united states of america'].includes(v))return'us';if(['ca','canada'].includes(v))return'ca';return v};
- let destination='';try{destination=normalize(JSON.parse(localStorage.getItem('btv-v1')||'{}').country)}catch{}
- const {data:profile,error}=await sb.from('profiles').select('destination,account_type,role').eq('id',session.user.id).maybeSingle();
- if(error)console.warn('Premium access check failed',error);
- if(profile)destination=normalize(profile.destination)||destination;
- const premium=profile&&(String(profile.account_type).toLowerCase()==='premium'||String(profile.role).toLowerCase()==='admin');
- const allowed=['uk'].includes(destination);
- if(premium&&allowed)return true;
- document.body.innerHTML=`<main style="max-width:620px;margin:8vh auto;padding:24px;font-family:Inter,system-ui;color:#173438"><section style="background:#fff;border:1px solid #dfe6e4;border-radius:24px;padding:28px;box-shadow:0 16px 45px rgba(18,63,67,.12)"><div style="font-size:42px">🔒</div><h1 style="font-family:Georgia,serif">CBT Premium access required</h1><p style="line-height:1.6;color:#667">${!allowed?'This learning centre is not included for your selected destination. Change your destination in Beyond The Visa to access the relevant examination centre.':'Purchase Premium membership to unlock the full question bank, explanations, progress tracking and mock exams.'}</p><a href="index.html" style="display:inline-block;padding:12px 16px;border-radius:12px;background:#133e43;color:white;text-decoration:none;font-weight:800">Return to Beyond The Visa</a></section></main>`;return false;
-}
 const sb=window.btvSupabase,$=id=>document.getElementById(id);let user=null,questions=[],current=null,answeredCurrent=false,bookmarks=new Set(),mock=[],mockIndex=0,mockCorrect=0,mockAnswers=[],timerId=null,remaining=1200,startedAt=0;
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
-async function init(){const {data:{session}}=await sb.auth.getSession();if(!session){location.href='index.html';return}if(!await verifyPremiumAccess(session))return;user=session.user;$('loading').hidden=true;$('app').hidden=false;await Promise.all([loadQuestions(),loadBookmarks(),refreshStats(),loadHistory()]);bind();populateSubjects();showPractice()}
+async function init(){const {data:{session}}=await sb.auth.getSession();if(!session){location.href='index.html';return}user=session.user;$('loading').hidden=true;$('app').hidden=false;await Promise.all([loadQuestions(),loadBookmarks(),refreshStats(),loadHistory()]);bind();populateSubjects();showPractice()}
 function bind(){document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('profession').onchange=()=>{populateSubjects();showPractice()};$('subject').onchange=showPractice;$('loadPractice').onclick=showPractice;$('startMock').onclick=startMock;$('logout').onclick=async()=>{await sb.auth.signOut();location.href='index.html'}}
 async function loadQuestions(){const {data,error}=await sb.from('cbt_questions').select('*').eq('is_active',true);if(error){toast(error.message);return}questions=data||[]}
 async function loadBookmarks(){const {data}=await sb.from('cbt_bookmarks').select('question_id').eq('user_id',user.id);bookmarks=new Set((data||[]).map(x=>x.question_id))}

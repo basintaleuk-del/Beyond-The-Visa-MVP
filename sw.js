@@ -1,4 +1,4 @@
-const CACHE_NAME='beyond-the-visa-v25';
+const CACHE_NAME='beyond-the-visa-v30';
 
 self.addEventListener('install',()=>self.skipWaiting());
 
@@ -17,4 +17,16 @@ self.addEventListener('fetch',event=>{
       .then(response=>response)
       .catch(()=>caches.match(event.request))
   );
+});
+
+self.addEventListener('push',event=>{
+  let data={title:'Beyond The Visa',body:'You have a new update.',url:'./index.html'};
+  try{data={...data,...event.data.json()}}catch{}
+  event.waitUntil(self.registration.showNotification(data.title,{body:data.body,icon:'./logo-v20.png',badge:'./logo-v20.png',data:{url:data.url||'./index.html',notificationId:data.notificationId},tag:data.notificationId||'btv-update'}));
+});
+
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  const url=new URL(event.notification.data?.url||'./index.html',self.location.origin).href;
+  event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(windows=>{for(const client of windows){if('focus'in client){client.navigate(url);return client.focus()}}return clients.openWindow(url)}));
 });
