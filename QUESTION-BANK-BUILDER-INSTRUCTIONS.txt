@@ -1,0 +1,39 @@
+BEYOND THE VISA - QUESTION BANK BUILDER V8
+
+WHAT THIS FIXES
+The admin portal previously showed 10 CBT and 14 NCLEX questions because those
+were the real records in Supabase. The learner app's "1,000" label did not mean
+that 1,000 database records existed.
+
+UPLOAD
+1. Extract the ZIP file.
+2. Upload all six files to the TOP LEVEL of the GitHub repository.
+3. Replace files with the same names and commit the changes.
+4. Open admin.html with a fresh version query, for example:
+   admin.html?bankbuilder=8
+
+FILES
+- admin.html
+- admin.css
+- admin-bank-tools.css
+- admin.js
+- admin-bank-tools.js
+- question-factory.js
+
+BUILD THE RECORDS
+1. Sign in with the administrator account and open Overview.
+2. In Question bank builder, click "Build missing CBT drafts".
+3. Confirm and leave the page open until it finishes.
+4. Repeat for NCLEX.
+5. The overview cards will then show 1,000 real database records for each bank.
+
+IMPORTANT CLINICAL REVIEW
+Generated records are intentionally saved with is_active=false. They are hidden
+from learners. A suitably qualified clinical reviewer must check the wording,
+correct answer, rationale, relevance and current national guidance before each
+record is activated. A database record count is not evidence that 1,000 items
+have been independently authored or clinically validated.
+
+The operation is restart-safe. If the connection stops partway through, press
+the build button again; it will keep completed batches and add only what is
+still missing.
