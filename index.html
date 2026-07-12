@@ -606,4 +606,45 @@ installBrandArtwork();buildLegalCentre();buildFeedback();installCookieNotice();
  setTimeout(window.renderDashboardInsights,400);
 })();
 </script>
-<script src="storage-v21.js?v=21"></script><script src="edge-functions-v22.js?v=24"></script><script src="cbt-launcher.js?v=1"></script><script src="nclex-launcher.js?v=1"></script><script src="admin-launcher.js?v=1"></script></body></html>
+<script src="storage-v21.js?v=21"></script><script src="edge-functions-v22.js?v=26"></script><script src="cbt-launcher.js?v=1"></script><script src="nclex-launcher.js?v=1"></script><script src="admin-launcher.js?v=1"></script><script src="manager-inbox-v26.js?v=26"></script>
+<script>
+/* Paystack reliability bridge v25. Kept inline so stale external-script caches cannot restore preview booking. */
+(function(){
+ if(window.__btvPaystackInlineV25)return;window.__btvPaystackInlineV25=true;
+ const $=s=>document.querySelector(s);
+ function message(text,error=false){if(typeof window.toast==='function')window.toast(text);else alert(text);if(error)console.error(text)}
+ function setButton(button,busy,label){if(!button)return;button.disabled=busy;if(!button.dataset.originalText)button.dataset.originalText=button.textContent;button.textContent=busy?label:button.dataset.originalText}
+ async function checkout(serviceCode,button,requestDetails={}){
+  const success=serviceCode==='mock_interview'?$('#bookingSuccess'):$('#cvSuccess');if(success)success.hidden=true;
+  setButton(button,true,'Opening secure Paystack…');
+  try{
+   if(!window.btvSupabase?.functions)throw new Error('Secure payment connection is still loading. Refresh the page and try again.');
+   const requestType=serviceCode==='mock_interview'?'interview_booking':serviceCode==='cv_writing'?'cv_request':'premium_request';
+   await window.BTVManagerInbox?.record(requestType,requestDetails.subject||'Paid service request',requestDetails.message||'',{...requestDetails,service_code:serviceCode,payment_status:'checkout_started'},serviceCode==='mock_interview'?'high':'normal');
+   const result=await window.btvSupabase.functions.invoke('create-checkout',{body:{service_code:serviceCode}});
+   if(result.error)throw result.error;const url=result.data?.url||result.data?.authorization_url;
+   if(!url)throw new Error(result.data?.error||'Paystack did not return a checkout link.');window.location.assign(url)
+  }catch(error){setButton(button,false);message(error?.message||'Unable to open Paystack. Please try again.',true)}
+ }
+ async function freeTrial(form){
+  const request={id:Date.now(),name:$('#coachName')?.value.trim(),email:$('#coachEmail')?.value.trim(),package:'trial',role:$('#coachRole')?.value.trim(),interviewDate:$('#coachDate')?.value,notes:$('#coachNotes')?.value.trim(),status:'Free trial requested'};
+  const all=JSON.parse(localStorage.getItem('btv-coaching-requests')||'[]');all.push(request);localStorage.setItem('btv-coaching-requests',JSON.stringify(all));
+  try{await window.BTVManagerInbox?.record('interview_booking','Free trial interview request',request.notes,{package:'trial',role:request.role,interview_date:request.interviewDate,user_name:request.name,user_email:request.email},'normal')}catch(error){message(error.message,true);return}
+  const success=$('#bookingSuccess');if(success){success.hidden=false;success.className='bookingSuccess';success.innerHTML='<b>Free trial request sent.</b><br>No payment is required. Your booking details are now visible to the support team.';success.scrollIntoView({behavior:'smooth'})}
+  const button=form.querySelector('button[type="submit"],button');if(button)button.textContent='Free trial requested ✓'
+ }
+ function refreshCopy(){
+  const coaching=$('#coaching .paymentNote');if(coaching&&!coaching.dataset.paystackV25){coaching.dataset.paystackV25='yes';coaching.innerHTML='<b>Secure Paystack checkout connected.</b> Free trials require no payment. Paid packages open Paystack. <span style="color:var(--teal)">Test checkout currently charges GH₵1.</span>'}
+  const cv=$('#cvBooking .paymentNote');if(cv&&!cv.dataset.paystackV25){cv.dataset.paystackV25='yes';cv.innerHTML='<b>Secure Paystack checkout connected.</b> Paid CV services open Paystack. <span style="color:var(--teal)">Test checkout currently charges GH₵1.</span>'}
+  document.querySelectorAll('.previewNote').forEach(x=>{if(!x.dataset.paystackV25&&x.textContent.toLowerCase().includes('payment')){x.dataset.paystackV25='yes';x.textContent='Premium payments open secure Paystack checkout.'}});
+  document.body.dataset.paymentBridge='v25'
+ }
+ document.addEventListener('submit',event=>{
+  if(event.target?.id==='coachingForm'){event.preventDefault();event.stopImmediatePropagation();if($('#coachPackage')?.value==='trial')freeTrial(event.target);else checkout('mock_interview',event.target.querySelector('button[type="submit"],button'),{subject:'Paid mock interview booking',message:$('#coachNotes')?.value,package:$('#coachPackage')?.value,role:$('#coachRole')?.value,interview_date:$('#coachDate')?.value,user_name:$('#coachName')?.value,user_email:$('#coachEmail')?.value,displayed_price:window.servicePrice?.($('#coachPackage')?.value)})}
+  else if(event.target?.id==='cvForm'){event.preventDefault();event.stopImmediatePropagation();checkout('cv_writing',event.target.querySelector('button[type="submit"],button'),{subject:'CV support request',message:$('#cvNotes')?.value,service:$('#cvService')?.value,target_role:$('#cvRole')?.value,deadline:$('#cvDeadline')?.value})}
+ },true);
+ document.addEventListener('click',event=>{const button=event.target.closest('[data-premium-request]');if(!button)return;event.preventDefault();event.stopImmediatePropagation();checkout('premium_membership',button,{subject:'Premium membership request',message:'User opened Premium checkout.'})},true);
+ document.addEventListener('change',event=>{if(event.target?.id==='coachPackage'){const success=$('#bookingSuccess');if(success)success.hidden=true;refreshCopy()}},true);
+ refreshCopy();new MutationObserver(refreshCopy).observe(document.body,{childList:true,subtree:true})
+})();
+</script></body></html>
