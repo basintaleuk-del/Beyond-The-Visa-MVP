@@ -1,4 +1,4 @@
-const CACHE_NAME='beyond-the-visa-v50';
+const CACHE_NAME='beyond-the-visa-v51';
 
 self.addEventListener('install',()=>self.skipWaiting());
 
