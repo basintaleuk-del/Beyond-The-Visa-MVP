@@ -21,6 +21,8 @@
   const learning=q('.dashboardColumns .dashboardPanel:nth-child(2)');interactive(learning,'Open learning focus',()=>open('learn'));
   const motivation=q('#homeWelcomeArt');interactive(motivation,'Open encouragement and learning choices',()=>show({eyebrow:'YOUR FUTURE IS MOVING',title:'You can make this journey too',text:'International nurses and midwives successfully relocate by taking the process one verified step at a time. Beyond The Visa helps members organise those same essential steps—learning, evidence, registration, applications and relocation planning. Your circumstances are individual and outcomes are never guaranteed, but steady preparation can move you closer.',actions:[{label:'Continue learning',target:'learn'},{label:'Read articles',target:'articles'}]}));
  }
- function restoreHome(){if(sessionStorage.getItem('btv-return-home')==='yes'||new URLSearchParams(location.search).get('home')==='1'){sessionStorage.removeItem('btv-return-home');setTimeout(()=>open('home'),700)}}
+ function resetHomeScroll(){if(q('#home')?.classList.contains('active'))scrollTo({top:0,left:0,behavior:'auto'})}
+ function restoreHome(){if('scrollRestoration'in history)history.scrollRestoration='manual';const requested=sessionStorage.getItem('btv-return-home')==='yes'||new URLSearchParams(location.search).get('home')==='1';if(requested)sessionStorage.removeItem('btv-return-home');const restore=()=>{if(requested)open('home');resetHomeScroll()};setTimeout(restore,40);setTimeout(restore,750)}
+ window.addEventListener('pageshow',()=>{resetHomeScroll();setTimeout(resetHomeScroll,250)});
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>{wire();restoreHome()}):(wire(),restoreHome());setTimeout(wire,500);setTimeout(wire,1600);new MutationObserver(wire).observe(document.documentElement,{childList:true,subtree:true});
 })();
