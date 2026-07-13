@@ -1,0 +1,11 @@
+.btvInteractive{cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.btvInteractive:hover{transform:translateY(-2px);box-shadow:0 14px 30px #123f4320!important;border-color:#75aaa6!important}
+.btvInteractive:focus-visible{outline:3px solid #d9b755;outline-offset:3px}
+header .brand.btvHomeBrand{cursor:pointer;border-radius:14px;padding:4px;transition:background .18s ease}
+header .brand.btvHomeBrand:hover{background:var(--mint)}
+.btvClickHint{display:block;margin-top:7px;color:var(--teal);font-size:10px;font-weight:900}
+.btvInfoDialog{width:min(92vw,560px);border:0;border-radius:24px;padding:0;background:var(--card);color:var(--ink);box-shadow:0 26px 70px #071c1f55}
+.btvInfoDialog::backdrop{background:#071c1fb5;backdrop-filter:blur(3px)}
+.btvInfoBody{padding:24px}.btvInfoBody>span{display:block;color:var(--teal);font-size:10px;letter-spacing:.14em;font-weight:900}.btvInfoBody h2{font:27px Georgia,serif;margin:7px 0 10px}.btvInfoBody p{color:var(--muted);line-height:1.6}.btvInfoActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.btvInfoActions button{border:0;border-radius:11px;padding:11px 14px;background:var(--brand);color:#fff;font-weight:900}.btvInfoActions button.secondary{background:var(--mint);color:var(--teal)}
+body.dark .btvInfoDialog{background:#1d3033;color:#f5f8f7}
+
