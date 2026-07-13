@@ -9,11 +9,11 @@
 </head>
 <body>
 <header class="top">
-  <a href="index.html" class="back" data-exam-back>← Back</a>
+  <a href="index.html?screen=learn" class="back" data-exam-back>← Back to Learn</a>
   <div><b>Beyond The Visa</b><small>NCLEX Learning Centre</small></div>
   <button id="logout" type="button">Sign out</button>
 </header>
-<script>document.querySelector('[data-exam-back]').addEventListener('click',event=>{if(document.referrer&&new URL(document.referrer).origin===location.origin){event.preventDefault();history.back()}})</script><main>
+<script>document.querySelector('[data-exam-back]').addEventListener('click',event=>{event.preventDefault();sessionStorage.setItem('btv-return-screen','learn');location.href='index.html?screen=learn'})</script><main>
   <section id="loading" class="panel center"><h1>Loading your NCLEX centre…</h1></section>
   <section id="app" hidden>
     <div class="hero">
