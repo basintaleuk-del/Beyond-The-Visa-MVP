@@ -21,7 +21,7 @@
     const old=$('#ziburConnection');if(old)old.remove();
     if(!$('#ziburInboxStyle')){const style=document.createElement('style');style.id='ziburInboxStyle';style.textContent='.ziburLiveStatus{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--mint),var(--card));border:1px solid var(--line);border-radius:17px;padding:14px;margin:12px 0;box-shadow:var(--shadow)}.ziburLiveStatus>span{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,var(--gold),var(--teal));color:#fff;display:grid;place-items:center;font-size:20px;flex:none}.ziburLiveStatus b,.ziburLiveStatus small{display:block}.ziburLiveStatus small{color:var(--muted);margin-top:4px;line-height:1.4}';document.head.append(style)}
     const intro=$('#assistant .ayoIntro');if(!intro||$('#ziburLiveStatus'))return;
-    const card=document.createElement('div');card.id='ziburLiveStatus';card.className='ziburLiveStatus';card.innerHTML='<span>✦</span><div><b>Secure Zibur AI is connected</b><small>Questions and answers may be stored in the protected support inbox so the team can assist you. Never enter private patient-identifiable information.</small></div>';intro.after(card);
+    const card=document.createElement('div');card.id='ziburLiveStatus';card.className='ziburLiveStatus';card.innerHTML='<span>✦</span><div><b>Secure Zibur assistant</b><small>Zibur uses the protected AI service when available and built-in journey guidance if the service is temporarily unavailable. Never enter private patient-identifiable information.</small></div>';intro.after(card);
   }
   function bubble(text,user=false,thinking=false){const box=$('#chat');if(!box)return null;const item=document.createElement('article');item.className=(user?'user ':'')+(thinking?'ziburThinking':'');item.textContent=text;box.append(item);item.scrollIntoView({behavior:'smooth',block:'nearest'});return item}
   function context(){const profile=JSON.parse(localStorage.getItem('btv-profile')||'null'),journey=JSON.parse(localStorage.getItem('btv-v1')||'{}'),tracked=JSON.parse(localStorage.getItem('btv-stage-tracker')||'{}');return{profile,country:profile?.destination||journey.country,tracked,costs:journey.costs||{}}}
@@ -31,7 +31,13 @@
     try{
       const {data,error}=await sb.functions.invoke('zibur-chat',{body:{question,history:history.slice(-10),context:context()}});if(error)throw error;
       const answer=data?.answer||'I could not prepare an answer just now.';wait.textContent=answer;wait.classList.remove('ziburThinking');history.push({role:'user',content:question},{role:'assistant',content:answer});localStorage.setItem('btv-zibur-history',JSON.stringify(history.slice(-20)));record('zibur_question','Zibur conversation',question,{assistant_answer:answer,recent_history:history.slice(-8),destination:context().country},'normal').then(request=>localStorage.setItem('btv-last-zibur-request',request.id)).catch(error=>console.warn('Conversation log:',error.message))
-    }catch(error){wait.textContent=await readableError(error);wait.classList.remove('ziburThinking')}
+    }catch(error){
+      console.warn('Secure Zibur service:',await readableError(error));
+      const fallback=typeof window.contextualZibur==='function'?window.contextualZibur(question):typeof contextualZibur==='function'?contextualZibur(question):'';
+      wait.textContent=fallback||'Zibur is temporarily using offline guidance. Please open Journey to review your next unchecked step and its official source.';
+      wait.classList.remove('ziburThinking');
+      history.push({role:'user',content:question},{role:'assistant',content:wait.textContent});localStorage.setItem('btv-zibur-history',JSON.stringify(history.slice(-20)));
+    }
   }
   document.addEventListener('submit',event=>{
     if(event.target?.id==='chatForm'){
