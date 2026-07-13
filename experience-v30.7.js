@@ -3,7 +3,7 @@
  if(window.__btvExperienceV307)return;window.__btvExperienceV307=true;
  if(!document.querySelector('link[href^="experience-v30.7.css"]'))document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="experience-v30.7.css?v=30.7">');
  if(!document.querySelector('link[rel="manifest"]'))document.head.insertAdjacentHTML('beforeend','<link rel="manifest" href="manifest.json?v=30.7">');
- if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=44').catch(error=>console.warn('Offline support:',error.message)),{once:true});
+ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=45').catch(error=>console.warn('Offline support:',error.message)),{once:true});
  const $=s=>document.querySelector(s);
  let originalMemberOpen=null,queued=false;
  function closeMenu(){const x=$('#appMenuBackdrop');if(x)x.hidden=true;document.body.style.overflow=''}

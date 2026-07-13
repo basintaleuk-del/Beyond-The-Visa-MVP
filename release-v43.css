@@ -1,8 +1,4 @@
-#appShell header .brand{width:min(390px,44vw);height:72px;padding:4px 8px;border-radius:18px;overflow:hidden;background:#eef4f2;transition:background .25s,box-shadow .25s}
-.btvAdaptiveBrand{display:block;width:100%;height:100%;object-fit:contain;border-radius:13px;transition:filter .3s,opacity .3s}
-body:not(.dark) #appShell header .brand{background:#edf5f3;box-shadow:0 5px 18px #153d4316}
-body:not(.dark) .btvAdaptiveBrand{filter:brightness(1.55) contrast(.82) saturate(.88)}
-body.dark #appShell header .brand{background:#11191b;box-shadow:0 5px 22px #0008}
-body.dark .btvAdaptiveBrand{filter:brightness(.92) contrast(1.08) saturate(1.05)}
-@media(max-width:650px){#appShell header .brand{width:min(285px,58vw);height:62px;padding:3px 5px}#appShell header{height:78px}}
-@media(max-width:430px){#appShell header .brand{width:min(230px,55vw);height:56px;border-radius:14px}.btvAdaptiveBrand{border-radius:10px}}
+#appShell header .brand{width:min(430px,47vw);height:72px;padding:0;overflow:visible;background:transparent!important;box-shadow:none!important}
+.btvAdaptiveBrand{display:block;width:100%;height:100%;background-image:url('site-logo.png?v=45');background-repeat:no-repeat;background-position:center 47%;background-size:128% auto;filter:none!important;opacity:1}
+@media(max-width:650px){#appShell header .brand{width:min(310px,61vw);height:62px}#appShell header{height:78px}.btvAdaptiveBrand{background-size:132% auto}}
+@media(max-width:430px){#appShell header .brand{width:min(245px,58vw);height:56px}.btvAdaptiveBrand{background-size:138% auto}}
