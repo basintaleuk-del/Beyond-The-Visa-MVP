@@ -1,0 +1,30 @@
+BEYOND THE VISA v31 DEPLOYMENT
+
+1. In Supabase Dashboard, open SQL Editor.
+2. Run 006_terms_and_profile_sync.sql once.
+3. Confirm BTV-STORAGE-SETUP.sql has already been run so the private
+   btv-user-files bucket and per-user policies exist. If not, run it once.
+4. Deploy all website files, including:
+   - index.html
+   - platform-v30.js
+   - release-v31.js
+   - release-v31.css
+   - terms-and-conditions.html
+   - privacy-policy.html
+5. Replace the clearly marked operator identity, address, privacy email,
+   governing law, court and consumer-dispute placeholders before commercial
+   launch. Have the final policies reviewed for the actual operating country.
+6. Test with a new account, a free account, a premium account and two devices.
+
+ACCEPTANCE RECORDS
+
+New signups must tick the Terms and Privacy acceptance box. The accepted
+version and timestamp are stored in Supabase auth metadata and copied into the
+profiles table when onboarding is saved.
+
+PROFILE PHOTOS
+
+Photos are stored privately at <user-id>/avatar/profile.<extension> in the
+btv-user-files bucket. The profiles.avatar_path column stores only the private
+object path. Signed-in users can access only their own folder.
+
