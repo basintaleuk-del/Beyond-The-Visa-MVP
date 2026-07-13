@@ -13,16 +13,21 @@
    dashboardQueued=false;
    const shell=document.getElementById('appShell'),home=document.getElementById('home');
    if(!shell||shell.hidden||!home||!home.classList.contains('active'))return;
-   const dashboard=document.getElementById('dashboardV3');
-   if((!dashboard||!dashboard.innerHTML.trim())&&typeof window.renderDashboardInsights==='function'){
+   if(typeof window.renderDashboardInsights==='function'){
     try{window.renderDashboardInsights()}catch(error){console.warn('Dashboard recovery:',error.message)}
    }
   });
  }
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',installBrand):installBrand();
- document.addEventListener('pageshow',restoreDashboard);
+ function restoreHomeAfterRefresh(){
+  const navigation=performance.getEntriesByType?.('navigation')?.[0];if(navigation?.type!=='reload')return;
+  const url=new URL(location.href);url.searchParams.delete('screen');history.replaceState(history.state,'',url);
+  const home=()=>{if(typeof window.openScreen==='function')window.openScreen('home');restoreDashboard()};
+  setTimeout(home,50);setTimeout(home,650);setTimeout(home,1500);
+ }
+ document.addEventListener('pageshow',()=>{restoreHomeAfterRefresh();restoreDashboard()});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)restoreDashboard()});
  document.addEventListener('click',event=>{if(event.target.closest('[data-open="home"],.brand'))setTimeout(restoreDashboard,50)},true);
  setTimeout(()=>{installBrand();restoreDashboard()},300);setTimeout(()=>{installBrand();restoreDashboard()},900);setTimeout(restoreDashboard,1800);setTimeout(restoreDashboard,3200);
- new MutationObserver(()=>{installBrand();restoreDashboard()}).observe(document.documentElement,{childList:true,subtree:true});
+ new MutationObserver(installBrand).observe(document.documentElement,{childList:true,subtree:true});
 })();

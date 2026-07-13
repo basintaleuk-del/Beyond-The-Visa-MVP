@@ -1,7 +1,7 @@
 (()=>{
  'use strict';
  if(window.__btvReleaseV38)return;window.__btvReleaseV38=true;
- const requested=new URLSearchParams(location.search).get('screen')==='learn'||sessionStorage.getItem('btv-return-screen')==='learn';
+ const requested=sessionStorage.getItem('btv-return-screen')==='learn';
  if(!requested)return;
  sessionStorage.removeItem('btv-return-screen');
  const restore=()=>{
