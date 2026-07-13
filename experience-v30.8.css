@@ -1,0 +1,17 @@
+body.dark #learn{color:var(--ink)}
+body.dark #learn .pageTitle,body.dark #learn .pageTitle h1,body.dark #learn .lessonCard h2,body.dark #learn .calcCard h2,body.dark #learn .cultureCard h2,body.dark #learn .cvService h2{color:#f0f5f4}
+body.dark #learn .learningLibrary .libraryTile,body.dark #learn .lessonCard,body.dark #learn .calcCard,body.dark #learn .cultureCard,body.dark #learn .cvService,body.dark #learn .examDestinationNote{background:#172426!important;border-color:#304245!important;color:#f0f5f4!important;box-shadow:none}
+body.dark #learn .libraryTile b,body.dark #learn .libraryTile>span:last-child,body.dark #learn .examDestinationNote b{color:#edf5f3}
+body.dark #learn .libraryTile small,body.dark #learn .lessonCard p,body.dark #learn .cultureCard p,body.dark #learn .cvService p,body.dark #learn .examDestinationNote small,body.dark #learn .cvSteps small{color:#adbfbd}
+body.dark #learn .learnTabs{background:#19292b;border:1px solid #304245}
+body.dark #learn .learnTabs button{color:#c9d8d6!important}
+body.dark #learn .learnTabs button.active{background:#2b8987!important;color:#fff!important;box-shadow:none}
+body.dark #learn .learnPanel.active{display:block!important;visibility:visible!important;opacity:1!important}
+body.dark #learn .proofGrid article,body.dark #learn .cultureThemes article,body.dark #learn .doDont section,body.dark #learn .calcPad button{background:#202f31!important;border-color:#3b4c4f!important;color:#eef5f4!important}
+body.dark #learn .proofGrid small,body.dark #learn .cultureThemes small,body.dark #learn .doDont li{color:#b5c4c2!important}
+body.dark #learn .calcAnswer input,body.dark #learn .cvBooking input,body.dark #learn .cvBooking select,body.dark #learn .cvBooking textarea{background:#101a1c!important;border-color:#3a4c4e!important;color:#f5f8f7!important}
+body.dark #learn .calcFeedback{border:1px solid #3a4c4e}body.dark #learn .calcFeedback.good{background:#16372d;color:#b8eed8}body.dark #learn .calcFeedback.bad{background:#3b2d1c;color:#f4d29c}
+body.dark #learn .premiumFeatureMessage{background:linear-gradient(140deg,#174e53,#256f6d);border:1px solid #397f7b}
+body.dark #learn .videoLesson{background:linear-gradient(145deg,#071d21,#174f52);border-color:#2d6264}
+body.dark .adminMenuGroup{border:1px solid #b9903840;border-radius:15px;padding:14px;margin-top:12px;background:#d4ad4b10}
+[data-admin-launch]{display:block!important}
