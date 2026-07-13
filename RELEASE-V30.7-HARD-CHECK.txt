@@ -1,0 +1,39 @@
+BEYOND THE VISA v30.7 - PRE-MOBILE CONSOLIDATION CHECK
+
+RESULT: PASS FOR STATIC RELEASE CHECKS
+
+Navigation
+- Bottom navigation remains the primary Home, Journey, Zibur, Learn and Costs navigation.
+- Duplicate Home shortcuts for Zibur, Learning and Premium are removed.
+- The Cost Planner Home tile becomes My Documents because Costs remains in bottom navigation.
+- The floating action opens Ask Zibur.
+- Articles, Videos, Bookings and Notifications are grouped in the Menu.
+- Notification preferences and Membership are grouped in the Menu.
+
+Content
+- User-facing Guides wording is replaced by Articles.
+- Admin-published articles open through the Articles tile.
+- Admin-published lessons open through the Videos tile.
+- CBT remains destination-specific for the UK.
+- NCLEX remains destination-specific for the United States and Canada.
+
+Admin portal
+- Responsive professional navigation, cards, tables, toolbar and mobile menu added.
+- Existing admin functions and Supabase data connections remain unchanged.
+
+Technical checks completed
+- All referenced local JavaScript files exist.
+- Fourteen production JavaScript entry files parse successfully.
+- The application manifest is valid JSON and uses standalone display mode.
+- The corrupted old manifest was replaced.
+- Service-worker cache version updated to v30.7.
+- Missing notification icon references removed.
+- CSS brace balance passed for seven production stylesheets.
+- App and admin HTML load the new release files.
+
+Important before public mobile-app release
+- Complete real-device testing on Android and iPhone.
+- Complete accessibility testing with keyboard and screen readers.
+- Complete clinical-content governance review.
+- Test payments and webhooks in Paystack live mode with controlled transactions.
+- Configure app-store icons, screenshots, signing and store privacy declarations.

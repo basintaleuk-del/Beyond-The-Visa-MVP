@@ -1,0 +1,11 @@
+BEYOND THE VISA v30.7 INSTALLATION
+
+1. Extract the downloaded ZIP.
+2. Open the Beyond-The-Visa-MVP repository on GitHub.
+3. Select Add file, then Upload files.
+4. Upload every extracted file to the repository root.
+5. Replace matching files.
+6. Commit the changes.
+7. Wait about two minutes for GitHub Pages.
+8. Open index.html?v=30.7 and press Ctrl + Shift + R once.
+9. Open admin.html?v=30.7 to review the updated admin portal.
