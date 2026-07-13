@@ -15,6 +15,8 @@
  async function open(){if(!await session()){alert('Please sign in to use the member centre.');return}q('#btvPlatform').hidden=false;document.body.style.overflow='hidden';await loadAll()}
  function close(){q('#btvPlatform').hidden=true;document.body.style.overflow=''}
  function pane(id){document.querySelectorAll('[data-btv-pane]').forEach(b=>b.classList.toggle('active',b.dataset.btvPane===id));document.querySelectorAll('.btvPane').forEach(x=>x.classList.toggle('active',x.id==='btv-'+id))}
+ async function openPane(id='discover'){await open();if(!q('#btvPlatform')?.hidden)pane(id)}
+ window.BTVOpenMemberCentre=open;window.BTVOpenMemberPane=openPane;
  async function loadAll(){
   const calls=await Promise.all([sb.from('articles').select('*').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100),sb.from('video_courses').select('*').eq('status','published').order('sort_order'),sb.from('video_lessons').select('*').eq('status','published').order('sort_order'),sb.from('video_progress').select('*'),sb.from('booking_services').select('*').eq('is_active',true),sb.from('bookings').select('*,booking_services(name,duration_minutes,currency,price_minor)').order('starts_at',{ascending:false})]);
   const keys=['articles','notifications','courses','lessons','progress','services','bookings'];calls.forEach((r,i)=>{state[keys[i]]=r.error?[]:(r.data||[])});renderAll();
