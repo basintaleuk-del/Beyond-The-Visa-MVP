@@ -1,6 +1,6 @@
 #appShell header .brand{width:min(320px,36vw);height:54px;padding:0;overflow:visible;background:transparent!important;box-shadow:none!important;flex:none}
-.btvAdaptiveBrand{display:block;width:100%;height:100%;background-image:url('site-logo.png?v=48');background-repeat:no-repeat;background-position:center 47%;background-size:100% auto;filter:none!important;opacity:1}
-body.dark .btvAdaptiveBrand{background-image:url('site-logo-night.png?v=48')}
+.btvAdaptiveBrand{display:block;width:100%;height:100%;background-image:url('site-logo.png?v=49');background-repeat:no-repeat;background-position:center 47%;background-size:100% auto;filter:none!important;opacity:1}
+body.dark .btvAdaptiveBrand{background-image:url('site-logo-night.png?v=49')}
 @media(max-width:800px){#appShell header .brand{width:min(255px,42vw);height:50px}.btvAdaptiveBrand{background-size:104% auto}}
 @media(max-width:650px){#appShell header .brand{width:min(215px,48vw);height:46px}#appShell header{height:72px;padding-left:10px;padding-right:10px}.btvAdaptiveBrand{background-size:108% auto}}
 @media(max-width:430px){#appShell header .brand{width:min(180px,45vw);height:42px}.btvAdaptiveBrand{background-size:112% auto}}
