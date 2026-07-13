@@ -1,0 +1,16 @@
+.workingCalculator{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--bg)}
+.workingCalculatorHead{display:grid;grid-template-columns:1fr minmax(110px,1.2fr);gap:12px;align-items:center;margin-bottom:10px}
+.workingCalculatorHead b,.workingCalculatorHead small{display:block}.workingCalculatorHead small{color:var(--muted);margin-top:3px}
+#workingCalcDisplay{min-height:48px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:21px;font-weight:800;text-align:right;overflow-wrap:anywhere}
+.workingCalcKeys{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.workingCalcKeys button{min-height:46px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);font-weight:900;font-size:17px}
+.workingCalcKeys button.operator{background:var(--mint);color:var(--teal)}
+.workingCalcKeys button.utility{grid-column:span 2;background:var(--cream);color:var(--ink)}
+.workingCalcKeys button.equals{grid-column:span 2;background:var(--teal);color:#fff}
+.calcAnswer{display:grid;gap:7px}.calcAnswer>label{font-size:12px;font-weight:800;color:var(--muted)}
+.calcAnswerRow{display:flex;gap:8px;align-items:center}.calcAnswerRow input{min-width:0;flex:1}.calcAnswerRow button{align-self:stretch}
+.answerNumberPad[hidden]{display:none!important}.answerNumberPad{animation:answerPadIn .16s ease}
+.answerNumberPad button[data-answer-key="hide"]{grid-column:span 2}
+@keyframes answerPadIn{from{opacity:0;transform:translateY(-4px)}}
+body.dark .workingCalculator,body.dark .workingCalcKeys button,body.dark #workingCalcDisplay{border-color:#3b4c4f}
+@media(max-width:430px){.workingCalculatorHead{grid-template-columns:1fr}.calcAnswerRow{display:grid;grid-template-columns:1fr auto}.calcAnswerRow button{grid-column:1/-1}.calcAnswerRow span{align-self:center}}
