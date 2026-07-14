@@ -1,16 +1,18 @@
 (()=>{
  'use strict';
- if(window.__btvRecoveryV62)return;window.__btvRecoveryV62=true;
+ if(window.__btvRecoveryV63)return;window.__btvRecoveryV63=true;
  async function refreshBrowserCache(){
-  const key='btv-browser-reset-v62';
+  const key='btv-browser-reset-v63';
   let reset=false;try{reset=localStorage.getItem(key)==='yes'}catch{}
   if(!reset){
    try{localStorage.setItem(key,'yes')}catch{}
    try{if('serviceWorker'in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.map(item=>item.unregister()))}}catch{}
    try{if('caches'in window){const names=await caches.keys();await Promise.all(names.map(name=>caches.delete(name)))}}catch{}
-   const url=new URL(location.href);url.searchParams.set('v','62');url.searchParams.delete('refresh');url.searchParams.delete('home');url.searchParams.delete('screen');location.replace(url.href);return;
+   const active=document.querySelector('#appShell .screen.active')?.id;
+   if(active)try{sessionStorage.setItem('btv-current-screen-v63',active)}catch{}
+   const url=new URL(location.href);url.searchParams.set('v','63');url.searchParams.delete('refresh');url.searchParams.delete('home');location.replace(url.href);return;
   }
-  try{if('serviceWorker'in navigator)await navigator.serviceWorker.register('./sw-v62.js?v=62')}catch(error){console.warn('Offline support:',error.message)}
+  try{if('serviceWorker'in navigator)await navigator.serviceWorker.register('./sw-v63.js?v=63')}catch(error){console.warn('Offline support:',error.message)}
  }
  refreshBrowserCache();
  function installBrand(){
@@ -50,8 +52,8 @@
   });
  }
  function restoreSignedInContent(){
-  const shell=document.getElementById('appShell');if(!shell||shell.hidden||shell.dataset.recoveredV62==='yes')return false;
-  shell.dataset.recoveredV62='yes';
+  const shell=document.getElementById('appShell');if(!shell||shell.hidden||shell.dataset.recoveredV63==='yes')return false;
+  shell.dataset.recoveredV63='yes';
   if(!document.getElementById('quickCost')){const compatibility=document.createElement('span');compatibility.id='quickCost';compatibility.hidden=true;document.getElementById('home')?.append(compatibility)}
   if(typeof window.render==='function'){try{window.render()}catch(error){console.warn('Initial screen recovery:',error.message)}}
   restoreDashboard();return true;
