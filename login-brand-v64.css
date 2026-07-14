@@ -3,4 +3,4 @@
 .authBrand>.authLogoV64+span{display:none}
 @media(max-width:520px){.authLogoV64{width:min(330px,86vw);height:94px;margin-bottom:10px}.authBrand h1{font-size:30px}}
 @media(max-width:360px){.authLogoV64{width:min(285px,84vw);height:82px}.authBrand h1{font-size:27px}}
-
+.auth:not([hidden])~#btvPlatformOpen,.auth:not([hidden])~.cookieNotice{display:none!important}
