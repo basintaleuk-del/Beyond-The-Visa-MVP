@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#133e43"><title>CBT Learning | Beyond The Visa</title><link rel="stylesheet" href="cbt.css"></head><body>
-<header class="top"><a href="index.html?screen=learn" class="back" data-exam-back>← Back to Learn</a><div><b>Beyond The Visa</b><small>CBT Learning Centre</small></div><button id="logout" type="button">Sign out</button></header>
-<script>document.querySelector('[data-exam-back]').addEventListener('click',event=>{event.preventDefault();sessionStorage.setItem('btv-return-screen','learn');location.href='index.html?screen=learn'})</script><main>
+<header class="top"><a href="index.html" class="back">← Dashboard</a><div><b>Beyond The Visa</b><small>CBT Learning Centre</small></div><button id="logout" type="button">Sign out</button></header>
+<main>
 <section id="loading" class="panel center"><h1>Loading your learning centre…</h1></section>
 <section id="app" hidden>
 <div class="hero"><div><span>CBT LEARNING</span><h1>Practise. Understand. Improve.</h1><p>Work through clinically reviewed-style questions and save your progress securely.</p></div><div class="score"><b id="accuracy">0%</b><small>practice accuracy</small></div></div>
@@ -11,4 +11,4 @@
 <section id="historyView" class="view"><div class="panel"><h2>Your mock exam history</h2><div id="historyList"></div></div></section>
 <p class="disclaimer">Educational practice only. Questions must be independently reviewed before commercial release and do not replace official regulator materials.</p>
 </section></main>
-<div id="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><script src="exam-premium-guard.js?v=30.4" data-exam="CBT" data-script="cbt.js"></script></body></html>
+<div id="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><link rel="stylesheet" href="beyond-coins-v72.css?v=72"><script src="beyond-coins-v72.js?v=72"></script><script src="cbt.js"></script><script src="mock-access-v72.js?v=72"></script></body></html>
