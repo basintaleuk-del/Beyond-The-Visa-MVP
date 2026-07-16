@@ -94,7 +94,7 @@
 .btvAuthV69 .languageSelect { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #dfe4e0; border-radius: 13px; background: #fff; box-shadow: 0 7px 18px rgba(20, 52, 56, .07); }
 .btvAuthV69 .languageSelect select { border: 0; outline: 0; background: transparent; color: #253a3d; }
 .btvAuthV69 .authMain { width: min(100%, 540px); margin: 8px auto 0; text-align: center; }
-.btvAuthV69 .authBrandLogoV69 { display:block; width: clamp(116px, 10vw, 132px); height: clamp(116px, 10vw, 132px); margin: 0 auto 2px; object-fit: cover; object-position: center; border: 1px solid rgba(209,169,73,.34); border-radius: 50%; background:#0b1111; box-shadow: 0 12px 32px rgba(17, 60, 63, .13); }
+.btvAuthV69 .authBrandLogoV69 { display:block; width: clamp(150px, 15vw, 190px); height: clamp(150px, 15vw, 190px); margin: 0 auto 8px; padding: 8px; object-fit: contain; object-position: center; border: 1px solid rgba(209,169,73,.28); border-radius: 24px; background:#fff; box-shadow: 0 14px 34px rgba(17, 60, 63, .12); }
 .btvAuthV69 .authWelcome h2 { margin: 7px 0 6px; color: #10383c; font: 600 clamp(31px, 3vw, 41px) Georgia, serif; }
 .btvAuthV69 .authWelcome p { max-width: 400px; margin: 0 auto 20px; color: #707b7c; font-size: 15px; line-height: 1.5; }
 
@@ -164,7 +164,7 @@
   .btvAuthV69 .authStory { display: none; }
   .btvAuthV69 .authWorkspace { padding: 16px; }
   .btvAuthV69 .authMain { margin-top: 0; }
-  .btvAuthV69 .authBrandLogoV69 { width: 108px; height: 108px; }
+  .btvAuthV69 .authBrandLogoV69 { width: 132px; height: 132px; border-radius: 20px; }
   .btvAuthV69 .authWelcome h2 { font-size: 31px; }
 }
 
