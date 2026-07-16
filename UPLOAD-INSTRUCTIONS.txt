@@ -1,0 +1,9 @@
+RESTORE INSTRUCTIONS
+1. Extract this ZIP.
+2. Upload every extracted file to the ROOT of the GitHub repository, replacing matching files.
+3. Do not delete unrelated repository files.
+4. Commit the changes and wait for GitHub Pages to deploy.
+5. Open: https://beyondthevisa.org/?v=69.2
+6. Press Ctrl+Shift+R once.
+
+This package restores the complete working v68/v69 interface and changes only Zibur error handling. Zibur calls the existing secure Supabase Gemini function first. If it is unavailable, Zibur gives a local guidance or IELTS practice response. No dashboard, navigation, books, Community, payments, admin, login layout or learning-feature redesign is included.
