@@ -102,7 +102,7 @@
         <label class="languageSelect"><span aria-hidden="true">◎</span><span class="sr">Language</span><select aria-label="Language"><option>English</option></select></label>
       </div>
       <div class="authMain">
-        <img class="authBrandLogoV69" src="signup-emblem-v68.png" alt="Beyond The Visa">
+        <img class="authBrandLogoV69" src="login-logo-v72.png?v=72" alt="Beyond The Visa">
         <div class="authWelcome"><h2>Welcome back!</h2><p>Sign in to continue your journey towards your goals.</p></div>
       </div>`;
 
