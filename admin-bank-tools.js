@@ -1,6 +1,6 @@
 const sb = window.btvSupabase;
 const factory = window.BTVQuestionFactory;
-const target = factory?.TARGET || 1000;
+const targetFor = kind => kind==='cbt' ? (factory?.CBT_TARGET||1000) : (factory?.NCLEX_TARGET||2000);
 const statusEl = document.querySelector('#bankBuilderStatus');
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -8,7 +8,7 @@ function status(message, tone = '') { if (statusEl) { statusEl.textContent = mes
 function busy(kind, value) { const button=document.querySelector(`[data-build-bank="${kind}"]`); if(button){button.disabled=value;button.textContent=value?'Building drafts…':`Build missing ${kind.toUpperCase()} drafts`;}}
 
 function render(kind, total, active, categories) {
-  const prefix=kind.toLowerCase(), percentage=Math.min(100,Math.round(total/target*100));
+  const target=targetFor(kind), prefix=kind.toLowerCase(), percentage=Math.min(100,Math.round(total/target*100));
   document.querySelector(`#${prefix}BankTotal`).textContent=total.toLocaleString();
   document.querySelector(`#${prefix}BankActive`).textContent=active.toLocaleString();
   document.querySelector(`#${prefix}BankProgress`).style.width=`${percentage}%`;
@@ -33,7 +33,7 @@ async function loadHealth() {
 }
 
 async function buildMissing(kind) {
-  const isCbt=kind==='cbt', table=isCbt?'cbt_questions':'nclex_questions', label=isCbt?'CBT':'NCLEX', build=isCbt?factory.buildCbt:factory.buildNclex;
+  const target=targetFor(kind), isCbt=kind==='cbt', table=isCbt?'cbt_questions':'nclex_questions', label=isCbt?'CBT':'NCLEX', build=isCbt?factory.buildCbt:factory.buildNclex;
   const countResult=await sb.from(table).select('*',{count:'exact',head:true}); if(countResult.error)throw countResult.error;
   const current=countResult.count||0; if(current>=target)return status(`${label} already has ${current.toLocaleString()} database records.`,'success');
   const needed=target-current;
@@ -50,7 +50,7 @@ async function buildMissing(kind) {
   }catch(error){status(`Could not finish ${label}: ${error.message}. Completed batches were kept, so it is safe to try again.`,'error')}finally{busy(kind,false)}
 }
 
-function download(kind){const rows=kind==='cbt'?factory.buildCbt(target):factory.buildNclex(target);const data={bank:kind==='cbt'?'CBT':'NCLEX-RN',generated_at:new Date().toISOString(),status:'inactive drafts requiring qualified clinical and regulatory review',count:rows.length,questions:rows};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`beyond-the-visa-${kind}-draft-blueprint-1000.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
+function download(kind){const target=targetFor(kind),rows=kind==='cbt'?factory.buildCbt(target):factory.buildNclex(target);const data={bank:kind==='cbt'?'CBT':'NCLEX-RN',generated_at:new Date().toISOString(),status:'inactive drafts requiring qualified clinical and regulatory review',count:rows.length,questions:rows};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`beyond-the-visa-${kind}-draft-blueprint-${target}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
 
 async function start(){for(let attempt=0;attempt<80&&document.querySelector('#app')?.hidden;attempt++)await new Promise(resolve=>setTimeout(resolve,100));document.querySelectorAll('[data-build-bank]').forEach(button=>button.onclick=()=>buildMissing(button.dataset.buildBank));document.querySelectorAll('[data-export-bank]').forEach(button=>button.onclick=()=>download(button.dataset.exportBank));document.querySelector('#refreshBankHealth')?.addEventListener('click',loadHealth);await loadHealth()}
 start();

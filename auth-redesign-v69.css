@@ -55,13 +55,12 @@
 }
 
 .btvAuthV69 .storyLogo {
-  width: clamp(152px, 14vw, 188px);
-  height: clamp(152px, 14vw, 188px);
+  width: 138px;
+  height: 92px;
   object-fit: contain;
   object-position: left center;
-  margin: -12px 0 clamp(18px, 3vh, 32px);
-  background: transparent;
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .22));
+  margin-bottom: clamp(28px, 5vh, 54px);
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, .25));
 }
 
 .btvAuthV69 .storyInner h1 {
@@ -95,7 +94,7 @@
 .btvAuthV69 .languageSelect { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #dfe4e0; border-radius: 13px; background: #fff; box-shadow: 0 7px 18px rgba(20, 52, 56, .07); }
 .btvAuthV69 .languageSelect select { border: 0; outline: 0; background: transparent; color: #253a3d; }
 .btvAuthV69 .authMain { width: min(100%, 540px); margin: 8px auto 0; text-align: center; }
-.btvAuthV69 .authBrandLogoV69 { display:block; width: clamp(142px, 13vw, 166px); height: clamp(142px, 13vw, 166px); margin: 0 auto 7px; object-fit: contain; object-position: center; border: 0; border-radius: 0; background: transparent; box-shadow: none; filter: drop-shadow(0 12px 25px rgba(17,60,63,.14)); }
+.btvAuthV69 .authBrandLogoV69 { display:block; width: clamp(150px, 15vw, 190px); height: clamp(150px, 15vw, 190px); margin: 0 auto 8px; padding: 8px; object-fit: contain; object-position: center; border: 1px solid rgba(209,169,73,.28); border-radius: 24px; background:#fff; box-shadow: 0 14px 34px rgba(17, 60, 63, .12); }
 .btvAuthV69 .authWelcome h2 { margin: 7px 0 6px; color: #10383c; font: 600 clamp(31px, 3vw, 41px) Georgia, serif; }
 .btvAuthV69 .authWelcome p { max-width: 400px; margin: 0 auto 20px; color: #707b7c; font-size: 15px; line-height: 1.5; }
 
@@ -165,7 +164,7 @@
   .btvAuthV69 .authStory { display: none; }
   .btvAuthV69 .authWorkspace { padding: 16px; }
   .btvAuthV69 .authMain { margin-top: 0; }
-  .btvAuthV69 .authBrandLogoV69 { width: 132px; height: 132px; border-radius: 0; }
+  .btvAuthV69 .authBrandLogoV69 { width: 132px; height: 132px; border-radius: 20px; }
   .btvAuthV69 .authWelcome h2 { font-size: 31px; }
 }
 
@@ -177,7 +176,6 @@
   .btvAuthV69 .loginOptions { align-items: flex-start; }
   .btvAuthV69 .trustStrip { gap: 4px; }
   .btvAuthV69 .createPrompt { padding: 13px; }
-  .btvAuthV69 .authBrandLogoV69 { width: 124px; height: 124px; margin-bottom: 5px; border-radius: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
