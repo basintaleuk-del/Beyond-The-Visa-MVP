@@ -1,4 +1,4 @@
-const CACHE_NAME='beyond-the-visa-v85';
+﻿const CACHE_NAME='beyond-the-visa-v86';
 
 self.addEventListener('install',()=>self.skipWaiting());
 
@@ -30,3 +30,4 @@ self.addEventListener('notificationclick',event=>{
   const url=new URL(event.notification.data?.url||'./index.html',self.location.origin).href;
   event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(windows=>{for(const client of windows){if('focus'in client){client.navigate(url);return client.focus()}}return clients.openWindow(url)}));
 });
+
