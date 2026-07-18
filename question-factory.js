@@ -72,7 +72,7 @@
     });
   }
 
-  function buildNclex(total = 2000) {
+  function buildNclex(total = 1000) {
     return Array.from({ length: total }, (_, index) => {
       const seed = nclexSeeds[index % nclexSeeds.length];
       return {
@@ -87,7 +87,7 @@
   }
 
   window.BTVQuestionFactory = {
-    TARGET: 2000, CBT_TARGET: 1000, NCLEX_TARGET: 2000, CBT_CATEGORIES, NCLEX_CATEGORIES, buildCbt, buildNclex,
+    TARGET: 1000, CBT_CATEGORIES, NCLEX_CATEGORIES, buildCbt, buildNclex,
     note: 'Generated items are inactive drafts and require clinical and regulatory review before publication.'
   };
 })();
