@@ -11,8 +11,10 @@ async function init(){
   try{
     const {data:{user},error}=await sb.auth.getUser();
     if(error||!user) return deny('Please sign in before opening the admin portal.');
-    const {data:profile,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).single();
-    if(pe||profile?.role!=='admin') return deny('This account does not have administrator access.');
+    let {data:profile,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+    if((pe||!profile)){const fallback=await sb.from('profiles').select('*').eq('user_id',user.id).maybeSingle();profile=fallback.data;pe=fallback.error}
+    const metadataRole=user.app_metadata?.role||user.user_metadata?.role;
+    if(!['admin','owner'].includes(profile?.role)&&!['admin','owner'].includes(metadataRole)) return deny('This account does not have administrator access.');
     $('#adminName').textContent=profile.full_name||user.email||'Administrator';
     $('#guard').hidden=true; $('#app').hidden=false;
     bind(); await loadAll(); window.BTVAdminInbox?.start(); window.BTVAdminPremium?.start();
