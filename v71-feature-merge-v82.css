@@ -1,0 +1,29 @@
+/* Beyond The Visa v82: v71 presentation + current feature set. */
+.authBrandLogoV69{
+  width:clamp(230px,28vw,310px)!important;
+  height:clamp(180px,24vw,260px)!important;
+  object-fit:contain!important;
+  margin:0 auto 14px!important;
+  display:block!important;
+}
+.storyLogo{
+  width:clamp(105px,12vw,145px)!important;
+  height:clamp(82px,10vw,120px)!important;
+  object-fit:contain!important;
+}
+.btvMemberMenu82[hidden]{display:none!important}
+.btvMemberMenu82{position:fixed;inset:0;z-index:120;background:#061b1f99;backdrop-filter:blur(8px);display:flex;justify-content:flex-end;padding:calc(76px + env(safe-area-inset-top)) 18px 18px}
+.btvMemberMenuPanel82{width:min(100%,390px);max-height:calc(100vh - 100px);overflow:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 28px 70px #061b1f55;align-self:flex-start}
+.btvMemberMenuHead82{display:flex;align-items:center;gap:12px;padding:3px 2px 15px;border-bottom:1px solid var(--line)}
+.btvMemberMenuHead82 img{width:50px;height:50px;border-radius:16px;object-fit:cover;background:var(--mint)}
+.btvMemberMenuHead82 div{min-width:0;flex:1}.btvMemberMenuHead82 b,.btvMemberMenuHead82 small{display:block}.btvMemberMenuHead82 small{color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+.btvMemberMenuClose82{width:38px;height:38px;border:0;border-radius:12px;background:var(--mint);color:var(--brand);font-size:22px}
+.btvMemberMenuGroup82{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.btvMemberMenuGroup82>span{grid-column:1/-1;color:var(--muted);font-size:10px;letter-spacing:.14em;font-weight:900;margin:2px 4px}
+.btvMemberMenuItem82{border:1px solid var(--line);border-radius:15px;background:var(--bg);color:var(--ink);padding:12px;text-align:left;display:grid;grid-template-columns:31px 1fr;align-items:center;gap:8px;font-weight:800}
+.btvMemberMenuItem82 svg{width:21px;height:21px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btvMemberMenuItem82 small{grid-column:2;color:var(--muted);font-weight:500;line-height:1.35}.btvMemberMenuItem82:hover,.btvMemberMenuItem82:focus-visible{border-color:var(--teal);background:var(--mint)}
+.btvAdminMenuItem82{grid-column:1/-1;background:linear-gradient(135deg,var(--brand),#247c7c);color:#fff;border:0}.btvAdminMenuItem82 svg{stroke:#efd078}.btvAdminMenuItem82 small{color:#d7e7e6}
+.welcomeVideo82{background:linear-gradient(145deg,#092f35,#176665);padding:14px;border-radius:22px;color:#fff;box-shadow:0 18px 44px #103d4226}.welcomeVideo82 video{display:block;width:100%;max-height:62vh;aspect-ratio:16/9;object-fit:contain;background:#061b1f;border-radius:16px}.welcomeVideo82 h2{font-family:Georgia,serif;margin:15px 3px 6px}.welcomeVideo82 p{color:#d7e7e6;margin:0 3px 4px;line-height:1.5}.welcomeVideo82 .videoPrivacy82{display:block;color:#bcd2d1;font-size:10px;margin:10px 3px 1px}
+body.dark .btvMemberMenuPanel82{box-shadow:none}.headerProfile{position:relative}.headerProfile:after{content:"";position:absolute;right:1px;bottom:2px;width:9px;height:9px;border-radius:50%;background:#35a776;border:2px solid var(--card)}
+@media(max-width:620px){.btvMemberMenu82{padding:calc(68px + env(safe-area-inset-top)) 10px calc(82px + env(safe-area-inset-bottom))}.btvMemberMenuPanel82{width:100%;max-height:100%;border-radius:21px}.authBrandLogoV69{width:clamp(205px,67vw,270px)!important;height:auto!important}.storyLogo{width:105px!important;height:auto!important}}
+@media(max-width:380px){.btvMemberMenuGroup82{grid-template-columns:1fr}.btvMemberMenuGroup82>span,.btvAdminMenuItem82{grid-column:1}}

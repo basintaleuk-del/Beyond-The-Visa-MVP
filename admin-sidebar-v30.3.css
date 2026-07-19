@@ -1,0 +1,46 @@
+/* Keeps the expanded production admin navigation usable at every screen size. */
+@media (min-width: 851px) {
+  .sidebar {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .sidebar .brand,
+  .sidebar .sidefoot {
+    flex: none;
+  }
+
+  .sidebar nav {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 6px;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #ffffff66 transparent;
+  }
+
+  .sidebar nav::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .sidebar nav::-webkit-scrollbar-thumb {
+    background: #ffffff66;
+    border-radius: 999px;
+  }
+}
+
+@media (max-width: 850px) {
+  .sidebar {
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar nav {
+    max-height: min(58vh, 440px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+

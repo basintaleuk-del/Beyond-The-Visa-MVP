@@ -1,0 +1,40 @@
+.hero73[data-mission-control="v76"] {
+  min-height: 310px;
+  padding: 40px 44px;
+  overflow: hidden;
+  border: 1px solid rgba(225, 177, 68, .34);
+  background-image: linear-gradient(100deg, rgba(4, 64, 70, .98) 0%, rgba(5, 105, 105, .92) 58%, rgba(10, 86, 80, .78) 100%), url("journey-visa-v69.webp");
+  background-position: center, right center;
+  background-size: cover, min(54%, 760px) auto;
+  background-repeat: no-repeat;
+  box-shadow: 0 24px 55px rgba(5, 64, 66, .16);
+}
+.hero73[data-mission-control="v76"]::after {
+  content: "";
+  position: absolute;
+  width: 270px;
+  height: 270px;
+  right: -75px;
+  top: -105px;
+  border-radius: 50%;
+  background: rgba(223, 181, 82, .12);
+  pointer-events: none;
+}
+.hero73[data-mission-control="v76"] .heroGrid73 { grid-template-columns: minmax(0, 1.55fr) minmax(250px, .7fr); gap: 34px; }
+.hero73[data-mission-control="v76"] h1 { max-width: 780px; font-size: clamp(2.25rem, 4vw, 3.7rem); line-height: .98; letter-spacing: -.035em; }
+.hero73[data-mission-control="v76"] .lead { max-width: 740px; color: rgba(255,255,255,.86); }
+.hero73[data-mission-control="v76"] .nextAction73 { position: relative; align-self: center; min-height: 190px; padding: 28px; border: 1px solid rgba(255,255,255,.23); background: rgba(2,44,48,.45); backdrop-filter: blur(14px); }
+.missionIcon76 { display: grid; place-items: center; width: 62px; height: 62px; margin-bottom: 18px; border-radius: 22px; color: #fff; background: linear-gradient(145deg, rgba(226,181,73,.92), rgba(31,151,139,.85)); box-shadow: 0 15px 32px rgba(1,34,37,.24); }
+.missionIcon76 svg, .themeHead76 svg, .notificationHead73 svg, [data-mobile-open] svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hero73[data-mission-control="v76"] button:focus-visible { outline: 3px solid #f2ca69; outline-offset: 4px; }
+.brandSymbol img { width: 100%; height: 100%; object-fit: contain; }
+.btvAuthV69 .storyLogo { width: clamp(150px, 15vw, 220px); height: auto; object-fit: contain; }
+.btvAuthV69 .authBrandLogoV69 { width: clamp(175px, 20vw, 250px); height: auto; object-fit: contain; }
+@media (max-width: 760px) {
+  .hero73[data-mission-control="v76"] { min-height: 0; padding: 28px 22px; background-size: cover, auto 78%; background-position: center, 125% center; }
+  .hero73[data-mission-control="v76"] .heroGrid73 { grid-template-columns: 1fr; gap: 22px; }
+  .hero73[data-mission-control="v76"] h1 { font-size: clamp(2rem, 10vw, 2.75rem); }
+  .hero73[data-mission-control="v76"] .nextAction73 { min-height: 0; padding: 22px; }
+  .missionIcon76 { width: 52px; height: 52px; border-radius: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .hero73[data-mission-control="v76"] * { scroll-behavior: auto !important; transition: none !important; } }

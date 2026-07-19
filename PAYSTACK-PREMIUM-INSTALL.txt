@@ -1,0 +1,44 @@
+BEYOND THE VISA PREMIUM — PAYSTACK INSTALLATION
+
+1. DATABASE
+Open Supabase > SQL Editor.
+Run PREMIUM-MEMBERSHIP-SETUP.sql once.
+
+2. SECRETS
+Keep these Supabase Edge Function secrets:
+- PAYSTACK_SECRET_KEY = your Paystack secret key
+- APP_URL = https://basintaleuk-del.github.io/Beyond-The-Visa-MVP
+
+Never put the Paystack secret key in GitHub or index.html.
+
+3. EDGE FUNCTIONS
+Create or replace these functions using each matching index.ts file:
+- premium-checkout
+- subscription-status
+- cancel-subscription
+- paystack-webhook (replace the existing code)
+
+For these four functions, turn OFF "Verify JWT with legacy secret".
+The three member functions validate the signed-in user in their own code.
+The webhook validates Paystack's HMAC-SHA512 signature.
+
+4. PAYSTACK WEBHOOK
+Keep this webhook URL in Paystack:
+https://wuvgktmzkzrdvbpqfmek.supabase.co/functions/v1/paystack-webhook
+
+5. WEBSITE FILES
+Upload every website file supplied in the ZIP, replacing matching files.
+Do not upload the ZIP itself.
+
+6. TEST MODE
+Test the full flow with Paystack test keys before switching to live keys.
+Confirm that:
+- payment succeeds in Paystack;
+- the member receives a Premium badge;
+- the Memberships tab shows the member;
+- cancellation stops renewal while retaining access through the paid period.
+
+IMPORTANT
+Paystack subscriptions support recurring Card payments and Direct Debit in Nigeria.
+Availability of recurring payment methods varies by country and account configuration.
+

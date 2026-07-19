@@ -1,0 +1,32 @@
+BEYOND THE VISA - LOGO AND PRIVATE STORAGE V21
+
+1. Run BTV-STORAGE-SETUP.sql once in Supabase Dashboard > SQL Editor.
+   This creates the private btv-user-files bucket and user-folder policies.
+
+2. Upload the website files to the top level of the GitHub repository.
+   The essential new or changed files are:
+   - index.html
+   - storage-v21.js
+   - storage-v21.css
+   - privacy-policy.html
+
+3. Do not upload the ZIP itself. Extract it and upload the files inside it.
+
+4. Commit the GitHub changes, wait for Pages to deploy, then open:
+   index.html?storage=21
+
+WHAT USERS RECEIVE
+- Complete supplied logo displayed without cropping or 3.05x zoom.
+- Private profile-photo storage.
+- My Documents dashboard shortcut.
+- Certificates, passport, visa document, CV and image folders.
+- Secure upload, list, one-minute signed open link and permanent delete.
+- 10 MB document limit; 5 MB profile-photo limit.
+- PDF, PNG, JPG, WEBP, DOC and DOCX validation.
+- Each authenticated user is restricted to their own folder.
+
+IMPORTANT
+The SQL file must be run before uploads will work. Do not make the document
+bucket public. The local "Delete account and local data" control does not
+delete cloud files; users should delete vault files individually until a
+verified server-side account-erasure workflow is added.

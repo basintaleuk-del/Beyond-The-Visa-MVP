@@ -1,0 +1,10 @@
+BEYOND THE VISA v30.8 FOCUSED REPAIR
+
+1. Extract the ZIP.
+2. Upload all five files to the GitHub repository root.
+3. Replace matching files.
+4. Commit the changes.
+5. Wait about two minutes.
+6. Open index.html?v=30.8 and press Ctrl + Shift + R once.
+
+The update restores the administrator launcher for confirmed admin accounts and keeps every Learn section visible and readable in night mode.

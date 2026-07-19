@@ -1,0 +1,172 @@
+import { createClient } from 'npm:@supabase/supabase-js@2';
+import webpush from 'npm:web-push@3.6.7';
+
+const json = (body: unknown, status = 200) =>
+  Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+
+function database() {
+  const url = Deno.env.get('SUPABASE_URL');
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!url || !key) throw new Error('Supabase server credentials are unavailable.');
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+function configurePush() {
+  const publicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+  const privateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+  const subject = Deno.env.get('VAPID_SUBJECT');
+  if (!publicKey || !privateKey || !subject) {
+    throw Object.assign(new Error('Web Push secrets are not configured.'), { status: 503 });
+  }
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+}
+
+Deno.serve(async request => {
+  if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
+
+  try {
+    const expectedSecret = Deno.env.get('SCHEDULE_SECRET');
+    const providedSecret = request.headers.get('x-schedule-secret');
+    if (!expectedSecret || providedSecret !== expectedSecret) {
+      return json({ error: 'Not authorised.' }, 401);
+    }
+
+    configurePush();
+    const db = database();
+    const now = new Date().toISOString();
+    let announcementsCreated = 0;
+    let pushSent = 0;
+    let pushFailed = 0;
+
+    const { data: dueAnnouncements } = await db
+      .from('announcements')
+      .select('*')
+      .eq('status', 'scheduled')
+      .lte('scheduled_at', now)
+      .limit(50);
+
+    for (const announcement of dueAnnouncements || []) {
+      let usersQuery = db.from('profiles').select('id,account_type,destination');
+      if (announcement.target_type === 'premium') {
+        usersQuery = usersQuery.eq('account_type', 'premium');
+      }
+      if (announcement.target_type === 'country') {
+        usersQuery = usersQuery.eq('destination', announcement.target_value);
+      }
+      if (announcement.target_type === 'users') {
+        usersQuery = usersQuery.in('id', announcement.target_user_ids || []);
+      }
+
+      const { data: audience } = await usersQuery;
+      const notifications = (audience || []).map(user => ({
+        user_id: user.id,
+        category: 'announcements',
+        title: announcement.title,
+        body: announcement.body,
+        data: { announcement_id: announcement.id },
+        action_url: '#notifications'
+      }));
+
+      if (notifications.length) {
+        const { error } = await db.from('notifications').insert(notifications);
+        if (error) throw error;
+        announcementsCreated += notifications.length;
+      }
+
+      await db
+        .from('announcements')
+        .update({ status: 'published', published_at: now })
+        .eq('id', announcement.id);
+    }
+
+    const { data: pendingNotifications, error: pendingError } = await db
+      .from('notifications')
+      .select('*')
+      .is('delivered_at', null)
+      .or(`scheduled_at.is.null,scheduled_at.lte.${now}`)
+      .limit(250);
+    if (pendingError) throw pendingError;
+
+    for (const notification of pendingNotifications || []) {
+      const { data: preferences } = await db
+        .from('notification_preferences')
+        .select('*')
+        .eq('user_id', notification.user_id)
+        .maybeSingle();
+
+      if (
+        preferences?.push_enabled &&
+        preferences.categories?.[notification.category] !== false
+      ) {
+        const { data: subscriptions } = await db
+          .from('push_subscriptions')
+          .select('*')
+          .eq('user_id', notification.user_id)
+          .eq('enabled', true);
+
+        for (const subscription of subscriptions || []) {
+          try {
+            await webpush.sendNotification(
+              {
+                endpoint: subscription.endpoint,
+                keys: {
+                  p256dh: subscription.p256dh,
+                  auth: subscription.auth_key
+                }
+              },
+              JSON.stringify({
+                title: notification.title,
+                body: notification.body,
+                url: notification.action_url || './index.html',
+                notificationId: notification.id
+              })
+            );
+
+            await db.from('notification_delivery_logs').insert({
+              notification_id: notification.id,
+              subscription_id: subscription.id,
+              channel: 'push',
+              status: 'sent'
+            });
+            pushSent += 1;
+          } catch (error) {
+            const problem = error as { message?: string; statusCode?: number };
+            pushFailed += 1;
+            await db.from('notification_delivery_logs').insert({
+              notification_id: notification.id,
+              subscription_id: subscription.id,
+              channel: 'push',
+              status: 'failed',
+              provider_response: String(problem.message || problem).slice(0, 1000)
+            });
+
+            if (problem.statusCode === 404 || problem.statusCode === 410) {
+              await db
+                .from('push_subscriptions')
+                .update({ enabled: false })
+                .eq('id', subscription.id);
+            }
+          }
+        }
+      }
+
+      await db
+        .from('notifications')
+        .update({ delivered_at: now })
+        .eq('id', notification.id);
+    }
+
+    return json({
+      announcements_created: announcementsCreated,
+      push_sent: pushSent,
+      push_failed: pushFailed
+    });
+  } catch (error) {
+    const problem = error as { message?: string; status?: number };
+    console.error(problem);
+    return json(
+      { error: problem.message || 'Notification dispatch failed.' },
+      problem.status || 500
+    );
+  }
+});

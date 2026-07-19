@@ -1,0 +1,17 @@
+BEYOND THE VISA — CBT INSTALLATION
+
+1. In Supabase, open SQL Editor > New query.
+2. Open BTV-CBT-SETUP.sql with Notepad or any text editor.
+3. Copy all of the SQL and paste it into Supabase.
+4. Click Run. "Success. No rows returned" is normal.
+5. Upload every file in this folder to your existing GitHub repository, replacing matching files.
+6. Wait for GitHub Pages to deploy, sign in, open Learning, and select "Open CBT Learning Centre".
+
+New files:
+- BTV-CBT-SETUP.sql
+- cbt.html
+- cbt.css
+- cbt.js
+- cbt-launcher.js
+
+Important: The included questions are starter demonstration content and should be independently reviewed and expanded before charging users.

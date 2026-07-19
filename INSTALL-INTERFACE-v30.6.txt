@@ -1,0 +1,18 @@
+BEYOND THE VISA - INTERFACE UPDATE v30.6
+
+1. Extract the ZIP file.
+2. Open the Beyond-The-Visa-MVP repository on GitHub.
+3. Choose Add file, then Upload files.
+4. Upload every file from the extracted folder into the repository root.
+5. Replace files with matching names.
+6. Commit the changes.
+7. Wait about two minutes for GitHub Pages.
+8. Open index.html?v=30.6 and refresh once with Ctrl + Shift + R.
+
+This update:
+- replaces overlapping Premium overlays with one compact panel;
+- moves feedback, contact and legal options into the Menu;
+- shows CBT only for the UK and NCLEX for the US or Canada;
+- removes duplicate exam launch cards from other Learn sections;
+- adds Articles & guides and Video centre tiles to Learn;
+- improves spacing, cards, responsive layout and visual hierarchy.

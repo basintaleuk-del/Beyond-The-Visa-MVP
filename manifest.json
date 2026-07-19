@@ -1,0 +1,14 @@
+{
+  "name": "Beyond The Visa",
+  "short_name": "Beyond Visa",
+  "description": "Professional relocation, learning and career support for internationally educated nurses and midwives.",
+  "id": "./index.html",
+  "start_url": "./index.html?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f3ed",
+  "theme_color": "#123f45",
+  "lang": "en-GB",
+  "categories": ["education", "medical", "productivity"]
+}

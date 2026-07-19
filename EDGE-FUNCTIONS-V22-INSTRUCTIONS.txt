@@ -1,0 +1,64 @@
+BEYOND THE VISA - SUPABASE EDGE FUNCTIONS V22
+
+WHAT IS INCLUDED
+- zibur-chat: secure OpenAI-backed conversation for nurses and midwives
+- ai-explanation: personalised explanations for stored CBT/NCLEX questions
+- mark-mock-exam: server-side marking from database answer keys
+- generate-study-plan: creates and saves personalised learning plans
+- generate-pdf: produces downloadable study-plan/progress PDFs
+- send-email: sends only approved email templates to the signed-in user
+- create-checkout: creates Paystack Checkout from server-approved services
+- paystack-webhook: verifies Paystack signatures and records completed payments
+
+STEP 1 - DATABASE
+Run supabase/EDGE-FUNCTIONS-SETUP.sql in Supabase Dashboard > SQL Editor.
+
+STEP 2 - SECRETS
+In Supabase Dashboard > Edge Functions > Secrets, add:
+OPENAI_API_KEY=your OpenAI API key
+OPENAI_MODEL=gpt-5.4-mini
+APP_URL=https://basintaleuk-del.github.io/Beyond-The-Visa-MVP
+
+Optional email:
+RESEND_API_KEY=your Resend API key
+EMAIL_FROM=Beyond The Visa <noreply@your-verified-domain.com>
+
+Optional payments:
+PAYSTACK_SECRET_KEY=your Paystack secret key
+
+Never add these values to index.html, GitHub files or supabase-client.js.
+
+STEP 3 - DEPLOY
+Install the Supabase CLI, sign in and link the existing project. From the
+folder containing the supabase directory run:
+
+supabase login
+supabase link --project-ref wuvgktmzkzrdvbpqfmek
+supabase functions deploy zibur-chat
+supabase functions deploy ai-explanation
+supabase functions deploy mark-mock-exam
+supabase functions deploy generate-study-plan
+supabase functions deploy generate-pdf
+supabase functions deploy send-email
+supabase functions deploy create-checkout
+supabase functions deploy paystack-webhook --no-verify-jwt
+
+STEP 4 - PAYSTACK CATALOG
+Run supabase/PAYSTACK-MIGRATION.sql if the earlier Stripe schema was installed.
+Payments remain safely disabled until real amounts and currencies are entered
+in service_catalog and active is set to true. Never accept an amount directly
+from the browser.
+
+STEP 5 - WEBSITE
+Upload index.html, edge-functions-v22.js and edge-functions-v22.css with the
+rest of the website files. Open index.html?edge=22 after GitHub Pages deploys.
+
+SECURITY NOTES
+- All normal functions require a signed-in Supabase user.
+- paystack-webhook is public only because Paystack calls it; the code verifies
+  the x-paystack-signature header before processing anything.
+- Mock exams are marked from database answer keys, not answers supplied by the
+  browser.
+- Email accepts a small allowlist of templates and sends only to the signed-in
+  user's email address.
+- Medical content is education only and must be clinically reviewed.

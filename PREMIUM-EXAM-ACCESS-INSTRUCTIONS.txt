@@ -1,0 +1,30 @@
+BEYOND THE VISA – COUNTRY-AWARE PREMIUM EXAM ACCESS
+
+What changed
+- UK destination: only the CBT card appears in Learning.
+- USA or Canada destination: only the NCLEX card appears in Learning.
+- Australia, New Zealand and Ireland: neither CBT nor NCLEX appears.
+- Free users see a locked Premium card and Buy Premium button.
+- Premium users and administrators can open the relevant learning centre.
+- Direct access to cbt.html or nclex.html is also protected.
+
+Premium status
+The access check reads public.profiles.account_type.
+- free = locked
+- premium = unlocked
+Administrators are always unlocked for testing.
+
+Payment
+The Buy Premium button uses the existing data-premium-request checkout handler already in index.html.
+After a successful payment, your payment webhook must update the user profile:
+  account_type = 'premium'
+
+Upload to GitHub
+Replace these files:
+- index.html
+- cbt-launcher.js
+- nclex-launcher.js
+- cbt.js
+- nclex.js
+
+Then wait for GitHub Pages deployment and hard refresh with Ctrl+Shift+R.

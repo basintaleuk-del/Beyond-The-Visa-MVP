@@ -1,0 +1,16 @@
+BEYOND THE VISA — EXAM TAB PLACEMENT FIX v30
+
+Upload and replace these files in GitHub:
+- index.html
+- cbt-launcher.js
+- nclex-launcher.js
+
+Expected behaviour:
+- UK: CBT tab only. CBT Premium card appears only inside the CBT tab.
+- USA/Canada: NCLEX tab only. NCLEX Premium card appears only inside the NCLEX tab.
+- Other countries: neither CBT nor NCLEX tab is shown.
+- Interview, Calculations, Culture, CV and Start Guide no longer display exam cards.
+- Free users see a Premium lock inside the eligible exam tab.
+- Premium users/admins see the exam content and full-centre link.
+
+After GitHub Pages deploys, hard refresh with Ctrl+Shift+R or open ?v=30.

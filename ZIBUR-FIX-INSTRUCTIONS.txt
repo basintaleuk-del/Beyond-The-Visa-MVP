@@ -1,0 +1,38 @@
+BEYOND THE VISA – ZIBUR FIX
+
+This package fixes the raw “Edge Function returned a non-2xx status code” message.
+It also keeps Zibur useful with the built-in contextual guide if the secure AI service is temporarily unavailable.
+
+1. SUPABASE SQL
+   Open ZIBUR-FIX-SETUP.sql, copy it, and run it in:
+   Supabase > SQL Editor > New query
+
+2. EDGE FUNCTION
+   In Supabase Edge Functions, open/create the function named exactly:
+   zibur-chat
+
+   Replace its code with 01-zibur-chat.ts from this package and deploy it.
+
+3. EDGE FUNCTION SECRETS
+   Confirm these secrets exist in Supabase Edge Functions:
+   OPENAI_API_KEY      (your private OpenAI API key)
+   OPENAI_MODEL        (optional)
+
+   SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are normally
+   available to deployed Supabase functions. Never put private keys in GitHub.
+
+4. GITHUB FILES
+   Upload and replace these files in your GitHub repository:
+   manager-inbox-v26.js
+   edge-functions-v22.js
+   index.html (included unchanged except version cache-busting)
+
+5. CACHE
+   Wait for GitHub Pages deployment, then open:
+   https://basintaleuk-del.github.io/Beyond-The-Visa-MVP/?v=28
+   Use Ctrl+Shift+R on desktop.
+
+6. TEST
+   Sign in and ask Zibur a question. If the OpenAI secret or function is not
+   configured, Zibur will now give a local contextual answer instead of showing
+   the raw non-2xx error.

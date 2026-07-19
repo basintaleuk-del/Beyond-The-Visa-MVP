@@ -1,0 +1,118 @@
+:root {
+  --btv-safe-top: env(safe-area-inset-top, 0px);
+  --btv-safe-right: env(safe-area-inset-right, 0px);
+  --btv-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --btv-safe-left: env(safe-area-inset-left, 0px);
+}
+
+html.capacitor-native,
+html.capacitor-native body {
+  min-height: 100%;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html.capacitor-native body {
+  padding-left: var(--btv-safe-left);
+  padding-right: var(--btv-safe-right);
+  touch-action: manipulation;
+}
+
+html.capacitor-native input,
+html.capacitor-native select,
+html.capacitor-native textarea,
+html.capacitor-native button {
+  font-size: max(16px, 1rem);
+}
+
+html.capacitor-native button,
+html.capacitor-native a,
+html.capacitor-native [role="button"],
+html.capacitor-native input,
+html.capacitor-native select {
+  min-height: 44px;
+}
+
+html.capacitor-native header,
+html.capacitor-native .topbar,
+html.capacitor-native .appHeader {
+  padding-top: var(--btv-safe-top);
+}
+
+html.capacitor-native .bottom-nav,
+html.capacitor-native .bottomNav,
+html.capacitor-native nav[aria-label*="Primary"] {
+  padding-bottom: calc(8px + var(--btv-safe-bottom));
+}
+
+.btv-native-network {
+  position: fixed;
+  z-index: 100000;
+  top: var(--btv-safe-top);
+  left: 12px;
+  right: 12px;
+  padding: 10px 14px;
+  border-radius: 0 0 14px 14px;
+  background: #8a3b28;
+  color: #fff;
+  text-align: center;
+  font: 700 14px/1.3 system-ui, sans-serif;
+  box-shadow: 0 8px 24px #0003;
+  transform: translateY(-130%);
+  transition: transform .25s ease;
+}
+
+.btv-native-network.is-visible { transform: translateY(0); }
+
+.btv-pull-indicator {
+  position: fixed;
+  z-index: 99999;
+  top: calc(10px + var(--btv-safe-top));
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #096e70;
+  box-shadow: 0 8px 28px #002b3030;
+  transform: translate(-50%, -80px);
+  transition: transform .18s ease;
+}
+
+.btv-pull-indicator.is-visible { transform: translate(-50%, 0); }
+.btv-pull-indicator.is-refreshing { animation: btv-spin .8s linear infinite; }
+
+html.capacitor-native .page.active,
+html.capacitor-native section.active,
+html.capacitor-native [data-view].active {
+  animation: btv-page-in .2s ease both;
+}
+
+@keyframes btv-page-in {
+  from { opacity: .35; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes btv-spin { to { rotate: 360deg; } }
+
+@media (min-width: 760px) {
+  html.capacitor-native main,
+  html.capacitor-native .appShell,
+  html.capacitor-native .app-shell {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.capacitor-native *,
+  html.capacitor-native *::before,
+  html.capacitor-native *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
