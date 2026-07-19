@@ -1,0 +1,1 @@
+import fs from 'node:fs';const file=new URL('../web/admin.html',import.meta.url);let html=fs.readFileSync(file,'utf8');if(!html.includes('admin-coins-v77.js'))html=html.replace('</body>','<script src="admin-coins-v77.js?v=77"></script>\n</body>');fs.writeFileSync(file,html);console.log('Phase 4 admin controls activated.');

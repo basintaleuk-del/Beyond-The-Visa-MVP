@@ -1,0 +1,4 @@
+import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';const read=p=>fs.readFileSync(p,'utf8');
+test('mobile shell forbids insecure transport and debugging',()=>{const c=read('capacitor.config.ts');assert.match(c,/cleartext: false/);assert.match(c,/allowMixedContent: false/);assert.match(c,/webContentsDebuggingEnabled: false/)});
+test('private storage has ownership and upload limits',()=>{const m=read('supabase/migrations/202607170011_security_infrastructure_phase8.sql');assert.match(m,/file_size_limit/);assert.match(m,/allowed_mime_types/);assert.match(m,/storage\.foldername\(name\)/);assert.match(m,/user-documents/)});
+test('web shell has CSP and privacy-safe monitoring',()=>{const h=read('web/index.html'),j=read('web/security-hardening-v80.js');assert.match(h,/Content-Security-Policy/);assert.match(h,/object-src 'none'/);assert.doesNotMatch(j,/stack/);assert.match(j,/slice\(0,500\)/)});

@@ -1,0 +1,18 @@
+﻿<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#133e43"><title>CBT Learning | Beyond The Visa</title><link rel="stylesheet" href="cbt.css"><link rel="stylesheet" href="learning-results-v78.css?v=78">
+<link rel="stylesheet" href="question-tools-v79.css?v=79">
+</head><body>
+<header class="top"><a href="index.html" class="back">← Dashboard</a><div><b>Beyond The Visa</b><small>CBT Learning Centre</small></div><button id="logout" type="button">Sign out</button></header>
+<main>
+<section id="loading" class="panel center"><h1>Loading your learning centre…</h1></section>
+<section id="app" hidden>
+<div class="hero"><div><span>CBT LEARNING</span><h1>Practise. Understand. Improve.</h1><p>Work through clinically reviewed-style questions and save your progress securely.</p></div><div class="score"><b id="accuracy">0%</b><small>practice accuracy</small></div></div>
+<div class="stats"><article><small>Answered</small><b id="answered">0</b></article><article><small>Correct</small><b id="correct">0</b></article><article><small>Bookmarked</small><b id="bookmarked">0</b></article><article><small>Mock exams</small><b id="mockCount">0</b></article></div>
+<div class="tabs"><button class="active" data-view="practice">Practice</button><button data-view="mock">Mock exam</button><button data-view="history">Results</button></div>
+<section id="practiceView" class="view active"><div class="filters"><select id="profession"><option value="nurse">Nurse</option><option value="midwife">Midwife</option></select><select id="subject"><option value="all">All subjects</option></select><button id="loadPractice">New question</button></div><div id="practiceCard" class="questionCard"></div></section>
+<section id="mockView" class="view"><div id="mockIntro" class="panel"><h2>Timed mock exam</h2><p>The starter build uses up to 10 questions from your database. As your bank grows, this can be increased to the full exam format.</p><label>Profession<select id="mockProfession"><option value="nurse">Nurse</option><option value="midwife">Midwife</option></select></label><button id="startMock" class="primary">Start mock exam</button></div><div id="mockExam" hidden><div class="examTop"><b id="mockProgress"></b><time id="timer">20:00</time></div><div id="mockCard" class="questionCard"></div></div><div id="mockResult" class="panel center" hidden></div></section>
+<section id="historyView" class="view"><div class="panel"><h2>Your mock exam history</h2><div id="historyList"></div></div></section>
+<p class="disclaimer">Educational practice only. Questions must be independently reviewed before commercial release and do not replace official regulator materials.</p>
+</section></main>
+<div id="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><link rel="stylesheet" href="beyond-coins-v72.css?v=72"><script src="beyond-coins-v72.js?v=72"></script><script src="coin-exam-service-v87.js?v=87"></script><script src="cbt.js"></script><script src="mock-access-v72.js?v=72"></script><script src="question-tools-v79.js?v=79"></script>
+</body></html>
+

@@ -1,0 +1,5 @@
+﻿/* v87 removes Premium membership from assessment access without changing unrelated layouts. */
+#premium,#premiumSecureBadge,#premiumEmblem,.premiumEmblem,.miniPremium,.premiumMember,.ieltsPremiumLock,.planBadge,[data-open-premium],[data-premium-request]{display:none!important}
+.btvMemberMenuPanel82 [data-menu82="membership"]{display:none!important}
+.btv-coin-balance87{display:inline-flex;align-items:center;gap:7px;border:1px solid #d4a93f55;border-radius:999px;background:linear-gradient(135deg,#fff8df,#f3d06e);color:#62470f;padding:7px 11px;font-weight:900;box-shadow:0 8px 22px #a6761e20}
+.btv-coin-balance87:before{content:'◆';color:#bd861d}.btv-coin-balance87:hover{transform:translateY(-1px)}

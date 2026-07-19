@@ -1,0 +1,5 @@
+import fs from 'node:fs';
+const cbtFile=new URL('../web/cbt.js',import.meta.url),nclexFile=new URL('../web/nclex.js',import.meta.url);let cbt=fs.readFileSync(cbtFile,'utf8'),nclex=fs.readFileSync(nclexFile,'utf8');
+cbt=cbt.replace("if(error)toast(error.message);await refreshStats();await loadHistory()", "if(error)toast(error.message);await window.BTVCoins?.complete('cbt_full',pct,mock.length,{time_used_seconds:duration,answers:mockAnswers.map(x=>({question_id:x.q.id,selected:x.option,correct:x.ok,topic:x.q.subject}))});await refreshStats();await loadHistory()");
+nclex=nclex.replace("if(error)toast(error.message);const result=", "if(error)toast(error.message);if(mode==='mock')await window.BTVCoins?.complete('nclex_full',pct,total,{time_used_seconds:duration,answers:sessionAnswers.map(x=>({question_id:x.q.id,selected:x.choices,correct:x.ok,topic:x.q.category}))});const result=");
+fs.writeFileSync(cbtFile,cbt);fs.writeFileSync(nclexFile,nclex);console.log('Standalone mock completion synchronisation repaired.');

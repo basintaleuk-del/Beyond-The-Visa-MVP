@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';const read=p=>fs.readFileSync(p,'utf8');
+test('Zibur backend authenticates, rate limits and avoids storing raw questions',()=>{const e=read('supabase/functions/zibur-gemini/index.ts'),m=read('supabase/migrations/202607170009_zibur_governance_phase6.sql');assert.match(e,/btv_begin_ai_request/);assert.match(e,/SHA-256/);assert.match(m,/12/);assert.doesNotMatch(m,/question text/)});
+test('Zibur identity and safety rules are enforced',()=>{const e=read('supabase/functions/zibur-gemini/index.ts');assert.match(e,/Always call yourself Zibur/);assert.match(e,/Do not diagnose/);assert.match(e,/formative estimate/);assert.match(e,/Never invent/)});
+test('all-page assistant uses the shared offline fallback',()=>{const h=read('web/index.html');assert.match(h,/BTVZiburFallback\?\.answer\(question,ziburContext\(\)\)/)});

@@ -1,0 +1,5 @@
+import fs from 'node:fs';
+const jsFile=new URL('../web/coin-wallet-v77.js',import.meta.url),cssFile=new URL('../web/coin-wallet-v77.css',import.meta.url);let js=fs.readFileSync(jsFile,'utf8'),css=fs.readFileSync(cssFile,'utf8');
+js=js.replace('${d.rewards.has(o.code)?\'Earned ✓\':`+${o.coin_reward} BC`}</strong>','${d.rewards.has(o.code)?\'Earned ✓</strong>\':`</strong><button data-claim-reward="${o.code}">Claim +${o.coin_reward} BC</button>`}');
+js=js.replace("location.assign(result.url)});\n }catch", "location.assign(result.url)});out.querySelectorAll('[data-claim-reward]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='Checking…';const {error}=await db().rpc('btv_claim_coin_opportunity',{p_code:b.dataset.claimReward});if(error)alert(error.message);else window.dispatchEvent(new CustomEvent('btv:wallet-changed'));render('earn')});\n }catch");
+css=css.replace('.coinPackage77 button{','.coinPackage77 button,.coinOpportunity77 button{');fs.writeFileSync(jsFile,js);fs.writeFileSync(cssFile,css);console.log('Reward claim controls activated.');

@@ -1,0 +1,1 @@
+import fs from'node:fs';const f='web/admin-phase7.js';let s=fs.readFileSync(f,'utf8');const a=".join('')||'<p>No mentor applications.</p>'};$('#mentorFilter')",b=".join('')||'<p>No mentor applications.</p>'}`;$('#mentorFilter')";if(!s.includes(a)&&!s.includes(b))throw Error('Mentor syntax marker missing');fs.writeFileSync(f,s.replace(a,b));

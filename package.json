@@ -1,0 +1,47 @@
+{
+  "name": "beyond-the-visa-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor mobile shell for Beyond The Visa",
+  "scripts": {
+    "build:web": "node scripts/build-web.mjs",
+    "build": "npm run build:web && npx cap sync",
+    "sync": "npm run build:web && npx cap sync",
+    "assets": "npx capacitor-assets generate --android --ios --iconBackgroundColor #f7f8f6 --iconBackgroundColorDark #062d34 --splashBackgroundColor #062d34 --splashBackgroundColorDark #07191d",
+    "android:add": "npx cap add android",
+    "ios:add": "npx cap add ios",
+    "android:debug": "npm run sync && cd android && gradlew.bat assembleDebug",
+    "android:bundle": "npm run sync && cd android && gradlew.bat bundleRelease",
+    "test": "node --test tests/*.test.mjs",
+    "qa": "node scripts/qa-release-audit.mjs && node scripts/validate-contracts.mjs",
+    "verify": "npm run test && npm run qa && npm run build:web && npx tsc --noEmit"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/dialog": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0",
+    "@capacitor/network": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/push-notifications": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
+    "@capacitor/toast": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

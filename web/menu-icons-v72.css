@@ -1,0 +1,8 @@
+#appShell > nav .nav,#appShell nav .nav{gap:5px!important;color:var(--muted);transition:color .18s ease,transform .18s ease}
+#appShell > nav .nav:hover,#appShell nav .nav:hover{transform:translateY(-1px);color:var(--teal)}
+.menuIconV72{width:28px;height:28px;display:grid;place-items:center;border-radius:10px;transition:background .18s ease,box-shadow .18s ease}
+.menuIconV72 svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+#appShell nav .nav.active .menuIconV72{color:#fff;background:linear-gradient(145deg,#0d555d,#20837d);box-shadow:0 6px 14px rgba(13,85,93,.22)}
+#appShell nav .nav.active small{color:var(--teal);font-weight:850}
+body.dark #appShell nav .nav.active small{color:#72c9c0}
+@media(max-width:520px){.menuIconV72{width:26px;height:26px}.menuIconV72 svg{width:19px;height:19px}}

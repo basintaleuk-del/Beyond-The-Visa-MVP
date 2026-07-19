@@ -1,0 +1,4 @@
+import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';const read=p=>fs.readFileSync(p,'utf8');
+test('mature admin modules are connected',()=>{const h=read('web/admin.html');for(const x of['admin-platform-v30.js','admin-inbox-v26.js','admin-premium-v29.js','admin-phase7.js'])assert.match(h,new RegExp(x.replace('.','\\.')))});
+test('admin actions are backend protected and audited',()=>{const m=read('supabase/migrations/202607170010_admin_hub_phase7.sql');assert.match(m,/btv_has_admin_permission/);assert.match(m,/btv_is_admin\(\)/);assert.match(m,/admin_audit_logs/);assert.match(m,/phase7_admin_audit/)});
+test('Phase 7 covers missing platform managers',()=>{const j=read('web/admin-phase7.js');for(const x of['jobsAdmin','mentorsAdmin','storiesAdmin','learningAdmin'])assert.match(j,new RegExp(x))});

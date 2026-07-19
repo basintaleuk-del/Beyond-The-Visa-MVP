@@ -1,0 +1,3 @@
+﻿import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8');
+test('IELTS unlock uses the unified Beyond Coins wallet without Premium access',()=>{const old=read('web/release-v67.js'),m=read('supabase/migrations/202607180002_beyond_coins_exam_platform_v87.sql');assert.match(old,/const hasAccess=id=>state\.unlocks\.has/);assert.doesNotMatch(old,/const hasAccess=id=>state\.premium/);assert.match(m,/create or replace function public\.btv_unlock_learning/);assert.match(m,/from public\.btv_wallets where user_id=v_user for update/);assert.match(m,/idempotency_key.*learning:/s)});
