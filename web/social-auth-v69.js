@@ -75,8 +75,7 @@
     const card = auth?.querySelector('.authCard');
     if (!auth || !card || auth.classList.contains('btvAuthV69')) return;
 
-    auth.classList.add('btvAuthV69');
-
+    /* Keep the legacy static auth markup hidden until the current UI is complete. */
     const story = document.createElement('aside');
     story.className = 'authStory';
     story.setAttribute('aria-label', 'Beyond The Visa introduction');
@@ -154,6 +153,9 @@
     main.append(footer);
 
     auth.replaceChildren(story, workspace);
+    auth.classList.add('btvAuthV69', 'btvAuthReady');
+    window.dispatchEvent(new CustomEvent('btv:auth-ready'));
+    window.__btvRevealCurrentUI?.();
 
     $('#showLogin')?.addEventListener('click', () => updateAuthCopy(true));
     prompt.addEventListener('click', () => showTab(false));
