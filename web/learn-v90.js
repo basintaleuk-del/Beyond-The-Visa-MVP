@@ -1,65 +1,91 @@
 (()=>{
- 'use strict';
- if(window.__btvLearnV90)return;window.__btvLearnV90=true;
- const modules=[
-  {id:'cbt',label:'CBT',icon:'✓',copy:'Question bank and timed mocks',url:'cbt.html'},
-  {id:'nclex',label:'NCLEX',icon:'✚',copy:'Practice and adaptive prep',url:'nclex.html'},
-  {id:'ielts',label:'IELTS',icon:'A',copy:'Academic learning centre',tab:'ielts'},
-  {id:'adult',label:'Adult Nursing',icon:'♥',copy:'Core nursing learning',tab:'adult'},
-  {id:'osce',label:'OSCE',icon:'⊕',copy:'Station-focused practice',tab:'osce'}
- ];
- const learn=()=>document.getElementById('learn');
- let raf=0,navToken=0;
- const tabCache=new Map();
- function cleanLegacyCards(){
-  const root=learn();if(!root)return;
-  root.querySelectorAll('.cbtLaunchCard,.nclexLaunchCard,[data-cbt-centre],[data-nclex-centre]').forEach(node=>node.remove());
- }
- function activateTab(tab){
-  const root=learn();if(!root)return false;
-  const btn=root.querySelector(`[data-learn-tab="${tab}"]`);
-  const current=root.querySelector('.learnTabs button.active')?.dataset.learnTab;
-  if(current===tab)return true;
-  if(btn){btn.click();tabCache.set(tab,root.querySelector(`#${tab}Lesson`)||null);tabCache.forEach((panel,key)=>{if(panel)panel.hidden=key!==tab});return true}
-  if(typeof window.showLearningTab==='function'){window.showLearningTab(tab);tabCache.set(tab,root.querySelector(`#${tab}Lesson`)||null);return true}
-  return false;
- }
- function openModule(module){
-  const token=++navToken;
-  requestAnimationFrame(()=>{
-   if(token!==navToken)return;
-   if(module.url){location.href=module.url;return}
-   if(activateTab(module.tab))return;
-   window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:module.id,id:module.id}}));
-  });
- }
- function ensureHub(){
-  const root=learn();if(!root)return;
-  cleanLegacyCards();
-  if(root.querySelector('[data-learn-v90-hub]'))return;
-  const title=root.querySelector('.pageTitle');
-  if(!title)return;
-  const hub=document.createElement('section');
-  hub.className='learnV90Hub';
-  hub.dataset.learnV90Hub='1';
-  hub.innerHTML=`<div class="learnV90Grid">${modules.map(x=>`<button class="learnV90Card" data-learn-v90-open="${x.id}" type="button"><i class="learnV90Icon">${x.icon}</i><b>${x.label}</b><small>${x.copy}</small></button>`).join('')}</div>`;
-  title.insertAdjacentElement('afterend',hub);
- }
- function clickHandler(event){
-  const button=event.target.closest('[data-learn-v90-open]');
-  if(!button)return;
-  event.preventDefault();
-  const module=modules.find(x=>x.id===button.dataset.learnV90Open);
-  if(module)openModule(module);
- }
- function schedule(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{raf=0;ensureHub()})}
- function start(){
-  const root=learn();if(!root)return;
-  root.addEventListener('click',clickHandler,true);
-  const observer=new MutationObserver(schedule);
-  observer.observe(root,{childList:true,subtree:true});
-  window.addEventListener('pagehide',()=>{observer.disconnect();root.removeEventListener('click',clickHandler,true)},{once:true});
-  ensureHub();
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
+  'use strict';
+  if(window.__btvLearnV90) return;
+  window.__btvLearnV90 = true;
+
+  const db = () => window.btvSupabase;
+  const $ = s => document.querySelector(s);
+  const modules = {
+    cbt: { url: 'cbt.html', icon: '✓', label: 'CBT Practice' },
+    nclex: { url: 'nclex.html', icon: '⚕', label: 'NCLEX-RN' },
+    ielts: { url: 'ielts.html', icon: '🎯', label: 'IELTS' },
+    osce: { url: 'osce.html', icon: '🔬', label: 'OSCE' },
+    'adult-nursing': { url: 'adult-nursing.html', icon: '💉', label: 'Adult Nursing' }
+  };
+
+  async function buildLearningHub() {
+    const hub = document.getElementById('learn');
+    if (!hub) return;
+    
+    // Build clean grid WITHOUT hero tiles above headings
+    const html = `
+      <div class="pageTitle">
+        <button class="back" data-learn-home>←</button>
+        <div><span>LEARNING CENTRE</span><h1>Build your confidence</h1></div>
+      </div>
+      <div class="learnV90Grid" id="learnModules"></div>
+    `;
+    
+    hub.innerHTML = html;
+    
+    // Populate module cards
+    const grid = document.getElementById('learnModules');
+    Object.entries(modules).forEach(([key, mod]) => {
+      const card = document.createElement('button');
+      card.className = 'learnV90Card';
+      card.type = 'button';
+      card.dataset.module = key;
+      card.innerHTML = `
+        <i class="learnV90Icon">${mod.icon}</i>
+        <b>${mod.label}</b>
+      `;
+      card.onclick = () => navigateToModule(key, mod.url);
+      grid.appendChild(card);
+    });
+    
+    // Back button
+    document.querySelector('[data-learn-home]').onclick = () => {
+      if (typeof window.openScreen === 'function') window.openScreen('home');
+      else {
+        document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'home'));
+        document.querySelectorAll('.nav').forEach(b => b.classList.toggle('active', b.dataset.open === 'home'));
+      }
+    };
+  }
+
+  function navigateToModule(key, url) {
+    // Store the module so it knows which content to display
+    sessionStorage.setItem('btv-learn-module', key);
+    sessionStorage.setItem('btv-return-screen', 'learn');
+    
+    // Navigate to the module
+    window.location.href = url;
+  }
+
+  // Restore floating action button (Zibur)
+  function restoreFloatingAction() {
+    let fab = document.getElementById('floatingAction');
+    if (!fab) {
+      fab = document.createElement('button');
+      fab.id = 'floatingAction';
+      fab.className = 'floatingAction';
+      fab.innerHTML = '✦';
+      fab.title = 'Ask Zibur';
+      fab.onclick = () => {
+        if (typeof window.openScreen === 'function') window.openScreen('assistant');
+        else {
+          document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'assistant'));
+          document.querySelectorAll('.nav').forEach(b => b.classList.toggle('active', b.dataset.open === 'assistant'));
+        }
+      };
+      document.body.appendChild(fab);
+    }
+  }
+
+  function start() {
+    buildLearningHub();
+    restoreFloatingAction();
+  }
+
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', start) : start();
 })();
