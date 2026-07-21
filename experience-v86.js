@@ -10,5 +10,11 @@ function cleanExplore(){all('#home .quick>button').forEach(b=>{const text=norm(b
 function menu(){const p=$('.shortcutPanel83');if(!p)return;p.querySelectorAll('[data-shortcut83="admin"],.shortcutAdmin83,[data-vroute="admin"]').forEach(x=>x.remove());const g=p.querySelector('.supportMenu85');if(g)g.querySelectorAll('button').forEach(x=>x.classList.add('supportCard86'))}
 async function legal(){const body=$('#policyBody');if(!body||body.querySelector('.legalAcceptance86'))return;let user=null;try{user=(await window.btvSupabase?.auth?.getUser())?.data?.user}catch{}const m=user?.user_metadata||{},stamp=m.combined_legal_accepted_at||m.terms_accepted_at||m.privacy_acknowledged_at||m.cookie_understood_at||user?.created_at;const card=document.createElement('div');card.className='legalAcceptance86';card.innerHTML=`<span>RECORDED AGREEMENT</span><b>${stamp?'Accepted '+new Date(stamp).toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'}):'Acceptance record unavailable'}</b><small>${stamp?'Terms, Privacy Policy and Cookie Policy were accepted together for this account.':'Older accounts may require fresh acceptance when the policies are next updated.'}</small>`;body.prepend(card)}
 function install(){cleanLearn();choice('cbt','cbt.html');choice('nclex','nclex.html');ielts();cleanExplore();menu();if($('#legal')?.classList.contains('active'))legal()}
-let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;install()})}).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('click',e=>{if(e.target.closest('[data-open="legal"],[data-policy]'))setTimeout(legal,80)});install();setTimeout(install,500);setTimeout(install,1600);
+let frame=0;
+const observer=new MutationObserver(()=>{if(frame)cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{frame=0;install()})});
+observer.observe(document.getElementById('learn')||document.body,{childList:true,subtree:true});
+document.addEventListener('click',e=>{if(e.target.closest('[data-open="legal"],[data-policy]'))setTimeout(legal,80)});
+window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+window.addEventListener('btv:profile-changed',install);
+install();
 })();

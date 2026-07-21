@@ -12,5 +12,10 @@
  function premium(){const b=$('#premiumSecureBadge');if(b)b.innerHTML='<img src="premium-emblem-v85.png" alt="Premium member">'}
  function topMenu(){const p=$('.shortcutPanel83');if(!p||p.querySelector('.supportMenu85'))return;p.querySelectorAll('[data-shortcut83="mentor"],[data-shortcut83="story"],[data-shortcut83="community"]').forEach(x=>x.remove());const g=document.createElement('div');g.className='shortcutGroup83 supportMenu85';g.innerHTML='<span>SUPPORT & TRUST</span><button class="shortcutItem83" data-vroute="legal"><b>Privacy & legal</b><small>Terms, cookies and your data</small></button><button class="shortcutItem83" data-vroute="feedback"><b>Feedback</b><small>Rate, report or request a feature</small></button><button class="shortcutItem83" data-vroute="contact"><b>Contact us</b><small>Support and general enquiries</small></button><button class="shortcutItem83 shortcutAdmin83" data-vroute="admin"><b>Admin portal</b><small>Visible to authorised administrators</small></button>';p.append(g);g.querySelectorAll('[data-vroute]').forEach(b=>b.onclick=()=>{if(b.dataset.vroute==='admin')location.href='admin.html';else{document.querySelector('.shortcutClose83')?.click();open(b.dataset.vroute)}})}
  function install(){premium();topMenu();explore();exams();mockChoices();dashboard();document.querySelector('#platformHubV72')?.classList.add('walletShell85')}
- let wait=false;new MutationObserver(()=>{if(wait)return;wait=true;requestAnimationFrame(()=>{wait=false;install()})}).observe(document.documentElement,{childList:true,subtree:true});install();setTimeout(install,700);setTimeout(install,1800)
+ let frame=0;
+ const observer=new MutationObserver(()=>{if(frame)cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{frame=0;install()})});
+ observer.observe(document.getElementById('learn')||document.body,{childList:true,subtree:true});
+ window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+ window.addEventListener('btv:profile-changed',install);
+ install();
 })();

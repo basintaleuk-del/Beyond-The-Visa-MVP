@@ -1,0 +1,6 @@
+.learnV90Hub{display:grid;gap:10px;margin:0 0 14px}
+.learnV90Grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.learnV90Card{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:14px;text-align:left}
+.learnV90Card b,.learnV90Card small{display:block}
+.learnV90Card small{color:var(--muted);margin-top:4px}
+.learnV90Icon{width:34px;height:34px;border-radius:10px;background:var(--mint);display:grid;place-items:center;margin-bottom:8px;color:var(--teal);font-style:normal}
