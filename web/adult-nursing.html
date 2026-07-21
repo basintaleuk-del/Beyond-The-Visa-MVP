@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2d5f7a">
+  <title>Adult Nursing | Beyond The Visa</title>
+  <link rel="stylesheet" href="adult-nursing-v31.css?v=31">
+</head>
+<body>
+<header class="top">
+  <a href="index.html" class="back">← Dashboard</a>
+  <div><b>Beyond The Visa</b><small>Adult Nursing Learning</small></div>
+  <button id="logout" type="button">Sign out</button>
+</header>
+<main>
+  <section id="loading" class="panel center"><h1>Loading Adult Nursing…</h1></section>
+  <section id="app" hidden>
+    <div class="hero">
+      <div><span>ADULT NURSING ESSENTIALS</span><h1>Core clinical knowledge</h1><p>Master essential adult nursing concepts, assessments and interventions.</p></div>
+      <div class="score"><b id="readiness">Start</b><small>progress</small></div>
+    </div>
+    <div class="stats">
+      <article><small>Completed</small><b id="completed">0</b></article>
+      <article><small>Accuracy</small><b id="accuracy">0%</b></article>
+      <article><small>Topics</small><b id="topics">8</b></article>
+      <article><small>Hours spent</small><b id="hours">0</b></article>
+    </div>
+    <div class="tabs">
+      <button class="active" data-view="fundamentals">Fundamentals</button>
+      <button data-view="assessment">Assessment</button>
+      <button data-view="conditions">Conditions</button>
+      <button data-view="skills">Skills</button>
+    </div>
+    <section id="fundamentalsView" class="view active">
+      <div class="panel"><h2>Nursing Fundamentals</h2><p>Basic principles: infection prevention, hygiene, safety, documentation and patient communication.</p><button id="startFundamentals" class="primary">Begin fundamentals</button></div>
+    </section>
+    <section id="assessmentView" class="view">
+      <div class="panel"><h2>Clinical Assessment</h2><p>Learn systematic patient assessment: vital signs, pain, mobility, mental status and risk screening.</p><button id="startAssessment" class="primary">Begin assessments</button></div>
+    </section>
+    <section id="conditionsView" class="view">
+      <div class="panel"><h2>Common Conditions</h2><p>Understand management of common acute and chronic conditions in adult nursing.</p><button id="startConditions" class="primary">Explore conditions</button></div>
+    </section>
+    <section id="skillsView" class="view">
+      <div class="panel"><h2>Clinical Skills</h2><p>Master core procedures: medication administration, wound care, patient positioning and comfort measures.</p><button id="startSkills" class="primary">Practice skills</button></div>
+    </section>
+    <p class="disclaimer">Educational content for learning support. Always follow local policy and scope of practice.</p>
+  </section>
+</main>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="adult-nursing-v31.js?v=31"></script>
+</body>
+</html>
