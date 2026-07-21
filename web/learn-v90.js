@@ -63,28 +63,28 @@
   }
 
   // Restore floating action button (Zibur)
-  function restoreFloatingAction() {
-    let fab = document.getElementById('floatingAction');
-    if (!fab) {
-      fab = document.createElement('button');
-      fab.id = 'floatingAction';
-      fab.className = 'floatingAction';
-      fab.innerHTML = '✦';
-      fab.title = 'Ask Zibur';
-      fab.onclick = () => {
+  function restoreZibur() {
+    let zibur = document.getElementById('zibur');
+    if (!zibur) {
+      zibur = document.createElement('button');
+      zibur.id = 'zibur';
+      zibur.className = 'ziburButton';
+      zibur.innerHTML = '✦';
+      zibur.title = 'Ask Zibur';
+      zibur.onclick = () => {
         if (typeof window.openScreen === 'function') window.openScreen('assistant');
         else {
           document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'assistant'));
           document.querySelectorAll('.nav').forEach(b => b.classList.toggle('active', b.dataset.open === 'assistant'));
         }
       };
-      document.body.appendChild(fab);
+      document.body.appendChild(zibur);
     }
   }
 
   function start() {
     buildLearningHub();
-    restoreFloatingAction();
+    restoreZibur();
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', start) : start();
