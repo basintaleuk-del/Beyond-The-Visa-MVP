@@ -3,7 +3,8 @@
  if(window.__btvNavigationStateV63)return;window.__btvNavigationStateV63=true;
  const KEY='btv-current-screen-v63',SUBKEY='btv-current-subview-v63';
  const blocked=new Set(['auth']);
- let desired='';let ready=false;let restoring=false;
+ let desired='';let ready=false;let restoring=false;let announced=false;
+ const announceReady=()=>{if(announced)return;announced=true;document.documentElement.classList.add('btv-navigation-ready');window.dispatchEvent(new CustomEvent('btv:navigation-ready',{detail:{screen:active()||'home'}}));};
  const read=()=>{try{return sessionStorage.getItem(KEY)||''}catch{return''}};
  const save=id=>{if(!id||blocked.has(id))return;try{sessionStorage.setItem(KEY,id)}catch{}}
  const active=()=>document.querySelector('#appShell .screen.active')?.id||'';
@@ -25,10 +26,10 @@
  function restore(){
   const shell=document.getElementById('appShell');
   if(!shell||shell.hidden)return false;
-  if(!desired){ready=true;save(active()||'home');return true}
+  if(!desired){ready=true;save(active()||'home');announceReady();return true}
   prepare(desired);
   const screen=document.getElementById(desired);
-  if(!screen?.classList.contains('screen'))return false;
+  if(!screen?.classList.contains('screen')){desired='home';try{sessionStorage.setItem(KEY,'home')}catch{};const home=document.getElementById('home');if(home?.classList.contains('screen')){restoring=true;window.openScreen?.('home');restoring=false;ready=true;announceReady();return true}return false;}
   restoring=true;
   if(typeof window.openScreen==='function')window.openScreen(desired);
   else document.querySelectorAll('.screen').forEach(item=>item.classList.toggle('active',item.id===desired));
@@ -37,7 +38,7 @@
    const tab=subview&&document.querySelector(`[data-learn-tab="${CSS.escape(subview)}"]`);
    if(tab&&!tab.classList.contains('active'))tab.click();
   }catch{}
-  save(desired);ready=true;restoring=false;
+  save(desired);ready=true;restoring=false;announceReady();
   return true;
  }
 
@@ -52,7 +53,7 @@
 
  function start(){
   let attempts=0;
-  const timer=setInterval(()=>{attempts++;if(restore()||attempts>100)clearInterval(timer)},50);
+  const timer=setInterval(()=>{attempts++;if(restore()){clearInterval(timer);return}if(attempts>100){clearInterval(timer);ready=true;announceReady()}},50);
   const main=document.querySelector('#appShell main');
   if(main)new MutationObserver(()=>{
    if(!ready){restore();return}
