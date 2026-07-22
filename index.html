@@ -69,6 +69,24 @@ function setVisible(element,visible,display='block'){
   element.style.display=visible?display:'none';
 }
 
+function clearStartupGate(){
+  const app=document.getElementById('appShell');
+  if(!app)return;
+  app.style.visibility='';
+  app.removeAttribute('aria-busy');
+}
+
+function releaseAppAfterNavigationRestore(){
+  const app=document.getElementById('appShell');
+  if(!app)return;
+  app.style.visibility='hidden';
+  app.setAttribute('aria-busy','true');
+  const release=()=>{app.style.visibility='';app.removeAttribute('aria-busy');window.__btvRevealCurrentUI?.();};
+  if(document.documentElement.classList.contains('btv-navigation-ready')){requestAnimationFrame(release);return}
+  window.addEventListener('btv:navigation-ready',release,{once:true});
+  setTimeout(release,5000);
+}
+
 function personalise(){
   const account=authAccount(),profile=userProfile();
   const heading=document.querySelector('.welcome h1');
@@ -86,18 +104,23 @@ function personalise(){
 }
 
 function showApp(){
+  clearStartupGate();
   setVisible(document.getElementById('auth'),false);
   const onboarding=document.getElementById('onboarding');
   if(onboarding)setVisible(onboarding,false);
   setVisible(document.getElementById('appShell'),true);
+  releaseAppAfterNavigationRestore();
+  window.dispatchEvent(new CustomEvent('btv:session-restored',{detail:{state:'app'}}));
   personalise();
 }
 
 function showAuth(){
+  clearStartupGate();
   setVisible(document.getElementById('appShell'),false);
   const onboarding=document.getElementById('onboarding');
   if(onboarding)setVisible(onboarding,false);
   setVisible(document.getElementById('auth'),true,'grid');
+  window.dispatchEvent(new CustomEvent('btv:session-restored',{detail:{state:'auth'}}));
 }
 
 function authTab(login){
@@ -137,6 +160,7 @@ function buildOnboarding(){
 }
 
 function showOnboarding(){
+  clearStartupGate();
   buildOnboarding();
   const profile=userProfile();
   if(profile){
@@ -152,6 +176,7 @@ function showOnboarding(){
   setVisible(document.getElementById('auth'),false);
   setVisible(document.getElementById('appShell'),false);
   setVisible(document.getElementById('onboarding'),true,'grid');
+  window.dispatchEvent(new CustomEvent('btv:session-restored',{detail:{state:'onboarding'}}));
 }
 
 document.getElementById('showSignup').onclick=()=>authTab(false);
@@ -214,7 +239,7 @@ async function initialiseSupabaseAuth(){
   if(session){await cacheSignedInUser(session.user);userProfile()?showApp():showOnboarding()}else showAuth();
   window.btvSupabase.auth.onAuthStateChange(async(event,session)=>{
     window.__btvSession=session;
-    if(event==='SIGNED_OUT'){showAuth();return}
+    if(event==='SIGNED_OUT'){showAuth();authTab(true);return}
     if(session){await cacheSignedInUser(session.user)}
   });
 }
@@ -671,4 +696,3 @@ installBrandArtwork();buildLegalCentre();buildFeedback();installCookieNotice();
 <script src="learn-v90.js?v=90"></script>
 <script src="security-hardening-v80.js?v=80"></script><script src="compatibility-v81.js?v=81"></script><script src="profile-menu-v82.js?v=85"></script><script src="welcome-video-v82.js?v=82"></script><link rel="stylesheet" href="header-experience-v83.css?v=83"><script src="header-experience-v83.js?v=83"></script><link rel="stylesheet" href="header-polish-v84.css?v=84"><script src="exam-eligibility-v84.js?v=84"></script><script src="header-polish-v84.js?v=84"></script><link rel="stylesheet" href="experience-v85.css?v=85"><script src="experience-v85-home.js?v=85"></script><script src="calculator-v85.js?v=85"></script><script src="experience-v85-detail.js?v=85"></script><link rel="stylesheet" href="experience-v86.css?v=86"><script src="experience-v86.js?v=86"></script><link rel="stylesheet" href="coin-access-v87.css?v=87"><script src="coin-access-v87.js?v=87"></script>  <script type="module" src="mobile-native.js?v=1"></script>
 </body></html>
-

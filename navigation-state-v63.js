@@ -3,7 +3,7 @@
  if(window.__btvNavigationStateV63)return;window.__btvNavigationStateV63=true;
  const KEY='btv-current-screen-v63',SUBKEY='btv-current-subview-v63';
  const blocked=new Set(['auth']);
- let desired='';let ready=false;let restoring=false;let announced=false;
+ let desired='';let ready=false;let restoring=false;let announced=false;let startupRestored=false;let startupObserver=null;let started=false;
  const announceReady=()=>{if(announced)return;announced=true;document.documentElement.classList.add('btv-navigation-ready');window.dispatchEvent(new CustomEvent('btv:navigation-ready',{detail:{screen:active()||'home'}}));};
  const read=()=>{try{return sessionStorage.getItem(KEY)||''}catch{return''}};
  const save=id=>{if(!id||blocked.has(id))return;try{sessionStorage.setItem(KEY,id)}catch{}}
@@ -51,14 +51,30 @@
  },true);
  addEventListener('pagehide',()=>save(active()),{capture:true});
 
+ function runStartupRestore(){
+  if(startupRestored)return true;
+  if(!restore())return false;
+  startupRestored=true;
+  if(startupObserver){startupObserver.disconnect();startupObserver=null;}
+  return true;
+ }
+
  function start(){
-  let attempts=0;
-  const timer=setInterval(()=>{attempts++;if(restore()){clearInterval(timer);return}if(attempts>100){clearInterval(timer);ready=true;announceReady()}},50);
+  if(!startupRestored&&!startupObserver){
+   startupObserver=new MutationObserver(()=>runStartupRestore());
+   startupObserver.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class']});
+  }
+  runStartupRestore();
+  if(started)return;
+  started=true;
+
   const main=document.querySelector('#appShell main');
   if(main)new MutationObserver(()=>{
    if(!ready){restore();return}
    const id=active();if(id&&!restoring)save(id);
   }).observe(main,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
  }
+ window.BTVNavigationState={restoreNow:()=>runStartupRestore(),active};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
+ window.addEventListener('btv:session-restored',start);
 })();
