@@ -207,6 +207,8 @@
   async function render() {
     const home = document.getElementById("home");
     if (!home || !(await load())) return;
+    const appShell = document.getElementById("appShell");
+    appShell?.classList.add("dashboard73-shell-active");
 
     home.classList.add("dashboard73-active");
     document.getElementById("careerDashboard")?.remove();

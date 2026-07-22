@@ -9,6 +9,11 @@
   --btv-gold:#d5b24f;
 }
 
+html,body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+
 #appShell>header{display:none!important}
 #home.dashboard73-active>.welcome,
 #home.dashboard73-active>.journey,
@@ -18,9 +23,12 @@
 #home.dashboard73-active>#careerDashboard{display:none!important}
 
 .mission73.dashboardShell73{
-  width:min(100vw - 20px,1400px);
+  width:min(100%,1400px);
   margin:14px auto 124px;
   padding:0;
+  max-width:100%;
+  overflow-x:hidden;
+  box-sizing:border-box;
 }
 
 .dashboardLayout73{
@@ -29,6 +37,9 @@
   gap:18px;
   color:var(--btv-ink);
   font-family:"Plus Jakarta Sans","Inter","Segoe UI",system-ui,sans-serif;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 .sidebar73{
@@ -277,6 +288,9 @@
   overflow:hidden;
   border:1px solid #e3ebe6;
   background:var(--btv-bg);
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 .mainHeader73{
@@ -355,6 +369,9 @@
   padding:16px 22px 28px;
   display:grid;
   gap:14px;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 .welcomeCard73{
@@ -514,6 +531,7 @@
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:12px;
+  min-width:0;
 }
 .statCard73{
   min-height:172px;
@@ -572,6 +590,7 @@
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
+  min-width:0;
 }
 .panel73{
   border-radius:16px;
@@ -791,6 +810,14 @@
   stroke-linejoin:round;
 }
 
+#appShell.dashboard73-shell-active{
+  max-width:100%;
+  overflow-x:hidden!important;
+}
+#appShell.dashboard73-shell-active > main{
+  overflow-x:hidden!important;
+}
+
 @media(max-width:1279px){
   .mainHeader73 h1{font-size:21px}
   .welcomeInner73 h2{font-size:52px}
@@ -834,4 +861,13 @@
 @media(max-width:640px){
   .mainHeader73 .icon73:nth-of-type(2){display:none}
   .searchWrap73{width:168px}
+}
+
+@media(min-width:981px){
+  #appShell.dashboard73-shell-active>nav,
+  #appShell>nav{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
 }
