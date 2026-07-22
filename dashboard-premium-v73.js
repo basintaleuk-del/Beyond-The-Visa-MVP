@@ -51,7 +51,7 @@
     const p = localProfile();
     const profession = p.profession || u?.user_metadata?.profession || "Nurse";
     const destination = p.destination || u?.user_metadata?.destination || "United States";
-    return `${profession} pathway - ${destination}`;
+    return `${profession} pathway · ${destination}`;
   }
 
   function fmtHeaderDate() {
@@ -320,7 +320,7 @@
 
           <section class="secondaryGrid73">
             <article class="panel73" data-go="${rec.id}">
-              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
+              <div class="panelHead73"><h3>Recommended next step</h3><button class="panelCta73" data-go="study-plan" aria-label="View plan">${iconSvg("arrowRight")}</button></div>
               <div class="nextStep73">
                 <span class="nextIcon73">${iconSvg("arrowRight")}</span>
                 <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>

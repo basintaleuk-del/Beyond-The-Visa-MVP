@@ -46,7 +46,7 @@ html,body{
   position:sticky;
   top:14px;
   height:calc(100vh - 28px);
-  border-radius:24px;
+  border-radius:22px;
   border:1px solid #1f3f30;
   background:
     linear-gradient(180deg,rgba(17,43,31,.98),rgba(12,28,22,.98)),
@@ -284,7 +284,7 @@ html,body{
 
 .mainArea73{
   min-width:0;
-  border-radius:24px;
+  border-radius:22px;
   overflow:hidden;
   border:1px solid #e3ebe6;
   background:var(--btv-bg);
@@ -294,7 +294,7 @@ html,body{
 }
 
 .mainHeader73{
-  min-height:86px;
+  min-height:78px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -376,8 +376,8 @@ html,body{
 
 .welcomeCard73{
   position:relative;
-  min-height:284px;
-  border-radius:28px;
+  min-height:286px;
+  border-radius:31px;
   overflow:hidden;
   border:1px solid rgba(214,177,71,.42);
   background:linear-gradient(120deg,#0a1d16 0%,#103225 45%,#184636 100%);
@@ -403,19 +403,19 @@ html,body{
   position:absolute;
   right:0;
   top:0;
-  width:47%;
+  width:46.5%;
   height:100%;
   background:
-    linear-gradient(to left,rgba(10,29,22,.2),rgba(10,29,22,.84) 50%,rgba(10,29,22,.96)),
-    url("welcome-journey-v85.png") center top/cover no-repeat;
-  opacity:.9;
+    linear-gradient(to left,rgba(10,29,22,.22),rgba(10,29,22,.86) 48%,rgba(10,29,22,.96)),
+    url("welcome-journey-v85.png") 73% center/cover no-repeat;
+  opacity:.93;
 }
 
 .welcomeInner73{
   position:relative;
   z-index:2;
   padding:26px 34px;
-  max-width:58%;
+  max-width:57.5%;
 }
 .welcomeDate73{
   margin:0 0 8px;
@@ -427,14 +427,14 @@ html,body{
 .welcomeInner73 h2{
   margin:0;
   color:#f9fff9;
-  font-size:62px;
+  font-size:60px;
   line-height:1.03;
   letter-spacing:-.02em;
   font-weight:800;
 }
 .welcomePathway73{
   margin:10px 0 0;
-  font-size:15px;
+  font-size:16px;
   color:#d2e2d7;
   font-weight:500;
 }
@@ -491,14 +491,14 @@ html,body{
 .readinessCopy73 b{
   display:block;
   color:#f4faf5;
-  font-size:15px;
+  font-size:14px;
   font-weight:700;
 }
 .readinessCopy73 small{
   display:block;
   margin-top:4px;
   color:#d2e2d7;
-  font-size:11px;
+  font-size:10px;
   line-height:1.35;
 }
 
@@ -530,11 +530,11 @@ html,body{
 .statsRow73{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
+  gap:13px;
   min-width:0;
 }
 .statCard73{
-  min-height:172px;
+  min-height:178px;
   border-radius:16px;
   border:1px solid var(--btv-line);
   background:var(--btv-card);
@@ -599,6 +599,7 @@ html,body{
   box-shadow:0 10px 24px rgba(18,50,35,.06);
   padding:0;
   overflow:hidden;
+  min-width:0;
 }
 .panelHead73{
   min-height:60px;
@@ -623,10 +624,23 @@ html,body{
   font-weight:700;
   cursor:pointer;
 }
+.panelCta73{
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  border:1px solid #d7e5dc!important;
+  background:#fff!important;
+}
+.panelCta73 svg{
+  width:16px;
+  height:16px;
+}
 
 .nextStep73{
   margin:16px 18px 18px;
-  min-height:112px;
+  min-height:114px;
   border-radius:13px;
   border:1px solid #e3eadf;
   background:linear-gradient(135deg,#f9f1d9,#f1faeb);
@@ -649,13 +663,13 @@ html,body{
 .nextStep73 b{
   display:block;
   color:#1b362a;
-  font-size:16px;
+  font-size:15px;
 }
 .nextStep73 small{
   display:block;
   margin-top:4px;
   color:#5f766a;
-  font-size:12px;
+  font-size:11px;
   line-height:1.32;
 }
 
@@ -674,12 +688,12 @@ html,body{
   cursor:pointer;
 }
 .focusRow73 span{
-  font-size:15px;
+  font-size:14px;
   color:#1d3a2c;
 }
 .focusRow73 em{
   font-style:normal;
-  font-size:11px;
+  font-size:10px;
   font-weight:700;
   letter-spacing:.08em;
   color:#2f8f67;
@@ -820,7 +834,7 @@ html,body{
 
 @media(max-width:1279px){
   .mainHeader73 h1{font-size:21px}
-  .welcomeInner73 h2{font-size:52px}
+  .welcomeInner73 h2{font-size:50px}
   .welcomePathway73{font-size:14px}
   .panelHead73 h3{font-size:18px}
   .panelHead73 button{font-size:14px}
@@ -842,7 +856,7 @@ html,body{
   .welcomeInner73{max-width:100%;padding:16px 16px 18px}
   .welcomeNurse73{width:68%;opacity:.72}
   .welcomeDate73{font-size:11px}
-  .welcomeInner73 h2{font-size:34px}
+  .welcomeInner73 h2{font-size:33px}
   .welcomePathway73{font-size:17px}
   .readinessCopy73 b{font-size:14px}
   .readinessCopy73 small{font-size:11px}
