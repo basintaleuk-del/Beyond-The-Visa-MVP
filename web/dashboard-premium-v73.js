@@ -1,19 +1,253 @@
 (function(){
- const F=()=>window.BTVFeatures,db=()=>window.btvSupabase;let state={},lastFocus=null;
- const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const icon=id=>({home:'⌂',book:'▤',target:'◎',route:'↗',briefcase:'▣',users:'♧',sparkle:'✦',library:'▥',coin:'◆',bell:'◉',profile:'●',chart:'▥',bookmark:'◇',calendar:'▦'}[id]||'•');
- function localProfile(){try{return JSON.parse(localStorage.getItem('btv-profile')||'{}')}catch{return {}}}
- function safeName(u){const p=localProfile(),raw=p.preferredName||p.name||u?.user_metadata?.preferred_name||u?.user_metadata?.full_name||'';const value=String(raw).trim().split(/\s+/)[0];return value&&!/@/.test(value)?value:''}
- function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
- async function load(){const session=(await db()?.auth?.getSession())?.data?.session;if(!session)return null;const u=session.user;let platform={};try{const [wallet,game,mocks,notes,saved,mentor,story,progress,steps,activity]=await Promise.all([db().from('btv_wallets').select('*').eq('user_id',u.id).maybeSingle(),db().from('btv_gamification').select('*').eq('user_id',u.id).maybeSingle(),db().from('btv_mock_sessions').select('*').eq('user_id',u.id).order('started_at',{ascending:false}).limit(8),db().from('btv_notifications').select('*').eq('user_id',u.id).order('created_at',{ascending:false}).limit(8),db().from('btv_saved_jobs').select('*').eq('user_id',u.id),db().from('btv_mentor_bookings').select('*').eq('user_id',u.id).gte('starts_at',new Date().toISOString()).limit(1),db().from('btv_success_stories').select('*').eq('status','approved').order('created_at',{ascending:false}).limit(1),db().from('btv_user_journey_progress').select('*').eq('user_id',u.id),db().from('btv_journey_steps').select('*').eq('is_active',true).order('sort_order'),db().from('btv_study_activity').select('*').eq('user_id',u.id).order('created_at',{ascending:false}).limit(8)]);const results=[wallet,game,mocks,notes,saved,mentor,story,progress,steps,activity],failed=results.find(x=>x.error);if(failed)throw failed.error;platform={wallet:wallet.data||{balance:0},game:game.data||{level:1,xp:0,current_streak:0},mocks:mocks.data||[],notes:notes.data||[],saved:saved.data||[],mentor:mentor.data?.[0],story:story.data?.[0],progress:progress.data||[],steps:steps.data||[],activity:activity.data||[]}}catch(e){console.warn('v73 data fallback',e);platform={wallet:{balance:0},game:{level:1,xp:0,current_streak:0},mocks:[],notes:[],saved:[],progress:[],steps:[],activity:[]}}state={u,...platform};return state}
- function journey(){const legacy=typeof window.completed==='function'?window.completed():0,legacyTotal=typeof window.country==='function'?(window.country()?.steps?.length||0):0;const done=state.progress?.filter(x=>x.completed===true||Boolean(x.completed_at)).length||legacy,total=state.steps?.length||legacyTotal||15;return {done,total,pct:total?Math.round(done/total*100):0}}
- function recommendation(j){const p=localProfile();if(!p.profession||!p.destination)return {title:'Complete your profile',copy:'Add your profession and destination for better recommendations.',id:'profile'};const active=state.mocks?.find(x=>x.status==='active'||x.status==='in_progress');if(active)return {title:'Resume your active mock',copy:`Continue ${String(active.mock_code).replaceAll('_',' ')} without paying again.`,id:'mock-tests'};if(!j.done)return {title:'Take your first step',copy:'Open your pathway and complete the first milestone.',id:'journey'};if(state.notes?.some(x=>!x.read_at))return {title:'Review your updates',copy:'You have unread guidance and account notifications.',id:'notifications'};return {title:'Continue today’s study plan',copy:'Keep your learning streak moving forward.',id:'study-plan'}}
- function go(id){F()?.open(id)}
- function header(){let h=document.getElementById('btvTop73');if(h)return h;h=document.createElement('header');h.id='btvTop73';h.className='btvTop73';h.innerHTML=`<button class="btvBrand73" data-go="dashboard" aria-label="Beyond The Visa dashboard"><span class="brandSymbol">BV</span><span><b>Beyond The Visa</b><small>Guidance · Preparation · Your Future</small></span></button><nav class="desktopNav73" aria-label="Primary navigation"></nav><div class="headerTools73"><button class="walletHead73" data-go="wallet" aria-label="View Beyond Coins wallet"><span>◆</span><span><b data-wallet-balance>— BC</b><small>Beyond Coins</small></span></button><button class="iconButton73 notificationHead73" data-go="notifications" aria-label="Open notifications" title="Notifications">◉</button><div class="menuWrap73"><button class="profileButton73" aria-haspopup="menu" aria-expanded="false" data-account-menu>A</button><div class="drop73" role="menu" hidden data-account-drop></div></div><button class="iconButton73 mobileMenu73" aria-label="Open navigation menu" aria-expanded="false" data-mobile-open>☰</button></div>`;document.getElementById('appShell')?.prepend(h);const nav=h.querySelector('.desktopNav73');['dashboard','study','mock-tests','journey','jobs','community','assistant','resources'].forEach(id=>{const f=F().by(id),b=document.createElement('button');b.textContent=f.title;b.dataset.go=id;nav.append(b)});const drop=h.querySelector('[data-account-drop]');drop.innerHTML='<div class="dropTitle">ACCOUNT</div>'+['profile','journey','study-plan','wallet','analytics','saved-jobs','notifications'].map(id=>{const f=F().by(id);return `<button class="dropItem73" role="menuitem" data-go="${id}"><span>${icon(f.icon)}</span><span><b>${esc(f.title)}</b><small>${esc(f.description)}</small></span></button>`}).join('')+'<button class="dropItem73" role="menuitem" data-signout><span>↪</span><span><b>Sign Out</b><small>Securely end this session.</small></span></button>';h.querySelector('[data-account-menu]').onclick=e=>toggleDrop(e.currentTarget,drop);h.querySelector('[data-mobile-open]').onclick=e=>openDrawer(e.currentTarget);wire(h);return h}
- function toggleDrop(trigger,drop){const opening=drop.hidden;document.querySelectorAll('.drop73').forEach(x=>x.hidden=true);drop.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));if(opening){lastFocus=trigger;drop.querySelector('button')?.focus()}}
- function wire(root){root.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>{go(x.dataset.go);root.querySelectorAll('.drop73').forEach(d=>d.hidden=true)});root.querySelector('[data-signout]')?.addEventListener('click',()=>document.getElementById('logout')?.click())}
- function openDrawer(trigger){lastFocus=trigger;let o=document.getElementById('drawerBackdrop73');if(!o){o=document.createElement('div');o.id='drawerBackdrop73';o.className='drawerBackdrop73';o.hidden=true;document.body.append(o)}const j=journey(),name=safeName(state.u)||'Member',unread=state.notes?.filter(x=>!x.read_at).length||0;o.innerHTML=`<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="iconButton73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(name[0]||'M')}</span><span><b>${esc(name)}</b><small>${unread} unread notification${unread===1?'':'s'}</small></span></div><button class="drawerWallet73" data-go="wallet">◆ ${Number(state.wallet?.balance||0)} BC <small>· View Beyond Coins wallet</small></button><button class="drawerProgress73" data-go="journey"><span class="drawerProgressTop"><b>Journey progress</b><strong>${j.pct}%</strong></span><span class="bar"><i style="width:${j.pct}%"></i></span></button>${[['MAIN',['dashboard','journey','assistant','notifications']],['STUDY',['study','ielts','cbt','nclex','osce','calculations']],['CAREER',['jobs','community','mentors','stories']],['ACCOUNT',['profile','wallet','analytics','saved-jobs']]].map(([title,ids])=>`<div class="drawerGroup73"><strong>${title}</strong>${ids.map(id=>{const f=F().by(id);return `<button class="drawerLink73" data-go="${id}"><span>${esc(f.title)}<small>${esc(f.description)}</small></span><span>›</span></button>`}).join('')}</div>`).join('')}<div class="drawerGroup73"><button class="drawerLink73" data-signout><span>Sign Out<small>Securely end this session.</small></span><span>↪</span></button></div></aside>`;o.hidden=false;document.body.style.overflow='hidden';trigger.setAttribute('aria-expanded','true');const close=()=>{o.hidden=true;document.body.style.overflow='';trigger.setAttribute('aria-expanded','false');lastFocus?.focus()};o.querySelector('[data-close]').onclick=close;o.onclick=e=>{if(e.target===o)close()};wire(o);o.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',close));const focusable=[...o.querySelectorAll('button')];o.onkeydown=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const a=focusable[0],z=focusable.at(-1);if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}};o.querySelector('[data-close]').focus()}
- function tile(cls,id,body,label){return `<article class="tile73 ${cls} clickable" tabindex="0" role="link" data-go="${id}" aria-label="${esc(label)}">${body}</article>`}
- async function render(){const home=document.getElementById('home');if(!home||!await load())return;header();const root=document.getElementById('dashboardV3')||document.createElement('section');root.id='dashboardV3';root.className='mission73';if(!root.isConnected)home.prepend(root);const j=journey(),rec=recommendation(j),name=safeName(state.u),mocksDone=state.mocks.filter(x=>x.status==='completed').length,unread=state.notes.filter(x=>!x.read_at).length,latest=state.mocks.find(x=>x.status==='completed');const activities=state.activity.length?state.activity.slice(0,3).map(x=>({title:x.activity_type||'Study activity',text:`${Math.round(Number(x.study_seconds||0)/60)} minutes · ${x.score??0}% · ${x.correct_answers??0}/${x.questions_answered??0}}`})):[{title:'Welcome to Beyond The Visa',text:state.wallet?.balance?'Your Beyond Coins welcome bonus is ready.':'Your personalised journey is ready.'},{title:'Complete your profile',text:'Add details to improve your recommendations.'}];root.innerHTML=`<section class="hero73"><div class="heroGrid73"><div><button class="missionLink73" data-go="analytics">MISSION CONTROL · LEVEL ${Number(state.game?.level||1)}</button><p>${greeting()}${name?', '+esc(name):''}</p><h1>Welcome back to Beyond The Visa</h1><p class="lead">Your international nursing journey is one step closer today. Let’s keep the momentum going.</p><button class="journeyClick73" data-go="journey" aria-label="Open journey: ${j.pct}% complete"><div class="heroProgress73" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div><div class="heroStats73"><b>${j.pct}% complete</b><span>${j.done} of ${j.total} milestones</span><span>${mocksDone} mock tests completed</span><span>${Number(state.game?.current_streak||0)} day streak</span><span>${Number(state.wallet?.balance||0)} BC</span></div></button><div class="heroButtons73"><button class="primary" data-go="journey">Continue Your Journey</button><button class="secondary" data-go="study-plan">View Today’s Plan</button></div></div><aside class="nextAction73"><small>NEXT RECOMMENDED ACTION</small><b>${esc(rec.title)}</b><p>${esc(rec.copy)}</p><button data-go="${rec.id}">Let’s go →</button></aside></div></section><div class="dashGrid73">${tile('walletTile73','wallet',`<h2>◆ Beyond Coins</h2><span class="value">${Number(state.wallet?.balance||0)} <small>BC</small></span><p>Your shared learning wallet</p><span class="action">View wallet →</span>`,'View Beyond Coins wallet')}${tile('journeyTile73','journey',`<h2>Your Journey</h2><p>${j.done} of ${j.total} milestones completed</p><div class="tileProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div><b>${j.pct}% complete</b><p>Next: ${esc(rec.title)}</p><span class="action">View full journey →</span>`,'Open full journey')}${tile('planTile73','study-plan',`<h2>Today’s Study Plan</h2><p>Continue with one focused learning activity today.</p><b>${latest?'Review your latest result':'Start your first session'}</b><p>${latest?esc(String(latest.mock_code).replaceAll('_',' ')):'A manageable step builds momentum.'}</p><span class="action">View plan →</span>`,'Open today’s study plan')}${tile('streakTile73','analytics',`<h2>🔥 Current Streak</h2><span class="value">${Number(state.game?.current_streak||0)}</span><p>days active · ${Number(state.game?.xp||0)} XP</p><span class="action">Learning statistics →</span>`,'View learning statistics')}${tile('activityTile73','notifications',`<h2>Recent Activity</h2>${activities.map(x=>`<div class="activityLine73"><span>◎</span><span><b>${esc(x.title)}</b><small>${esc(x.text)}</small></span></div>`).join('')}<span class="action">View all activity →</span>`,'View recent activity')}${tile('readinessTile73','analytics',`<h2>Subject Readiness</h2>${[['IELTS',latest?.mock_code?.includes('ielts')?latest:0],['CBT',latest?.mock_code?.includes('cbt')?latest:0],['NCLEX',latest?.mock_code?.includes('nclex')?latest:0]].map(([n,x])=>{const p=x?.total?Math.round(x.score/x.total*100):0;return `<div class="readinessRow73"><span>${n}</span><span class="subjectBar73"><i style="width:${p}%"></i></span><b>${p}%</b></div>`}).join('')}<span class="action">View analytics →</span>`,'View subject readiness analytics')}${tile('storyTile73','stories',`<h2>Success Story</h2><b>${esc(state.story?.title||'Your journey can inspire others')}</b><p>${esc(state.story?.summary||state.story?.quote||state.story?.story||'Explore stories from professionals who moved forward with confidence.')}</p><span class="action">View stories →</span>`,'View success stories')}<article class="tile73 support73"><div><h2>You’re not alone on this journey</h2><p>Get guidance, support and resources from a community that understands your ambition.</p></div><div class="actions"><button class="light" data-go="community">Join Community</button><button class="solid" data-go="resources">Explore Resources</button></div></article></div>`;wire(root);document.querySelectorAll('[data-wallet-balance]').forEach(x=>x.textContent=`${Number(state.wallet?.balance||0)} BC`);const profileBtn=document.querySelector('.profileButton73');if(profileBtn)profileBtn.textContent=(name?.[0]||'M').toUpperCase();root.querySelectorAll('[role="link"]').forEach(x=>x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();x.click()}})}
- document.addEventListener('click',e=>{if(!e.target.closest('[data-account-menu], [data-account-drop]'))document.querySelectorAll('.drop73').forEach(x=>x.hidden=true)});document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.drop73').forEach(x=>x.hidden=true)});window.addEventListener('btv:wallet-changed',render);const old=window.renderDashboardInsights;window.renderDashboardInsights=function(){try{old?.()}catch(e){console.warn(e)}setTimeout(render,20)};setTimeout(render,1000)
+  if (window.__btvDashboardPremium73) return;
+  window.__btvDashboardPremium73 = true;
+
+  const F = () => window.BTVFeatures;
+  const db = () => window.btvSupabase;
+  let state = {};
+  let lastFocus = null;
+  let renderQueued = false;
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const icon = (id) => ({ home: "⌂", book: "▤", target: "◎", route: "↗", briefcase: "▣", users: "♧", sparkle: "✦", library: "▥", coin: "◆", bell: "◉", profile: "●", chart: "▥", bookmark: "◇", calendar: "▦" }[id] || "•");
+
+  function localProfile() {
+    try {
+      return JSON.parse(localStorage.getItem("btv-profile") || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function safeName(u) {
+    const p = localProfile();
+    const raw = p.preferredName || p.name || u?.user_metadata?.preferred_name || u?.user_metadata?.full_name || "";
+    const value = String(raw).trim().split(/\s+/)[0];
+    return value && !/@/.test(value) ? value : "";
+  }
+
+  function greeting() {
+    const h = new Date().getHours();
+    return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  }
+
+  async function load() {
+    const session = (await db()?.auth?.getSession())?.data?.session;
+    if (!session) return null;
+    const u = session.user;
+    let platform = {};
+    try {
+      const [wallet, game, mocks, notes, saved, mentor, story, progress, steps, activity] = await Promise.all([
+        db().from("btv_wallets").select("*").eq("user_id", u.id).maybeSingle(),
+        db().from("btv_gamification").select("*").eq("user_id", u.id).maybeSingle(),
+        db().from("btv_mock_sessions").select("*").eq("user_id", u.id).order("started_at", { ascending: false }).limit(8),
+        db().from("btv_notifications").select("*").eq("user_id", u.id).order("created_at", { ascending: false }).limit(8),
+        db().from("btv_saved_jobs").select("*").eq("user_id", u.id),
+        db().from("btv_mentor_bookings").select("*").eq("user_id", u.id).gte("starts_at", new Date().toISOString()).limit(1),
+        db().from("btv_success_stories").select("*").eq("status", "approved").order("created_at", { ascending: false }).limit(1),
+        db().from("btv_user_journey_progress").select("*").eq("user_id", u.id),
+        db().from("btv_journey_steps").select("*").eq("is_active", true).order("sort_order"),
+        db().from("btv_study_activity").select("*").eq("user_id", u.id).order("created_at", { ascending: false }).limit(8),
+      ]);
+      const failed = [wallet, game, mocks, notes, saved, mentor, story, progress, steps, activity].find((x) => x.error);
+      if (failed) throw failed.error;
+      platform = {
+        wallet: wallet.data || { balance: 0 },
+        game: game.data || { level: 1, xp: 0, current_streak: 0 },
+        mocks: mocks.data || [],
+        notes: notes.data || [],
+        saved: saved.data || [],
+        mentor: mentor.data?.[0],
+        story: story.data?.[0],
+        progress: progress.data || [],
+        steps: steps.data || [],
+        activity: activity.data || [],
+      };
+    } catch (e) {
+      console.warn("v73 data fallback", e);
+      platform = { wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+    }
+    state = { u, ...platform };
+    return state;
+  }
+
+  function journey() {
+    const legacy = typeof window.completed === "function" ? window.completed() : 0;
+    const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
+    const done = state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || legacy;
+    const total = state.steps?.length || legacyTotal || 15;
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+  }
+
+  function recommendation(j) {
+    const p = localProfile();
+    if (!p.profession || !p.destination) return { title: "Complete your profile", copy: "Add your profession and destination for better recommendations.", id: "profile" };
+    const active = state.mocks?.find((x) => x.status === "active" || x.status === "in_progress");
+    if (active) return { title: "Resume your active mock", copy: `Continue ${String(active.mock_code).replaceAll("_", " ")} without paying again.`, id: "mock-tests" };
+    if (!j.done) return { title: "Take your first step", copy: "Open your pathway and complete the first milestone.", id: "journey" };
+    if (state.notes?.some((x) => !x.read_at)) return { title: "Review your updates", copy: "You have unread guidance and account notifications.", id: "notifications" };
+    return { title: "Continue today’s study plan", copy: "Keep your learning streak moving forward.", id: "study-plan" };
+  }
+
+  function go(id) {
+    F()?.open(id);
+  }
+
+  function toggleDrop(trigger, drop) {
+    const opening = drop.hidden;
+    document.querySelectorAll(".drop73").forEach((x) => (x.hidden = true));
+    drop.hidden = !opening;
+    trigger.setAttribute("aria-expanded", String(opening));
+    if (opening) {
+      lastFocus = trigger;
+      drop.querySelector("button")?.focus();
+    }
+  }
+
+  function wire(root) {
+    root.querySelectorAll("[data-go]").forEach((x) => (x.onclick = () => { go(x.dataset.go); root.querySelectorAll(".drop73").forEach((d) => (d.hidden = true)); }));
+    root.querySelector("[data-signout]")?.addEventListener("click", () => document.getElementById("logout")?.click());
+  }
+
+  function openDrawer(trigger) {
+    lastFocus = trigger;
+    let o = document.getElementById("drawerBackdrop73");
+    if (!o) {
+      o = document.createElement("div");
+      o.id = "drawerBackdrop73";
+      o.className = "drawerBackdrop73";
+      o.hidden = true;
+      document.body.append(o);
+    }
+    const j = journey();
+    const name = safeName(state.u) || "Member";
+    const unread = state.notes?.filter((x) => !x.read_at).length || 0;
+    o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="iconButton73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(name[0] || "M")}</span><span><b>${esc(name)}</b><small>${unread} unread notification${unread === 1 ? "" : "s"}</small></span></div><button class="drawerWallet73" data-go="wallet">◆ ${Number(state.wallet?.balance || 0)} BC <small>· View Beyond Coins wallet</small></button><button class="drawerProgress73" data-go="journey"><span class="drawerProgressTop"><b>Journey progress</b><strong>${j.pct}%</strong></span><span class="bar"><i style="width:${j.pct}%"></i></span></button>${[["MAIN", ["dashboard", "journey", "assistant", "notifications"]], ["STUDY", ["study", "ielts", "cbt", "nclex", "osce", "calculations"]], ["CAREER", ["jobs", "community", "mentors", "stories"]], ["ACCOUNT", ["profile", "wallet", "analytics", "saved-jobs"]]].map(([title, ids]) => `<div class="drawerGroup73"><strong>${title}</strong>${ids.map((id) => { const f = F().by(id); return `<button class="drawerLink73" data-go="${id}"><span>${esc(f.title)}<small>${esc(f.description)}</small></span><span>›</span></button>`; }).join("")}</div>`).join("")}<div class="drawerGroup73"><button class="drawerLink73" data-signout><span>Sign Out<small>Securely end this session.</small></span><span>↪</span></button></div></aside>`;
+    o.hidden = false;
+    document.body.style.overflow = "hidden";
+    trigger.setAttribute("aria-expanded", "true");
+    const close = () => {
+      o.hidden = true;
+      document.body.style.overflow = "";
+      trigger.setAttribute("aria-expanded", "false");
+      lastFocus?.focus();
+    };
+    o.querySelector("[data-close]").onclick = close;
+    o.onclick = (e) => { if (e.target === o) close(); };
+    wire(o);
+    o.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", close));
+    const focusable = [...o.querySelectorAll("button")];
+    o.onkeydown = (e) => {
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") {
+        const a = focusable[0];
+        const z = focusable.at(-1);
+        if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+        else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+      }
+    };
+    o.querySelector("[data-close]").focus();
+  }
+
+  function header() {
+    let h = document.getElementById("btvTop73");
+    if (h) return h;
+    h = document.createElement("header");
+    h.id = "btvTop73";
+    h.className = "btvTop73";
+    h.innerHTML = `<button class="btvBrand73" data-go="dashboard" aria-label="Beyond The Visa dashboard"><span class="brandSymbol">BV</span><span><b>Beyond The Visa</b><small>Guidance · Preparation · Your Future</small></span></button><nav class="desktopNav73" aria-label="Primary navigation"></nav><div class="headerTools73"><button class="walletHead73" data-go="wallet" aria-label="View Beyond Coins wallet"><span>◆</span><span><b data-wallet-balance>— BC</b><small>Beyond Coins</small></span></button><button class="iconButton73 notificationHead73" data-go="notifications" aria-label="Open notifications" title="Notifications">◉</button><div class="menuWrap73"><button class="profileButton73" aria-haspopup="menu" aria-expanded="false" data-account-menu>A</button><div class="drop73" role="menu" hidden data-account-drop></div></div><button class="iconButton73 mobileMenu73" aria-label="Open navigation menu" aria-expanded="false" data-mobile-open>☰</button></div>`;
+    document.getElementById("appShell")?.prepend(h);
+    const nav = h.querySelector(".desktopNav73");
+    ["dashboard", "study", "mock-tests", "journey", "jobs", "community", "assistant", "resources"].forEach((id) => {
+      const f = F()?.by(id);
+      if (!f) return;
+      const b = document.createElement("button");
+      b.textContent = f.title;
+      b.dataset.go = id;
+      nav.append(b);
+    });
+    const drop = h.querySelector("[data-account-drop]");
+    drop.innerHTML = '<div class="dropTitle">ACCOUNT</div>' + ["profile", "journey", "study-plan", "wallet", "analytics", "saved-jobs", "notifications"].map((id) => {
+      const f = F()?.by(id);
+      if (!f) return "";
+      return `<button class="dropItem73" role="menuitem" data-go="${id}"><span>${icon(f.icon)}</span><span><b>${esc(f.title)}</b><small>${esc(f.description)}</small></span></button>`;
+    }).join("") + '<button class="dropItem73" role="menuitem" data-signout><span>↪</span><span><b>Sign Out</b><small>Securely end this session.</small></span></button>';
+    h.querySelector("[data-account-menu]").onclick = (e) => toggleDrop(e.currentTarget, drop);
+    h.querySelector("[data-mobile-open]").onclick = (e) => openDrawer(e.currentTarget);
+    wire(h);
+    return h;
+  }
+
+  function tile(cls, id, body, label) {
+    return `<article class="tile73 ${cls} clickable" tabindex="0" role="link" data-go="${id}" aria-label="${esc(label)}">${body}</article>`;
+  }
+
+  async function render() {
+    const home = document.getElementById("home");
+    if (!home || !(await load())) return;
+    home.classList.add("dashboard73-active");
+    document.getElementById("careerDashboard")?.remove();
+    header();
+    const root = document.getElementById("dashboardV3") || document.createElement("section");
+    root.id = "dashboardV3";
+    root.className = "mission73";
+    if (!root.isConnected) home.prepend(root);
+
+    const j = journey();
+    const rec = recommendation(j);
+    const name = safeName(state.u);
+    const mocksDone = state.mocks.filter((x) => x.status === "completed").length;
+    const latest = state.mocks.find((x) => x.status === "completed");
+    const readinessCircumference = 2 * Math.PI * 44;
+    const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
+    const activities = state.activity.length
+      ? state.activity.slice(0, 3).map((x) => ({ title: x.activity_type || "Study activity", text: `${Math.round(Number(x.study_seconds || 0) / 60)} minutes · ${x.score ?? 0}% · ${x.correct_answers ?? 0}/${x.questions_answered ?? 0}` }))
+      : [{ title: "Welcome to Beyond The Visa", text: state.wallet?.balance ? "Your Beyond Coins welcome bonus is ready." : "Your personalised journey is ready." }, { title: "Complete your profile", text: "Add details to improve your recommendations." }];
+
+    root.innerHTML = `<section class="hero73"><div class="newDashboardBadge73">NEW DASHBOARD ACTIVE</div><div class="heroArt73" aria-hidden="true"></div><div class="heroGrid73"><div><button class="missionLink73" data-go="analytics">MISSION CONTROL · LEVEL ${Number(state.game?.level || 1)}</button><p>${greeting()}${name ? ", " + esc(name) : ""}</p><h1>Welcome back to Beyond The Visa</h1><p class="lead">Your international nursing journey is one step closer today. Let’s keep the momentum going.</p><button class="journeyClick73" data-go="journey" aria-label="Open journey: ${j.pct}% complete"><div class="heroProgress73" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div><div class="heroStats73"><b>${j.pct}% complete</b><span>${j.done} of ${j.total} milestones</span><span>${mocksDone} mock tests completed</span><span>${Number(state.game?.current_streak || 0)} day streak</span><span>${Number(state.wallet?.balance || 0)} BC</span></div></button><div class="heroButtons73"><button class="primary" data-go="journey">Continue Your Journey</button><button class="secondary" data-go="study-plan">View Today’s Plan</button></div></div><aside class="nextAction73"><div class="readinessDial73" aria-label="Career readiness ${j.pct}%"><svg viewBox="0 0 100 100" role="presentation"><circle cx="50" cy="50" r="44" class="dialTrack73"></circle><circle cx="50" cy="50" r="44" class="dialValue73" style="stroke-dasharray:${readinessCircumference};stroke-dashoffset:${readinessOffset}"></circle></svg><div><b>${j.pct}%</b><small>Career readiness</small></div></div><small>NEXT RECOMMENDED ACTION</small><b>${esc(rec.title)}</b><p>${esc(rec.copy)}</p><button data-go="${rec.id}">Let’s go →</button></aside></div></section><div class="dashGrid73">${tile("walletTile73 statCard73", "wallet", `<h2>◆ Beyond Coins</h2><span class="value">${Number(state.wallet?.balance || 0)} <small>BC</small></span><p>Your shared learning wallet</p><span class="action">View wallet →</span>`, "View Beyond Coins wallet")}${tile("journeyTile73 featureCard73", "journey", `<h2>Your Journey</h2><p>${j.done} of ${j.total} milestones completed</p><div class="tileProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div><b>${j.pct}% complete</b><p>Next: ${esc(rec.title)}</p><span class="action">View full journey →</span>`, "Open full journey")}${tile("planTile73 actionCard73", "study-plan", `<h2>Today’s Study Plan</h2><p>Continue with one focused learning activity today.</p><b>${latest ? "Review your latest result" : "Start your first session"}</b><p>${latest ? esc(String(latest.mock_code).replaceAll("_", " ")) : "A manageable step builds momentum."}</p><span class="action">View plan →</span>`, "Open today’s study plan")}${tile("streakTile73 statCard73", "analytics", `<h2>🔥 Current Streak</h2><span class="value">${Number(state.game?.current_streak || 0)}</span><p>days active · ${Number(state.game?.xp || 0)} XP</p><span class="action">Learning statistics →</span>`, "View learning statistics")}${tile("activityTile73 featureCard73", "notifications", `<h2>Recent Activity</h2>${activities.map((x) => `<div class="activityLine73"><span>◎</span><span><b>${esc(x.title)}</b><small>${esc(x.text)}</small></span></div>`).join("")}<span class="action">View all activity →</span>`, "View recent activity")}${tile("readinessTile73 featureCard73", "analytics", `<h2>Subject Readiness</h2>${[["IELTS", latest?.mock_code?.includes("ielts") ? latest : 0], ["CBT", latest?.mock_code?.includes("cbt") ? latest : 0], ["NCLEX", latest?.mock_code?.includes("nclex") ? latest : 0]].map(([n, x]) => { const p = x?.total ? Math.round((x.score / x.total) * 100) : 0; return `<div class="readinessRow73"><span>${n}</span><span class="subjectBar73"><i style="width:${p}%"></i></span><b>${p}%</b></div>`; }).join("")}<span class="action">View analytics →</span>`, "View subject readiness analytics")}${tile("mentorTile73 photoCard73", "mentors", `<div class="photoCardMedia73" style="background-image:url('mentor-marketplace-v86.png')"></div><div class="photoCardBody73"><h2>Mentor Marketplace</h2><p>Connect with approved mentors for focused support.</p><span class="action">Find mentors →</span></div>`, "Open Mentor Marketplace")}${tile("storyTile73 photoCard73", "stories", `<div class="photoCardMedia73" style="background-image:url('success-story-v85.png')"></div><div class="photoCardBody73"><h2>Success Stories</h2><b>${esc(state.story?.title || "Your journey can inspire others")}</b><p>${esc(state.story?.summary || state.story?.quote || state.story?.story || "Explore stories from professionals who moved forward with confidence.")}</p><span class="action">View stories →</span></div>`, "View success stories")}<article class="tile73 support73 actionCard73"><div><h2>You’re not alone on this journey</h2><p>Get guidance, support and resources from a community that understands your ambition.</p></div><div class="actions"><button class="light" data-go="community">Join Community</button><button class="solid" data-go="resources">Explore Resources</button></div></article></div>`;
+
+    wire(root);
+    document.querySelectorAll("[data-wallet-balance]").forEach((x) => (x.textContent = `${Number(state.wallet?.balance || 0)} BC`));
+    const profileBtn = document.querySelector(".profileButton73");
+    if (profileBtn) profileBtn.textContent = (name?.[0] || "M").toUpperCase();
+    root.querySelectorAll('[role="link"]').forEach((x) => {
+      x.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          x.click();
+        }
+      };
+    });
+  }
+
+  function queueRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+    requestAnimationFrame(async () => {
+      renderQueued = false;
+      await render();
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-account-menu], [data-account-drop]")) document.querySelectorAll(".drop73").forEach((x) => (x.hidden = true));
+    if (e.target.closest('[data-open="home"]')) queueRender();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.querySelectorAll(".drop73").forEach((x) => (x.hidden = true)); });
+  window.addEventListener("btv:wallet-changed", queueRender);
+  window.addEventListener("btv:auth-ready", queueRender);
+  window.addEventListener("focus", queueRender);
+  document.addEventListener("DOMContentLoaded", queueRender);
+
+  if (typeof window.showApp === "function" && !window.__btvDashboardPremium73ShowAppWrapped) {
+    window.__btvDashboardPremium73ShowAppWrapped = true;
+    const oldShowApp = window.showApp;
+    window.showApp = function () {
+      oldShowApp.apply(this, arguments);
+      queueRender();
+    };
+  }
+
+  window.renderDashboardInsights = queueRender;
+  queueRender();
 })();
