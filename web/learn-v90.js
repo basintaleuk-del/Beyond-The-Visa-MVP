@@ -1,91 +1,51 @@
 (()=>{
   'use strict';
-  if(window.__btvLearnV90) return;
-  window.__btvLearnV90 = true;
+  if(window.__btvLearnV90)return;
+  window.__btvLearnV90=true;
 
-  const db = () => window.btvSupabase;
-  const $ = s => document.querySelector(s);
-  const modules = {
-    cbt: { url: 'cbt.html', icon: '✓', label: 'CBT Practice' },
-    nclex: { url: 'nclex.html', icon: '⚕', label: 'NCLEX-RN' },
-    ielts: { url: 'ielts.html', icon: '🎯', label: 'IELTS' },
-    osce: { url: 'osce.html', icon: '🔬', label: 'OSCE' },
-    'adult-nursing': { url: 'adult-nursing.html', icon: '💉', label: 'Adult Nursing' }
-  };
+  const modules=[
+    {id:'cbt',label:'CBT',icon:'CBT',copy:'Question bank, explanations and timed mock exams.',url:'cbt.html',meta:'Practice and mocks'},
+    {id:'nclex',label:'NCLEX-RN',icon:'RN',copy:'Clinical questions and adaptive exam preparation.',url:'nclex.html',meta:'Clinical readiness'},
+    {id:'osce',label:'OSCE',icon:'OS',copy:'Station-focused practice, marking criteria and guidance.',url:'osce.html',meta:'Practical skills'},
+    {id:'ielts',label:'IELTS Academic',icon:'A',copy:'Reading, writing, listening and speaking preparation.',url:'ielts.html',meta:'Language preparation'},
+    {id:'calculations',label:'Drug calculations',icon:'%',copy:'Practise safe medication and dosage calculations.',route:'calculations',meta:'Interactive practice'},
+    {id:'adult-nursing',label:'Clinical learning',icon:'CL',copy:'Core adult nursing topics and clinical resources.',url:'adult-nursing.html',meta:'Reference library'},
+    {id:'analytics',label:'Learning progress',icon:'UP',copy:'Review recorded practice, results and study activity.',route:'analytics',meta:'Your activity'},
+    {id:'saved-learning',label:'Saved learning',icon:'SV',copy:'Review your recorded learning and return to useful resources.',route:'analytics',meta:'Your library'}
+  ];
 
-  async function buildLearningHub() {
-    const hub = document.getElementById('learn');
-    if (!hub) return;
-    
-    // Build clean grid WITHOUT hero tiles above headings
-    const html = `
-      <div class="pageTitle">
-        <button class="back" data-learn-home>←</button>
-        <div><span>LEARNING CENTRE</span><h1>Build your confidence</h1></div>
-      </div>
-      <div class="learnV90Grid" id="learnModules"></div>
+  function go(item){
+    sessionStorage.setItem('btv-return-screen','learn');
+    if(item.url){sessionStorage.setItem('btv-learn-module',item.id);location.href=item.url;return;}
+    window.BTVFeatures?.open(item.route);
+  }
+
+  function buildLearning(){
+    const root=document.getElementById('learn');if(!root)return;
+    root.classList.add('learnV90Page');
+    root.innerHTML=`
+      <header class="learnV90Header">
+        <button class="back" type="button" data-learn-home aria-label="Back to dashboard">&#8592;</button>
+        <div><span>LEARNING CENTRE</span><h1>Build your confidence</h1><p>Focused preparation for exams, clinical practice and your international nursing career.</p></div>
+      </header>
+      <section class="learnV90Intro" aria-labelledby="learn-modules-title"><div><span>YOUR LEARNING</span><h2 id="learn-modules-title">Choose where to continue</h2></div><button type="button" data-learning-progress>View progress</button></section>
+      <div class="learnV90Grid">${modules.map(x=>`<article class="learnV90Card"><span class="learnV90Icon" aria-hidden="true">${x.icon}</span><div><small>${x.meta}</small><h2>${x.label}</h2><p>${x.copy}</p></div><button type="button" data-module="${x.id}">Open ${x.label}<span aria-hidden="true">&#8594;</span></button></article>`).join('')}</div>
+      <section class="learnV90VideoBlock" aria-labelledby="learn-video-title"><div class="learnV90SectionHead"><span>PLATFORM GUIDE</span><h2 id="learn-video-title">Discover Beyond The Visa</h2><p>See how the platform brings your journey plan, learning tools, career support and progress together.</p></div><div id="guideLesson"></div></section>
     `;
-    
-    hub.innerHTML = html;
-    
-    // Populate module cards
-    const grid = document.getElementById('learnModules');
-    Object.entries(modules).forEach(([key, mod]) => {
-      const card = document.createElement('button');
-      card.className = 'learnV90Card';
-      card.type = 'button';
-      card.dataset.module = key;
-      card.innerHTML = `
-        <i class="learnV90Icon">${mod.icon}</i>
-        <b>${mod.label}</b>
-      `;
-      card.onclick = () => navigateToModule(key, mod.url);
-      grid.appendChild(card);
-    });
-    
-    // Back button
-    document.querySelector('[data-learn-home]').onclick = () => {
-      if (typeof window.openScreen === 'function') window.openScreen('home');
-      else {
-        document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'home'));
-        document.querySelectorAll('.nav').forEach(b => b.classList.toggle('active', b.dataset.open === 'home'));
-      }
-    };
+    root.querySelector('[data-learn-home]').onclick=()=>window.BTVFeatures?.open('dashboard')||window.openScreen?.('home');
+    root.querySelector('[data-learning-progress]').onclick=()=>window.BTVFeatures?.open('analytics');
+    root.querySelectorAll('[data-module]').forEach(btn=>btn.onclick=()=>go(modules.find(x=>x.id===btn.dataset.module)));
+    window.renderGuide?.();
   }
 
-  function navigateToModule(key, url) {
-    // Store the module so it knows which content to display
-    sessionStorage.setItem('btv-learn-module', key);
-    sessionStorage.setItem('btv-return-screen', 'learn');
-    
-    // Navigate to the module
-    window.location.href = url;
+  function showCalculator(){
+    buildLearning();
+    const video=document.querySelector('.learnV90VideoBlock');if(!video)return;
+    const tool=document.createElement('section');tool.className='learnV90ToolBlock';tool.innerHTML='<div class="learnV90SectionHead"><span>INTERACTIVE PRACTICE</span><h2>Drug calculations</h2><p>Work through safe dosage and medication calculations using the existing calculator.</p></div><div id="calculationsLesson"></div>';
+    video.before(tool);window.renderCalculator?.();tool.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
   }
 
-  // Restore floating action button (Zibur)
-  function restoreZibur() {
-    let zibur = document.getElementById('zibur');
-    if (!zibur) {
-      zibur = document.createElement('button');
-      zibur.id = 'zibur';
-      zibur.className = 'ziburButton';
-      zibur.innerHTML = '✦';
-      zibur.title = 'Ask Zibur';
-      zibur.onclick = () => {
-        if (typeof window.openScreen === 'function') window.openScreen('assistant');
-        else {
-          document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'assistant'));
-          document.querySelectorAll('.nav').forEach(b => b.classList.toggle('active', b.dataset.open === 'assistant'));
-        }
-      };
-      document.body.appendChild(zibur);
-    }
-  }
-
-  function start() {
-    buildLearningHub();
-    restoreZibur();
-  }
-
-  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', start) : start();
+  window.buildLearning=buildLearning;
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',buildLearning,{once:true}):buildLearning();
+  window.addEventListener('btv:feature-action',e=>{if(e.detail?.id==='study')setTimeout(buildLearning,0);if(e.detail?.id==='calculations')setTimeout(showCalculator,0)});
 })();

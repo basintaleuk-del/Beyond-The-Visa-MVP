@@ -8,6 +8,8 @@
   {id:'community',title:'Community',description:'Connect with nurses and midwives worldwide.',icon:'users',category:'career',target:{screen:'community'},desktopOrder:6,mobileOrder:6},
   {id:'assistant',title:'AI Assistant',description:'Ask Zibur for personalised guidance.',icon:'sparkle',category:'main',target:{screen:'assistant'},desktopOrder:7,mobileOrder:7},
   {id:'resources',title:'Resources',description:'Open books, articles, videos and guides.',icon:'library',category:'study',target:{screen:'learn'},desktopOrder:8,mobileOrder:8},
+  {id:'costs',title:'Cost Planner',description:'Plan fees and relocation expenses.',icon:'coin',category:'career',target:{screen:'costs'}},
+  {id:'documents',title:'My Documents',description:'Private certificates, passport, visa and CV storage.',icon:'library',category:'account',target:{action:'documents'}},
   {id:'ielts',title:'IELTS Academic',description:'Reading, writing and future speaking/listening tools.',icon:'language',category:'study',target:{screen:'learn',action:'ielts'}},
   {id:'cbt',title:'CBT',description:'Nursing CBT practice and full mock exams.',icon:'clipboard',category:'study',target:{url:'cbt.html'}},
   {id:'nclex',title:'NCLEX',description:'Clinical practice and adaptive preparation.',icon:'pulse',category:'study',target:{url:'nclex.html'}},
@@ -25,6 +27,6 @@
   {id:'study-plan',title:'Study Plan',description:'Review today’s learning plan.',icon:'calendar',category:'account',target:{screen:'learn',action:'study-plan'}}
  ];
  const by=id=>features.find(x=>x.id===id);
- function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='profile'){window.showOnboarding?.();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
+ function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='profile'){window.showOnboarding?.();return true}if(t.action==='documents'){document.querySelector('[data-storage-open]')?.click();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
  window.BTVFeatures={all:features,by,open};
 })();

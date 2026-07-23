@@ -7,6 +7,14 @@
   let state = {};
   let renderQueued = false;
   let lastFocus = null;
+  let carouselIndex = 0;
+  let carouselTimer = null;
+  const carouselSlides = [
+    { category: "Motivation", title: "You did not come this far to stop now.", copy: "Every study session and completed milestone moves your international nursing journey forward." },
+    { category: "Platform News", title: "New CBT practice questions available", copy: "Build confidence with fresh practice questions and detailed explanations.", action: "Start practising", route: "cbt", date: "23 July 2026" },
+    { category: "Motivation", title: "Keep learning. Keep preparing.", copy: "Your opportunity is coming. Focus on the next clear action and let steady progress compound." },
+    { category: "Platform News", title: "Visa Hub guidance updated", copy: "Review the latest pathway guidance saved for your destination.", action: "Review journey", route: "journey", date: "21 July 2026" }
+  ];
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const iconSvg = (name) => ({
@@ -71,9 +79,16 @@
   }
 
   async function load() {
-    const session = (await db()?.auth?.getSession())?.data?.session;
-    if (!session) return null;
-    const u = session.user;
+    let session = null;
+    try { session = (await db()?.auth?.getSession())?.data?.session || null; } catch (e) { console.warn("v73 session fallback", e); }
+    const profile = localProfile();
+    let account = {};
+    try { account = JSON.parse(localStorage.getItem("btv-account") || "{}"); } catch {}
+    const u = session?.user || { id: account.id || "local-account", email: account.email || "", user_metadata: { full_name: profile.preferredName || profile.name || account.name || "MR", profession: profile.profession, destination: profile.destination } };
+    if (!session || !db()?.from) {
+      state = { u, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      return state;
+    }
     let platform = {};
     try {
       const [wallet, game, mocks, notes, saved, progress, steps, activity] = await Promise.all([
@@ -151,14 +166,19 @@
     }
     const name = safeName(state.u);
     const nav = [
-      ["DASHBOARD", [["Home", "dashboard"], ["Journey", "journey"], ["Ask Zibur", "assistant"], ["Learning", "study"], ["Cost Planner", "resources"]]],
-      ["EXPLORE", [["Job Search", "jobs"], ["Community", "community"], ["Mentor Marketplace", "mentors"], ["Settings", "profile"]]],
+      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["Calculators", "calculations"], ["Saved learning", "analytics"]]],
+      ["CAREER AND MIGRATION", [["Journey Planner", "journey"], ["Visa Hub", "resources"], ["Jobs", "jobs"], ["Interview preparation", "interview"], ["Saved jobs", "saved-jobs"], ["Mentors", "mentors"]]],
+      ["COMMUNITY AND SUPPORT", [["Ask Zibur", "assistant"], ["Community", "community"], ["Notifications", "notifications"], ["Success stories", "stories"]]],
+      ["ACCOUNT", [["Profile", "profile"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
     ];
     o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div>${nav.map(([group, links]) => `<div class="drawerGroup73"><strong>${group}</strong>${links.map(([label, id]) => `<button class="drawerLink73" data-go="${id}"><span>${label}</span><span class="rowArrow73">${iconSvg("arrowRight")}</span></button>`).join("")}</div>`).join("")}<button class="drawerSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button></aside>`;
     o.hidden = false;
+    requestAnimationFrame(() => o.classList.add("open"));
     document.body.style.overflow = "hidden";
     const close = () => {
-      o.hidden = true;
+      o.classList.remove("open");
+      const finish = () => { o.hidden = true; };
+      matchMedia("(prefers-reduced-motion: reduce)").matches ? finish() : setTimeout(finish, 220);
       document.body.style.overflow = "";
       trigger.setAttribute("aria-expanded", "false");
       lastFocus?.focus();
@@ -168,13 +188,54 @@
     o.onclick = (e) => { if (e.target === o) close(); };
     wire(o);
     o.querySelectorAll("[data-go],[data-signout]").forEach((b) => b.addEventListener("click", close));
+    o.onkeydown = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); close(); return; }
+      if (e.key !== "Tab") return;
+      const focusable = [...o.querySelectorAll("button:not([disabled]),a[href]")].filter((x) => !x.hidden);
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     o.querySelector("[data-close]").focus();
+  }
+
+  function setupCarousel(root) {
+    const carousel = root.querySelector("[data-dashboard-carousel]");
+    if (!carousel) return;
+    const stage = carousel.querySelector("[data-carousel-stage]");
+    const dots = carousel.querySelector("[data-carousel-dots]");
+    const status = carousel.querySelector("[data-carousel-status]");
+    let pausedByUser = false;
+    let touchStart = 0;
+    const renderSlide = (announce = false) => {
+      const slide = carouselSlides[carouselIndex];
+      stage.innerHTML = `<div class="carouselCopy73"><span>${esc(slide.category)}</span><h3>${esc(slide.title)}</h3><p>${esc(slide.copy)}</p>${slide.date ? `<small>${esc(slide.date)}</small>` : ""}</div>${slide.action ? `<button data-go="${esc(slide.route)}">${esc(slide.action)} ${iconSvg("arrowRight")}</button>` : ""}`;
+      dots.innerHTML = carouselSlides.map((_, i) => `<button type="button" data-slide="${i}" class="${i === carouselIndex ? "active" : ""}" aria-label="Show slide ${i + 1}" aria-current="${i === carouselIndex}"></button>`).join("");
+      wire(stage);
+      dots.querySelectorAll("[data-slide]").forEach((dot) => dot.onclick = () => { pausedByUser = true; carouselIndex = Number(dot.dataset.slide); renderSlide(true); });
+      if (announce) status.textContent = `${slide.category}: ${slide.title}`;
+    };
+    const move = (direction, manual = true) => {
+      if (manual) pausedByUser = true;
+      carouselIndex = (carouselIndex + direction + carouselSlides.length) % carouselSlides.length;
+      renderSlide(manual);
+    };
+    carousel.querySelector("[data-carousel-prev]").onclick = () => move(-1);
+    carousel.querySelector("[data-carousel-next]").onclick = () => move(1);
+    carousel.onkeydown = (e) => { if (e.key === "ArrowLeft") move(-1); if (e.key === "ArrowRight") move(1); };
+    carousel.addEventListener("touchstart", (e) => { touchStart = e.changedTouches[0].clientX; }, { passive: true });
+    carousel.addEventListener("touchend", (e) => { const delta = e.changedTouches[0].clientX - touchStart; if (Math.abs(delta) > 45) move(delta > 0 ? -1 : 1); }, { passive: true });
+    clearInterval(carouselTimer);
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) carouselTimer = setInterval(() => { if (!pausedByUser && !carousel.matches(":hover")) move(1, false); }, 8000);
+    renderSlide();
   }
 
   function wire(root) {
     root.querySelectorAll("[data-go]").forEach((x) => {
       x.onclick = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         go(x.dataset.go);
       };
     });
@@ -230,8 +291,15 @@
 
     const learningFocus = [
       { title: "Start CBT practice", id: "cbt" },
-      { title: "Review your journey milestones", id: "journey" },
-      { title: "Open interview coaching", id: "interview" },
+      { title: "Patient safety", id: "adult-nursing" },
+      { title: "Professional practice", id: "adult-nursing" },
+    ];
+    const quickActions = [
+      { title: "CBT learning", copy: "Questions, explanations and mock tests", id: "cbt", icon: "CBT" },
+      { title: "Journey checklist", copy: "Complete your registration and visa steps", id: "journey", icon: "JL" },
+      { title: "Cost planner", copy: "Plan fees and relocation expenses", id: "costs", icon: "£" },
+      { title: "Ask Zibur", copy: "Get guidance based on your saved journey", id: "assistant", icon: "AI" },
+      { title: "My documents", copy: "Certificates, passport, visa and CV files", id: "documents", icon: "DOC" },
     ];
 
     root.innerHTML = `<div class="dashboardLayout73">
@@ -243,15 +311,10 @@
         <div class="sidebarNavWrap73">
           <p class="sidebarGroup73">DASHBOARD</p>
           <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
+          <button class="sideNavItem73" data-go="study"><span class="sideIc73">${iconSvg("learn")}</span><span>Learn</span></button>
           <button class="sideNavItem73" data-go="journey"><span class="sideIc73">${iconSvg("journey")}</span><span>Journey</span></button>
+          <button class="sideNavItem73" data-go="jobs"><span class="sideIc73">${iconSvg("search")}</span><span>Jobs</span></button>
           <button class="sideNavItem73" data-go="assistant"><span class="sideIc73">${iconSvg("spark")}</span><span>Ask Zibur</span></button>
-          <button class="sideNavItem73" data-go="study"><span class="sideIc73">${iconSvg("learn")}</span><span>Learning</span></button>
-          <button class="sideNavItem73" data-go="resources"><span class="sideIc73">${iconSvg("cost")}</span><span>Cost Planner</span></button>
-          <p class="sidebarGroup73">EXPLORE</p>
-          <button class="sideNavItem73" data-go="jobs"><span class="sideIc73">${iconSvg("search")}</span><span>Job Search</span></button>
-          <button class="sideNavItem73" data-go="community"><span class="sideIc73">${iconSvg("users")}</span><span>Community</span></button>
-          <button class="sideNavItem73" data-go="mentors"><span class="sideIc73">${iconSvg("mentor")}</span><span>Mentor Marketplace</span></button>
-          <button class="sideNavItem73" data-go="profile"><span class="sideIc73">${iconSvg("settings")}</span><span>Settings</span></button>
         </div>
         <div class="sidebarBottom73">
           <button class="coinsCard73" data-go="wallet" aria-label="Open Beyond Coins">
@@ -321,7 +384,7 @@
               <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
               <div class="nextStep73">
                 <span class="nextIcon73">${iconSvg("arrowRight")}</span>
-                <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
+                <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small><button data-go="${rec.id}">Continue now</button></div>
               </div>
             </article>
             <article class="panel73">
@@ -331,11 +394,21 @@
               </div>
             </article>
           </section>
+          <section class="quickPanel73" aria-labelledby="quick-actions-title">
+            <div class="panelHead73"><h3 id="quick-actions-title">Quick actions</h3></div>
+            <div class="quickGrid73">${quickActions.map(x=>`<button type="button" data-go="${x.id}"><span>${x.icon}</span><div><b>${x.title}</b><small>${x.copy}</small></div>${iconSvg("arrowRight")}</button>`).join("")}</div>
+          </section>
+          <section class="dashboardCarousel73" data-dashboard-carousel tabindex="0" aria-label="Motivation and platform news carousel">
+            <div class="carouselStage73" data-carousel-stage></div>
+            <div class="carouselFooter73"><div class="carouselDots73" data-carousel-dots></div><div class="carouselControls73"><button type="button" data-carousel-prev aria-label="Previous slide">&#8592;</button><button type="button" data-carousel-next aria-label="Next slide">&#8594;</button></div></div>
+            <p class="sr" aria-live="polite" aria-atomic="true" data-carousel-status></p>
+          </section>
         </div>
       </div>
     </div>`;
 
     wire(root);
+    setupCarousel(root);
   }
 
   function queueRender() {
@@ -367,4 +440,5 @@
 
   window.renderDashboardInsights = queueRender;
   queueRender();
+  setTimeout(queueRender, 700);
 })();

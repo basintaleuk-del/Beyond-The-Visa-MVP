@@ -1,6 +1,27 @@
-.learnV90Hub{display:grid;gap:10px;margin:0 0 14px}
-.learnV90Grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.learnV90Card{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:14px;text-align:left}
-.learnV90Card b,.learnV90Card small{display:block}
-.learnV90Card small{color:var(--muted);margin-top:4px}
-.learnV90Icon{width:34px;height:34px;border-radius:10px;background:var(--mint);display:grid;place-items:center;margin-bottom:8px;color:var(--teal);font-style:normal}
+.learnV90Page{width:min(calc(100% - 24px),1280px);margin:24px auto 120px!important;padding:0!important;color:var(--ink)}
+.learnV90Header{display:flex;align-items:flex-start;gap:15px;border-radius:26px;background:linear-gradient(125deg,#10291f,#1e6043);color:#fff;padding:28px 30px;margin-bottom:18px;box-shadow:0 16px 36px rgba(13,45,31,.18)}
+.learnV90Header .back{flex:none;width:42px;height:42px;border:1px solid #ffffff3b;border-radius:13px;background:#ffffff12;color:#fff;font-size:20px;cursor:pointer}
+.learnV90Header span,.learnV90Intro span,.learnV90SectionHead span{color:#d8b553;font-size:11px;letter-spacing:.14em;font-weight:900}
+.learnV90Header h1{margin:5px 0 6px;font-size:clamp(32px,4vw,52px);line-height:1.05}
+.learnV90Header p{margin:0;color:#d1e0d6;max-width:720px;line-height:1.55}
+.learnV90Intro{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:20px 2px 13px}
+.learnV90Intro h2,.learnV90SectionHead h2{margin:5px 0 0;font-size:clamp(24px,3vw,34px)}
+.learnV90Intro>button{border:1px solid #bed8c8;border-radius:12px;background:#edf7f0;color:#1e704d;padding:11px 15px;font-weight:800;cursor:pointer}
+.learnV90Grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.learnV90Card{min-width:0;min-height:245px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:18px;text-align:left;display:flex;flex-direction:column;box-shadow:0 10px 28px rgba(18,50,35,.06);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.learnV90Card:hover{border-color:#9fcbb2;transform:translateY(-2px);box-shadow:0 15px 32px rgba(18,50,35,.1)}
+.learnV90Icon{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#e6f3e9,#d8ebdf);display:grid;place-items:center;margin-bottom:15px;color:#1e704d;font-weight:900;font-size:12px}
+.learnV90Card small{color:#7a9185;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.learnV90Card h2{margin:6px 0 5px;font-size:21px}
+.learnV90Card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.learnV90Card>button{width:100%;margin-top:auto;border:0;border-top:1px solid var(--line);background:transparent;color:#247853;padding:14px 0 0;display:flex;align-items:center;justify-content:space-between;font-weight:800;cursor:pointer;text-align:left}
+.learnV90VideoBlock{margin-top:28px;border-radius:24px;border:1px solid var(--line);background:var(--card);padding:22px;box-shadow:0 12px 32px rgba(18,50,35,.07)}
+.learnV90ToolBlock{margin-top:28px;border-radius:24px;border:1px solid var(--line);background:var(--card);padding:22px;box-shadow:0 12px 32px rgba(18,50,35,.07)}
+.learnV90SectionHead p{margin:7px 0 18px;color:var(--muted);line-height:1.55;max-width:760px}
+.welcomeVideo82{margin:0!important;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(240px,.7fr);gap:22px;align-items:center;background:#10291f!important;border:0!important;border-radius:19px!important;padding:18px!important;color:#fff}
+.welcomeVideo82 video{width:100%;max-height:520px;aspect-ratio:16/9;object-fit:cover;border-radius:14px;background:#07130e}
+.welcomeVideo82 h2{font-size:26px;margin:0 0 8px;color:#fff}.welcomeVideo82 p{color:#cfe0d5;line-height:1.55}.welcomeVideo82 .videoPrivacy82{color:#9db5a6;line-height:1.45}.welcomeVideo82 a{display:inline-flex;margin-top:14px;border-radius:11px;background:#d5b24f;color:#2d260f;padding:11px 14px;text-decoration:none;font-weight:800}
+.learnV90Page button:focus-visible,.welcomeVideo82 a:focus-visible{outline:3px solid #d5b24f;outline-offset:3px}
+@media(max-width:980px){.learnV90Grid{grid-template-columns:repeat(2,minmax(0,1fr))}.welcomeVideo82{grid-template-columns:1fr}}
+@media(max-width:560px){.learnV90Page{width:calc(100% - 16px);margin-top:8px!important}.learnV90Header{padding:22px 18px;border-radius:20px}.learnV90Grid{grid-template-columns:1fr}.learnV90Card{min-height:210px}.learnV90Intro{align-items:flex-start;flex-direction:column}.learnV90VideoBlock{padding:14px}.welcomeVideo82{padding:11px!important}}
+@media(prefers-reduced-motion:reduce){.learnV90Card{transition:none}}
