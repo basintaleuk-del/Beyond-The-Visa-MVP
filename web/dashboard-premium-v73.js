@@ -49,6 +49,23 @@
     }
   }
 
+  function destinationInfo() {
+    const selected = typeof window.country === "function" ? window.country() : null;
+    const raw = selected?.name || localProfile().destination || state.u?.user_metadata?.destination || "United Kingdom";
+    const name = String(raw).trim();
+    const key = ({
+      "united kingdom": "uk", uk: "uk", england: "uk",
+      "united states": "us", "united states of america": "us", usa: "us", us: "us",
+      australia: "au", canada: "ca", "new zealand": "nz", ireland: "ie",
+    })[name.toLowerCase()] || "uk";
+    const meta = {
+      uk: { flag: "🇬🇧", exam: "cbt" }, us: { flag: "🇺🇸", exam: "nclex" },
+      au: { flag: "🇦🇺", exam: "nclex" }, ca: { flag: "🇨🇦", exam: "nclex" },
+      nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
+    }[key];
+    return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam: meta.exam };
+  }
+
   function safeName(u) {
     const p = localProfile();
     const raw = p.preferredName || p.name || u?.user_metadata?.preferred_name || u?.user_metadata?.full_name || "";
@@ -59,8 +76,8 @@
   function userPathway(u) {
     const p = localProfile();
     const profession = p.profession || u?.user_metadata?.profession || "Nurse";
-    const destination = p.destination || u?.user_metadata?.destination || "United States";
-    return `${profession} pathway - ${destination}`;
+    const destination = destinationInfo();
+    return `${profession} pathway · ${destination.name} ${destination.flag}`;
   }
 
   function fmtHeaderDate() {
@@ -133,8 +150,9 @@
   function journey() {
     const legacy = typeof window.completed === "function" ? window.completed() : 0;
     const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
-    const done = state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || legacy;
-    const total = state.steps?.length || legacyTotal || 7;
+    const useChecklist = legacyTotal > 0;
+    const done = useChecklist ? legacy : state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0;
+    const total = useChecklist ? legacyTotal : state.steps?.length || 7;
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
 
@@ -148,18 +166,25 @@
     return { title: "Continue today’s study plan", copy: "Keep your learning streak moving forward.", id: "study-plan" };
   }
 
-  function cbtStats() {
-    const latest = state.mocks?.find((x) => String(x.mock_code || "").toLowerCase().includes("cbt") && (x.status === "completed" || x.status === "submitted"));
-    if (!latest || !latest.total) return { value: "-", sub: "0 questions answered" };
+  function examStats() {
+    const destination = destinationInfo();
+    if (destination.exam === "registration") return { label: "Registration", route: "journey", value: `${journey().pct}%`, sub: `${destination.name} pathway` };
+    const token = destination.exam;
+    const latest = state.mocks?.find((x) => String(x.mock_code || "").toLowerCase().includes(token) && (x.status === "completed" || x.status === "submitted"));
+    if (!latest || !latest.total) return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: "-", sub: "0 questions answered" };
     const pct = Math.round((Number(latest.score || 0) / Number(latest.total || 1)) * 100);
-    return { value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
+    return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
   }
 
   function go(id) {
-    if (id === "explore") return F()?.open("resources");
-    if (id === "books") {
+    if (id === "dashboard") {
+      if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
+      F()?.open("dashboard");
+      return queueRender();
+    }
+    if (id === "explore" || id === "books") {
       F()?.open("study");
-      return setTimeout(() => document.querySelector("[data-btv-books]")?.click(), 240);
+      return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
     }
     if (["preferences", "bookings"].includes(id)) {
       window.BTVPlatform?.open?.();
@@ -176,9 +201,11 @@
   }
 
   function menuGroups() {
+    const exam = destinationInfo().exam;
+    const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
     return [
       { id: "account", label: "Account", links: [["Profile", "profile"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
-      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
       { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
       { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
     ];
@@ -227,12 +254,14 @@
 
   function journeyItems() {
     const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
-    const steps = state.steps?.length ? state.steps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
+    const useChecklist = legacySteps.length > 0;
+    const steps = useChecklist ? legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 })) : state.steps || [];
     const completedCodes = new Set((state.progress || []).filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
-    const legacyDone = typeof window.completed === "function" ? Number(window.completed() || 0) : 0;
+    let checklistStatus = {};
+    try { checklistStatus = JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[destinationInfo().key] || {}; } catch {}
     let currentFound = false;
     return steps.map((step, index) => {
-      const complete = completedCodes.has(step.code) || (!state.progress?.length && index < legacyDone);
+      const complete = useChecklist ? Boolean(checklistStatus[index]) : completedCodes.has(step.code);
       const current = !complete && !currentFound;
       if (current) currentFound = true;
       return {
@@ -369,6 +398,41 @@
     renderSlide();
   }
 
+  function notificationMarkup() {
+    const unread = state.notes?.filter((note) => !note.read_at).length || 0;
+    const items = (state.notes || []).slice(0, 8);
+    return `<div class="notificationWrap102">
+      <button class="icon73 notificationBell102" type="button" data-notification-toggle aria-label="Notifications${unread ? `, ${unread} unread` : ""}" aria-expanded="false" aria-controls="dashboard-notifications102">${iconSvg("bell")}${unread ? `<span>${unread > 9 ? "9+" : unread}</span>` : ""}</button>
+      <section class="notificationMenu102" id="dashboard-notifications102" aria-label="Recent notifications" hidden>
+        <header><div><small>YOUR UPDATES</small><h2>Notifications</h2></div>${unread ? `<button type="button" data-notification-read>Mark all read</button>` : ""}</header>
+        <div class="notificationList102">${items.length ? items.map((note) => `<button type="button" class="notificationItem102 ${note.read_at ? "" : "unread"}" data-notification-id="${esc(note.id)}"${note.action_url ? ` data-notification-url="${esc(note.action_url)}"` : ""}><i aria-hidden="true">${note.read_at ? "✓" : "●"}</i><span><b>${esc(note.title || note.category || "Account update")}</b><small>${esc(note.body || note.message || "Open your account for more information.")}</small><time>${note.created_at ? new Date(note.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "Recent"}</time></span></button>`).join("") : `<div class="notificationEmpty102"><b>You are up to date</b><p>Journey reminders, learning updates and account messages will appear here.</p></div>`}</div>
+        <button type="button" class="notificationAll102" data-go="notifications">Open notification centre ${iconSvg("arrowRight")}</button>
+      </section>
+    </div>`;
+  }
+
+  function setupNotifications(root) {
+    const toggle = root.querySelector("[data-notification-toggle]");
+    const menu = root.querySelector(".notificationMenu102");
+    if (!toggle || !menu) return;
+    const close = () => { menu.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
+    toggle.onclick = (event) => { event.preventDefault(); event.stopPropagation(); const open = menu.hidden; menu.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); if (open) { menu.querySelector("button")?.focus(); setTimeout(() => document.addEventListener("click", close, { once: true }), 0); } };
+    menu.onclick = (event) => event.stopPropagation();
+    root.addEventListener("keydown", (event) => { if (event.key === "Escape" && !menu.hidden) { close(); toggle.focus(); } });
+    menu.querySelector("[data-notification-read]")?.addEventListener("click", async () => {
+      if (state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("user_id", state.u.id).is("read_at", null);
+      state.notes = (state.notes || []).map((note) => ({ ...note, read_at: note.read_at || new Date().toISOString() }));
+      queueRender();
+    });
+    menu.querySelectorAll("[data-notification-id]").forEach((item) => item.addEventListener("click", async () => {
+      const id = item.dataset.notificationId;
+      if (id && state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).eq("user_id", state.u.id);
+      const url = item.dataset.notificationUrl;
+      if (url && (/^\//.test(url) || /^https:\/\//.test(url))) location.assign(url);
+      else go("notifications");
+    }));
+  }
+
   function wire(root) {
     root.querySelectorAll("[data-go]").forEach((x) => {
       x.onclick = (e) => {
@@ -422,7 +486,8 @@
     const rec = recommendation(j);
     const name = safeName(state.u);
     const pathway = userPathway(state.u);
-    const cbt = cbtStats();
+    const exam = examStats();
+    const destination = destinationInfo();
     const savedJobs = Number(state.saved?.length || 0);
     const streak = Number(state.game?.current_streak || 0);
     const journeySteps = journeyItems();
@@ -431,16 +496,15 @@
     const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
 
     const learningFocus = [
-      { title: "Start CBT practice", id: "cbt" },
-      { title: "Patient safety", id: "adult-nursing" },
-      { title: "Professional practice", id: "adult-nursing" },
+      ...(destination.exam === "nclex" ? [{ title: "Continue NCLEX preparation", id: "nclex" }] : destination.exam === "cbt" ? [{ title: "Continue CBT preparation", id: "cbt" }] : [{ title: "Review registration pathway", id: "journey" }]),
+      { title: "Clinical learning library", id: "adult-nursing" },
+      { title: "Interview preparation", id: "interview" },
     ];
     const quickActions = [
-      { title: "CBT learning", copy: "Questions, explanations and mock tests", id: "cbt", icon: "CBT" },
-      { title: "Visa Hub", copy: "Official guidance and pathway resources", id: "resources", icon: "VH" },
-      { title: "Cost planner", copy: "Plan fees and relocation expenses", id: "costs", icon: "£" },
-      { title: "Ask Zibur", copy: "Get guidance based on your saved journey", id: "assistant", icon: "AI" },
-      { title: "My documents", copy: "Certificates, passport, visa and CV files", id: "documents", icon: "DOC" },
+      { title: "Mentor Marketplace", copy: "Find approved professional mentors", id: "mentors", icon: "🤝" },
+      { title: "Interview preparation", copy: "Practise role-specific healthcare interviews", id: "interview", icon: "🎙️" },
+      { title: "Jobs", copy: "Find and save suitable opportunities", id: "jobs", icon: "💼" },
+      { title: "My documents", copy: "Keep career and visa evidence organised", id: "documents", icon: "📂" },
     ];
 
     root.innerHTML = `<div class="dashboardLayout73">
@@ -472,7 +536,7 @@
               <span>${iconSvg("search")}</span>
               <input type="search" placeholder="Search resources..." aria-label="Search resources">
             </form>
-            <button class="icon73" data-go="notifications" aria-label="Notifications">${iconSvg("bell")}</button>
+            ${notificationMarkup()}
             <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
             <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg("menu")}</button>
           </div>
@@ -492,7 +556,7 @@
                     <circle cx="42" cy="42" r="34" class="ringTrack73"></circle>
                     <circle cx="42" cy="42" r="34" class="ringValue73" style="stroke-dasharray:${readinessCircumference};stroke-dashoffset:${readinessOffset}"></circle>
                   </svg>
-                  <b>${j.pct}%</b>
+                  <b>${j.pct}%</b><small>READY</small>
                 </div>
                 <div class="readinessCopy73">
                   <b>Your career readiness</b>
@@ -504,10 +568,10 @@
           </section>
 
           <section class="statsRow73">
-            <article class="statCard73 journeySummaryStat73"><small>Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Progress overview</em></article>
-            <article class="statCard73" data-go="cbt"><small>CBT accuracy</small><b>${esc(cbt.value)}</b><span>${esc(cbt.sub)}</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="saved-jobs"><small>Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="analytics"><small>Study streak</small><b>${streak}</b><span>days active</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73 journeySummaryStat73" data-go="journey"><small>🧭 Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Open My Journey ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="${exam.route}"><small>🩺 ${esc(exam.label)}</small><b>${esc(exam.value)}</b><span>${esc(exam.sub)}</span><em>Open preparation ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="saved-jobs"><small>🔖 Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>View saved jobs ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg("arrowRight")}</em></article>
           </section>
 
           <section class="journeyPanel73" aria-labelledby="journey-title73">
@@ -551,6 +615,7 @@
 
     setupMenuGroups(root);
     wire(root);
+    setupNotifications(root);
     setupCarousel(root);
   }
 
@@ -565,6 +630,7 @@
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest("[data-open=\"home\"]")) return;
+    if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
     queueRender();
   });
   window.addEventListener("btv:wallet-changed", queueRender);
