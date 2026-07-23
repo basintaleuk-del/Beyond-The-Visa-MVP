@@ -9,6 +9,7 @@
   let lastFocus = null;
   let carouselIndex = 0;
   let carouselTimer = null;
+  const menuStateKey = "btv-dashboard-menu-group-v99";
   const carouselSlides = [
     { category: "Motivation", title: "You did not come this far to stop now.", copy: "Every study session and completed milestone moves your international nursing journey forward." },
     { category: "Platform News", title: "New CBT practice questions available", copy: "Build confidence with fresh practice questions and detailed explanations.", action: "Start practising", route: "cbt", date: "23 July 2026" },
@@ -86,7 +87,7 @@
     try { account = JSON.parse(localStorage.getItem("btv-account") || "{}"); } catch {}
     const u = session?.user || { id: account.id || "local-account", email: account.email || "", user_metadata: { full_name: profile.preferredName || profile.name || account.name || "MR", profession: profile.profession, destination: profile.destination } };
     if (!session || !db()?.from) {
-      state = { u, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      state = { u, isAdmin: false, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
       return state;
     }
     let platform = {};
@@ -103,7 +104,15 @@
       ]);
       const failed = [wallet, game, mocks, notes, saved, progress, steps, activity].find((x) => x.error);
       if (failed) throw failed.error;
+      let isAdmin = false;
+      try {
+        const role = await db().from("profiles").select("role").eq("id", u.id).maybeSingle();
+        isAdmin = role.data?.role === "admin";
+      } catch (e) {
+        console.warn("v73 admin access check failed", e);
+      }
       platform = {
+        isAdmin,
         wallet: wallet.data || { balance: 0 },
         game: game.data || { level: 1, xp: 0, current_streak: 0 },
         mocks: mocks.data || [],
@@ -115,7 +124,7 @@
       };
     } catch (e) {
       console.warn("v73 data fallback", e);
-      platform = { wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      platform = { isAdmin: false, wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
     }
     state = { u, ...platform };
     return state;
@@ -147,7 +156,95 @@
   }
 
   function go(id) {
+    if (id === "explore") return F()?.open("resources");
+    if (id === "books") {
+      F()?.open("study");
+      return setTimeout(() => document.querySelector("[data-btv-books]")?.click(), 240);
+    }
+    if (["preferences", "bookings"].includes(id)) {
+      window.BTVPlatform?.open?.();
+      return setTimeout(() => document.querySelector(`[data-btv-pane="${id === "preferences" ? "prefs" : "book"}"]`)?.click(), 180);
+    }
+    if (id === "membership") {
+      const button = document.querySelector("[data-open-premium]");
+      return button ? button.click() : F()?.open("membership");
+    }
+    if (id === "legal" || id === "feedback") return window.openScreen?.(id);
+    if (id === "admin") return state.isAdmin ? location.assign("admin.html") : undefined;
+    if (id === "assistant" && typeof window.BTVFloatingZiburToggle === "function") return window.BTVFloatingZiburToggle(true);
     F()?.open(id);
+  }
+
+  function menuGroups() {
+    return [
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["Calculators", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
+      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
+    ];
+  }
+
+  function menuMarkup(prefix) {
+    const sections = menuGroups().map((group) => {
+      const panelId = `${prefix}-${group.id}`;
+      return `<section class="menuGroup73" data-menu-section="${group.id}">
+        <button type="button" class="menuGroupToggle73" data-menu-toggle="${group.id}" aria-expanded="false" aria-controls="${panelId}">
+          <span>${esc(group.label)}</span><span class="menuChevron73" aria-hidden="true">${iconSvg("arrowRight")}</span>
+        </button>
+        <div class="menuGroupLinks73" id="${panelId}" hidden>
+          ${group.links.map(([label, route]) => `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(label)}</span>${iconSvg("arrowRight")}</button>`).join("")}
+        </div>
+      </section>`;
+    }).join("");
+    const admin = state.isAdmin ? `<section class="menuAdmin73" aria-labelledby="${prefix}-admin-title"><p id="${prefix}-admin-title">Administration</p><button type="button" class="menuLink73 adminLink73" data-go="admin"><span>Admin Access</span>${iconSvg("arrowRight")}</button></section>` : "";
+    return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>`;
+  }
+
+  function setupMenuGroups(root) {
+    const toggles = [...root.querySelectorAll("[data-menu-toggle]")];
+    if (!toggles.length) return;
+    const setOpen = (id, remember = true) => {
+      toggles.forEach((toggle) => {
+        const open = toggle.dataset.menuToggle === id;
+        const panel = root.querySelector(`#${toggle.getAttribute("aria-controls")}`);
+        toggle.setAttribute("aria-expanded", String(open));
+        if (panel) panel.hidden = !open;
+      });
+      if (remember) {
+        try { id ? sessionStorage.setItem(menuStateKey, id) : sessionStorage.removeItem(menuStateKey); } catch {}
+      }
+    };
+    let saved = "";
+    try { saved = sessionStorage.getItem(menuStateKey) || ""; } catch {}
+    if (saved && toggles.some((toggle) => toggle.dataset.menuToggle === saved)) setOpen(saved, false);
+    toggles.forEach((toggle) => {
+      toggle.onclick = () => setOpen(toggle.getAttribute("aria-expanded") === "true" ? "" : toggle.dataset.menuToggle);
+      toggle.closest("[data-menu-section]")?.querySelectorAll("[data-go]").forEach((link) => link.addEventListener("click", () => {
+        try { sessionStorage.setItem(menuStateKey, toggle.dataset.menuToggle); } catch {}
+      }));
+    });
+  }
+
+  function journeyItems() {
+    const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
+    const steps = state.steps?.length ? state.steps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
+    const completedCodes = new Set((state.progress || []).filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
+    const legacyDone = typeof window.completed === "function" ? Number(window.completed() || 0) : 0;
+    let currentFound = false;
+    return steps.map((step, index) => {
+      const complete = completedCodes.has(step.code) || (!state.progress?.length && index < legacyDone);
+      const current = !complete && !currentFound;
+      if (current) currentFound = true;
+      return {
+        title: step.title || `Journey step ${index + 1}`,
+        copy: step.description || "Review this milestone and keep the required evidence safe.",
+        status: complete ? "Completed" : current ? "Current step" : "Upcoming",
+        action: complete ? "Review step" : current ? "Continue step" : "View details",
+        complete,
+        current,
+        order: step.sort_order || index + 1,
+      };
+    });
   }
 
   function themeToggle() {
@@ -198,6 +295,47 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
     o.querySelector("[data-close]").focus();
+  }
+
+  function openDrawerV99(trigger) {
+    lastFocus = trigger;
+    let backdrop = document.getElementById("drawerBackdrop73");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "drawerBackdrop73";
+      backdrop.className = "drawerBackdrop73";
+      backdrop.hidden = true;
+      document.body.append(backdrop);
+    }
+    const name = safeName(state.u);
+    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div><div class="drawerMenu73">${menuMarkup("drawer-menu73")}</div></aside>`;
+    backdrop.hidden = false;
+    requestAnimationFrame(() => backdrop.classList.add("open"));
+    document.body.style.overflow = "hidden";
+    const close = () => {
+      backdrop.classList.remove("open");
+      const finish = () => { backdrop.hidden = true; };
+      matchMedia("(prefers-reduced-motion: reduce)").matches ? finish() : setTimeout(finish, 220);
+      document.body.style.overflow = "";
+      trigger.setAttribute("aria-expanded", "false");
+      lastFocus?.focus();
+    };
+    trigger.setAttribute("aria-expanded", "true");
+    backdrop.querySelector("[data-close]").onclick = close;
+    backdrop.onclick = (event) => { if (event.target === backdrop) close(); };
+    setupMenuGroups(backdrop);
+    wire(backdrop);
+    backdrop.querySelectorAll("[data-go],[data-signout]").forEach((button) => button.addEventListener("click", close));
+    backdrop.onkeydown = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); close(); return; }
+      if (event.key !== "Tab") return;
+      const focusable = [...backdrop.querySelectorAll("button:not([disabled]),a[href]")].filter((element) => !element.hidden && !element.closest("[hidden]"));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    backdrop.querySelector("[data-close]").focus();
   }
 
   function setupCarousel(root) {
@@ -254,7 +392,7 @@
     root.querySelectorAll("[data-mobile-open]").forEach((x) => {
       x.onclick = (e) => {
         e.preventDefault();
-        openDrawer(x);
+        openDrawerV99(x);
       };
     });
     root.querySelectorAll("[data-search-form]").forEach((form) => {
@@ -272,6 +410,8 @@
     home.classList.add("dashboard73-active");
     document.getElementById("careerDashboard")?.remove();
     document.getElementById("btvTop73")?.remove();
+    document.getElementById("profileSummary")?.remove();
+    document.getElementById("homeWelcomeArt")?.remove();
 
     const root = document.getElementById("dashboardV3") || document.createElement("section");
     root.id = "dashboardV3";
@@ -286,6 +426,7 @@
     const savedJobs = Number(state.saved?.length || 0);
     const streak = Number(state.game?.current_streak || 0);
     const walletBalance = Number(state.wallet?.balance || 0);
+    const journeySteps = journeyItems();
     const readinessCircumference = 2 * Math.PI * 34;
     const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
 
@@ -308,6 +449,11 @@
           <div class="brandLogo73"><img src="login-logo-v72.png" alt="Beyond The Visa logo"></div>
           <div><b>Beyond The Visa</b><small>NURSING PLATFORM</small></div>
         </div>
+        <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(name)}">
+          <span class="avatar73">${esc(initials(name))}</span>
+          <span><b>${esc(name)}</b><small>View profile</small></span>
+          <span class="profileArrow73">${iconSvg("arrowRight")}</span>
+        </button>
         <div class="sidebarNavWrap73">
           <p class="sidebarGroup73">DASHBOARD</p>
           <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
@@ -321,12 +467,6 @@
             <span class="coinDot73">${iconSvg("coin")}</span>
             <span><b>${walletBalance} BC</b><small>Beyond Coins</small></span>
           </button>
-          <div class="profileCard73">
-            <span class="avatar73">${esc(initials(name))}</span>
-            <span><b>${esc(name)}</b><small>${esc(pathway)}</small></span>
-            <button class="icon73 ghost73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-          </div>
-          <button class="signout73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>
         </div>
       </aside>
       <div class="mainArea73">
@@ -342,8 +482,8 @@
             </form>
             <button class="icon73" data-go="notifications" aria-label="Notifications">${iconSvg("bell")}</button>
             <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-            <button class="avatarBtn73" data-go="profile" aria-label="Open profile">${esc(initials(name))}</button>
-            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open menu" aria-expanded="false">${iconSvg("menu")}</button>
+            <button class="icon73 desktopMenuCue73" aria-label="Account menu is available on the right" disabled>${iconSvg("menu")}</button>
+            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg("menu")}</button>
           </div>
         </header>
         <div class="dashboardContent73">
@@ -379,6 +519,18 @@
             <article class="statCard73" data-go="analytics"><small>Study streak</small><b>${streak}</b><span>days active</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
           </section>
 
+          <section class="journeyPanel73" aria-labelledby="journey-title73">
+            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>${j.done} of ${j.total} steps completed</span></div><button type="button" data-go="journey">Open full journey ${iconSvg("arrowRight")}</button></div>
+            <div class="journeyProgress73" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div>
+            <div class="journeyTimeline73">
+              ${journeySteps.map((step) => `<article class="journeyStep73 ${step.complete ? "complete" : step.current ? "current" : "upcoming"}">
+                <div class="journeyMarker73" aria-hidden="true">${step.complete ? "&#10003;" : esc(step.order)}</div>
+                <div class="journeyStepCopy73"><div><h4>${esc(step.title)}</h4><span class="journeyStatus73">${esc(step.status)}</span></div><p>${esc(step.copy)}</p></div>
+                <button type="button" data-go="journey">${esc(step.action)} ${iconSvg("arrowRight")}</button>
+              </article>`).join("") || `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`}
+            </div>
+          </section>
+
           <section class="secondaryGrid73">
             <article class="panel73" data-go="${rec.id}">
               <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
@@ -405,8 +557,14 @@
           </section>
         </div>
       </div>
+      <aside class="rightMenu73" aria-label="Account, learning, career and support menu">
+        <div class="rightMenuHead73"><p>MEMBER MENU</p><h2>Everything in one place</h2><span>Choose a category to view its links.</span></div>
+        <nav class="rightMenuNav73" aria-label="Member menu categories">${menuMarkup("desktop-menu73")}</nav>
+      </aside>
+      <button type="button" class="floatingZibur73" data-go="assistant" aria-label="Open Ask Zibur assistant">${iconSvg("spark")}<span>Ask Zibur</span></button>
     </div>`;
 
+    setupMenuGroups(root);
     wire(root);
     setupCarousel(root);
   }
