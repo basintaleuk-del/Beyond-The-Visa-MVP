@@ -425,8 +425,8 @@
     const cbt = cbtStats();
     const savedJobs = Number(state.saved?.length || 0);
     const streak = Number(state.game?.current_streak || 0);
-    const walletBalance = Number(state.wallet?.balance || 0);
     const journeySteps = journeyItems();
+    const currentJourneyStep = journeySteps.find((step) => step.current) || journeySteps[journeySteps.length - 1] || null;
     const readinessCircumference = 2 * Math.PI * 34;
     const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
 
@@ -457,16 +457,7 @@
         <div class="sidebarNavWrap73">
           <p class="sidebarGroup73">DASHBOARD</p>
           <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
-          <button class="sideNavItem73" data-go="study"><span class="sideIc73">${iconSvg("learn")}</span><span>Learn</span></button>
-          <button class="sideNavItem73" data-go="journey"><span class="sideIc73">${iconSvg("journey")}</span><span>Journey</span></button>
-          <button class="sideNavItem73" data-go="jobs"><span class="sideIc73">${iconSvg("search")}</span><span>Jobs</span></button>
-          <button class="sideNavItem73" data-go="assistant"><span class="sideIc73">${iconSvg("spark")}</span><span>Ask Zibur</span></button>
-        </div>
-        <div class="sidebarBottom73">
-          <button class="coinsCard73" data-go="wallet" aria-label="Open Beyond Coins">
-            <span class="coinDot73">${iconSvg("coin")}</span>
-            <span><b>${walletBalance} BC</b><small>Beyond Coins</small></span>
-          </button>
+          <nav class="sidebarMemberMenu73" aria-label="Account, learning, career and support menu">${menuMarkup("sidebar-menu73")}</nav>
         </div>
       </aside>
       <div class="mainArea73">
@@ -482,7 +473,6 @@
             </form>
             <button class="icon73" data-go="notifications" aria-label="Notifications">${iconSvg("bell")}</button>
             <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-            <button class="icon73 desktopMenuCue73" aria-label="Account menu is available on the right" disabled>${iconSvg("menu")}</button>
             <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg("menu")}</button>
           </div>
         </header>
@@ -520,15 +510,13 @@
           </section>
 
           <section class="journeyPanel73" aria-labelledby="journey-title73">
-            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>${j.done} of ${j.total} steps completed</span></div><button type="button" data-go="journey">Open full journey ${iconSvg("arrowRight")}</button></div>
+            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>Your current journey position</span></div><button type="button" data-go="journey">Go to My Journey ${iconSvg("arrowRight")}</button></div>
             <div class="journeyProgress73" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div>
-            <div class="journeyTimeline73">
-              ${journeySteps.map((step) => `<article class="journeyStep73 ${step.complete ? "complete" : step.current ? "current" : "upcoming"}">
-                <div class="journeyMarker73" aria-hidden="true">${step.complete ? "&#10003;" : esc(step.order)}</div>
-                <div class="journeyStepCopy73"><div><h4>${esc(step.title)}</h4><span class="journeyStatus73">${esc(step.status)}</span></div><p>${esc(step.copy)}</p></div>
-                <button type="button" data-go="journey">${esc(step.action)} ${iconSvg("arrowRight")}</button>
-              </article>`).join("") || `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`}
-            </div>
+            ${currentJourneyStep ? `<article class="journeyCurrent73 ${j.total > 0 && j.done >= j.total ? "complete" : "current"}">
+              <div class="journeyCurrentMarker73" aria-hidden="true">${j.total > 0 && j.done >= j.total ? "&#10003;" : esc(currentJourneyStep.order)}</div>
+              <div class="journeyCurrentCopy73"><span class="journeyStatus73">${j.total > 0 && j.done >= j.total ? "Journey complete" : "Current step"}</span><h4>${esc(currentJourneyStep.title)}</h4><p>${esc(currentJourneyStep.copy)}</p><small>${j.done} of ${j.total} steps completed · ${j.pct}% complete</small></div>
+              <button type="button" data-go="journey">${j.total > 0 && j.done >= j.total ? "Review journey" : "Continue journey"} ${iconSvg("arrowRight")}</button>
+            </article>` : `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`}
           </section>
 
           <section class="secondaryGrid73">
@@ -557,10 +545,6 @@
           </section>
         </div>
       </div>
-      <aside class="rightMenu73" aria-label="Account, learning, career and support menu">
-        <div class="rightMenuHead73"><p>MEMBER MENU</p><h2>Everything in one place</h2><span>Choose a category to view its links.</span></div>
-        <nav class="rightMenuNav73" aria-label="Member menu categories">${menuMarkup("desktop-menu73")}</nav>
-      </aside>
       <button type="button" class="floatingZibur73" data-go="assistant" aria-label="Open Ask Zibur assistant">${iconSvg("spark")}<span>Ask Zibur</span></button>
     </div>`;
 
