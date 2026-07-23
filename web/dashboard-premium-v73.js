@@ -537,7 +537,7 @@
               <input type="search" placeholder="Search resources..." aria-label="Search resources">
             </form>
             <button class="coinBalance104" type="button" data-go="wallet" aria-label="Beyond Coins balance: ${Number(state.wallet?.balance || 0).toLocaleString('en-GB')} coins. Open wallet">
-              ${iconSvg("coin")}<span><b>${Number(state.wallet?.balance || 0).toLocaleString('en-GB')}</b><small>Beyond Coins</small></span>
+              <img class="coinBalanceLogo106" src="beyond-coin-v84.png" alt="" aria-hidden="true"><span><b>${Number(state.wallet?.balance || 0).toLocaleString('en-GB')}</b><small>Beyond Coins</small></span>
             </button>
             ${notificationMarkup()}
             <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
