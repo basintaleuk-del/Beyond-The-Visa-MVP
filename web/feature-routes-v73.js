@@ -27,6 +27,6 @@
   {id:'study-plan',title:'Study Plan',description:'Review today’s learning plan.',icon:'calendar',category:'account',target:{screen:'learn',action:'study-plan'}}
  ];
  const by=id=>features.find(x=>x.id===id);
- function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='profile'){window.showOnboarding?.();return true}if(t.action==='documents'){document.querySelector('[data-storage-open]')?.click();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
+ function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='profile'){window.openScreen?.('profile');return true}if(t.action==='documents'){document.querySelector('[data-storage-open]')?.click();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
  window.BTVFeatures={all:features,by,open};
 })();
