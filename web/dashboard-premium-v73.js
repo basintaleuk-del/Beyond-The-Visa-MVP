@@ -176,11 +176,39 @@
     return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
   }
 
+  function showHomeAdvice() {
+    const destination = destinationInfo();
+    const progress = journey();
+    const suggested = recommendation(progress);
+    const current = journeyItems().find((step) => step.current);
+    const unread = state.notes?.filter((note) => !note.read_at).length || 0;
+    const choices = [
+      { tag: "RECOMMENDED NEXT STEP", title: suggested.title, copy: suggested.copy, route: suggested.id },
+      current ? { tag: "YOUR JOURNEY", title: current.title, copy: `${current.copy} You are ${progress.pct}% through your ${destination.name} checklist.`, route: "journey" } : null,
+      unread ? { tag: "ACCOUNT UPDATE", title: `Review ${unread} unread notification${unread === 1 ? "" : "s"}`, copy: "Open your updates for journey reminders, learning news and account information.", route: "notifications" } : null,
+      destination.exam === "cbt" ? { tag: "LEARNING ADVICE", title: "Keep CBT preparation consistent", copy: "A short focused practice session followed by explanation review is more useful than rushing through a large question set.", route: "cbt" } : destination.exam === "nclex" ? { tag: "LEARNING ADVICE", title: "Practise NCLEX clinical judgement", copy: "Use safety, assessment, prioritisation and least-harm reasoning before reviewing the explanation.", route: "nclex" } : { tag: "REGISTRATION ADVICE", title: `Review your ${destination.name} pathway`, copy: "Confirm every registration and immigration requirement through the responsible current official authority.", route: "journey" },
+      { tag: "CAREER ADVICE", title: "Keep one career action moving", copy: "Save a suitable role, improve one interview example, or organise one supporting document today.", route: "jobs" },
+      { tag: "PLANNING ADVICE", title: "Verify before paying or submitting", copy: "Check current regulator and government guidance before paying a fee, uploading evidence or making a travel commitment.", route: "resources" },
+    ].filter(Boolean);
+    const selected = choices.sort(() => Math.random() - 0.5).slice(0, 3);
+    let dialog = document.getElementById("homeAdvice107");
+    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "homeAdvice107"; dialog.className = "homeAdvice107"; document.body.append(dialog); }
+    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(destination.flag)} ${esc(destination.name.toUpperCase())} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice each time you open Home.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected.map((item, index) => `<article class="${index === 0 ? "featured" : ""}"><small>${esc(item.tag)}</small><h3>${esc(item.title)}</h3><p>${esc(item.copy)}</p><button type="button" data-advice-route="${esc(item.route)}">Open ${esc(item.title)}</button></article>`).join("")}</div><footer><button type="button" class="changeDestination107" data-change-destination>${esc(destination.flag)} Change destination country</button><button type="button" data-advice-close>Not now</button></footer></div>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-advice-close]").forEach((button) => button.onclick = close);
+    dialog.querySelectorAll("[data-advice-route]").forEach((button) => button.onclick = () => { const route = button.dataset.adviceRoute; close(); go(route); });
+    dialog.querySelector("[data-change-destination]").onclick = () => { close(); window.openScreen?.("countries"); };
+    dialog.onclick = (event) => { if (event.target !== dialog) return; const box = dialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close(); };
+    if (!dialog.open) dialog.showModal();
+    dialog.querySelector("[data-advice-close]")?.focus();
+  }
+
   function go(id) {
     if (id === "dashboard") {
       if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
       F()?.open("dashboard");
-      return queueRender();
+      queueRender();
+      return setTimeout(showHomeAdvice, 80);
     }
     if (id === "explore" || id === "books") {
       F()?.open("study");
@@ -635,6 +663,7 @@
     if (!e.target.closest("[data-open=\"home\"]")) return;
     if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
     queueRender();
+    setTimeout(showHomeAdvice, 80);
   });
   window.addEventListener("btv:wallet-changed", queueRender);
   window.addEventListener("btv:auth-ready", queueRender);
