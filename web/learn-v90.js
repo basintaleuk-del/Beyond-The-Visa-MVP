@@ -4,7 +4,7 @@
   window.__btvLearnV90=true;
 
   const baseModules=[
-    {id:'explore',label:'Explore learning',icon:'EX',copy:'Open published guides, articles and videos from the learning library.',hub:'discover',meta:'Curated resources'},
+    {id:'explore',label:'Explore learning',icon:'EX',copy:'Discover Beyond The Visa through published guides, articles, videos and your complete platform guide.',hub:'discover',meta:'Platform guide & curated resources'},
     {id:'books',label:'Book library',icon:'▤',copy:'Books matched to your pathway',library:'books',meta:'Published reading'},
     {id:'cbt',label:'CBT',icon:'CBT',copy:'Question bank, explanations and timed mock exams.',url:'cbt.html',meta:'Practice and mocks'},
     {id:'nclex',label:'NCLEX-RN',icon:'RN',copy:'Clinical questions and adaptive exam preparation.',url:'nclex.html',meta:'Clinical readiness'},
@@ -68,19 +68,17 @@
       </header>
       <section class="learnV90Intro" aria-labelledby="learn-modules-title"><div><span>YOUR LEARNING</span><h2 id="learn-modules-title">Choose where to continue</h2></div><button type="button" data-learning-progress>View progress</button></section>
       <div class="learnV90Grid">${modules.map(x=>`<article class="learnV90Card"><span class="learnV90Icon" aria-hidden="true">${x.icon}</span><div><small>${x.meta}</small><h2>${x.label}</h2><p>${x.copy}</p></div><button type="button" data-module="${x.id}">Open ${x.label}<span aria-hidden="true">&#8594;</span></button></article>`).join('')}</div>
-      <section class="learnV90VideoBlock" aria-labelledby="learn-video-title"><div class="learnV90SectionHead"><span>PLATFORM GUIDE</span><h2 id="learn-video-title">Discover Beyond The Visa</h2><p>See how the platform brings your journey plan, learning tools, career support and progress together.</p></div><div id="guideLesson"></div></section>
     `;
     root.querySelector('[data-learn-home]').onclick=()=>window.BTVFeatures?.open('dashboard')||window.openScreen?.('home');
     root.querySelector('[data-learning-progress]').onclick=()=>window.BTVFeatures?.open('analytics');
     root.querySelectorAll('[data-module]').forEach(btn=>btn.onclick=()=>go(modules.find(x=>x.id===btn.dataset.module)));
-    window.renderGuide?.();
   }
 
   function showCalculator(){
     buildLearning();
-    const video=document.querySelector('.learnV90VideoBlock');if(!video)return;
+    const grid=document.querySelector('.learnV90Grid');if(!grid)return;
     const tool=document.createElement('section');tool.className='learnV90ToolBlock';tool.innerHTML='<div class="learnV90SectionHead"><span>INTERACTIVE PRACTICE</span><h2>CBT Numeracy</h2><p>Work through safe dosage and medication calculations using the existing interactive calculator.</p></div><div id="calculationsLesson"></div>';
-    video.before(tool);window.renderCalculator?.();setTimeout(()=>{const card=tool.querySelector('.calcCard'),calc=card?.querySelector('.scientificCalc85'),feedback=card?.querySelector('.calcFeedback');if(calc&&feedback)feedback.after(calc)},20);tool.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    grid.after(tool);window.renderCalculator?.();setTimeout(()=>{const card=tool.querySelector('.calcCard'),calc=card?.querySelector('.scientificCalc85'),feedback=card?.querySelector('.calcFeedback');if(calc&&feedback)feedback.after(calc)},20);tool.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
   }
 
   window.buildLearning=buildLearning;
