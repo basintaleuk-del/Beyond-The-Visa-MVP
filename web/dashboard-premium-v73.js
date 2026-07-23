@@ -193,11 +193,11 @@
     const selected = choices.sort(() => Math.random() - 0.5).slice(0, 3);
     let dialog = document.getElementById("homeAdvice107");
     if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "homeAdvice107"; dialog.className = "homeAdvice107"; document.body.append(dialog); }
-    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(destination.flag)} ${esc(destination.name.toUpperCase())} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice each time you open Home.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected.map((item, index) => `<article class="${index === 0 ? "featured" : ""}"><small>${esc(item.tag)}</small><h3>${esc(item.title)}</h3><p>${esc(item.copy)}</p><button type="button" data-advice-route="${esc(item.route)}">Open ${esc(item.title)}</button></article>`).join("")}</div><footer><button type="button" class="changeDestination107" data-change-destination>${esc(destination.flag)} Change destination country</button><button type="button" data-advice-close>Not now</button></footer></div>`;
+    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(destination.flag)} ${esc(destination.name.toUpperCase())} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice for your journey.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected.map((item, index) => `<article class="${index === 0 ? "featured" : ""}"><small>${esc(item.tag)}</small><h3>${esc(item.title)}</h3><p>${esc(item.copy)}</p><button type="button" data-advice-route="${esc(item.route)}">Open ${esc(item.title)}</button></article>`).join("")}</div><footer><button type="button" data-refresh-advice>Show different advice</button><button type="button" data-advice-close>Close</button></footer></div>`;
     const close = () => dialog.close();
     dialog.querySelectorAll("[data-advice-close]").forEach((button) => button.onclick = close);
     dialog.querySelectorAll("[data-advice-route]").forEach((button) => button.onclick = () => { const route = button.dataset.adviceRoute; close(); go(route); });
-    dialog.querySelector("[data-change-destination]").onclick = () => { close(); window.openScreen?.("countries"); };
+    dialog.querySelector("[data-refresh-advice]").onclick = showHomeAdvice;
     dialog.onclick = (event) => { if (event.target !== dialog) return; const box = dialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close(); };
     if (!dialog.open) dialog.showModal();
     dialog.querySelector("[data-advice-close]")?.focus();
@@ -207,9 +207,9 @@
     if (id === "dashboard") {
       if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
       F()?.open("dashboard");
-      queueRender();
-      return setTimeout(showHomeAdvice, 80);
+      return queueRender();
     }
+    if (id === "change-destination") return window.openScreen?.("countries");
     if (id === "explore" || id === "books") {
       F()?.open("study");
       return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
@@ -232,7 +232,7 @@
     const exam = destinationInfo().exam;
     const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
     return [
-      { id: "account", label: "Account", links: [["Profile", "profile"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
       { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
       { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
       { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
@@ -323,7 +323,7 @@
       ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Saved learning", "analytics"]]],
       ["CAREER AND MIGRATION", [["Journey Planner", "journey"], ["Visa Hub", "resources"], ["Jobs", "jobs"], ["Interview preparation", "interview"], ["Saved jobs", "saved-jobs"], ["Mentors", "mentors"]]],
       ["COMMUNITY AND SUPPORT", [["Ask Zibur", "assistant"], ["Community", "community"], ["Notifications", "notifications"], ["Success stories", "stories"]]],
-      ["ACCOUNT", [["Profile", "profile"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
+      ["ACCOUNT", [["Profile", "profile"], ["Change destination country", "change-destination"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
     ];
     o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div>${nav.map(([group, links]) => `<div class="drawerGroup73"><strong>${group}</strong>${links.map(([label, id]) => `<button class="drawerLink73" data-go="${id}"><span>${label}</span><span class="rowArrow73">${iconSvg("arrowRight")}</span></button>`).join("")}</div>`).join("")}<button class="drawerSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button></aside>`;
     o.hidden = false;
@@ -573,7 +573,7 @@
           </div>
         </header>
         <div class="dashboardContent73">
-          <section class="welcomeCard73">
+          <section class="welcomeCard73" data-home-advice role="button" tabindex="0" aria-label="Open personalised recommendations and advice">
             <div class="welcomeOverlay73" aria-hidden="true"></div>
             <div class="welcomeLines73" aria-hidden="true"></div>
             <div class="welcomeNurse73" aria-hidden="true"></div>
@@ -648,6 +648,9 @@
     wire(root);
     setupNotifications(root);
     setupCarousel(root);
+    const welcomeAdvice = root.querySelector("[data-home-advice]");
+    welcomeAdvice?.addEventListener("click", showHomeAdvice);
+    welcomeAdvice?.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); showHomeAdvice(); } });
   }
 
   function queueRender() {
@@ -663,7 +666,6 @@
     if (!e.target.closest("[data-open=\"home\"]")) return;
     if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
     queueRender();
-    setTimeout(showHomeAdvice, 80);
   });
   window.addEventListener("btv:wallet-changed", queueRender);
   window.addEventListener("btv:auth-ready", queueRender);
