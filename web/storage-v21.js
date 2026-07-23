@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  if(!document.querySelector('link[href="storage-v21.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href='storage-v21.css?v=21';document.head.append(link)}
+  if(!document.querySelector('link[data-storage-styles]')){const link=document.createElement('link');link.rel='stylesheet';link.dataset.storageStyles='v101';link.href='storage-v21.css?v=101';document.head.append(link)}
   const sb=window.btvSupabase,BUCKET='btv-user-files',MAX=10*1024*1024;
   const categories={certificates:['Certificates','▤','Qualifications and registrations'],passports:['Passport','◇','Identity document copies'],visas:['Visa documents','✈','Applications, decisions and permits'],cvs:['CVs','≡','CV and career files'],images:['Images','▧','Other relevant images']};
   let current='certificates',user=null,avatarLoaded=false;

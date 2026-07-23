@@ -143,7 +143,7 @@
     if (!p.profession || !p.destination) return { title: "Complete your profile", copy: "Add your profession and destination for personalised guidance.", id: "profile" };
     const active = state.mocks?.find((x) => x.status === "active" || x.status === "in_progress");
     if (active) return { title: "Resume your active mock", copy: `Continue ${String(active.mock_code).replaceAll("_", " ")} without paying again.`, id: "mock-tests" };
-    if (!j.done) return { title: "Take your first journey step", copy: "Open your pathway and complete the first milestone.", id: "journey" };
+    if (!j.done) return { title: "Upload your essential documents", copy: "Start with the certificates and identity files your pathway will need.", id: "documents" };
     if (state.notes?.some((x) => !x.read_at)) return { title: "Review your updates", copy: "You have unread guidance and account notifications.", id: "notifications" };
     return { title: "Continue today’s study plan", copy: "Keep your learning streak moving forward.", id: "study-plan" };
   }
@@ -177,8 +177,8 @@
 
   function menuGroups() {
     return [
-      { id: "account", label: "Account", links: [["Profile", "profile"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
-      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["Calculators", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
       { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
       { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
     ];
@@ -263,7 +263,7 @@
     }
     const name = safeName(state.u);
     const nav = [
-      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["Calculators", "calculations"], ["Saved learning", "analytics"]]],
+      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Saved learning", "analytics"]]],
       ["CAREER AND MIGRATION", [["Journey Planner", "journey"], ["Visa Hub", "resources"], ["Jobs", "jobs"], ["Interview preparation", "interview"], ["Saved jobs", "saved-jobs"], ["Mentors", "mentors"]]],
       ["COMMUNITY AND SUPPORT", [["Ask Zibur", "assistant"], ["Community", "community"], ["Notifications", "notifications"], ["Success stories", "stories"]]],
       ["ACCOUNT", [["Profile", "profile"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
@@ -437,7 +437,7 @@
     ];
     const quickActions = [
       { title: "CBT learning", copy: "Questions, explanations and mock tests", id: "cbt", icon: "CBT" },
-      { title: "Journey checklist", copy: "Complete your registration and visa steps", id: "journey", icon: "JL" },
+      { title: "Visa Hub", copy: "Official guidance and pathway resources", id: "resources", icon: "VH" },
       { title: "Cost planner", copy: "Plan fees and relocation expenses", id: "costs", icon: "£" },
       { title: "Ask Zibur", copy: "Get guidance based on your saved journey", id: "assistant", icon: "AI" },
       { title: "My documents", copy: "Certificates, passport, visa and CV files", id: "documents", icon: "DOC" },
@@ -459,6 +459,7 @@
           <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
           <nav class="sidebarMemberMenu73" aria-label="Account, learning, career and support menu">${menuMarkup("sidebar-menu73")}</nav>
         </div>
+        <div class="sidebarLondon73" aria-hidden="true"></div>
       </aside>
       <div class="mainArea73">
         <header class="mainHeader73">
@@ -503,7 +504,7 @@
           </section>
 
           <section class="statsRow73">
-            <article class="statCard73" data-go="journey"><small>Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73 journeySummaryStat73"><small>Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Progress overview</em></article>
             <article class="statCard73" data-go="cbt"><small>CBT accuracy</small><b>${esc(cbt.value)}</b><span>${esc(cbt.sub)}</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
             <article class="statCard73" data-go="saved-jobs"><small>Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
             <article class="statCard73" data-go="analytics"><small>Study streak</small><b>${streak}</b><span>days active</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>

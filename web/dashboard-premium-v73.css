@@ -46,7 +46,7 @@ html,body{max-width:100%;overflow-x:clip}
   background:
     linear-gradient(180deg,rgba(17,43,31,.98),rgba(12,28,22,.98)),
     radial-gradient(circle at 15% 85%,rgba(46,162,111,.17),transparent 45%);
-  box-shadow:none;
+  box-shadow:18px 0 44px rgba(3,20,12,.16);
   color:#dce8df;
   display:flex;
   flex-direction:column;
@@ -64,14 +64,16 @@ html,body{max-width:100%;overflow-x:clip}
   width:52px;
   height:52px;
   border-radius:14px;
-  background:linear-gradient(145deg,#f1ce66,#d3a72a);
+  background:transparent;
   display:grid;
   place-items:center;
 }
 .brandLogo73 img{
-  width:42px;
-  height:42px;
+  width:50px;
+  height:50px;
   object-fit:contain;
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 5px 12px rgba(213,178,79,.2));
 }
 .sidebarBrand73 b{
   display:block;
@@ -402,7 +404,7 @@ html,body{max-width:100%;overflow-x:clip}
   height:100%;
   background:
     linear-gradient(to left,rgba(10,29,22,.2),rgba(10,29,22,.84) 50%,rgba(10,29,22,.96)),
-    url("welcome-journey-v85.png") center top/cover no-repeat;
+    url("home-nurse-blur-v101.png") center/cover no-repeat;
   opacity:.9;
 }
 
@@ -731,6 +733,9 @@ html,body{max-width:100%;overflow-x:clip}
 .sidebarMemberMenu73 .menuLink73{color:#adc5b7;padding-left:18px}.sidebarMemberMenu73 .menuLink73:hover{background:rgba(255,255,255,.07);color:#fff}
 .sidebarMemberMenu73 .menuAdmin73{background:rgba(213,178,79,.1);border-color:rgba(213,178,79,.35)}.sidebarMemberMenu73 .menuAdmin73>p{color:#e2c66f}.sidebarMemberMenu73 .adminLink73{color:#f1daa0}
 .sidebarMemberMenu73 .menuSignOut73{margin:16px 0 8px;background:rgba(255,255,255,.08)}.sidebarMemberMenu73 .menuSignOut73:hover{background:rgba(255,255,255,.14)}
+.sidebarLondon73{position:relative;flex:0 0 112px;margin:0 10px 12px;border:1px solid rgba(255,255,255,.14);border-radius:16px;overflow:hidden;background:#0e2a20;box-shadow:0 12px 28px rgba(0,0,0,.24)}
+.sidebarLondon73::before{content:"";position:absolute;inset:-8px;background:linear-gradient(180deg,rgba(8,30,21,.1),rgba(8,30,21,.72)),url("sidebar-london-bridge-v101.png") center/cover no-repeat;filter:blur(2.2px);transform:scale(1.05)}
+.sidebarLondon73::after{content:"LONDON PATHWAYS";position:absolute;left:13px;bottom:12px;color:#f6e2a4;font-size:9px;font-weight:850;letter-spacing:.16em;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 
 .journeyPanel73{border:1px solid var(--btv-line);border-radius:16px;background:var(--btv-card);box-shadow:0 10px 24px rgba(18,50,35,.06);padding:20px}
 .journeyHead73{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.journeyHead73 p{margin:0 0 5px;color:#6d8879;font-size:10px;letter-spacing:.14em;font-weight:850}.journeyHead73 h3{margin:0;color:#18382a;font-size:23px}.journeyHead73 span{display:block;margin-top:5px;color:#71857a;font-size:12px}
@@ -747,6 +752,7 @@ html,body{max-width:100%;overflow-x:clip}
 .journeyCurrentMarker73{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:#173f2e;color:#fff;font-size:18px;font-weight:850;box-shadow:0 8px 18px rgba(23,63,46,.18)}.journeyCurrent73.complete .journeyCurrentMarker73{background:#20845b}
 .journeyCurrentCopy73{min-width:0}.journeyCurrentCopy73 h4{margin:7px 0 4px;color:#19382a;font-size:19px}.journeyCurrentCopy73 p{margin:0;color:#657a6f;font-size:13px;line-height:1.5}.journeyCurrentCopy73 small{display:block;margin-top:8px;color:#789084;font-size:11px;font-weight:700}
 .journeyCurrent73>button{min-height:42px;border:1px solid #cbded2;border-radius:10px;background:#fff;color:#1f704f;padding:0 14px;display:flex;align-items:center;gap:7px;font-weight:750;cursor:pointer}.journeyCurrent73>button:hover{background:#eaf5ed}.journeyCurrent73>button svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.journeySummaryStat73{cursor:default}.journeySummaryStat73:hover{transform:none;border-color:var(--btv-line)}
 
 .floatingZibur73{position:fixed;right:24px;bottom:24px;z-index:80;border:0;border-radius:999px;background:#153e2d;color:#fff;min-height:52px;padding:0 18px;display:flex;align-items:center;gap:9px;box-shadow:0 14px 34px rgba(10,38,25,.28);font-weight:800;cursor:pointer}
 .floatingZibur73:hover{background:#1d5d40;transform:translateY(-1px)}.floatingZibur73 svg{width:19px;height:19px;stroke:#f2ca5e;fill:none;stroke-width:1.8}
