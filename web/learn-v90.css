@@ -1,5 +1,5 @@
 .learnV90Page{width:min(calc(100% - 24px),1280px);margin:24px auto 120px!important;padding:0!important;color:var(--ink)}
-.learnV90Header{display:flex;align-items:flex-start;gap:15px;border-radius:26px;background:linear-gradient(125deg,#10291f,#1e6043);color:#fff;padding:28px 30px;margin-bottom:18px;box-shadow:0 16px 36px rgba(13,45,31,.18)}
+.learnV90Header{display:flex;align-items:flex-start;gap:15px;height:auto;min-height:150px;position:relative;top:auto;z-index:auto;overflow:hidden;border-radius:26px;background:linear-gradient(125deg,#10291f,#1e6043);color:#fff;padding:28px 30px;margin-bottom:18px;box-shadow:0 16px 36px rgba(13,45,31,.18)}
 .learnV90Header>div{min-width:0;max-width:100%}.learnV90Header span,.learnV90Header h1,.learnV90Header p{overflow-wrap:anywhere;word-break:normal}
 .learnV90Header .back{flex:none;width:42px;height:42px;border:1px solid #ffffff3b;border-radius:13px;background:#ffffff12;color:#fff;font-size:20px;cursor:pointer}
 .learnV90Header span,.learnV90Intro span,.learnV90SectionHead span{color:#d8b553;font-size:11px;letter-spacing:.14em;font-weight:900}
