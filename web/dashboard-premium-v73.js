@@ -63,7 +63,8 @@
       au: { flag: "🇦🇺", exam: "nclex" }, ca: { flag: "🇨🇦", exam: "nclex" },
       nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
     }[key];
-    return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam: meta.exam };
+    const exam = ({ au: "registration", ie: "registration" })[key] || meta.exam;
+    return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam };
   }
 
   function safeName(u) {
@@ -579,6 +580,7 @@
             <div class="welcomeNurse73" aria-hidden="true"></div>
             <div class="welcomeInner73">
               <p class="welcomeDate73">${fmtHeroDate()}</p>
+              <span class="welcomeDestination73"><b aria-hidden="true">${esc(destination.flag)}</b>${esc(destination.name)}</span>
               <h2>Welcome back, ${esc(name)}</h2>
               <p class="welcomePathway73">${esc(pathway)}</p>
               <div class="welcomeReadiness73">
@@ -668,6 +670,7 @@
     queueRender();
   });
   window.addEventListener("btv:wallet-changed", queueRender);
+  window.addEventListener("btv:destination-changed", queueRender);
   window.addEventListener("btv:auth-ready", queueRender);
   window.addEventListener("focus", queueRender);
   document.addEventListener("DOMContentLoaded", queueRender);

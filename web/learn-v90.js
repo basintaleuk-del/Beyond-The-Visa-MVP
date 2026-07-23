@@ -17,7 +17,7 @@
 
   const destinations={
     uk:{name:'United Kingdom',flag:'🇬🇧',exam:'cbt',intro:'Your CBT pathway, UK clinical practice and international career learning in one place.'},
-    ie:{name:'Ireland',flag:'🇮🇪',exam:'cbt',intro:'Your Irish registration pathway, clinical practice and international career learning in one place.'},
+    ie:{name:'Ireland',flag:'🇮🇪',exam:'registration',intro:'Your NMBI registration pathway, Irish clinical practice and international career learning in one place.'},
     us:{name:'United States',flag:'🇺🇸',exam:'nclex',intro:'Your NCLEX-RN pathway, US clinical practice and international career learning in one place.'},
     ca:{name:'Canada',flag:'🇨🇦',exam:'nclex',intro:'Your Canadian registration and NCLEX-RN preparation, clinical practice and career learning in one place.'},
     au:{name:'Australia',flag:'🇦🇺',exam:'registration',intro:'Your Australian registration pathway, clinical practice and international career learning in one place.'},
@@ -30,8 +30,31 @@
   }
 
   function modulesForDestination(){
-    const exam=destination().exam;
-    return baseModules.filter(item=>item.id!=='cbt'&&item.id!=='nclex'||item.id===exam);
+    const selected=destination(),exam=selected.exam;
+    const pathway={
+      uk:{authority:'NMC',clinical:'UK NHS and independent-sector practice',language:'IELTS preparation aligned with UK registration and employment evidence.'},
+      us:{authority:'State Board of Nursing',clinical:'US nursing standards, terminology and safe practice',language:'English-language preparation for employers or boards that require evidence.'},
+      ca:{authority:'Provincial nursing regulator',clinical:'Canadian nursing standards and culturally safe practice',language:'IELTS preparation aligned with Canadian regulator requirements.'},
+      au:{authority:'AHPRA and NMBA',clinical:'Australian clinical standards and culturally safe practice',language:'IELTS preparation aligned with Australian registration evidence.'},
+      nz:{authority:'Nursing Council of New Zealand',clinical:'New Zealand clinical standards and culturally safe practice',language:'IELTS preparation aligned with New Zealand registration evidence.'},
+      ie:{authority:'NMBI',clinical:'Irish clinical standards and healthcare practice',language:'IELTS preparation aligned with Irish registration evidence.'}
+    }[selected.key];
+    const registration=exam==='registration'?{id:'registration',label:`${selected.name} registration`,icon:'REG',copy:`Understand the current ${pathway.authority} registration pathway, evidence and next actions.`,route:'journey',meta:`${pathway.authority} pathway`}:null;
+    return [
+      ...baseModules.filter(item=>{
+        if(item.id==='cbt'||item.id==='nclex')return item.id===exam;
+        if(item.id==='calculations'||item.id==='osce')return selected.key==='uk';
+        return true;
+      }).map(item=>{
+        if(item.id==='explore')return {...item,copy:`Explore guides, articles and videos selected for your ${selected.name} pathway.`,meta:`${selected.name} resources`};
+        if(item.id==='books')return {...item,copy:`Books and professional reading matched to your ${selected.name} pathway.`,meta:`${selected.name} reading`};
+        if(item.id==='adult-nursing')return {...item,copy:`Clinical topics for ${pathway.clinical}.`,meta:`${selected.name} safe practice`};
+        if(item.id==='ielts')return {...item,copy:pathway.language,meta:`${selected.name} language preparation`};
+        if(item.id==='analytics')return {...item,copy:`Review practice and study activity across your ${selected.name} learning pathway.`,meta:`${selected.name} progress`};
+        return item;
+      }),
+      ...(registration?[registration]:[])
+    ];
   }
 
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -44,7 +67,7 @@
     if(!sb){target.innerHTML='<p>The book library connection is unavailable. Please refresh and try again.</p>';return}
     const {data,error}=await sb.from('books').select('*').eq('status','published').order('created_at',{ascending:false});
     if(error){target.innerHTML=`<p>${esc(error.message)}</p>`;return}
-    const exam=destination().exam,visible=(data||[]).filter(book=>book.pathway==='all'||book.pathway===exam||(book.pathway==='osce'&&destination().key==='uk'));
+    const selected=destination(),exam=selected.exam,visible=(data||[]).filter(book=>book.pathway==='all'||book.pathway===selected.key||book.pathway===exam||(book.pathway==='osce'&&selected.key==='uk'));
     target.innerHTML=`<div class="learnBookGridV103">${visible.map(book=>`<article><span>▤</span><small>${esc((book.pathway||'all').toUpperCase())}</small><h3>${esc(book.title)}</h3><b>${esc(book.author||'Beyond The Visa')}</b><p>${esc(book.description||'Professional learning resource.')}</p><button type="button" data-book-path="${esc(book.file_path)}">Open book</button></article>`).join('')||'<p>No published books match this pathway yet. New titles will appear here when an administrator publishes them.</p>'}</div>`;
     target.querySelectorAll('[data-book-path]').forEach(button=>button.onclick=async()=>{button.disabled=true;button.textContent='Opening…';const result=await sb.storage.from('btv-books').createSignedUrl(button.dataset.bookPath,300);button.disabled=false;button.textContent='Open book';if(result.error){alert(result.error.message);return}window.open(result.data.signedUrl,'_blank','noopener')});
   }
@@ -85,5 +108,6 @@
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',buildLearning,{once:true}):buildLearning();
   document.addEventListener('click',event=>{if(event.target.closest('[data-open="learn"],[data-go="study"],.country'))setTimeout(buildLearning,40)});
   window.addEventListener('storage',event=>{if(event.key==='btv-v1'||event.key==='btv-profile')buildLearning()});
+  window.addEventListener('btv:destination-changed',buildLearning);
   window.addEventListener('btv:feature-action',e=>{if(e.detail?.id==='study')setTimeout(buildLearning,0);if(e.detail?.id==='calculations')setTimeout(showCalculator,0);if(e.detail?.id==='explore'||e.detail?.id==='books')setTimeout(()=>window.BTVPlatform?.open('discover'),80)});
 })();
