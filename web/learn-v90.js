@@ -109,5 +109,5 @@
   document.addEventListener('click',event=>{if(event.target.closest('[data-open="learn"],[data-go="study"],.country'))setTimeout(buildLearning,40)});
   window.addEventListener('storage',event=>{if(event.key==='btv-v1'||event.key==='btv-profile')buildLearning()});
   window.addEventListener('btv:destination-changed',buildLearning);
-  window.addEventListener('btv:feature-action',e=>{if(e.detail?.id==='study')setTimeout(buildLearning,0);if(e.detail?.id==='calculations')setTimeout(showCalculator,0);if(e.detail?.id==='explore'||e.detail?.id==='books')setTimeout(()=>window.BTVPlatform?.open('discover'),80)});
+  window.addEventListener('btv:feature-action',e=>{if(e.detail?.id==='study')setTimeout(buildLearning,0);if(e.detail?.id==='calculations')setTimeout(showCalculator,0);if(e.detail?.id==='explore')setTimeout(()=>window.BTVPlatform?.open('discover'),80);if(e.detail?.id==='books')setTimeout(openBooks,80)});
 })();
