@@ -1,3 +1,4 @@
+(function(){
 const sb=window.btvSupabase;
 const esc=v=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
 let subscriptions=[],payments=[],prices=[],profiles=[],started=false;
@@ -20,3 +21,4 @@ async function savePrice(code){const amount=Number(document.querySelector(`[data
 function bind(){document.querySelector('#refreshMemberships').onclick=load;document.querySelector('#membershipSearch').oninput=render}
 function start(){if(started)return;started=true;bind();load();setInterval(load,60000)}
 build();window.BTVAdminPremium={start,load};
+})();

@@ -1,3 +1,4 @@
+(function(){
 const sb=window.btvSupabase;
 const esc=v=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
 const labels={interview_booking:'Interview booking',cv_request:'CV support',contact:'Contact message',feedback:'Feedback',bug_report:'Bug report',feature_request:'Feature request',zibur_question:'Zibur question',premium_request:'Premium request'};
@@ -37,3 +38,4 @@ async function load(){const {data,error}=await sb.from('manager_requests').selec
 function bind(){document.querySelector('#requestSearch').oninput=render;document.querySelector('#requestType').onchange=render;document.querySelector('#requestStatus').onchange=render;document.querySelector('#refreshRequests').onclick=load;document.querySelector('#closeRequest').onclick=()=>document.querySelector('#requestDialog').close();document.querySelector('#saveRequest').onclick=save;document.querySelectorAll('[data-open-inbox]').forEach(b=>b.onclick=()=>document.querySelector('[data-tab="requests"]').click())}
 function start(){if(started)return;started=true;bind();load();setInterval(load,30000)}
 build();window.BTVAdminInbox={start,load};
+})();

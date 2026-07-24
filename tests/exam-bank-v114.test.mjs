@@ -12,11 +12,14 @@ test('CBT and NCLEX tooling targets 2,000 blueprint-tagged records', async () =>
   assert.match(factory, /quality_status: 'needs_clinical_review'/);
 });
 
-test('exam and admin clients paginate beyond the Supabase 1,000-row limit', async () => {
-  for (const path of ['web/cbt.js', 'web/nclex.js', 'web/admin.js', 'web/admin-bank-tools.js']) {
+test('exam clients and bank health paginate beyond the Supabase 1,000-row limit', async () => {
+  for (const path of ['web/cbt.js', 'web/nclex.js', 'web/admin-bank-tools.js']) {
     const source = await read(path);
     assert.match(source, /range\(from,from\+999\)/, `${path} must load every bank page`);
   }
+  const admin = await read('web/admin.js');
+  assert.match(admin, /limit\(150\)/, 'Admin must render a bounded recent-question page');
+  assert.doesNotMatch(admin, /function readAll/, 'Admin must not load all full question records at startup');
 });
 
 test('publication requires review and approved standards metadata', async () => {
