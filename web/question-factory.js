@@ -22,9 +22,6 @@
     'Maternal-Newborn Nursing':'Health Promotion and Maintenance','Paediatric Nursing':'Health Promotion and Maintenance',
     'Medical-Surgical Nursing':'Physiological Adaptation','Management of Care':'Management of Care','Prioritisation':'Reduction of Risk Potential'
   };
-  const people = ['Amara', 'Daniel', 'Fatima', 'Grace', 'Isaac', 'Leila', 'Maya', 'Noah', 'Priya', 'Samuel'];
-  const settings = ['an acute ward', 'a community clinic', 'an outpatient unit', 'a rehabilitation ward', 'an urgent care unit'];
-  const shifts = ['early shift', 'late shift', 'night shift', 'weekend shift'];
   const pad = n => String(n).padStart(4, '0');
 
   const cbtSeeds = [
@@ -67,43 +64,45 @@
     ['Prioritisation', 'After handoff, which client requires immediate follow-up?', ['A postoperative client with sudden dyspnea', 'A client asking when lunch arrives', 'A stable client due for a bath', 'A client awaiting routine transport'], ['A'], 'Sudden postoperative dyspnea may indicate pulmonary embolism or another life-threatening problem.', 'Prioritize an acute breathing change over routine care.']
   ];
 
-  function scenario(index) {
-    return `${people[index % people.length]} is being cared for in ${settings[Math.floor(index / people.length) % settings.length]} during the ${shifts[Math.floor(index / 7) % shifts.length]}`;
+  function normaliseStem(value) {
+    return String(value || '')
+      .replace(/^\[BTV-(?:CBT|NCLEX)-(?:SAMPLE-)?\d+\]\s*/i, '')
+      .replace(/^Extended practice draft \d+\.\s*/i, '')
+      .replace(/^[^.]+ is being cared for in [^.]+ during the [^.]+\.\s*/i, '')
+      .replace(/\s+/g, ' ').trim().toLowerCase();
   }
 
-  function buildCbt(total = 2000) {
-    return Array.from({ length: total }, (_, index) => {
-      const seed = cbtSeeds[index % cbtSeeds.length];
+  function buildCbt(total = cbtSeeds.length) {
+    return cbtSeeds.slice(0, Math.min(total, cbtSeeds.length)).map((seed, index) => {
       return {
         profession: seed[0] === 'Child Nursing' ? 'nurse' : 'both',
         subject: seed[0], difficulty: ['easy', 'medium', 'hard'][index % 3],
-        question_text: `[BTV-CBT-${pad(index + 1)}] ${scenario(index)}. ${seed[1]}`,
+        question_text: `[BTV-CBT-SAMPLE-${pad(index + 1)}] ${seed[1]}`,
         option_a: seed[2][0], option_b: seed[2][1], option_c: seed[2][2], option_d: seed[2][3],
         correct_option: seed[3], explanation: seed[4], access_level: 'free', is_active: false,
-        standard_version: 'NMC Test of Competence blueprint (current 2026)', blueprint_domain: cbtDomain[seed[0]],
-        review_status: 'pending', quality_status: 'needs_clinical_review'
+        standard_version: 'Unofficial sample aligned to the NMC Test of Competence 2021 blueprint', blueprint_domain: cbtDomain[seed[0]],
+        review_status: 'sample_unreviewed', quality_status: 'needs_clinical_review'
       };
     });
   }
 
-  function buildNclex(total = 2000) {
-    return Array.from({ length: total }, (_, index) => {
-      const seed = nclexSeeds[index % nclexSeeds.length];
+  function buildNclex(total = nclexSeeds.length) {
+    return nclexSeeds.slice(0, Math.min(total, nclexSeeds.length)).map((seed, index) => {
       return {
         exam: 'NCLEX-RN', category: nclexNeed[seed[0]], client_need: nclexNeed[seed[0]],
         difficulty: ['easy', 'medium', 'hard'][index % 3], question_type: 'single',
-        question_text: `[BTV-NCLEX-${pad(index + 1)}] ${scenario(index)}. ${seed[1]}`,
+        question_text: `[BTV-NCLEX-SAMPLE-${pad(index + 1)}] ${seed[1]}`,
         option_a: seed[2][0], option_b: seed[2][1], option_c: seed[2][2], option_d: seed[2][3],
         option_e: null, option_f: null, correct_options: seed[3], rationale: seed[4],
         test_strategy: seed[5], access_level: 'free', is_active: false,
-        standard_version: 'NCSBN 2026 NCLEX-RN Test Plan', blueprint_domain: nclexNeed[seed[0]],
-        review_status: 'pending', quality_status: 'needs_clinical_review'
+        standard_version: 'Unofficial sample aligned to the NCSBN 2026 NCLEX-RN Test Plan', blueprint_domain: nclexNeed[seed[0]],
+        review_status: 'sample_unreviewed', quality_status: 'needs_clinical_review'
       };
     });
   }
 
   window.BTVQuestionFactory = {
-    TARGET: 2000, CBT_CATEGORIES, NCLEX_CATEGORIES, buildCbt, buildNclex,
-    note: 'Generated items are inactive drafts and require clinical and regulatory review before publication.'
+    TARGET: 2000, CBT_CATEGORIES, NCLEX_CATEGORIES, buildCbt, buildNclex, normaliseStem,
+    note: 'Original, unofficial sample items. They remain inactive until qualified clinical and regulatory review; cosmetic variants are never generated.'
   };
 })();

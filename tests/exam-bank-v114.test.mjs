@@ -4,12 +4,23 @@ import { readFile } from 'node:fs/promises';
 
 const read = path => readFile(path, 'utf8');
 
-test('CBT and NCLEX tooling targets 2,000 blueprint-tagged records', async () => {
+test('CBT and NCLEX tooling keeps the capacity target without generating cosmetic variants', async () => {
   const factory = await read('web/question-factory.js');
   assert.match(factory, /TARGET: 2000/);
-  assert.match(factory, /NMC Test of Competence blueprint \(current 2026\)/);
-  assert.match(factory, /NCSBN 2026 NCLEX-RN Test Plan/);
+  assert.match(factory, /NMC Test of Competence 2021 blueprint/);
+  assert.match(factory, /Unofficial sample aligned to the NCSBN 2026 NCLEX-RN Test Plan/);
   assert.match(factory, /quality_status: 'needs_clinical_review'/);
+  assert.match(factory, /normaliseStem/);
+  assert.doesNotMatch(factory, /Array\.from\(\{ length: total \}/);
+});
+
+test('repeated drafts are quarantined and unofficial samples remain review-gated', async () => {
+  const migration = await read('supabase/migrations/202607240012_independent_sample_question_bank_v115.sql');
+  assert.match(migration, /duplicate_quarantined/);
+  assert.match(migration, /content_kind.*unofficial_sample/s);
+  assert.match(migration, /sample_unreviewed/);
+  assert.match(migration, /live_semantic_hash_uidx/);
+  assert.match(migration, /'free', false, 'single', 'sample_unreviewed'/);
 });
 
 test('exam clients and bank health paginate beyond the Supabase 1,000-row limit', async () => {
