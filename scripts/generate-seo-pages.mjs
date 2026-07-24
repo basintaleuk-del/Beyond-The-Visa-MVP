@@ -12,6 +12,10 @@ const organizationSchema = {
   logo: `${siteUrl}/site-logo.png`,
   description: 'Relocation, exam preparation, and career planning support for internationally educated nurses and midwives.',
   email: 'support@beyondthevisa.org',
+  founder: {
+    '@type': 'Person',
+    name: 'Beyond The Visa Team',
+  },
   contactPoint: [{
     '@type': 'ContactPoint',
     contactType: 'customer support',
@@ -35,6 +39,7 @@ const globalLinks = [
   ['Calculators', '/calculators.html'],
   ['Ask Zibur', '/ask-zibur.html'],
   ['Blog', '/blog/'],
+  ['Search', '/search.html'],
   ['Contact', '/contact.html'],
 ];
 
@@ -58,7 +63,7 @@ const pages = [
     description: 'Plan every relocation stage: registration, tests, visa, travel, and settlement with a structured nursing journey checklist.',
     h1: 'Your Relocation Journey, Step by Step',
     intro: 'Track registration, immigration, and settlement tasks in an order that matches how internationally educated nurses move safely and efficiently.',
-    schema: ['WebPage'],
+    schema: ['WebPage', 'HowTo'],
     links: [['Visa Hub', '/visa-hub.html'], ['Jobs', '/jobs.html'], ['Calculators', '/calculators.html'], ['Learn', '/learn.html']],
   },
   {
@@ -89,7 +94,7 @@ const pages = [
     description: 'Prepare for nursing interviews abroad with structured STAR practice, scenario coaching, and role-specific preparation plans.',
     h1: 'Interview Preparation for International Nurses',
     intro: 'Strengthen communication, safety reasoning, and values-based examples with practical interview preparation workflows.',
-    schema: ['WebPage', 'Product', 'Offer'],
+    schema: ['WebPage', 'Product', 'Offer', 'HowTo'],
     links: [['Jobs', '/jobs.html'], ['Learn', '/learn.html'], ['Drug Calculations', '/knowledge/drug-calculations.html']],
     faq: [
       ['What interview format should I expect?', 'Most healthcare interviews combine values, scenario judgement, and role-fit questions.'],
@@ -329,6 +334,20 @@ function pageSchema(pathname, page) {
       },
     });
   }
+  if (page.schema?.includes('HowTo')) {
+    schema.push({
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: `${page.h1} workflow`,
+      description: page.description,
+      step: (page.links || []).map(([name, href], index) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        name,
+        url: absolute(href),
+      })),
+    });
+  }
   if (page.schema?.includes('SoftwareApplication')) {
     schema.push({
       '@context': 'https://schema.org',
@@ -432,6 +451,7 @@ qInput.addEventListener('input',render);render();
   <meta name="description" content="${page.description}">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="google-site-verification" content="GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE">
+  <meta name="msvalidate.01" content="BING_WEBMASTER_VERIFICATION_CODE">
   <link rel="canonical" href="${url}">
   <link rel="alternate" hreflang="en-GB" href="${url}">
   <link rel="alternate" hreflang="x-default" href="${url}">
@@ -450,6 +470,7 @@ qInput.addEventListener('input',render);render();
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/site-logo.png" sizes="192x192">
   <link rel="apple-touch-icon" href="/site-logo.png">
+  <link rel="preload" href="/seo-pages.css" as="style">
   <link rel="stylesheet" href="/seo-pages.css">
   <script type="application/ld+json">${ldJson}</script>
 </head>
@@ -477,7 +498,9 @@ qInput.addEventListener('input',render);render();
       <a href="/contact.html">Contact</a>
       <a href="/privacy-policy.html">Privacy</a>
       <a href="/terms-and-conditions.html">Terms</a>
+      <a href="/cookie-policy.html">Cookie</a>
       <a href="/blog/">Blog</a>
+      <a href="/search.html">Search</a>
       <a href="/rss.xml">RSS</a>
       <a href="/sitemap.xml">Sitemap</a>
     </nav>
@@ -544,7 +567,11 @@ function renderPost(post) {
   <title>${post.title} | Beyond The Visa Blog</title>
   <meta name="description" content="${post.description}">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="google-site-verification" content="GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE">
+  <meta name="msvalidate.01" content="BING_WEBMASTER_VERIFICATION_CODE">
   <link rel="canonical" href="${canonical}">
+  <link rel="alternate" hreflang="en-GB" href="${canonical}">
+  <link rel="alternate" hreflang="x-default" href="${canonical}">
   <meta property="og:type" content="article">
   <meta property="og:title" content="${post.title} | Beyond The Visa Blog">
   <meta property="og:description" content="${post.description}">
@@ -555,6 +582,7 @@ function renderPost(post) {
   <meta name="twitter:description" content="${post.description}">
   <meta name="twitter:image" content="${absolute('/site-logo.png')}">
   <link rel="manifest" href="/manifest.json">
+  <link rel="preload" href="/seo-pages.css" as="style">
   <link rel="stylesheet" href="/seo-pages.css">
   <script type="application/ld+json">${ld}</script>
 </head>
@@ -591,6 +619,7 @@ for (const page of pages) {
   await write(page.path, renderPage(pathname, page));
 }
 
+const knowledgeLinks = knowledgePages.map(([itemSlug, itemLabel]) => [itemLabel, `/knowledge/${itemSlug}.html`]);
 for (const [slug, label, description] of knowledgePages) {
   const path = `knowledge/${slug}.html`;
   await write(path, renderPage(`/${path}`, {
@@ -599,7 +628,7 @@ for (const [slug, label, description] of knowledgePages) {
     h1: label,
     intro: `${description} This landing page is designed for quick retrieval by search and AI assistants.`,
     schema: ['WebPage', 'Article'],
-    links: [['Learn', '/learn.html'], ['Journey', '/journey.html'], ['Visa Hub', '/visa-hub.html'], ['Blog', '/blog/']],
+    links: [['Learn', '/learn.html'], ['Journey', '/journey.html'], ['Visa Hub', '/visa-hub.html'], ['Blog', '/blog/'], ...knowledgeLinks.filter(([_, href]) => href !== `/knowledge/${slug}.html`)],
     faq: [
       ['Who is this guide for?', 'Internationally educated nurses and midwives planning registration and relocation.'],
       ['How should this guide be used?', 'Use it as a planning framework, then verify every requirement with official sources.'],

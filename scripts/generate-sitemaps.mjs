@@ -5,7 +5,7 @@ const root = process.cwd();
 const siteUrl = 'https://beyondthevisa.org';
 
 const excludedDirs = new Set(['.git', 'node_modules', 'web', 'www', 'figma-redesign-reference', 'android', 'ios', 'supabase', 'docs', 'download']);
-const excludedFiles = new Set(['admin.html', 'BEYOND-THE-VISA-CORRECT-WEBSITE.html']);
+const excludedFiles = new Set(['admin.html', 'BEYOND-THE-VISA-CORRECT-WEBSITE.html', 'googleb53f2c7d9dd2d4be.html']);
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -66,6 +66,29 @@ ${sitemaps.map((s) => `  <sitemap><loc>${toUrl(`/${s}`)}</loc></sitemap>`).join(
 `;
 }
 
+function toImageSitemapXml(entries) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${entries.map((entry) => `  <url><loc>${entry.loc}</loc>${entry.images.map((image) => `<image:image><image:loc>${image}</image:loc></image:image>`).join('')}</url>`).join('\n')}
+</urlset>
+`;
+}
+
+function toVideoSitemapXml(entries) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+${entries.map((entry) => `  <url><loc>${entry.loc}</loc><video:video><video:thumbnail_loc>${entry.thumbnail}</video:thumbnail_loc><video:title>${entry.title}</video:title><video:description>${entry.description}</video:description><video:content_loc>${entry.video}</video:content_loc></video:video></url>`).join('\n')}
+</urlset>
+`;
+}
+
+function toNewsSitemapXml() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+</urlset>
+`;
+}
+
 function pickPriority(pathname) {
   if (pathname === '/') return '1.0';
   if (pathname.startsWith('/knowledge/')) return '0.9';
@@ -107,7 +130,38 @@ const sitePages = pages.filter((p) => !p.pathname.startsWith('/blog/'));
 
 await writeFile(join(root, 'sitemap-pages.xml'), toSitemapXml(sitePages), 'utf8');
 await writeFile(join(root, 'sitemap-blog.xml'), toSitemapXml(blogPages), 'utf8');
-const indexXml = toSitemapIndexXml(['sitemap-pages.xml', 'sitemap-blog.xml']);
+const imageEntries = [];
+const videoEntries = [];
+for (const page of pages) {
+  const html = await readFile(join(root, page.relPath), 'utf8');
+  const images = [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)]
+    .map((m) => m[1])
+    .filter((src) => !src.startsWith('data:'))
+    .filter((src) => !src.includes('${') && !src.includes('`') && !src.includes('<') && !src.includes('>'))
+    .map((src) => src.startsWith('http') ? src : toUrl(src.startsWith('/') ? src : `/${src}`));
+  const validImages = images.filter((url) => /\.(png|jpg|jpeg|webp|svg|gif|avif)(\?|$)/i.test(url));
+  if (validImages.length) {
+    imageEntries.push({ loc: page.loc, images: [...new Set(validImages)] });
+  }
+  const videos = [...html.matchAll(/(?:<video[^>]+src=["']([^"']+)["'])|(?:<source[^>]+src=["']([^"']+\.(?:mp4|webm))["'])/gi)]
+    .map((m) => m[1] || m[2])
+    .filter(Boolean)
+    .map((src) => src.startsWith('http') ? src : toUrl(src.startsWith('/') ? src : `/${src}`));
+  for (const video of videos) {
+    videoEntries.push({
+      loc: page.loc,
+      video,
+      title: `Beyond The Visa video: ${page.pathname}`,
+      description: 'Video resource published by Beyond The Visa.',
+      thumbnail: `${siteUrl}/site-logo.png`,
+    });
+  }
+}
+await writeFile(join(root, 'sitemap-images.xml'), toImageSitemapXml(imageEntries), 'utf8');
+await writeFile(join(root, 'sitemap-videos.xml'), toVideoSitemapXml(videoEntries), 'utf8');
+await writeFile(join(root, 'sitemap-news.xml'), toNewsSitemapXml(), 'utf8');
+
+const indexXml = toSitemapIndexXml(['sitemap-pages.xml', 'sitemap-blog.xml', 'sitemap-images.xml', 'sitemap-videos.xml', 'sitemap-news.xml']);
 await writeFile(join(root, 'sitemap-index.xml'), indexXml, 'utf8');
 await writeFile(join(root, 'sitemap.xml'), indexXml, 'utf8');
 

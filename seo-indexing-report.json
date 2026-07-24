@@ -1,0 +1,1004 @@
+{
+  "sitemapUrl": "https://beyondthevisa.org/sitemap.xml",
+  "robotsUrl": "https://beyondthevisa.org/robots.txt",
+  "verification": {
+    "google": {
+      "method": "meta_tag",
+      "record": "GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE"
+    },
+    "bing": {
+      "method": "meta_tag",
+      "record": "BING_WEBMASTER_VERIFICATION_CODE"
+    },
+    "indexNow": {
+      "keyFile": "https://beyondthevisa.org/41f8d0f1a4a14517a7b95f26c5d8e3b2.txt"
+    }
+  },
+  "pagesReadyForIndexing": [
+    "/",
+    "/about.html",
+    "/ask-zibur.html",
+    "/blog/",
+    "/blog/cbt.html",
+    "/blog/ielts.html",
+    "/blog/jobs.html",
+    "/blog/nclex-study-plan-for-international-nurses.html",
+    "/blog/nclex.html",
+    "/blog/nursing-careers.html",
+    "/blog/osce-station-strategy-for-nurses.html",
+    "/blog/osce.html",
+    "/blog/study-tips.html",
+    "/blog/visa.html",
+    "/calculators.html",
+    "/cbt.html",
+    "/contact.html",
+    "/cookie-policy.html",
+    "/ielts.html",
+    "/interview-preparation.html",
+    "/jobs.html",
+    "/journey.html",
+    "/knowledge/canada-nursing.html",
+    "/knowledge/cbt-for-nurses.html",
+    "/knowledge/drug-calculations.html",
+    "/knowledge/interview-preparation-guide.html",
+    "/knowledge/nclex-preparation.html",
+    "/knowledge/nursing-jobs-abroad.html",
+    "/knowledge/osce-preparation.html",
+    "/knowledge/uk-nursing.html",
+    "/knowledge/usa-nursing.html",
+    "/knowledge/visa-guides.html",
+    "/learn.html",
+    "/nclex.html",
+    "/osce.html",
+    "/privacy-policy.html",
+    "/search.html",
+    "/terms-and-conditions.html",
+    "/visa-hub.html"
+  ],
+  "pagesBlocked": [
+    "/404.html",
+    "/500.html",
+    "/admin.html"
+  ],
+  "canonicalUrls": [
+    {
+      "page": "/about.html",
+      "canonical": "https://beyondthevisa.org/about.html"
+    },
+    {
+      "page": "/ask-zibur.html",
+      "canonical": "https://beyondthevisa.org/ask-zibur.html"
+    },
+    {
+      "page": "/blog/cbt.html",
+      "canonical": "https://beyondthevisa.org/blog/cbt.html"
+    },
+    {
+      "page": "/blog/ielts.html",
+      "canonical": "https://beyondthevisa.org/blog/ielts.html"
+    },
+    {
+      "page": "/blog/",
+      "canonical": "https://beyondthevisa.org/blog/"
+    },
+    {
+      "page": "/blog/jobs.html",
+      "canonical": "https://beyondthevisa.org/blog/jobs.html"
+    },
+    {
+      "page": "/blog/nclex-study-plan-for-international-nurses.html",
+      "canonical": "https://beyondthevisa.org/blog/nclex-study-plan-for-international-nurses.html"
+    },
+    {
+      "page": "/blog/nclex.html",
+      "canonical": "https://beyondthevisa.org/blog/nclex.html"
+    },
+    {
+      "page": "/blog/nursing-careers.html",
+      "canonical": "https://beyondthevisa.org/blog/nursing-careers.html"
+    },
+    {
+      "page": "/blog/osce-station-strategy-for-nurses.html",
+      "canonical": "https://beyondthevisa.org/blog/osce-station-strategy-for-nurses.html"
+    },
+    {
+      "page": "/blog/osce.html",
+      "canonical": "https://beyondthevisa.org/blog/osce.html"
+    },
+    {
+      "page": "/blog/study-tips.html",
+      "canonical": "https://beyondthevisa.org/blog/study-tips.html"
+    },
+    {
+      "page": "/blog/visa.html",
+      "canonical": "https://beyondthevisa.org/blog/visa.html"
+    },
+    {
+      "page": "/calculators.html",
+      "canonical": "https://beyondthevisa.org/calculators.html"
+    },
+    {
+      "page": "/cbt.html",
+      "canonical": "https://beyondthevisa.org/cbt.html"
+    },
+    {
+      "page": "/contact.html",
+      "canonical": "https://beyondthevisa.org/contact.html"
+    },
+    {
+      "page": "/cookie-policy.html",
+      "canonical": "https://beyondthevisa.org/cookie-policy.html"
+    },
+    {
+      "page": "/ielts.html",
+      "canonical": "https://beyondthevisa.org/ielts.html"
+    },
+    {
+      "page": "/",
+      "canonical": "https://beyondthevisa.org/"
+    },
+    {
+      "page": "/interview-preparation.html",
+      "canonical": "https://beyondthevisa.org/interview-preparation.html"
+    },
+    {
+      "page": "/jobs.html",
+      "canonical": "https://beyondthevisa.org/jobs.html"
+    },
+    {
+      "page": "/journey.html",
+      "canonical": "https://beyondthevisa.org/journey.html"
+    },
+    {
+      "page": "/knowledge/canada-nursing.html",
+      "canonical": "https://beyondthevisa.org/knowledge/canada-nursing.html"
+    },
+    {
+      "page": "/knowledge/cbt-for-nurses.html",
+      "canonical": "https://beyondthevisa.org/knowledge/cbt-for-nurses.html"
+    },
+    {
+      "page": "/knowledge/drug-calculations.html",
+      "canonical": "https://beyondthevisa.org/knowledge/drug-calculations.html"
+    },
+    {
+      "page": "/knowledge/interview-preparation-guide.html",
+      "canonical": "https://beyondthevisa.org/knowledge/interview-preparation-guide.html"
+    },
+    {
+      "page": "/knowledge/nclex-preparation.html",
+      "canonical": "https://beyondthevisa.org/knowledge/nclex-preparation.html"
+    },
+    {
+      "page": "/knowledge/nursing-jobs-abroad.html",
+      "canonical": "https://beyondthevisa.org/knowledge/nursing-jobs-abroad.html"
+    },
+    {
+      "page": "/knowledge/osce-preparation.html",
+      "canonical": "https://beyondthevisa.org/knowledge/osce-preparation.html"
+    },
+    {
+      "page": "/knowledge/uk-nursing.html",
+      "canonical": "https://beyondthevisa.org/knowledge/uk-nursing.html"
+    },
+    {
+      "page": "/knowledge/usa-nursing.html",
+      "canonical": "https://beyondthevisa.org/knowledge/usa-nursing.html"
+    },
+    {
+      "page": "/knowledge/visa-guides.html",
+      "canonical": "https://beyondthevisa.org/knowledge/visa-guides.html"
+    },
+    {
+      "page": "/learn.html",
+      "canonical": "https://beyondthevisa.org/learn.html"
+    },
+    {
+      "page": "/nclex.html",
+      "canonical": "https://beyondthevisa.org/nclex.html"
+    },
+    {
+      "page": "/osce.html",
+      "canonical": "https://beyondthevisa.org/osce.html"
+    },
+    {
+      "page": "/privacy-policy.html",
+      "canonical": "https://beyondthevisa.org/privacy-policy.html"
+    },
+    {
+      "page": "/search.html",
+      "canonical": "https://beyondthevisa.org/search.html"
+    },
+    {
+      "page": "/terms-and-conditions.html",
+      "canonical": "https://beyondthevisa.org/terms-and-conditions.html"
+    },
+    {
+      "page": "/visa-hub.html",
+      "canonical": "https://beyondthevisa.org/visa-hub.html"
+    }
+  ],
+  "schemaCoverage": [
+    {
+      "page": "/about.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/ask-zibur.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "Person",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/blog/cbt.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/ielts.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/jobs.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/nclex-study-plan-for-international-nurses.html",
+      "schema": [
+        "BlogPosting",
+        "Organization",
+        "Organization",
+        "ImageObject",
+        "Article"
+      ]
+    },
+    {
+      "page": "/blog/nclex.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/nursing-careers.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/osce-station-strategy-for-nurses.html",
+      "schema": [
+        "BlogPosting",
+        "Organization",
+        "Organization",
+        "ImageObject",
+        "Article"
+      ]
+    },
+    {
+      "page": "/blog/osce.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/study-tips.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/blog/visa.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/calculators.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "SoftwareApplication",
+        "Offer",
+        "WebApplication"
+      ]
+    },
+    {
+      "page": "/cbt.html",
+      "schema": [
+        "WebPage",
+        "Course",
+        "EducationalOrganization",
+        "CourseInstance"
+      ]
+    },
+    {
+      "page": "/contact.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/cookie-policy.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/ielts.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "Course",
+        "EducationalOrganization",
+        "CourseInstance",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/",
+      "schema": [
+        "WebSite",
+        "SearchAction",
+        "Organization",
+        "EducationalOrganization",
+        "WebApplication",
+        "SoftwareApplication",
+        "Offer"
+      ]
+    },
+    {
+      "page": "/interview-preparation.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "HowTo",
+        "HowToStep",
+        "HowToStep",
+        "HowToStep",
+        "Product",
+        "Brand",
+        "Offer"
+      ]
+    },
+    {
+      "page": "/jobs.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer"
+      ]
+    },
+    {
+      "page": "/journey.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "HowTo",
+        "HowToStep",
+        "HowToStep",
+        "HowToStep",
+        "HowToStep"
+      ]
+    },
+    {
+      "page": "/knowledge/canada-nursing.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/cbt-for-nurses.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/drug-calculations.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/interview-preparation-guide.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/nclex-preparation.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/nursing-jobs-abroad.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/osce-preparation.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/uk-nursing.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/usa-nursing.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/knowledge/visa-guides.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer",
+        "Article",
+        "Organization",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/learn.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "EducationalOrganization",
+        "FAQPage",
+        "Question",
+        "Answer",
+        "Question",
+        "Answer"
+      ]
+    },
+    {
+      "page": "/nclex.html",
+      "schema": [
+        "WebPage",
+        "Course",
+        "EducationalOrganization",
+        "CourseInstance"
+      ]
+    },
+    {
+      "page": "/osce.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "Course",
+        "EducationalOrganization",
+        "CourseInstance",
+        "Organization"
+      ]
+    },
+    {
+      "page": "/privacy-policy.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/search.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint",
+        "WebSite",
+        "SearchAction"
+      ]
+    },
+    {
+      "page": "/terms-and-conditions.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    },
+    {
+      "page": "/visa-hub.html",
+      "schema": [
+        "WebPage",
+        "BreadcrumbList",
+        "ListItem",
+        "ListItem",
+        "Organization",
+        "Person",
+        "ContactPoint"
+      ]
+    }
+  ],
+  "richResultEligibility": {
+    "faq": [
+      "/interview-preparation.html",
+      "/jobs.html",
+      "/knowledge/canada-nursing.html",
+      "/knowledge/cbt-for-nurses.html",
+      "/knowledge/drug-calculations.html",
+      "/knowledge/interview-preparation-guide.html",
+      "/knowledge/nclex-preparation.html",
+      "/knowledge/nursing-jobs-abroad.html",
+      "/knowledge/osce-preparation.html",
+      "/knowledge/uk-nursing.html",
+      "/knowledge/usa-nursing.html",
+      "/knowledge/visa-guides.html",
+      "/learn.html"
+    ],
+    "breadcrumbs": [
+      "/about.html",
+      "/ask-zibur.html",
+      "/blog/cbt.html",
+      "/blog/ielts.html",
+      "/blog/",
+      "/blog/jobs.html",
+      "/blog/nclex.html",
+      "/blog/nursing-careers.html",
+      "/blog/osce.html",
+      "/blog/study-tips.html",
+      "/blog/visa.html",
+      "/calculators.html",
+      "/contact.html",
+      "/cookie-policy.html",
+      "/ielts.html",
+      "/interview-preparation.html",
+      "/jobs.html",
+      "/journey.html",
+      "/knowledge/canada-nursing.html",
+      "/knowledge/cbt-for-nurses.html",
+      "/knowledge/drug-calculations.html",
+      "/knowledge/interview-preparation-guide.html",
+      "/knowledge/nclex-preparation.html",
+      "/knowledge/nursing-jobs-abroad.html",
+      "/knowledge/osce-preparation.html",
+      "/knowledge/uk-nursing.html",
+      "/knowledge/usa-nursing.html",
+      "/knowledge/visa-guides.html",
+      "/learn.html",
+      "/osce.html",
+      "/privacy-policy.html",
+      "/search.html",
+      "/terms-and-conditions.html",
+      "/visa-hub.html"
+    ],
+    "course": [
+      "/cbt.html",
+      "/ielts.html",
+      "/nclex.html",
+      "/osce.html"
+    ],
+    "article": [
+      "/blog/nclex-study-plan-for-international-nurses.html",
+      "/blog/osce-station-strategy-for-nurses.html",
+      "/knowledge/canada-nursing.html",
+      "/knowledge/cbt-for-nurses.html",
+      "/knowledge/drug-calculations.html",
+      "/knowledge/interview-preparation-guide.html",
+      "/knowledge/nclex-preparation.html",
+      "/knowledge/nursing-jobs-abroad.html",
+      "/knowledge/osce-preparation.html",
+      "/knowledge/uk-nursing.html",
+      "/knowledge/usa-nursing.html",
+      "/knowledge/visa-guides.html"
+    ],
+    "software": [
+      "/calculators.html",
+      "/"
+    ],
+    "searchBox": [
+      "/",
+      "/search.html"
+    ],
+    "organization": [
+      "/about.html",
+      "/ask-zibur.html",
+      "/blog/cbt.html",
+      "/blog/ielts.html",
+      "/blog/",
+      "/blog/jobs.html",
+      "/blog/nclex-study-plan-for-international-nurses.html",
+      "/blog/nclex.html",
+      "/blog/nursing-careers.html",
+      "/blog/osce-station-strategy-for-nurses.html",
+      "/blog/osce.html",
+      "/blog/study-tips.html",
+      "/blog/visa.html",
+      "/calculators.html",
+      "/contact.html",
+      "/cookie-policy.html",
+      "/ielts.html",
+      "/",
+      "/interview-preparation.html",
+      "/jobs.html",
+      "/journey.html",
+      "/knowledge/canada-nursing.html",
+      "/knowledge/cbt-for-nurses.html",
+      "/knowledge/drug-calculations.html",
+      "/knowledge/interview-preparation-guide.html",
+      "/knowledge/nclex-preparation.html",
+      "/knowledge/nursing-jobs-abroad.html",
+      "/knowledge/osce-preparation.html",
+      "/knowledge/uk-nursing.html",
+      "/knowledge/usa-nursing.html",
+      "/knowledge/visa-guides.html",
+      "/learn.html",
+      "/osce.html",
+      "/privacy-policy.html",
+      "/search.html",
+      "/terms-and-conditions.html",
+      "/visa-hub.html"
+    ]
+  },
+  "internalLinkReport": {
+    "orphanPages": [],
+    "inboundLinkCounts": {
+      "/about.html": 34,
+      "/ask-zibur.html": 36,
+      "/blog/cbt.html": 1,
+      "/blog/ielts.html": 2,
+      "/blog/": 92,
+      "/blog/jobs.html": 1,
+      "/blog/nclex-study-plan-for-international-nurses.html": 2,
+      "/blog/nclex.html": 2,
+      "/blog/nursing-careers.html": 1,
+      "/blog/osce-station-strategy-for-nurses.html": 2,
+      "/blog/osce.html": 2,
+      "/blog/study-tips.html": 1,
+      "/blog/visa.html": 1,
+      "/calculators.html": 38,
+      "/cbt.html": 2,
+      "/contact.html": 72,
+      "/cookie-policy.html": 34,
+      "/ielts.html": 3,
+      "/": 38,
+      "/interview-preparation.html": 2,
+      "/jobs.html": 39,
+      "/journey.html": 50,
+      "/knowledge/canada-nursing.html": 10,
+      "/knowledge/cbt-for-nurses.html": 9,
+      "/knowledge/drug-calculations.html": 11,
+      "/knowledge/interview-preparation-guide.html": 9,
+      "/knowledge/nclex-preparation.html": 9,
+      "/knowledge/nursing-jobs-abroad.html": 9,
+      "/knowledge/osce-preparation.html": 10,
+      "/knowledge/uk-nursing.html": 10,
+      "/knowledge/usa-nursing.html": 10,
+      "/knowledge/visa-guides.html": 11,
+      "/learn.html": 54,
+      "/nclex.html": 2,
+      "/osce.html": 3,
+      "/privacy-policy.html": 39,
+      "/search.html": 68,
+      "/terms-and-conditions.html": 39,
+      "/visa-hub.html": 50
+    }
+  },
+  "brokenLinks": [],
+  "redirects": [
+    "index.html -> /",
+    "/home -> /",
+    "/blog/articles -> /blog/",
+    "/web/*.html -> /*.html"
+  ],
+  "coreWebVitalsRecommendations": [
+    "Split remaining large inline CSS into cacheable static files.",
+    "Defer non-critical JS on interactive app views.",
+    "Serve responsive image variants and keep explicit width/height."
+  ],
+  "readiness": {
+    "search": "ready",
+    "ai": "ready",
+    "google": "ready",
+    "bing": "ready"
+  }
+}
