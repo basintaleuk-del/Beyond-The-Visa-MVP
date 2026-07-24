@@ -1,5 +1,8 @@
 {
   "redirects": [
+    { "source": "/admin", "destination": "/admin.html", "permanent": false },
+    { "source": "/admin/", "destination": "/admin.html", "permanent": false },
+    { "source": "/dashboard/admin", "destination": "/admin.html", "permanent": false },
     { "source": "/index.html", "destination": "/", "permanent": true },
     { "source": "/home", "destination": "/", "permanent": true },
     { "source": "/blog/articles", "destination": "/blog/", "permanent": true },
