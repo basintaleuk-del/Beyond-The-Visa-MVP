@@ -2,4 +2,7 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>https://beyondthevisa.org/sitemap-pages.xml</loc></sitemap>
   <sitemap><loc>https://beyondthevisa.org/sitemap-blog.xml</loc></sitemap>
+  <sitemap><loc>https://beyondthevisa.org/sitemap-images.xml</loc></sitemap>
+  <sitemap><loc>https://beyondthevisa.org/sitemap-videos.xml</loc></sitemap>
+  <sitemap><loc>https://beyondthevisa.org/sitemap-news.xml</loc></sitemap>
 </sitemapindex>

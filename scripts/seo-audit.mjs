@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 
 const root = process.cwd();
 const excludedDirs = new Set(['.git', 'node_modules', 'web', 'www', 'figma-redesign-reference', 'android', 'ios', 'supabase', 'docs', 'download']);
-const excludedFiles = new Set(['BEYOND-THE-VISA-CORRECT-WEBSITE.html']);
+const excludedFiles = new Set(['BEYOND-THE-VISA-CORRECT-WEBSITE.html', 'googleb53f2c7d9dd2d4be.html']);
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });

@@ -7,6 +7,8 @@
     "seo:pages": "node scripts/generate-seo-pages.mjs",
     "seo:sitemap": "node scripts/generate-sitemaps.mjs",
     "seo:audit": "node scripts/seo-audit.mjs",
+    "seo:report": "node scripts/indexing-report.mjs",
+    "seo:indexnow": "node scripts/ping-indexnow.mjs",
     "seo:prepare": "npm run seo:pages && npm run seo:sitemap",
     "build:web": "npm run seo:prepare && node scripts/build-web.mjs",
     "build": "npm run build:web && npx cap sync",
