@@ -202,7 +202,14 @@ function authMessage(formId,text,isError=false){
 
 async function cacheSignedInUser(user){
   if(!user)return;
-    const {data:profile}=await window.btvSupabase.from('profiles').select('full_name,profession,qualification_country,destination_country,destination,registration_stage,job_status,dependants,account_type,role').eq('id',user.id).maybeSingle();
+  let profile=null;
+  try{
+    const {data,error}=await window.btvSupabase.from('profiles').select('full_name,profession,qualification_country,destination_country,destination,registration_stage,job_status,dependants,account_type,role').eq('id',user.id).maybeSingle();
+    if(error)throw error;
+    profile=data;
+  }catch(err){
+    console.warn('Profile cache lookup failed:',err?.message||err);
+  }
   const account={id:user.id,name:profile?.full_name||user.user_metadata?.full_name||user.email.split('@')[0],email:user.email,accountType:profile?.account_type||'free',role:profile?.role||'user'};
   localStorage.setItem('btv-account',JSON.stringify(account));
     if(profile&&(profile.destination_country||profile.destination||profile.profession)){
@@ -234,9 +241,11 @@ document.getElementById('loginForm').onsubmit=async e=>{
   const button=e.currentTarget.querySelector('.authSubmit');button.disabled=true;button.textContent='Signing in…';
   document.getElementById('loginError').textContent='';
   try{
+    if(!window.btvSupabase?.auth)throw new Error('Account service is unavailable. Refresh the page and try again.');
     const email=document.getElementById('loginEmail').value.trim().toLowerCase(),password=document.getElementById('loginPassword').value;
     const {data,error}=await window.btvSupabase.auth.signInWithPassword({email,password});
     if(error)throw error;
+    if(!data?.session||!data?.user)throw new Error('Sign-in was not completed. Please verify your email address, then try again.');
     window.__btvSession=data.session;await cacheSignedInUser(data.user);userProfile()?await showApp():showOnboarding();
   }catch(err){document.getElementById('loginError').textContent=err.message||'Email or password not recognised.'}
   finally{button.disabled=false;button.textContent='Sign in'}
@@ -245,14 +254,34 @@ document.getElementById('loginForm').onsubmit=async e=>{
 document.getElementById('logout').onclick=async()=>{await window.btvSupabase.auth.signOut();window.__btvSession=null;localStorage.removeItem('btv-account');showAuth();authTab(true)};
 
 async function initialiseSupabaseAuth(){
+  if(!window.btvSupabase?.auth){
+    showAuth();
+    document.getElementById('loginError').textContent='Account service is unavailable. Check your connection and refresh.';
+    return;
+  }
   buildOnboarding();authTab(false);
-  const {data:{session}}=await window.btvSupabase.auth.getSession();
-  window.__btvSession=session;
-  if(session){await cacheSignedInUser(session.user);userProfile()?await showApp():showOnboarding()}else showAuth();
+  try{
+    const {data:{session}}=await window.btvSupabase.auth.getSession();
+    window.__btvSession=session;
+    if(session){
+      await cacheSignedInUser(session.user);
+      userProfile()?await showApp():showOnboarding();
+    }else if(!window.__btvSession){
+      showAuth();
+    }
+  }catch(err){
+    console.warn('Initial auth session lookup failed:',err?.message||err);
+    if(!window.__btvSession)showAuth();
+  }
   window.btvSupabase.auth.onAuthStateChange(async(event,session)=>{
     window.__btvSession=session;
     if(event==='SIGNED_OUT'){showAuth();authTab(true);return}
-    if(session){await cacheSignedInUser(session.user)}
+    if(session){
+      await cacheSignedInUser(session.user);
+      if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='INITIAL_SESSION'){
+        userProfile()?showApp():showOnboarding();
+      }
+    }
   });
 }
 window.addEventListener('DOMContentLoaded',initialiseSupabaseAuth,{once:true});
