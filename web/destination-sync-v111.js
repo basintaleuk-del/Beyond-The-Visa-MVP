@@ -5,6 +5,7 @@
 
   const valid=new Set(['uk','us','ca','au','nz','ie']);
   const names={uk:'United Kingdom',us:'United States',ca:'Canada',au:'Australia',nz:'New Zealand',ie:'Ireland'};
+  const sessionKey='btv-current-destination';
   let remoteSave=0;
 
   function read(key,fallback={}){try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch{return fallback}}
@@ -14,6 +15,7 @@
     return valid.has(key)?key:'uk';
   }
   function saveLocal(key){
+    sessionStorage.setItem(sessionKey,key);
     const journey=read('btv-v1');journey.country=key;localStorage.setItem('btv-v1',JSON.stringify(journey));
     const profile=read('btv-profile');profile.destination=key;if(key!=='uk')delete profile.region;localStorage.setItem('btv-profile',JSON.stringify(profile));
     if(typeof window.state==='object'&&window.state)window.state.country=key;
@@ -44,6 +46,11 @@
     if(!valid.has(key))return;
     saveLocal(key);refresh(key,source);saveRemote(key);
   }
+  function restoreAfterHistory(){
+    const remembered=sessionStorage.getItem(sessionKey);
+    if(!valid.has(remembered))return;
+    saveLocal(remembered);refresh(remembered,'history-restore');
+  }
 
   document.addEventListener('click',event=>{
     if(!event.target.closest('#countryGrid .country'))return;
@@ -53,5 +60,8 @@
     if(event.key!=='btv-v1'&&event.key!=='btv-profile')return;
     const key=selected();saveLocal(key);refresh(key,'storage');
   });
-  window.BTVDestination={get:selected,set:change};
+  window.addEventListener('pageshow',restoreAfterHistory);
+  window.addEventListener('popstate',()=>setTimeout(restoreAfterHistory,0));
+  saveLocal(selected());
+  window.BTVDestination={get:selected,set:change,remember:()=>saveLocal(selected()),restore:restoreAfterHistory};
 })();

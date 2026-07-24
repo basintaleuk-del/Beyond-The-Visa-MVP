@@ -3,7 +3,8 @@
   const stack=[];let goingBack=false;
   function activeScreen(){return document.querySelector('.screen.active')?.id||''}
   function fallback(){if(location.pathname.endsWith('/index.html')||location.pathname.endsWith('/')){window.openScreen?.('home');return}location.href='index.html'}
-  function back(){if(stack.length&&window.openScreen){goingBack=true;window.openScreen(stack.pop());goingBack=false;return}let same=false;try{same=Boolean(document.referrer)&&new URL(document.referrer).origin===location.origin}catch{}if(same&&history.length>1){history.back();return}fallback()}
+  function rememberDestination(){window.BTVDestination?.remember?.()}
+  function back(){rememberDestination();if(stack.length&&window.openScreen){goingBack=true;window.openScreen(stack.pop());goingBack=false;window.BTVDestination?.restore?.();return}let same=false;try{same=Boolean(document.referrer)&&new URL(document.referrer).origin===location.origin}catch{}if(same&&history.length>1){history.back();return}fallback()}
   function wrap(){if(typeof window.openScreen!=='function'||window.__btvHistoryWrapped108)return;window.__btvHistoryWrapped108=true;const original=window.openScreen;window.openScreen=function(id){const current=activeScreen();if(!goingBack&&current&&current!==id)stack.push(current);return original.apply(this,arguments)}}
   function ensure(){
     wrap();
