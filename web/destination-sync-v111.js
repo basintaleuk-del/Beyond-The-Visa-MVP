@@ -6,6 +6,14 @@
   const valid=new Set(['uk','us','ca','au','nz','ie']);
   const guestKey='btv_destination_country';
   const names={uk:'United Kingdom',us:'United States',ca:'Canada',au:'Australia',nz:'New Zealand',ie:'Ireland'};
+  const legacyStepCodes={
+    uk:['passport','ielts','nmc','cbt',null,'cos','visa','travel','arrival','arrival'],
+    au:['au_passport','au_english','au_registration','au_assessment','au_checks','au_employment','au_visa','au_arrival'],
+    ca:['ca_passport','ca_province','ca_credentials','ca_language','ca_registration','ca_immigration','ca_employment','ca_arrival'],
+    nz:['nz_passport','nz_registration','nz_english','nz_verification','nz_employment','nz_visa','nz_arrival'],
+    ie:['ie_passport','ie_registration','ie_english','ie_verification','ie_employment','ie_permission','ie_arrival'],
+    us:['us_passport','us_state','us_credentials','us_nclex','us_english','us_immigration','us_arrival']
+  };
   const model={userId:null,country:null,steps:[],progress:[],hydrated:false,saving:false};
   const read=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch{return fallback}};
   const clean=value=>{const key=String(value||'').trim().toLowerCase();return valid.has(key)?key:null};
@@ -36,6 +44,22 @@
     window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:snap}));
     window.renderDashboardInsights?.();window.buildLearning?.();window.updateExamTabs?.();window.renderCulture?.();
   }
+  async function importLegacyProgress(userId,key,steps,progress){
+    const account=read('btv-account'),legacy=read('btv-v1').done?.[key];
+    if(account.id!==userId||!legacy||typeof legacy!=='object')return progress;
+    const available=new Set(steps.map(step=>step.code));
+    const already=new Set(progress.filter(row=>row.completed===true).map(row=>row.step_code));
+    const codes=[...new Set(Object.entries(legacy).filter(([,done])=>done===true).map(([index])=>legacyStepCodes[key]?.[Number(index)]).filter(code=>code&&available.has(code)&&!already.has(code)))];
+    if(!codes.length)return progress;
+    const imported=[];
+    for(const code of codes){
+      const result=await window.btvSupabase.rpc('btv_set_journey_step',{p_step_code:code,p_completed:true});
+      if(result.error){console.warn('Legacy journey import skipped',code,result.error);continue}
+      imported.push({step_code:code,completed:true,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+    }
+    if(imported.length)window.toast?.(`${imported.length} saved journey step${imported.length===1?'':'s'} restored`);
+    return [...progress,...imported];
+  }
   async function fetchJourney(userId){
     const sb=window.btvSupabase;
     const [{data:profile,error:profileError},{data:steps,error:stepsError},{data:progress,error:progressError}]=await Promise.all([
@@ -52,7 +76,7 @@
       if(saved.error||clean(saved.data)!==fallback)throw saved.error||new Error('Destination confirmation failed.');
       key=fallback;
     }
-    model.country=key;model.steps=(steps||[]).filter(step=>step.destination===key);model.progress=progress||[];
+    model.country=key;model.steps=(steps||[]).filter(step=>step.destination===key);model.progress=await importLegacyProgress(userId,key,model.steps,progress||[]);
   }
   async function hydrate(user){
     if(!user?.id){

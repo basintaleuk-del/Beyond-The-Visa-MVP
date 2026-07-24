@@ -36,3 +36,11 @@ test('database uniqueness and RPC validation prevent duplicate or cross-country 
   assert.match(migration,/code=p_step_code and destination=v_country/i);
   assert.match(migration,/grant execute on function public\.btv_set_journey_step\(text,boolean\) to authenticated/i);
 });
+
+test('legacy completed steps are restored only for the matching signed-in user and destination',()=>{
+  assert.match(client,/account\.id!==userId/);
+  assert.match(client,/read\('btv-v1'\)\.done\?\.\[key\]/);
+  assert.match(client,/legacyStepCodes\[key\]/);
+  assert.match(client,/available\.has\(code\)&&!already\.has\(code\)/);
+  assert.match(client,/p_step_code:code,p_completed:true/);
+});
