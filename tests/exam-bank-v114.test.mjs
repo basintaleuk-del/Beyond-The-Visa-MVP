@@ -33,7 +33,20 @@ test('v116 adds exactly 500 independent samples to CBT, NCLEX and IELTS', async 
   assert.match(migration, /'sample_unreviewed'/);
   assert.doesNotMatch(migration, /'free',true,'single'/);
   assert.match(admin, /IELTS_CATEGORIES/);
-  assert.match(admin, /render\('ielts'.*500\)/s);
+  assert.match(admin, /render\('ielts'.*1500\)/s);
+});
+
+test('v117 adds 1,000 further independent review-gated samples to every bank', async () => {
+  const migration = await read('supabase/migrations/202607240014_three_independent_1000_sample_banks_v117.sql');
+  const admin = await read('web/admin-bank-tools.js');
+  assert.match(migration, /BTV-CBT-SAMPLE-V117/);
+  assert.match(migration, /BTV-NCLEX-SAMPLE-V117/);
+  assert.match(migration, /BTV-IELTS-SAMPLE-V117/);
+  assert.match(migration, /cbt_count<>1000 or nclex_count<>1000 or ielts_count<>1000/);
+  assert.match(migration, /'sample_unreviewed'/);
+  assert.match(migration, /'needs_clinical_review'/);
+  assert.doesNotMatch(migration, /'free',true/);
+  assert.match(admin, /render\('ielts'.*1500\)/s);
 });
 
 test('exam clients and bank health paginate beyond the Supabase 1,000-row limit', async () => {
