@@ -23,6 +23,19 @@ test('repeated drafts are quarantined and unofficial samples remain review-gated
   assert.match(migration, /'free', false, 'single', 'sample_unreviewed'/);
 });
 
+test('v116 adds exactly 500 independent samples to CBT, NCLEX and IELTS', async () => {
+  const migration = await read('supabase/migrations/202607240013_three_independent_500_sample_banks_v116.sql');
+  const admin = await read('web/admin-bank-tools.js');
+  assert.match(migration, /cross join competencies/);
+  assert.match(migration, /BTV-CBT-SAMPLE-V116/);
+  assert.match(migration, /BTV-NCLEX-SAMPLE-V116/);
+  assert.match(migration, /BTV-IELTS-SAMPLE-V116/);
+  assert.match(migration, /'sample_unreviewed'/);
+  assert.doesNotMatch(migration, /'free',true,'single'/);
+  assert.match(admin, /IELTS_CATEGORIES/);
+  assert.match(admin, /render\('ielts'.*500\)/s);
+});
+
 test('exam clients and bank health paginate beyond the Supabase 1,000-row limit', async () => {
   for (const path of ['web/cbt.js', 'web/nclex.js', 'web/admin-bank-tools.js']) {
     const source = await read(path);

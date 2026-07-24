@@ -10,6 +10,7 @@
     'Health Promotion and Maintenance', 'Psychosocial Integrity', 'Basic Care and Comfort',
     'Pharmacological and Parenteral Therapies', 'Reduction of Risk Potential', 'Physiological Adaptation'
   ];
+  const IELTS_CATEGORIES = ['reading', 'listening', 'writing', 'speaking'];
   const cbtDomain={
     'Infection Prevention':'Professional values','Medicines Management':'Nursing practice and decision making',
     'Professional Values':'Professional values','Prioritisation':'Leadership, management and team working',
@@ -66,7 +67,7 @@
 
   function normaliseStem(value) {
     return String(value || '')
-      .replace(/^\[BTV-(?:CBT|NCLEX)-(?:SAMPLE-)?\d+\]\s*/i, '')
+      .replace(/^\[BTV-(?:CBT|NCLEX)-(?:SAMPLE(?:-V\d+)?-)?\d+\]\s*/i, '')
       .replace(/^Extended practice draft \d+\.\s*/i, '')
       .replace(/^[^.]+ is being cared for in [^.]+ during the [^.]+\.\s*/i, '')
       .replace(/\s+/g, ' ').trim().toLowerCase();
@@ -102,7 +103,7 @@
   }
 
   window.BTVQuestionFactory = {
-    TARGET: 2000, CBT_CATEGORIES, NCLEX_CATEGORIES, buildCbt, buildNclex, normaliseStem,
+    TARGET: 2000, CBT_CATEGORIES, NCLEX_CATEGORIES, IELTS_CATEGORIES, buildCbt, buildNclex, normaliseStem,
     note: 'Original, unofficial sample items. They remain inactive until qualified clinical and regulatory review; cosmetic variants are never generated.'
   };
 })();

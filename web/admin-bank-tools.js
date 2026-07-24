@@ -7,12 +7,12 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp
 function status(message, tone = '') { if (statusEl) { statusEl.textContent = message; statusEl.className = `bankStatus ${tone}`.trim(); } }
 function busy(kind, value) { const button=document.querySelector(`[data-build-bank="${kind}"]`); if(button){button.disabled=value;button.textContent=value?'Checking samples…':`Add independent ${kind.toUpperCase()} samples`;}}
 
-function render(kind, total, active, categories) {
-  const prefix=kind.toLowerCase(), percentage=Math.min(100,Math.round(total/target*100));
+function render(kind, total, active, categories, goal = target) {
+  const prefix=kind.toLowerCase(), percentage=Math.min(100,Math.round(total/goal*100));
   document.querySelector(`#${prefix}BankTotal`).textContent=total.toLocaleString();
   document.querySelector(`#${prefix}BankActive`).textContent=active.toLocaleString();
   document.querySelector(`#${prefix}BankProgress`).style.width=`${percentage}%`;
-  document.querySelector(`#${prefix}BankProgressLabel`).textContent=`${total.toLocaleString()} of ${target.toLocaleString()} records (${percentage}%)`;
+  document.querySelector(`#${prefix}BankProgressLabel`).textContent=`${total.toLocaleString()} of ${goal.toLocaleString()} independent samples (${percentage}%)`;
   document.querySelector(`#${prefix}Coverage`).innerHTML=Object.entries(categories).map(([name,count])=>`<span><b>${esc(name)}</b> ${count}</span>`).join('');
 }
 
@@ -23,16 +23,22 @@ async function loadHealth() {
     sb.from('cbt_questions').select('*',{count:'exact',head:true}).eq('is_active',true),
     sb.from('nclex_questions').select('*',{count:'exact',head:true}).neq('quality_status','rejected'),
     sb.from('nclex_questions').select('*',{count:'exact',head:true}).eq('is_active',true),
-    readAll('cbt_questions','subject,quality_status'), readAll('nclex_questions','category,quality_status')
+    sb.from('btv_exam_questions').select('*',{count:'exact',head:true}).eq('exam_type','ielts').neq('review_status','rejected'),
+    sb.from('btv_exam_questions').select('*',{count:'exact',head:true}).eq('exam_type','ielts').eq('is_active',true),
+    readAll('cbt_questions','subject,quality_status'), readAll('nclex_questions','category,quality_status'),
+    readAll('btv_exam_questions','section,review_status','exam_type','ielts')
   ]);
   const failed=results.find(result=>result.error); if(failed)return status(`Unable to read the question bank: ${failed.error.message}`,'error');
   const counts=(rows,key,names)=>{const out=Object.fromEntries(names.map(name=>[name,0]));(rows||[]).filter(row=>row.quality_status!=='rejected').forEach(row=>{const name=row[key]||'Uncategorised';out[name]=(out[name]||0)+1});return out};
-  render('cbt',results[0].count||0,results[1].count||0,counts(results[4].data,'subject',factory.CBT_CATEGORIES));
-  render('nclex',results[2].count||0,results[3].count||0,counts(results[5].data,'category',factory.NCLEX_CATEGORIES));
+  render('cbt',results[0].count||0,results[1].count||0,counts(results[6].data,'subject',factory.CBT_CATEGORIES));
+  render('nclex',results[2].count||0,results[3].count||0,counts(results[7].data,'category',factory.NCLEX_CATEGORIES));
+  const ieltsCounts=rows=>{const out=Object.fromEntries(factory.IELTS_CATEGORIES.map(name=>[name,0]));(rows||[]).filter(row=>row.review_status!=='rejected').forEach(row=>{const name=row.section||'Uncategorised';out[name]=(out[name]||0)+1});return out};
+  const rows=results[8].data||[];
+  render('ielts',results[4].count||0,results[5].count||0,ieltsCounts(rows),500);
   status('Usable totals exclude quarantined repetitions. Unofficial samples remain hidden from paid mocks until reviewed and approved.','success');
 }
 
-async function readAll(table,columns){const rows=[];for(let from=0;;from+=1000){const result=await sb.from(table).select(columns).order('id').range(from,from+999);if(result.error)return result;rows.push(...(result.data||[]));if(!result.data||result.data.length<1000)return{data:rows,error:null}}}
+async function readAll(table,columns,filterColumn,filterValue){const rows=[];for(let from=0;;from+=1000){let query=sb.from(table).select(columns).order('id').range(from,from+999);if(filterColumn)query=query.eq(filterColumn,filterValue);const result=await query;if(result.error)return result;rows.push(...(result.data||[]));if(!result.data||result.data.length<1000)return{data:rows,error:null}}}
 
 async function buildMissing(kind) {
   const isCbt=kind==='cbt', table=isCbt?'cbt_questions':'nclex_questions', label=isCbt?'CBT':'NCLEX', build=isCbt?factory.buildCbt:factory.buildNclex;
