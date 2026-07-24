@@ -34,8 +34,8 @@ async function loadHealth() {
   render('nclex',results[2].count||0,results[3].count||0,counts(results[7].data,'category',factory.NCLEX_CATEGORIES));
   const ieltsCounts=rows=>{const out=Object.fromEntries(factory.IELTS_CATEGORIES.map(name=>[name,0]));(rows||[]).filter(row=>row.review_status!=='rejected').forEach(row=>{const name=row.section||'Uncategorised';out[name]=(out[name]||0)+1});return out};
   const rows=results[8].data||[];
-  render('ielts',results[4].count||0,results[5].count||0,ieltsCounts(rows),1500);
-  status('Usable totals exclude quarantined repetitions. Unofficial samples remain hidden from paid mocks until reviewed and approved.','success');
+  render('ielts',results[4].count||0,results[5].count||0,ieltsCounts(rows),2000);
+  status('Sample-mock totals exclude rejected repetitions. Unreviewed items remain clearly labelled as unofficial samples.','success');
 }
 
 async function readAll(table,columns,filterColumn,filterValue){const rows=[];for(let from=0;;from+=1000){let query=sb.from(table).select(columns).order('id').range(from,from+999);if(filterColumn)query=query.eq(filterColumn,filterValue);const result=await query;if(result.error)return result;rows.push(...(result.data||[]));if(!result.data||result.data.length<1000)return{data:rows,error:null}}}
