@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
+Disallow: /admin
+Disallow: /web/
+Disallow: /api/
+Disallow: /private/
+Disallow: /temporary/
+Disallow: /figma-redesign-reference/
+Disallow: /BEYOND-THE-VISA-CORRECT-WEBSITE.html
 Sitemap: https://beyondthevisa.org/sitemap.xml

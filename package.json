@@ -4,7 +4,11 @@
   "private": true,
   "description": "Capacitor mobile shell for Beyond The Visa",
   "scripts": {
-    "build:web": "node scripts/build-web.mjs",
+    "seo:pages": "node scripts/generate-seo-pages.mjs",
+    "seo:sitemap": "node scripts/generate-sitemaps.mjs",
+    "seo:audit": "node scripts/seo-audit.mjs",
+    "seo:prepare": "npm run seo:pages && npm run seo:sitemap",
+    "build:web": "npm run seo:prepare && node scripts/build-web.mjs",
     "build": "npm run build:web && npx cap sync",
     "sync": "npm run build:web && npx cap sync",
     "assets": "npx capacitor-assets generate --android --ios --iconBackgroundColor #f7f8f6 --iconBackgroundColorDark #062d34 --splashBackgroundColor #062d34 --splashBackgroundColorDark #07191d",
