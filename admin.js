@@ -1,23 +1,32 @@
-import './admin-inbox-v26.js?v=26';
-import './admin-premium-v29.js?v=29';
-import './admin-platform-v30.js?v=30';
 const sb=window.btvSupabase;
 const state={profiles:[],cbt:[],nclex:[],editing:null};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
 const fmt=d=>d?new Date(d).toLocaleDateString('en-GB'):'—';
+const adminTools=['/admin-inbox-v26.js?v=26','/admin-premium-v29.js?v=29','/admin-platform-v30.js?v=30'];
+
+async function loadAdminTools(){
+  await Promise.allSettled(adminTools.map(src=>import(src)));
+}
+
+function startAdminTools(){
+  window.BTVAdminInbox?.start?.();
+  window.BTVAdminPremium?.start?.();
+}
 
 async function init(){
   try{
+    if(!sb) return deny('Admin services are unavailable. Please reload and try again.');
     const {data:{user},error}=await sb.auth.getUser();
     if(error||!user) return deny('Please sign in before opening the admin portal.');
     let {data:profile,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
     if((pe||!profile)){const fallback=await sb.from('profiles').select('*').eq('user_id',user.id).maybeSingle();profile=fallback.data;pe=fallback.error}
     const metadataRole=user.app_metadata?.role||user.user_metadata?.role;
     if(!['admin','owner'].includes(profile?.role)&&!['admin','owner'].includes(metadataRole)) return deny('This account does not have administrator access.');
+    await loadAdminTools();
     $('#adminName').textContent=profile.full_name||user.email||'Administrator';
     $('#guard').hidden=true; $('#app').hidden=false;
-    bind(); await loadAll(); window.BTVAdminInbox?.start(); window.BTVAdminPremium?.start();
+    bind(); await loadAll(); startAdminTools();
   }catch(e){deny(e.message||'Unable to open admin portal.');}
 }
 function deny(msg){$('#guard').innerHTML=`<div style="text-align:center"><h2>Access unavailable</h2><p>${esc(msg)}</p><a href="index.html">Return to Beyond The Visa</a></div>`}
