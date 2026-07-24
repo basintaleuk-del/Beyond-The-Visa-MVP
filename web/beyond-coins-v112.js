@@ -4,6 +4,18 @@ const keyFor=code=>{const k='btv-purchase-key:'+code;let v=sessionStorage.getIte
 async function product(code){const r=await db().from('btv_coin_products').select('*').eq('code',code).eq('is_active',true).single();if(r.error)throw Error('This product is currently unavailable.');return r.data}
 async function wallet(){const u=(await db().auth.getUser()).data.user;if(!u)throw Error('Please sign in to view your Beyond Coins wallet.');let r=await db().from('btv_wallets').select('*').eq('user_id',u.id).maybeSingle();if(r.error)throw r.error;if(!r.data){await db().rpc('btv_bootstrap_user',{p_user:u.id});r=await db().from('btv_wallets').select('*').eq('user_id',u.id).single()}return r.data}
 function modal(html){let d=document.getElementById('coinsDialog112');if(!d){d=document.createElement('dialog');d.id='coinsDialog112';d.className='coinsDialog112';document.body.append(d)}d.innerHTML=`<div class="coinsPanel112">${html}</div>`;d.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>d.close());d.showModal();return d}
+async function chooseMock(exam,onApproved){
+ const prefix=String(exam||'').toLowerCase().replace(/_(short|full)$/,'');
+ if(!['cbt','nclex','ielts','osce'].includes(prefix))return false;
+ try{
+  const [shortResult,fullResult,w]=await Promise.all([product(`${prefix}_short`).then(value=>({value})).catch(()=>({value:null})),product(`${prefix}_full`).then(value=>({value})).catch(()=>({value:null})),wallet()]);
+  const choices=[shortResult.value,fullResult.value];
+  const d=modal(`<header><img src="beyond-coin-v84.png" alt=""><div><small>CHOOSE YOUR MOCK</small><h2>How long would you like to practise?</h2></div><button data-close aria-label="Close">Ã—</button></header><p>Select an attempt below. Availability is checked securely before any Beyond Coins are deducted.</p><div class="dailyChoices112">${choices.map((p,i)=>p?`<button data-mock-choice="${esc(p.code)}"><b>${p.duration_minutes}-minute mock</b><span>${p.question_count} questions · ${p.coin_price} Beyond Coins</span></button>`:`<button disabled><b>${i?'30':'15'}-minute mock</b><span>Currently unavailable</span></button>`).join('')}</div><p>Your balance: <b>${Number(w.balance).toLocaleString()} Beyond Coins</b></p><div class="coinActions112"><button data-close>Cancel</button><button data-buy-coins>Buy Beyond Coins</button></div>`);
+  d.querySelector('[data-buy-coins]').onclick=()=>{d.close();window.BTVPlatform?.open('wallet')};
+  d.querySelectorAll('[data-mock-choice]').forEach(button=>button.onclick=()=>{const code=button.dataset.mockChoice;d.close();start(code,(attempt)=>onApproved?.(attempt,code))});
+  return true
+ }catch(error){alert(error?.message||'Mock choices could not be loaded. No coins were deducted.');return false}
+}
 async function start(code,onApproved){
  let p,w,d;
  try{
@@ -35,5 +47,5 @@ const history=()=>out.innerHTML=`<h2>Transaction history</h2><div class="coinLed
 const access=()=>out.innerHTML=`<h2>Purchased access</h2><div class="coinLedger112">${(e.data||[]).map(x=>`<article><div><b>${esc(x.btv_coin_products?.name||'Purchased resource')}</b><small>${esc(x.status)} · ${new Date(x.created_at).toLocaleDateString()}</small></div><strong>${x.attempts_used}/${x.attempts_total} used</strong></article>`).join('')||'<p>No purchased resources yet.</p>'}</div>`;
 tabs.querySelector('button').onclick=overview;tabs.querySelector('[data-buy-tab]').onclick=buyTab;tabs.querySelector('[data-earn-tab]').onclick=earnTab;tabs.querySelector('[data-history-tab]').onclick=history;tabs.querySelector('[data-access-tab]').onclick=access;overview()}
 function install(){if(!window.BTVPlatform||window.BTVPlatform.__coins112)return false;const old=window.BTVPlatform.open.bind(window.BTVPlatform);window.BTVPlatform.open=async n=>{await old(n);if(n==='wallet')await renderWallet()};window.BTVPlatform.__coins112=true;return true}
-window.BTVCoins={...(window.BTVCoins||{}),wallet:async()=>Number((await wallet()).balance),start,useFreeQuestion,dailyProgress,showDailyCompletion,renderWallet};const timer=setInterval(()=>{if(install())clearInterval(timer)},100);setTimeout(()=>clearInterval(timer),10000);window.addEventListener('btv:wallet-changed',()=>{if(document.querySelector('#platformHubV72'))renderWallet()});
+window.BTVCoins={...(window.BTVCoins||{}),wallet:async()=>Number((await wallet()).balance),start,chooseMock,useFreeQuestion,dailyProgress,showDailyCompletion,renderWallet};const timer=setInterval(()=>{if(install())clearInterval(timer)},100);setTimeout(()=>clearInterval(timer),10000);window.addEventListener('btv:wallet-changed',()=>{if(document.querySelector('#platformHubV72'))renderWallet()});
 })();
