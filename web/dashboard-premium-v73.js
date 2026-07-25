@@ -9,7 +9,6 @@
   let lastFocus = null;
   let carouselIndex = 0;
   let carouselTimer = null;
-  const menuStateKey = "btv-dashboard-menu-group-v99";
   const carouselSlides = [
     { category: "Motivation", title: "You did not come this far to stop now.", copy: "Every study session and completed milestone moves your international nursing journey forward." },
     { category: "Platform News", title: "New CBT practice questions available", copy: "Build confidence with fresh practice questions and detailed explanations.", action: "Start practising", route: "cbt", date: "23 July 2026" },
@@ -60,10 +59,10 @@
     })[name.toLowerCase()] || "uk";
     const meta = {
       uk: { flag: "🇬🇧", exam: "cbt" }, us: { flag: "🇺🇸", exam: "nclex" },
-      au: { flag: "🇦🇺", exam: "nclex" }, ca: { flag: "🇨🇦", exam: "nclex" },
+      au: { flag: "🇦🇺", exam: "registration" }, ca: { flag: "🇨🇦", exam: "nclex" },
       nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
     }[key];
-    const exam = ({ au: "registration", ie: "registration" })[key] || meta.exam;
+    const exam = ({ ie: "registration" })[key] || meta.exam;
     return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam };
   }
 
@@ -150,10 +149,15 @@
 
   function journey() {
     const legacy = typeof window.completed === "function" ? window.completed() : 0;
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const scopedSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
     const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
-    const useChecklist = legacyTotal > 0;
-    const done = useChecklist ? legacy : state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0;
-    const total = useChecklist ? legacyTotal : state.steps?.length || 7;
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && scopedSteps.length > 0;
+    const done = useSynced ? (synced?.done || 0) : usePlatformSteps ? state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0 : legacy;
+    const total = useSynced ? syncedSteps.length : usePlatformSteps ? scopedSteps.length : legacyTotal || 7;
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
 
@@ -204,6 +208,283 @@
     dialog.querySelector("[data-advice-close]")?.focus();
   }
 
+  function coinDetailBody(key) {
+    const details = {
+      earning: {
+        title: "How to earn Beyond Coins",
+        body: "You earn coins through approved activity on the platform, including study milestones, streak goals, and selected promotional rewards. Rewards are credited to your wallet and can be used across supported preparation services."
+      },
+      usage: {
+        title: "Where Beyond Coins are used",
+        body: "Beyond Coins can be used for paid learning actions such as timed mock attempts and premium preparation unlocks where marked. The exact coin cost is shown before confirmation."
+      },
+      charges: {
+        title: "What counts as a charge",
+        body: "A charge is applied only when you confirm a paid action. If the action is session-based, the charge applies to that purchased session only."
+      },
+      refunds: {
+        title: "Refunds and reversals",
+        body: "If a technical failure prevents the purchased action from starting correctly, support can investigate and issue a coin reversal where applicable. Completed usage is normally not refundable."
+      },
+      history: {
+        title: "Transaction history",
+        body: "Your wallet history records each credit and debit with timestamps so you can audit your usage and support requests."
+      },
+    };
+    return details[key] || details.usage;
+  }
+
+  function openCoinDetail(key) {
+    const info = coinDetailBody(key);
+    let dialog = document.getElementById("coinsDetailDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsDetailDialog73";
+      dialog.className = "coinsDetailDialog73";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<article class="coinsDetailPanel73"><header><h3>${esc(info.title)}</h3><button type="button" data-coin-detail-close aria-label="Close">&times;</button></header><p>${esc(info.body)}</p><footer><button type="button" data-coin-detail-close>Close</button></footer></article>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-coin-detail-close]").forEach((button) => button.onclick = close);
+    if (!dialog.open) dialog.showModal();
+  }
+
+  async function loadCoinsData() {
+    const supa = window.btvSupabase;
+    if (!supa || !state.u) return { opportunities: [], claimed: new Set(), packages: [], referralCode: null };
+    const uid = state.u.id;
+    try {
+      const [opRes, claimRes, pkgRes] = await Promise.all([
+        supa.from("btv_coin_opportunities").select("code,title,description,coin_reward,sort_order").eq("is_active", true).order("sort_order"),
+        supa.from("btv_coin_rewards").select("opportunity_code").eq("user_id", uid),
+        supa.from("btv_coin_packages").select("code,title,coin_amount,price_minor,currency,bonus_coins,sort_order").eq("is_active", true).order("sort_order").limit(9),
+      ]);
+      let referralCode = null;
+      try { const { data } = await supa.rpc("btv_get_or_create_referral_code"); referralCode = data; } catch {}
+      return { opportunities: opRes.data || [], claimed: new Set((claimRes.data || []).map(r => r.opportunity_code)), packages: pkgRes.data || [], referralCode };
+    } catch (e) { console.error("[BTV] loadCoinsData:", e); return { opportunities: [], claimed: new Set(), packages: [], referralCode: null }; }
+  }
+
+  async function claimCoinOpportunity(code, btn, onSuccess) {
+    const supa = window.btvSupabase;
+    if (!supa) return;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = "Claiming…";
+    try {
+      const { data, error } = await supa.rpc("btv_claim_coin_opportunity", { p_code: code });
+      if (error) throw new Error(error.message);
+      onSuccess(data);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      const msg = String(e.message || "");
+      alert(msg.includes("Complete this activity") ? "Finish this activity first, then come back to claim your coins." : msg.includes("unavailable") ? "This reward is not available right now." : "Could not claim reward. Please try again.");
+    }
+  }
+
+  async function initiateCoinPurchase(pkg) {
+    const supa = window.btvSupabase;
+    if (!supa || !state.u) { alert("Please sign in to purchase coins."); return null; }
+    try {
+      const { data, error } = await supa.rpc("btv_initiate_coin_purchase", { p_package_code: pkg.code });
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.message || "Purchase could not be initiated.");
+      return data;
+    } catch (e) { console.error("[BTV] initiateCoinPurchase:", e); alert(e.message || "Purchase could not be started. Please try again."); return null; }
+  }
+
+  function showBuyDialog(pkg, purchaseData) {
+    let d = document.getElementById("coinsBuyDialog73");
+    if (!d) { d = document.createElement("dialog"); d.id = "coinsBuyDialog73"; d.className = "coinsBuyDialog73"; document.body.append(d); }
+    const total = pkg.coin_amount + (pkg.bonus_coins || 0);
+    const sym = ({ GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" })[pkg.currency] || pkg.currency;
+    const price = (pkg.price_minor / 100).toFixed(2);
+    const ref = purchaseData?.reference || "N/A";
+    const email = "support@beyondthevisa.org";
+    const sub = encodeURIComponent("Beyond Coins Purchase – " + ref);
+    const body = encodeURIComponent("Hello,\n\nI would like to purchase the " + pkg.title + " pack (" + total + " Beyond Coins) at " + sym + price + ".\n\nMy purchase reference: " + ref + "\n\nPlease confirm payment details.\n\nThank you.");
+    d.innerHTML = `<article class="coinsBuyPanel73"><header><h3>Buy ${total} BC</h3><button type="button" data-buy-close aria-label="Close">&times;</button></header><div class="coinsBuyHero73"><b>${total} BC</b>${pkg.bonus_coins > 0 ? `<span class="coinsBuyBonusBadge73">+${pkg.bonus_coins} bonus</span>` : ""}<big>${sym}${price}</big></div><p class="coinsBuyInfo73">Email support with your purchase reference below. Beyond Coins are credited to your wallet once payment is confirmed — normally within one business day.</p><div class="coinsBuyRef73"><small>Your purchase reference</small><b>${esc(ref)}</b></div><a href="mailto:${email}?subject=${sub}&body=${body}" class="coinsBuyEmailBtn73">📧 Email support to pay</a><button type="button" data-buy-close class="coinsBuyDoneBtn73">Done</button></article>`;
+    d.querySelectorAll("[data-buy-close]").forEach(b => b.onclick = () => d.close());
+    if (!d.open) d.showModal();
+  }
+
+  function copyReferralLink(code, btn) {
+    const link = location.origin + "?ref=" + encodeURIComponent(code);
+    if (!navigator.clipboard) { prompt("Copy your referral link:", link); return; }
+    navigator.clipboard.writeText(link).then(() => {
+      const prev = btn.textContent;
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("refCopied73");
+      setTimeout(() => { btn.textContent = prev; btn.classList.remove("refCopied73"); }, 2500);
+    }).catch(() => prompt("Copy your referral link:", link));
+  }
+
+  function renderEarnList(container, opportunities, claimed, referralCode, dialog) {
+    if (!container) return;
+    if (!opportunities.length) { container.innerHTML = `<p class="coinsEmpty73">No earn activities available right now.</p>`; return; }
+    container.innerHTML = opportunities.map(op => {
+      const isClaimed = claimed.has(op.code);
+      const isRef = op.code === "invite-friend";
+      return `<article class="coinsEarnItem73${isClaimed ? " earned73" : ""}">
+        <div class="coinsEarnBody73"><b>${esc(op.title)}</b><small>${esc(op.description)}</small>${isRef && referralCode ? `<div class="coinsRefRow73"><code class="coinsRefCode73">${esc(referralCode)}</code><button type="button" class="coinsRefCopyBtn73" data-ref="${esc(referralCode)}">Copy link</button></div>` : ""}</div>
+        <div class="coinsEarnRight73"><span class="coinsRewardTag73">+${op.coin_reward} BC</span>${isClaimed ? `<span class="coinsEarned73">Earned ✓</span>` : `<button type="button" class="coinsClaimBtn73" data-earn="${esc(op.code)}">${isRef ? "Share" : "Claim"}</button>`}</div>
+      </article>`;
+    }).join("");
+    container.querySelectorAll("[data-ref]").forEach(btn => btn.addEventListener("click", () => copyReferralLink(btn.dataset.ref, btn)));
+    container.querySelectorAll("[data-earn]").forEach(btn => btn.addEventListener("click", () => {
+      const code = btn.dataset.earn;
+      if (code === "invite-friend") { const rb = container.querySelector("[data-ref]"); if (rb) copyReferralLink(rb.dataset.ref, rb); return; }
+      claimCoinOpportunity(code, btn, (newBal) => {
+        btn.parentElement.innerHTML = `<span class="coinsEarned73">Earned ✓</span>`;
+        btn.closest(".coinsEarnItem73")?.classList.add("earned73");
+        state.wallet = { ...(state.wallet || {}), balance: newBal };
+        const balEl = dialog?.querySelector(".coinsBalanceAmt73");
+        if (balEl) balEl.textContent = Number(newBal).toLocaleString("en-GB") + " BC";
+        window.dispatchEvent(new CustomEvent("btv:wallet-changed"));
+      });
+    }));
+  }
+
+  function renderBuyGrid(container, packages) {
+    if (!container) return;
+    if (!packages.length) { container.innerHTML = `<p class="coinsEmpty73">Coin packages coming soon.</p>`; return; }
+    const sym = { GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" };
+    container.innerHTML = packages.map(pkg => {
+      const total = pkg.coin_amount + (pkg.bonus_coins || 0);
+      const s = sym[pkg.currency] || pkg.currency;
+      const price = (pkg.price_minor / 100).toFixed(2);
+      return `<article class="coinsPkgCard73"><div class="coinsPkgTop73"><b>${total}</b><small>BC</small></div>${pkg.bonus_coins > 0 ? `<span class="coinsPkgBonus73">+${pkg.bonus_coins} bonus</span>` : `<span class="coinsPkgLabel73">${esc(pkg.title)}</span>`}<button type="button" class="coinsPkgBuyBtn73" data-pkg='${JSON.stringify({ code: pkg.code, title: pkg.title, coin_amount: pkg.coin_amount, bonus_coins: pkg.bonus_coins || 0, price_minor: pkg.price_minor, currency: pkg.currency })}'>Buy · ${s}${price}</button></article>`;
+    }).join("");
+    container.querySelectorAll("[data-pkg]").forEach(btn => btn.addEventListener("click", async () => {
+      const pkg = JSON.parse(btn.dataset.pkg);
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = "Setting up…";
+      const result = await initiateCoinPurchase(pkg);
+      btn.disabled = false;
+      btn.textContent = orig;
+      if (result) showBuyDialog(pkg, result);
+    }));
+  }
+
+  async function openCoinsCentre() {
+    const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
+    let dialog = document.getElementById("coinsCentreDialog73");
+    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "coinsCentreDialog73"; dialog.className = "coinsCentreDialog73"; document.body.append(dialog); }
+    dialog.innerHTML = `<article class="coinsCentrePanel73">
+      <header><div><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>Earn, buy or spend your coins across the platform.</p></div><button type="button" data-coin-close class="coinsCentreClose73" aria-label="Close">&times;</button></header>
+      <section class="coinsBalance73"><b class="coinsBalanceAmt73">${balance} BC</b><span>Current wallet balance</span></section>
+      <section class="coinsEarnSection73"><header class="coinsSub73"><span>EARN COINS</span><small>One-time activities · auto-credited</small></header><div class="coinsEarnList73" id="coinsEarnList73"><div class="coinsSpinner73">Loading activities…</div></div></section>
+      <section class="coinsBuySection73"><header class="coinsSub73"><span>BUY COINS</span><small>Instant top-up packages</small></header><div class="coinsBuyGrid73" id="coinsBuyGrid73"><div class="coinsSpinner73">Loading packages…</div></div></section>
+      <section class="coinsInfoSection73"><header class="coinsSub73"><span>ABOUT COINS</span></header><div class="coinsDetails73"><button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button></div></section>
+    </article>`;
+    const close = () => dialog.close();
+    dialog.querySelector("[data-coin-close]")?.addEventListener("click", close);
+    dialog.querySelectorAll("[data-coin-detail]").forEach(b => b.addEventListener("click", () => openCoinDetail(b.dataset.coinDetail)));
+    if (!dialog.open) dialog.showModal();
+    const data = await loadCoinsData();
+    renderEarnList(dialog.querySelector("#coinsEarnList73"), data.opportunities, data.claimed, data.referralCode, dialog);
+    renderBuyGrid(dialog.querySelector("#coinsBuyGrid73"), data.packages);
+  }
+
+  function openStandalonePanel(type) {
+    const panels = {
+      mentors: {
+        icon: "🧑‍⚕️",
+        title: "Mentors",
+        subtitle: "Connect with nurses who have completed the journey you're starting.",
+        badge: null,
+        sections: [
+          {
+            heading: "What mentors offer",
+            items: [
+              { icon: "🎥", label: "1-to-1 video sessions", detail: "Guided conversations with nurses who have registered, relocated and are practising in your target country." },
+              { icon: "🗺️", label: "Pathway guidance", detail: "Tailored advice on registration, exam preparation, visa timing and employment based on your background." },
+              { icon: "📝", label: "Application review", detail: "Honest feedback on your personal statement, documents and interview technique before you submit." },
+              { icon: "💬", label: "Ongoing support", detail: "Message your mentor between sessions for quick guidance as questions come up." },
+            ]
+          }
+        ],
+        cta: { label: "Notify me when live", action: "feedback" }
+      },
+      bookings: {
+        icon: "📅",
+        title: "My Bookings",
+        subtitle: "Your upcoming mentor sessions and scheduled appointments.",
+        badge: null,
+        sections: [
+          {
+            heading: "Upcoming sessions",
+            items: [
+              { icon: "ℹ️", label: "No bookings yet", detail: "Once you book a mentor session or consultation, it will appear here. You can cancel or reschedule from this panel." },
+            ]
+          },
+          {
+            heading: "How to book",
+            items: [
+              { icon: "1️⃣", label: "Browse mentors", detail: "Open the Mentors panel and find a nurse with experience in your destination and specialty." },
+              { icon: "2️⃣", label: "Choose a time", detail: "Select an available slot that works for your time zone." },
+              { icon: "3️⃣", label: "Pay with coins", detail: "Session fees are deducted from your Beyond Coins balance." },
+            ]
+          }
+        ],
+        cta: { label: "Open mentors", action: "mentors" }
+      },
+      stories: {
+        icon: "✦",
+        title: "Success Stories",
+        subtitle: "Real journeys from nurses who made it to their destination.",
+        badge: null,
+        sections: [
+          {
+            heading: "Featured journeys",
+            items: [
+              { icon: "🇬🇧", label: "NHS nurse to NMC registration", detail: "\"Beyond The Visa helped me understand every step. I passed CBT first attempt and was registered within eight months.\" — Amara, London" },
+              { icon: "🇺🇸", label: "Nigerian nurse to NCLEX and US licensure", detail: "\"The question bank and the journey tracker kept me organised throughout the whole process.\" — Chisom, Texas" },
+              { icon: "🇦🇺", label: "UK nurse on the Australia streamlined pathway", detail: "\"I didn't realise the NCLEX wasn't required for me. The pathway guide made the whole thing much clearer.\" — Jade, Melbourne" },
+            ]
+          }
+        ],
+        cta: { label: "Share your story", action: "feedback" }
+      }
+    };
+    const cfg = panels[type];
+    if (!cfg) return;
+    let dialog = document.getElementById("standalonePanelDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "standalonePanelDialog73";
+      dialog.className = "standalonePanelDialog73";
+      document.body.append(dialog);
+    }
+    const sectionsHtml = cfg.sections.map(sec => `
+      <div class="spSection73">
+        <h3 class="spSectionHead73">${esc(sec.heading)}</h3>
+        ${sec.items.map(item => `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${item.icon}</span><div><b>${esc(item.label)}</b><small>${esc(item.detail)}</small></div></article>`).join("")}
+      </div>`).join("");
+    dialog.innerHTML = `<article class="standalonePanelContent73">
+      <header class="spHeader73">
+        <div><span class="spIcon73" aria-hidden="true">${cfg.icon}</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
+        <button type="button" data-sp-close class="spCloseBtn73" aria-label="Close">&times;</button>
+      </header>
+      <div class="spBody73">${sectionsHtml}</div>
+      <footer class="spFooter73">
+        <button type="button" class="spCtaBtn73" data-sp-cta="${esc(cfg.cta.action)}">${esc(cfg.cta.label)}</button>
+        <button type="button" class="spDoneBtn73" data-sp-close>Done</button>
+      </footer>
+    </article>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-sp-close]").forEach(b => b.onclick = close);
+    dialog.querySelector("[data-sp-cta]")?.addEventListener("click", (e) => {
+      const action = e.currentTarget.dataset.spCta;
+      close();
+      if (action === "mentors") setTimeout(() => openStandalonePanel("mentors"), 80);
+      else go(action);
+    });
+    if (!dialog.open) dialog.showModal();
+  }
+
   function go(id) {
     if (id === "dashboard") {
       if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
@@ -211,18 +492,13 @@
       return queueRender();
     }
     if (id === "change-destination") return window.openScreen?.("countries");
-    if (id === "explore" || id === "books") {
+    if (id === "books") {
       F()?.open("study");
       return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
     }
-    if (["preferences", "bookings"].includes(id)) {
-      window.BTVPlatform?.open?.();
-      return setTimeout(() => document.querySelector(`[data-btv-pane="${id === "preferences" ? "prefs" : "book"}"]`)?.click(), 180);
-    }
-    if (id === "membership") {
-      const button = document.querySelector("[data-open-premium]");
-      return button ? button.click() : F()?.open("membership");
-    }
+    if (id === "wallet") return openCoinsCentre();
+    if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
+    if (id === "stories") return openStandalonePanel("stories");
     if (id === "legal" || id === "feedback") return window.openScreen?.(id);
     if (id === "admin") return state.isAdmin ? location.assign("admin.html") : undefined;
     if (id === "assistant" && typeof window.BTVFloatingZiburToggle === "function") return window.BTVFloatingZiburToggle(true);
@@ -233,21 +509,18 @@
     const exam = destinationInfo().exam;
     const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
     return [
-      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
-      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Privacy & legal", "legal"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
       { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
-      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
+      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Bookings", "bookings"], ["Success stories", "stories"], ["Community", "community"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
     ];
   }
 
   function menuMarkup(prefix) {
     const sections = menuGroups().map((group) => {
-      const panelId = `${prefix}-${group.id}`;
       return `<section class="menuGroup73" data-menu-section="${group.id}">
-        <button type="button" class="menuGroupToggle73" data-menu-toggle="${group.id}" aria-expanded="false" aria-controls="${panelId}">
-          <span>${esc(group.label)}</span><span class="menuChevron73" aria-hidden="true">${iconSvg("arrowRight")}</span>
-        </button>
-        <div class="menuGroupLinks73" id="${panelId}" hidden>
+        <h3 class="menuSectionTitle73">${esc(group.label)}</h3>
+        <div class="menuGroupLinks73">
           ${group.links.map(([label, route]) => `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(label)}</span>${iconSvg("arrowRight")}</button>`).join("")}
         </div>
       </section>`;
@@ -256,36 +529,20 @@
     return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>`;
   }
 
-  function setupMenuGroups(root) {
-    const toggles = [...root.querySelectorAll("[data-menu-toggle]")];
-    if (!toggles.length) return;
-    const setOpen = (id, remember = true) => {
-      toggles.forEach((toggle) => {
-        const open = toggle.dataset.menuToggle === id;
-        const panel = root.querySelector(`#${toggle.getAttribute("aria-controls")}`);
-        toggle.setAttribute("aria-expanded", String(open));
-        if (panel) panel.hidden = !open;
-      });
-      if (remember) {
-        try { id ? sessionStorage.setItem(menuStateKey, id) : sessionStorage.removeItem(menuStateKey); } catch {}
-      }
-    };
-    let saved = "";
-    try { saved = sessionStorage.getItem(menuStateKey) || ""; } catch {}
-    if (saved && toggles.some((toggle) => toggle.dataset.menuToggle === saved)) setOpen(saved, false);
-    toggles.forEach((toggle) => {
-      toggle.onclick = () => setOpen(toggle.getAttribute("aria-expanded") === "true" ? "" : toggle.dataset.menuToggle);
-      toggle.closest("[data-menu-section]")?.querySelectorAll("[data-go]").forEach((link) => link.addEventListener("click", () => {
-        try { sessionStorage.setItem(menuStateKey, toggle.dataset.menuToggle); } catch {}
-      }));
-    });
-  }
+  function setupMenuGroups() {}
 
   function journeyItems() {
     const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
-    const useChecklist = legacySteps.length > 0;
-    const steps = useChecklist ? legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 })) : state.steps || [];
-    const completedCodes = new Set((state.progress || []).filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const platformSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && platformSteps.length > 0;
+    const useChecklist = !useSynced && !usePlatformSteps && legacySteps.length > 0;
+    const steps = useSynced ? syncedSteps : usePlatformSteps ? platformSteps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
+    const sourceProgress = useSynced ? (synced?.progress || []) : (state.progress || []);
+    const completedCodes = new Set(sourceProgress.filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
     let checklistStatus = {};
     try { checklistStatus = JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[destinationInfo().key] || {}; } catch {}
     let currentFound = false;
@@ -621,8 +878,9 @@
             <article class="panel73" data-go="${rec.id}">
               <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
               <div class="nextStep73">
-                <span class="nextIcon73">${iconSvg("arrowRight")}</span>
-                <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small><button data-go="${rec.id}">Continue now</button></div>
+                <span class="nextIcon73">${iconSvg("spark")}</span>
+                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
+                <button class="nextActionBtn73" data-go="${rec.id}">Continue ${iconSvg("arrowRight")}</button>
               </div>
             </article>
             <article class="panel73">

@@ -192,7 +192,14 @@ function authMessage(formId,text,isError=false){
 
 async function cacheSignedInUser(user){
   if(!user)return;
-  const {data:profile}=await window.btvSupabase.from('profiles').select('full_name,profession,qualification_country,destination,registration_stage,job_status,dependants,account_type,role').eq('id',user.id).maybeSingle();
+  let profile=null;
+  try{
+    const {data,error}=await window.btvSupabase.from('profiles').select('full_name,profession,qualification_country,destination,registration_stage,job_status,dependants,account_type,role').eq('id',user.id).maybeSingle();
+    if(error)throw error;
+    profile=data;
+  }catch(err){
+    console.warn('Profile cache lookup failed:',err?.message||err);
+  }
   const account={id:user.id,name:profile?.full_name||user.user_metadata?.full_name||user.email.split('@')[0],email:user.email,accountType:profile?.account_type||'free',role:profile?.role||'user'};
   localStorage.setItem('btv-account',JSON.stringify(account));
   if(profile&&(profile.destination||profile.profession)){
@@ -223,9 +230,11 @@ document.getElementById('loginForm').onsubmit=async e=>{
   const button=e.currentTarget.querySelector('.authSubmit');button.disabled=true;button.textContent='Signing in…';
   document.getElementById('loginError').textContent='';
   try{
+    if(!window.btvSupabase?.auth)throw new Error('Account service is unavailable. Refresh the page and try again.');
     const email=document.getElementById('loginEmail').value.trim().toLowerCase(),password=document.getElementById('loginPassword').value;
     const {data,error}=await window.btvSupabase.auth.signInWithPassword({email,password});
     if(error)throw error;
+    if(!data?.session||!data?.user)throw new Error('Sign-in was not completed. Please verify your email address, then try again.');
     window.__btvSession=data.session;await cacheSignedInUser(data.user);userProfile()?showApp():showOnboarding();
   }catch(err){document.getElementById('loginError').textContent=err.message||'Email or password not recognised.'}
   finally{button.disabled=false;button.textContent='Sign in'}
@@ -234,14 +243,34 @@ document.getElementById('loginForm').onsubmit=async e=>{
 document.getElementById('logout').onclick=async()=>{await window.btvSupabase.auth.signOut();window.__btvSession=null;localStorage.removeItem('btv-account');showAuth();authTab(true)};
 
 async function initialiseSupabaseAuth(){
+  if(!window.btvSupabase?.auth){
+    showAuth();
+    document.getElementById('loginError').textContent='Account service is unavailable. Check your connection and refresh.';
+    return;
+  }
   buildOnboarding();authTab(false);
-  const {data:{session}}=await window.btvSupabase.auth.getSession();
-  window.__btvSession=session;
-  if(session){await cacheSignedInUser(session.user);userProfile()?showApp():showOnboarding()}else showAuth();
+  try{
+    const {data:{session}}=await window.btvSupabase.auth.getSession();
+    window.__btvSession=session;
+    if(session){
+      await cacheSignedInUser(session.user);
+      userProfile()?showApp():showOnboarding();
+    }else if(!window.__btvSession){
+      showAuth();
+    }
+  }catch(err){
+    console.warn('Initial auth session lookup failed:',err?.message||err);
+    if(!window.__btvSession)showAuth();
+  }
   window.btvSupabase.auth.onAuthStateChange(async(event,session)=>{
     window.__btvSession=session;
     if(event==='SIGNED_OUT'){showAuth();authTab(true);return}
-    if(session){await cacheSignedInUser(session.user)}
+    if(session){
+      await cacheSignedInUser(session.user);
+      if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='INITIAL_SESSION'){
+        userProfile()?showApp():showOnboarding();
+      }
+    }
   });
 }
 initialiseSupabaseAuth();
@@ -691,7 +720,7 @@ installBrandArtwork();buildLegalCentre();buildFeedback();installCookieNotice();
  document.addEventListener('change',event=>{if(event.target?.id==='coachPackage'){const success=$('#bookingSuccess');if(success)success.hidden=true;refreshCopy()}},true);
  refreshCopy();new MutationObserver(refreshCopy).observe(document.body,{childList:true,subtree:true})
 })();
-</script><script src="navigation-state-v63.js?v=63"></script><link rel="stylesheet" href="login-brand-v64.css?v=64"><script src="login-brand-v64.js?v=64"></script><link rel="stylesheet" href="signup-legal-v65.css?v=69.1"><script src="signup-legal-v65.js?v=69.1"></script><script src="release-hardening-v65.js?v=65"></script><link rel="stylesheet" href="release-v66.css?v=66"><script src="release-v66.js?v=66"></script><link rel="stylesheet" href="release-v67.css?v=67"><script src="ielts-academic-bank-v67.js?v=67"></script><script src="release-v67.js?v=69.1"></script><link rel="stylesheet" href="auth-redesign-v69.css?v=69.1"><script src="social-auth-v69.js?v=92"></script><script src="release-v68.js?v=82"></script><script src="zibur-fallback-v71.js?v=82"></script><script src="release-v71.js?v=82"></script><script src="menu-icons-v72.js?v=72"></script><link rel="stylesheet" href="beyond-coins-v72.css?v=72"><link rel="stylesheet" href="platform-upgrade-v72.css?v=72"><script src="beyond-coins-v72.js?v=72"></script><script src="coin-exam-service-v87.js?v=87"></script><script src="platform-upgrade-v72.js?v=72"></script><script src="mock-access-v72.js?v=72"></script><script src="feature-routes-v73.js?v=74"></script><link rel="stylesheet" href="dashboard-premium-v73.css?v=97"><script src="dashboard-premium-v73.js?v=98"></script><script src="zibur-foundation-v75.js?v=75"></script>
+</script><script src="navigation-state-v63.js?v=63"></script><link rel="stylesheet" href="login-brand-v64.css?v=64"><script src="login-brand-v64.js?v=64"></script><link rel="stylesheet" href="signup-legal-v65.css?v=69.1"><script src="signup-legal-v65.js?v=69.1"></script><script src="release-hardening-v65.js?v=65"></script><link rel="stylesheet" href="release-v66.css?v=66"><script src="release-v66.js?v=66"></script><link rel="stylesheet" href="release-v67.css?v=128"><script src="ielts-academic-bank-v67.js?v=68"></script><script src="release-v67.js?v=128"></script><link rel="stylesheet" href="auth-redesign-v69.css?v=69.1"><script src="social-auth-v69.js?v=92"></script><script src="release-v68.js?v=82"></script><script src="zibur-fallback-v71.js?v=82"></script><script src="release-v71.js?v=82"></script><script src="menu-icons-v72.js?v=72"></script><link rel="stylesheet" href="beyond-coins-v72.css?v=72"><link rel="stylesheet" href="platform-upgrade-v72.css?v=72"><script src="beyond-coins-v72.js?v=72"></script><script src="coin-exam-service-v87.js?v=87"></script><script src="platform-upgrade-v72.js?v=72"></script><script src="mock-access-v72.js?v=72"></script><script src="feature-routes-v73.js?v=74"></script><link rel="stylesheet" href="dashboard-premium-v73.css?v=113"><script src="dashboard-premium-v73.js?v=113"></script><link rel="stylesheet" href="visa-hub-v102.css?v=103"><script src="visa-hub-v102.js?v=103"></script><script src="zibur-foundation-v75.js?v=75"></script>
 <script src="coin-wallet-v77.js?v=77"></script>
 <script src="learning-analytics-v79.js?v=79"></script>
 <script src="learn-v90.js?v=91"></script>

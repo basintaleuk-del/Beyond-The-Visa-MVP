@@ -30,6 +30,10 @@
     const profile=read('btv-profile');profile.destination=key;profile.destination_country=key;if(key!=='uk')delete profile.region;localStorage.setItem('btv-profile',JSON.stringify(profile));
     if(typeof state!=='undefined'&&state)state.country=key;
   }
+  function runOptional(name,fn){
+    if(typeof fn!=='function')return;
+    try{fn()}catch(error){console.error(`Destination sync skipped ${name}`,error)}
+  }
   function apply(source){
     const snap=snapshot(),key=snap.country;if(!key)return;
     cacheCountry(key);
@@ -42,7 +46,10 @@
     }
     window.dispatchEvent(new CustomEvent('btv:destination-changed',{detail:{country:key,name:names[key],source,snapshot:snap}}));
     window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:snap}));
-    window.renderDashboardInsights?.();window.buildLearning?.();window.updateExamTabs?.();window.renderCulture?.();
+    runOptional('renderDashboardInsights',window.renderDashboardInsights);
+    runOptional('buildLearning',window.buildLearning);
+    runOptional('updateExamTabs',window.updateExamTabs);
+    runOptional('renderCulture',window.renderCulture);
   }
   async function importLegacyProgress(userId,key,steps,progress){
     const account=read('btv-account'),legacy=read('btv-v1').done?.[key];
