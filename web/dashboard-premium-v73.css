@@ -625,39 +625,48 @@ html,body{max-width:100%;overflow-x:clip}
 
 .nextStep73{
   margin:16px 18px 18px;
-  min-height:112px;
-  border-radius:13px;
-  border:1px solid #e3eadf;
-  background:linear-gradient(135deg,#f9f1d9,#f1faeb);
-  display:flex;
-  align-items:flex-start;
-  gap:11px;
-  padding:14px;
+  min-height:132px;
+  border-radius:16px;
+  border:1px solid #d8e6de;
+  background:linear-gradient(145deg,#fffdf6,#edf7f0);
+  display:grid;
+  grid-template-columns:50px minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:16px;
+  box-shadow:0 8px 24px rgba(16,56,39,.07);
 }
 .nextIcon73{
-  width:35px;
-  height:35px;
-  border-radius:11px;
-  background:linear-gradient(140deg,#e6c76c,#cfa33f);
-  color:#2f250d;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:linear-gradient(140deg,#e8d08a,#c99d3a);
+  color:#3a2f12;
   display:grid;
   place-items:center;
-  font-size:16px;
+  box-shadow:0 8px 16px rgba(141,109,33,.22);
   flex:none;
 }
+.nextIcon73 svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+.nextCopy73{min-width:0}
+.nextTag73{display:inline-flex;align-items:center;min-height:20px;padding:0 8px;border-radius:999px;background:#f2ead1;color:#7d6220;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
 .nextStep73 b{
   display:block;
-  color:#1b362a;
-  font-size:16px;
+  margin-top:7px;
+  color:#183526;
+  font-size:17px;
+  line-height:1.3;
 }
 .nextStep73 small{
   display:block;
-  margin-top:4px;
-  color:#5f766a;
+  margin-top:5px;
+  color:#5b7367;
   font-size:12px;
-  line-height:1.32;
+  line-height:1.42;
 }
-.nextStep73 button{margin-top:10px;border:0;border-radius:9px;background:#2b8b62;color:#fff;padding:8px 11px;font-weight:800;cursor:pointer}
+.nextActionBtn73{align-self:center;border:0;border-radius:12px;background:#216e4f;color:#fff;min-height:40px;padding:0 14px;display:flex;align-items:center;gap:7px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(22,87,59,.22)}
+.nextActionBtn73:hover{background:#1b5f44}
+.nextActionBtn73 svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 .focusList73{display:grid}
 .focusRow73{
@@ -975,6 +984,9 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .journeyCurrent73{grid-template-columns:46px minmax(0,1fr);padding:15px}.journeyCurrentMarker73{width:42px;height:42px}.journeyCurrent73>button{grid-column:2;justify-self:start}
   .journeyStep73{grid-template-columns:30px minmax(0,1fr);align-items:start}
   .journeyStep73>button{grid-column:2;justify-self:start;min-width:0}
+  .nextStep73{grid-template-columns:1fr;align-items:start}
+  .nextActionBtn73{justify-self:start}
+  .nextIcon73{display:none}
   .floatingZibur73{width:50px;height:50px;min-height:50px;padding:0;justify-content:center}
   .floatingZibur73 span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   .notificationMenu102{position:fixed;right:10px;top:70px;width:calc(100vw - 20px);max-height:calc(100vh - 160px)}
