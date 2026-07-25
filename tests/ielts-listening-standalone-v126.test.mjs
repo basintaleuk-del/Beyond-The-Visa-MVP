@@ -10,5 +10,7 @@ test('Standalone IELTS page uses listening readiness flow',()=>{
   assert.match(html,/ielts-centre-v103\.js\?v=126/);
   assert.match(js,/Are you ready for your IELTS Listening\?/);
   assert.match(js,/Start my listening test/);
+  assert.match(js,/SpeechSynthesisUtterance/);
+  assert.doesNotMatch(js,/Instruction audio is not available yet/);
   assert.doesNotMatch(js,/practice transcript/);
 });
