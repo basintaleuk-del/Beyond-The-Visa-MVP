@@ -44,3 +44,10 @@ test('legacy completed steps are restored only for the matching signed-in user a
   assert.match(client,/available\.has\(code\)&&!already\.has\(code\)/);
   assert.match(client,/p_step_code:code,p_completed:true/);
 });
+
+test('optional destination renderers cannot block successful authentication hydration',()=>{
+  assert.match(client,/const safeRender=/);
+  assert.match(client,/try\{if\(typeof callback==='function'\)callback\.call\(window\)\}catch/);
+  assert.match(client,/safeRender\('culture',window\.renderCulture\)/);
+  assert.doesNotMatch(client,/window\.renderCulture\?\.\(\)/);
+});

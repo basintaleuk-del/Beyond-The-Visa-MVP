@@ -1,3 +1,13 @@
 [functions.paystack-webhook]
 verify_jwt = false
 
+[functions.generate-ielts-listening-audio]
+verify_jwt = true
+
+[functions.get-ielts-listening-audio]
+verify_jwt = true
+
+[functions.golden-question]
+# Public teaser previews are supported; the handler validates JWTs for every private action.
+verify_jwt = false
+

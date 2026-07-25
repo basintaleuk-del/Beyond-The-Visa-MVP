@@ -4,7 +4,7 @@ const files = {
   coins: await readFile('web/beyond-coins-v72.js', 'utf8'),
   start: await readFile('supabase/functions/start-mock/index.ts', 'utf8'),
   complete: await readFile('supabase/functions/complete-mock/index.ts', 'utf8'),
-  dashboard: await readFile('web/dashboard-premium-v73.js', 'utf8'),
+  dashboard: await readFile('web/destination-sync-v111.js', 'utf8'),
 };
 
 const requirements = [

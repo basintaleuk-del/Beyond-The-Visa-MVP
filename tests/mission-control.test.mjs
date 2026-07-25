@@ -6,8 +6,8 @@ test('v71 presentation replaces Mission Control without deleting its source', ()
   const html = read('web/index.html');
   assert.doesNotMatch(html, /mission-control-v76\.css/);
   assert.doesNotMatch(html, /mission-control-v76\.js/);
-  assert.match(html, /release-v71\.css\?v=88/);
-  assert.match(html, /release-v71\.js\?v=88/);
+  assert.match(html, /release-v71\.css\?v=\d+(?:\.\d+)?/);
+  assert.match(html, /release-v71\.js\?v=\d+(?:\.\d+)?/);
   assert.doesNotMatch(html, /dashboard-reference-v74/);
 });
 test('Mission Control source remains scoped for future use', () => {
