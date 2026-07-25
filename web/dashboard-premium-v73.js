@@ -150,10 +150,15 @@
 
   function journey() {
     const legacy = typeof window.completed === "function" ? window.completed() : 0;
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const scopedSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
     const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
-    const useChecklist = legacyTotal > 0;
-    const done = useChecklist ? legacy : state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0;
-    const total = useChecklist ? legacyTotal : state.steps?.length || 7;
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && scopedSteps.length > 0;
+    const done = useSynced ? (synced?.done || 0) : usePlatformSteps ? state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0 : legacy;
+    const total = useSynced ? syncedSteps.length : usePlatformSteps ? scopedSteps.length : legacyTotal || 7;
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
 
@@ -283,9 +288,16 @@
 
   function journeyItems() {
     const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
-    const useChecklist = legacySteps.length > 0;
-    const steps = useChecklist ? legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 })) : state.steps || [];
-    const completedCodes = new Set((state.progress || []).filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const platformSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && platformSteps.length > 0;
+    const useChecklist = !useSynced && !usePlatformSteps && legacySteps.length > 0;
+    const steps = useSynced ? syncedSteps : usePlatformSteps ? platformSteps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
+    const sourceProgress = useSynced ? (synced?.progress || []) : (state.progress || []);
+    const completedCodes = new Set(sourceProgress.filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
     let checklistStatus = {};
     try { checklistStatus = JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[destinationInfo().key] || {}; } catch {}
     let currentFound = false;
@@ -621,8 +633,9 @@
             <article class="panel73" data-go="${rec.id}">
               <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
               <div class="nextStep73">
-                <span class="nextIcon73">${iconSvg("arrowRight")}</span>
-                <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small><button data-go="${rec.id}">Continue now</button></div>
+                <span class="nextIcon73">${iconSvg("spark")}</span>
+                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
+                <button class="nextActionBtn73" data-go="${rec.id}">Continue ${iconSvg("arrowRight")}</button>
               </div>
             </article>
             <article class="panel73">
