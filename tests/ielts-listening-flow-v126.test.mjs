@@ -10,6 +10,8 @@ test('IELTS listening now uses guided readiness flow',()=>{
   assert.match(script,/Yes, I am ready/);
   assert.match(script,/Start my listening test/);
   assert.match(script,/LISTENING_INSTRUCTION_SET='ielts-listening-test-instructions'/);
+  assert.match(script,/SpeechSynthesisUtterance/);
+  assert.doesNotMatch(script,/Instruction audio is not available yet/);
 });
 
 test('Listening playback runs in blank-screen mode without media controls',()=>{
