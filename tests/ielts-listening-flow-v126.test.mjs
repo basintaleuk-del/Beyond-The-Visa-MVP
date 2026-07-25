@@ -4,20 +4,15 @@ import fs from 'node:fs';
 
 const read=file=>fs.readFileSync(file,'utf8');
 
-test('IELTS listening now uses guided readiness flow',()=>{
+test('Dashboard IELTS marks listening and speaking as coming soon',()=>{
   const script=read('web/release-v67.js');
-  assert.match(script,/Are you ready for your IELTS Listening\?/);
-  assert.match(script,/Yes, I am ready/);
-  assert.match(script,/Start my listening test/);
-  assert.match(script,/LISTENING_INSTRUCTION_SET='ielts-listening-test-instructions'/);
-  assert.match(script,/SpeechSynthesisUtterance/);
-  assert.doesNotMatch(script,/Instruction audio is not available yet/);
+  assert.match(script,/listening','Listening','Marked as coming soon/);
+  assert.match(script,/speaking','Speaking','Marked as coming soon/);
+  assert.match(script,/renderComingSoon\(state\.section\)/);
 });
 
-test('Listening playback runs in blank-screen mode without media controls',()=>{
+test('Dashboard IELTS reading remains available',()=>{
   const script=read('web/release-v67.js');
-  const css=read('web/release-v67.css');
-  assert.match(script,/class="ieltsListeningBlank"/);
-  assert.doesNotMatch(script,/controls=/);
-  assert.match(css,/\.ieltsListeningBlank\{/);
+  assert.match(script,/if\(!hasAccess\(state\.section\)&&!\['listening','speaking'\]\.includes\(state\.section\)\)/);
+  assert.doesNotMatch(script,/Listening audio-first/);
 });
