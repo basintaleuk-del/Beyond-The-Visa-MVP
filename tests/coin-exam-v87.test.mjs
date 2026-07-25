@@ -18,7 +18,7 @@ test('8 idempotency prevents a double-click duplicate attempt',()=>{has(/unique\
 test('9 wallet row locking protects simultaneous spend',()=>has(/from btv_wallets where user_id=v_user for update/));
 test('10 insufficient balance happens before debit and attempt',()=>{has(/if v_wallet\.balance<v_product\.coin_cost then raise exception/);has(/INSUFFICIENT_COINS/)});
 test('11 start runs as one PostgreSQL transaction',()=>{has(/create or replace function public\.btv_start_paid_exam/);has(/insert into btv_exam_attempts/);has(/update btv_wallets/)});
-test('12 failed checkout records zero-credit failed status',()=>{const checkout=fs.readFileSync('supabase/functions/coin-checkout/index.ts','utf8');assert.match(checkout,/status:'failed'/);assert.match(checkout,/failure_reason/)});
+test('12 failed checkout records zero-credit failed status',()=>{const checkout=fs.readFileSync('supabase/functions/coin-checkout/index.ts','utf8');assert.match(checkout,/status:\s*'failed'/);assert.match(checkout,/failure_reason/)});
 test('13 verified payment validates status amount and currency',()=>{assert.match(verify,/status!=='success'/);assert.match(verify,/result\.data\.amount/);assert.match(verify,/result\.data\.currency/)});
 test('14 replayed webhook cannot credit twice',()=>{assert.match(webhook,/x-paystack-signature/);has(/if v_purchase\.status='paid' then return v_wallet\.balance/);has(/payment_reference_uq/)});
 test('15 clients cannot mutate wallet or ledger',()=>has(/revoke insert,update,delete on public\.btv_wallets,public\.btv_wallet_transactions/));

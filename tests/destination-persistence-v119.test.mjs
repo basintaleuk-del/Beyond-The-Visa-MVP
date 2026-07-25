@@ -15,5 +15,5 @@ test('authenticated destination is rehydrated from Supabase after Back and refre
 test('authenticated profile cache follows the account source of truth',()=>{
   assert.match(index,/select\('full_name,profession,qualification_country,destination_country,destination/);
   assert.match(index,/const destination=profile\.destination_country\|\|profile\.destination\|\|'uk'/);
-  assert.match(index,/destination-sync-v111\.js\?v=122/);
+  assert.match(index,/destination-sync-v111\.js\?v=123/);
 });

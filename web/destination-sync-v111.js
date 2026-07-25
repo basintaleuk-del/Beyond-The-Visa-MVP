@@ -17,6 +17,7 @@
   const model={userId:null,country:null,steps:[],progress:[],hydrated:false,saving:false};
   const read=(key,fallback={})=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch{return fallback}};
   const clean=value=>{const key=String(value||'').trim().toLowerCase();return valid.has(key)?key:null};
+  const safeRender=(name,callback)=>{try{if(typeof callback==='function')callback.call(window)}catch(error){console.warn(`Destination ${name} render skipped`,error)}};
 
   function snapshot(){
     const complete=new Set(model.progress.filter(row=>row.completed===true).map(row=>row.step_code));
@@ -30,10 +31,6 @@
     const profile=read('btv-profile');profile.destination=key;profile.destination_country=key;if(key!=='uk')delete profile.region;localStorage.setItem('btv-profile',JSON.stringify(profile));
     if(typeof state!=='undefined'&&state)state.country=key;
   }
-  function runOptional(name,fn){
-    if(typeof fn!=='function')return;
-    try{fn()}catch(error){console.error(`Destination sync skipped ${name}`,error)}
-  }
   function apply(source){
     const snap=snapshot(),key=snap.country;if(!key)return;
     cacheCountry(key);
@@ -42,14 +39,14 @@
       state.done=state.done||{};state.done[key]={};
       const completedCodes=new Set(snap.progress.filter(row=>row.completed===true).map(row=>row.step_code));
       snap.steps.forEach((step,index)=>{if(completedCodes.has(step.code))state.done[key][index]=true});
-      if(typeof render==='function')render();
+      safeRender('core',typeof render==='function'?render:null);
     }
     window.dispatchEvent(new CustomEvent('btv:destination-changed',{detail:{country:key,name:names[key],source,snapshot:snap}}));
     window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:snap}));
-    runOptional('renderDashboardInsights',window.renderDashboardInsights);
-    runOptional('buildLearning',window.buildLearning);
-    runOptional('updateExamTabs',window.updateExamTabs);
-    runOptional('renderCulture',window.renderCulture);
+    safeRender('dashboard',window.renderDashboardInsights);
+    safeRender('learning',window.buildLearning);
+    safeRender('exam tabs',window.updateExamTabs);
+    safeRender('culture',window.renderCulture);
   }
   async function importLegacyProgress(userId,key,steps,progress){
     const account=read('btv-account'),legacy=read('btv-v1').done?.[key];
