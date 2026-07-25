@@ -48,6 +48,24 @@
     }
   }
 
+  function destinationInfo() {
+    const selected = typeof window.country === "function" ? window.country() : null;
+    const raw = selected?.name || localProfile().destination || state.u?.user_metadata?.destination || "United Kingdom";
+    const name = String(raw).trim();
+    const key = ({
+      "united kingdom": "uk", uk: "uk", england: "uk",
+      "united states": "us", "united states of america": "us", usa: "us", us: "us",
+      australia: "au", canada: "ca", "new zealand": "nz", ireland: "ie",
+    })[name.toLowerCase()] || "uk";
+    const meta = {
+      uk: { flag: "🇬🇧", exam: "cbt" }, us: { flag: "🇺🇸", exam: "nclex" },
+      au: { flag: "🇦🇺", exam: "registration" }, ca: { flag: "🇨🇦", exam: "nclex" },
+      nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
+    }[key];
+    const exam = ({ ie: "registration" })[key] || meta.exam;
+    return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam };
+  }
+
   function safeName(u) {
     const p = localProfile();
     const raw = p.preferredName || p.name || u?.user_metadata?.preferred_name || u?.user_metadata?.full_name || "";
@@ -58,8 +76,8 @@
   function userPathway(u) {
     const p = localProfile();
     const profession = p.profession || u?.user_metadata?.profession || "Nurse";
-    const destination = p.destination || u?.user_metadata?.destination || "United States";
-    return `${profession} pathway - ${destination}`;
+    const destination = destinationInfo();
+    return `${profession} pathway · ${destination.name} ${destination.flag}`;
   }
 
   function fmtHeaderDate() {
@@ -86,7 +104,7 @@
     try { account = JSON.parse(localStorage.getItem("btv-account") || "{}"); } catch {}
     const u = session?.user || { id: account.id || "local-account", email: account.email || "", user_metadata: { full_name: profile.preferredName || profile.name || account.name || "MR", profession: profile.profession, destination: profile.destination } };
     if (!session || !db()?.from) {
-      state = { u, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      state = { u, isAdmin: false, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
       return state;
     }
     let platform = {};
@@ -103,7 +121,15 @@
       ]);
       const failed = [wallet, game, mocks, notes, saved, progress, steps, activity].find((x) => x.error);
       if (failed) throw failed.error;
+      let isAdmin = false;
+      try {
+        const role = await db().from("profiles").select("role").eq("id", u.id).maybeSingle();
+        isAdmin = role.data?.role === "admin";
+      } catch (e) {
+        console.warn("v73 admin access check failed", e);
+      }
       platform = {
+        isAdmin,
         wallet: wallet.data || { balance: 0 },
         game: game.data || { level: 1, xp: 0, current_streak: 0 },
         mocks: mocks.data || [],
@@ -115,7 +141,7 @@
       };
     } catch (e) {
       console.warn("v73 data fallback", e);
-      platform = { wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      platform = { isAdmin: false, wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
     }
     state = { u, ...platform };
     return state;
@@ -123,9 +149,15 @@
 
   function journey() {
     const legacy = typeof window.completed === "function" ? window.completed() : 0;
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const scopedSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
     const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
-    const done = state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || legacy;
-    const total = state.steps?.length || legacyTotal || 7;
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && scopedSteps.length > 0;
+    const done = useSynced ? (synced?.done || 0) : usePlatformSteps ? state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0 : legacy;
+    const total = useSynced ? syncedSteps.length : usePlatformSteps ? scopedSteps.length : legacyTotal || 7;
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
 
@@ -134,20 +166,200 @@
     if (!p.profession || !p.destination) return { title: "Complete your profile", copy: "Add your profession and destination for personalised guidance.", id: "profile" };
     const active = state.mocks?.find((x) => x.status === "active" || x.status === "in_progress");
     if (active) return { title: "Resume your active mock", copy: `Continue ${String(active.mock_code).replaceAll("_", " ")} without paying again.`, id: "mock-tests" };
-    if (!j.done) return { title: "Take your first journey step", copy: "Open your pathway and complete the first milestone.", id: "journey" };
+    if (!j.done) return { title: "Upload your essential documents", copy: "Start with the certificates and identity files your pathway will need.", id: "documents" };
     if (state.notes?.some((x) => !x.read_at)) return { title: "Review your updates", copy: "You have unread guidance and account notifications.", id: "notifications" };
     return { title: "Continue today’s study plan", copy: "Keep your learning streak moving forward.", id: "study-plan" };
   }
 
-  function cbtStats() {
-    const latest = state.mocks?.find((x) => String(x.mock_code || "").toLowerCase().includes("cbt") && (x.status === "completed" || x.status === "submitted"));
-    if (!latest || !latest.total) return { value: "-", sub: "0 questions answered" };
+  function examStats() {
+    const destination = destinationInfo();
+    if (destination.exam === "registration") return { label: "Registration", route: "journey", value: `${journey().pct}%`, sub: `${destination.name} pathway` };
+    const token = destination.exam;
+    const latest = state.mocks?.find((x) => String(x.mock_code || "").toLowerCase().includes(token) && (x.status === "completed" || x.status === "submitted"));
+    if (!latest || !latest.total) return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: "-", sub: "0 questions answered" };
     const pct = Math.round((Number(latest.score || 0) / Number(latest.total || 1)) * 100);
-    return { value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
+    return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
+  }
+
+  function showHomeAdvice() {
+    const destination = destinationInfo();
+    const progress = journey();
+    const suggested = recommendation(progress);
+    const current = journeyItems().find((step) => step.current);
+    const unread = state.notes?.filter((note) => !note.read_at).length || 0;
+    const choices = [
+      { tag: "RECOMMENDED NEXT STEP", title: suggested.title, copy: suggested.copy, route: suggested.id },
+      current ? { tag: "YOUR JOURNEY", title: current.title, copy: `${current.copy} You are ${progress.pct}% through your ${destination.name} checklist.`, route: "journey" } : null,
+      unread ? { tag: "ACCOUNT UPDATE", title: `Review ${unread} unread notification${unread === 1 ? "" : "s"}`, copy: "Open your updates for journey reminders, learning news and account information.", route: "notifications" } : null,
+      destination.exam === "cbt" ? { tag: "LEARNING ADVICE", title: "Keep CBT preparation consistent", copy: "A short focused practice session followed by explanation review is more useful than rushing through a large question set.", route: "cbt" } : destination.exam === "nclex" ? { tag: "LEARNING ADVICE", title: "Practise NCLEX clinical judgement", copy: "Use safety, assessment, prioritisation and least-harm reasoning before reviewing the explanation.", route: "nclex" } : { tag: "REGISTRATION ADVICE", title: `Review your ${destination.name} pathway`, copy: "Confirm every registration and immigration requirement through the responsible current official authority.", route: "journey" },
+      { tag: "CAREER ADVICE", title: "Keep one career action moving", copy: "Save a suitable role, improve one interview example, or organise one supporting document today.", route: "jobs" },
+      { tag: "PLANNING ADVICE", title: "Verify before paying or submitting", copy: "Check current regulator and government guidance before paying a fee, uploading evidence or making a travel commitment.", route: "resources" },
+    ].filter(Boolean);
+    const selected = choices.sort(() => Math.random() - 0.5).slice(0, 3);
+    let dialog = document.getElementById("homeAdvice107");
+    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "homeAdvice107"; dialog.className = "homeAdvice107"; document.body.append(dialog); }
+    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(destination.flag)} ${esc(destination.name.toUpperCase())} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice for your journey.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected.map((item, index) => `<article class="${index === 0 ? "featured" : ""}"><small>${esc(item.tag)}</small><h3>${esc(item.title)}</h3><p>${esc(item.copy)}</p><button type="button" data-advice-route="${esc(item.route)}">Open ${esc(item.title)}</button></article>`).join("")}</div><footer><button type="button" data-refresh-advice>Show different advice</button><button type="button" data-advice-close>Close</button></footer></div>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-advice-close]").forEach((button) => button.onclick = close);
+    dialog.querySelectorAll("[data-advice-route]").forEach((button) => button.onclick = () => { const route = button.dataset.adviceRoute; close(); go(route); });
+    dialog.querySelector("[data-refresh-advice]").onclick = showHomeAdvice;
+    dialog.onclick = (event) => { if (event.target !== dialog) return; const box = dialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close(); };
+    if (!dialog.open) dialog.showModal();
+    dialog.querySelector("[data-advice-close]")?.focus();
+  }
+
+  function coinDetailBody(key) {
+    const details = {
+      earning: {
+        title: "How to earn Beyond Coins",
+        body: "You earn coins through approved activity on the platform, including study milestones, streak goals, and selected promotional rewards. Rewards are credited to your wallet and can be used across supported preparation services."
+      },
+      usage: {
+        title: "Where Beyond Coins are used",
+        body: "Beyond Coins can be used for paid learning actions such as timed mock attempts and premium preparation unlocks where marked. The exact coin cost is shown before confirmation."
+      },
+      charges: {
+        title: "What counts as a charge",
+        body: "A charge is applied only when you confirm a paid action. If the action is session-based, the charge applies to that purchased session only."
+      },
+      refunds: {
+        title: "Refunds and reversals",
+        body: "If a technical failure prevents the purchased action from starting correctly, support can investigate and issue a coin reversal where applicable. Completed usage is normally not refundable."
+      },
+      history: {
+        title: "Transaction history",
+        body: "Your wallet history records each credit and debit with timestamps so you can audit your usage and support requests."
+      },
+    };
+    return details[key] || details.usage;
+  }
+
+  function openCoinDetail(key) {
+    const info = coinDetailBody(key);
+    let dialog = document.getElementById("coinsDetailDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsDetailDialog73";
+      dialog.className = "coinsDetailDialog73";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<article class="coinsDetailPanel73"><header><h3>${esc(info.title)}</h3><button type="button" data-coin-detail-close aria-label="Close">&times;</button></header><p>${esc(info.body)}</p><footer><button type="button" data-coin-detail-close>Close</button></footer></article>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-coin-detail-close]").forEach((button) => button.onclick = close);
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function openCoinsCentre() {
+    const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
+    const unresolved = state.notes?.filter((note) => !note.read_at).length || 0;
+    let dialog = document.getElementById("coinsCentreDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsCentreDialog73";
+      dialog.className = "coinsCentreDialog73";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<article class="coinsCentrePanel73">
+      <header><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>A shared currency across supported learning and preparation features.</p><button type="button" data-coin-close aria-label="Close">&times;</button></header>
+      <section class="coinsBalance73"><b>${balance} BC</b><span>Current wallet balance</span></section>
+      <section class="coinsDetails73">
+        <button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button>
+      </section>
+      <footer>
+        <button type="button" data-go="notifications">Unread updates: ${unresolved}</button>
+        <button type="button" data-go="study-plan">Open study plan</button>
+      </footer>
+    </article>`;
+    const close = () => dialog.close();
+    dialog.querySelector("[data-coin-close]")?.addEventListener("click", close);
+    dialog.querySelectorAll("[data-coin-detail]").forEach((button) => button.addEventListener("click", () => openCoinDetail(button.dataset.coinDetail)));
+    dialog.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => { close(); go(button.dataset.go); }));
+    if (!dialog.open) dialog.showModal();
   }
 
   function go(id) {
+    if (id === "dashboard") {
+      if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
+      F()?.open("dashboard");
+      return queueRender();
+    }
+    if (id === "change-destination") return window.openScreen?.("countries");
+    if (id === "explore" || id === "books") {
+      F()?.open("study");
+      return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
+    }
+    if (id === "wallet") return openCoinsCentre();
+    if (id === "preferences") return go("profile");
+    if (id === "bookings") return go("mentors");
+    if (id === "membership") {
+      const button = document.querySelector("[data-open-premium]");
+      return button ? button.click() : F()?.open("membership");
+    }
+    if (id === "legal" || id === "feedback") return window.openScreen?.(id);
+    if (id === "admin") return state.isAdmin ? location.assign("admin.html") : undefined;
+    if (id === "assistant" && typeof window.BTVFloatingZiburToggle === "function") return window.BTVFloatingZiburToggle(true);
     F()?.open(id);
+  }
+
+  function menuGroups() {
+    const exam = destinationInfo().exam;
+    const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
+    return [
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
+      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
+    ];
+  }
+
+  function menuMarkup(prefix) {
+    const sections = menuGroups().map((group) => {
+      return `<section class="menuGroup73" data-menu-section="${group.id}">
+        <h3 class="menuSectionTitle73">${esc(group.label)}</h3>
+        <div class="menuGroupLinks73">
+          ${group.links.map(([label, route]) => `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(label)}</span>${iconSvg("arrowRight")}</button>`).join("")}
+        </div>
+      </section>`;
+    }).join("");
+    const admin = state.isAdmin ? `<section class="menuAdmin73" aria-labelledby="${prefix}-admin-title"><p id="${prefix}-admin-title">Administration</p><button type="button" class="menuLink73 adminLink73" data-go="admin"><span>Admin Access</span>${iconSvg("arrowRight")}</button></section>` : "";
+    return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>`;
+  }
+
+  function setupMenuGroups() {}
+
+  function journeyItems() {
+    const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
+    const synced = window.destinationSync?.snapshot?.() || null;
+    const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
+    const destinationKey = destinationInfo().key;
+    const platformSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
+    const useSynced = syncedSteps.length > 0;
+    const usePlatformSteps = !useSynced && platformSteps.length > 0;
+    const useChecklist = !useSynced && !usePlatformSteps && legacySteps.length > 0;
+    const steps = useSynced ? syncedSteps : usePlatformSteps ? platformSteps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
+    const sourceProgress = useSynced ? (synced?.progress || []) : (state.progress || []);
+    const completedCodes = new Set(sourceProgress.filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
+    let checklistStatus = {};
+    try { checklistStatus = JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[destinationInfo().key] || {}; } catch {}
+    let currentFound = false;
+    return steps.map((step, index) => {
+      const complete = useChecklist ? Boolean(checklistStatus[index]) : completedCodes.has(step.code);
+      const current = !complete && !currentFound;
+      if (current) currentFound = true;
+      return {
+        title: step.title || `Journey step ${index + 1}`,
+        copy: step.description || "Review this milestone and keep the required evidence safe.",
+        status: complete ? "Completed" : current ? "Current step" : "Upcoming",
+        action: complete ? "Review step" : current ? "Continue step" : "View details",
+        complete,
+        current,
+        order: step.sort_order || index + 1,
+      };
+    });
   }
 
   function themeToggle() {
@@ -166,10 +378,10 @@
     }
     const name = safeName(state.u);
     const nav = [
-      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["Calculators", "calculations"], ["Saved learning", "analytics"]]],
+      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Saved learning", "analytics"]]],
       ["CAREER AND MIGRATION", [["Journey Planner", "journey"], ["Visa Hub", "resources"], ["Jobs", "jobs"], ["Interview preparation", "interview"], ["Saved jobs", "saved-jobs"], ["Mentors", "mentors"]]],
       ["COMMUNITY AND SUPPORT", [["Ask Zibur", "assistant"], ["Community", "community"], ["Notifications", "notifications"], ["Success stories", "stories"]]],
-      ["ACCOUNT", [["Profile", "profile"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
+      ["ACCOUNT", [["Profile", "profile"], ["Change destination country", "change-destination"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
     ];
     o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div>${nav.map(([group, links]) => `<div class="drawerGroup73"><strong>${group}</strong>${links.map(([label, id]) => `<button class="drawerLink73" data-go="${id}"><span>${label}</span><span class="rowArrow73">${iconSvg("arrowRight")}</span></button>`).join("")}</div>`).join("")}<button class="drawerSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button></aside>`;
     o.hidden = false;
@@ -198,6 +410,47 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
     o.querySelector("[data-close]").focus();
+  }
+
+  function openDrawerV99(trigger) {
+    lastFocus = trigger;
+    let backdrop = document.getElementById("drawerBackdrop73");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "drawerBackdrop73";
+      backdrop.className = "drawerBackdrop73";
+      backdrop.hidden = true;
+      document.body.append(backdrop);
+    }
+    const name = safeName(state.u);
+    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div><div class="drawerMenu73">${menuMarkup("drawer-menu73")}</div></aside>`;
+    backdrop.hidden = false;
+    requestAnimationFrame(() => backdrop.classList.add("open"));
+    document.body.style.overflow = "hidden";
+    const close = () => {
+      backdrop.classList.remove("open");
+      const finish = () => { backdrop.hidden = true; };
+      matchMedia("(prefers-reduced-motion: reduce)").matches ? finish() : setTimeout(finish, 220);
+      document.body.style.overflow = "";
+      trigger.setAttribute("aria-expanded", "false");
+      lastFocus?.focus();
+    };
+    trigger.setAttribute("aria-expanded", "true");
+    backdrop.querySelector("[data-close]").onclick = close;
+    backdrop.onclick = (event) => { if (event.target === backdrop) close(); };
+    setupMenuGroups(backdrop);
+    wire(backdrop);
+    backdrop.querySelectorAll("[data-go],[data-signout]").forEach((button) => button.addEventListener("click", close));
+    backdrop.onkeydown = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); close(); return; }
+      if (event.key !== "Tab") return;
+      const focusable = [...backdrop.querySelectorAll("button:not([disabled]),a[href]")].filter((element) => !element.hidden && !element.closest("[hidden]"));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    backdrop.querySelector("[data-close]").focus();
   }
 
   function setupCarousel(root) {
@@ -231,6 +484,41 @@
     renderSlide();
   }
 
+  function notificationMarkup() {
+    const unread = state.notes?.filter((note) => !note.read_at).length || 0;
+    const items = (state.notes || []).slice(0, 8);
+    return `<div class="notificationWrap102">
+      <button class="icon73 notificationBell102" type="button" data-notification-toggle aria-label="Notifications${unread ? `, ${unread} unread` : ""}" aria-expanded="false" aria-controls="dashboard-notifications102">${iconSvg("bell")}${unread ? `<span>${unread > 9 ? "9+" : unread}</span>` : ""}</button>
+      <section class="notificationMenu102" id="dashboard-notifications102" aria-label="Recent notifications" hidden>
+        <header><div><small>YOUR UPDATES</small><h2>Notifications</h2></div>${unread ? `<button type="button" data-notification-read>Mark all read</button>` : ""}</header>
+        <div class="notificationList102">${items.length ? items.map((note) => `<button type="button" class="notificationItem102 ${note.read_at ? "" : "unread"}" data-notification-id="${esc(note.id)}"${note.action_url ? ` data-notification-url="${esc(note.action_url)}"` : ""}><i aria-hidden="true">${note.read_at ? "✓" : "●"}</i><span><b>${esc(note.title || note.category || "Account update")}</b><small>${esc(note.body || note.message || "Open your account for more information.")}</small><time>${note.created_at ? new Date(note.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "Recent"}</time></span></button>`).join("") : `<div class="notificationEmpty102"><b>You are up to date</b><p>Journey reminders, learning updates and account messages will appear here.</p></div>`}</div>
+        <button type="button" class="notificationAll102" data-go="notifications">Open notification centre ${iconSvg("arrowRight")}</button>
+      </section>
+    </div>`;
+  }
+
+  function setupNotifications(root) {
+    const toggle = root.querySelector("[data-notification-toggle]");
+    const menu = root.querySelector(".notificationMenu102");
+    if (!toggle || !menu) return;
+    const close = () => { menu.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
+    toggle.onclick = (event) => { event.preventDefault(); event.stopPropagation(); const open = menu.hidden; menu.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); if (open) { menu.querySelector("button")?.focus(); setTimeout(() => document.addEventListener("click", close, { once: true }), 0); } };
+    menu.onclick = (event) => event.stopPropagation();
+    root.addEventListener("keydown", (event) => { if (event.key === "Escape" && !menu.hidden) { close(); toggle.focus(); } });
+    menu.querySelector("[data-notification-read]")?.addEventListener("click", async () => {
+      if (state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("user_id", state.u.id).is("read_at", null);
+      state.notes = (state.notes || []).map((note) => ({ ...note, read_at: note.read_at || new Date().toISOString() }));
+      queueRender();
+    });
+    menu.querySelectorAll("[data-notification-id]").forEach((item) => item.addEventListener("click", async () => {
+      const id = item.dataset.notificationId;
+      if (id && state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).eq("user_id", state.u.id);
+      const url = item.dataset.notificationUrl;
+      if (url && (/^\//.test(url) || /^https:\/\//.test(url))) location.assign(url);
+      else go("notifications");
+    }));
+  }
+
   function wire(root) {
     root.querySelectorAll("[data-go]").forEach((x) => {
       x.onclick = (e) => {
@@ -254,7 +542,7 @@
     root.querySelectorAll("[data-mobile-open]").forEach((x) => {
       x.onclick = (e) => {
         e.preventDefault();
-        openDrawer(x);
+        openDrawerV99(x);
       };
     });
     root.querySelectorAll("[data-search-form]").forEach((form) => {
@@ -272,6 +560,8 @@
     home.classList.add("dashboard73-active");
     document.getElementById("careerDashboard")?.remove();
     document.getElementById("btvTop73")?.remove();
+    document.getElementById("profileSummary")?.remove();
+    document.getElementById("homeWelcomeArt")?.remove();
 
     const root = document.getElementById("dashboardV3") || document.createElement("section");
     root.id = "dashboardV3";
@@ -282,24 +572,25 @@
     const rec = recommendation(j);
     const name = safeName(state.u);
     const pathway = userPathway(state.u);
-    const cbt = cbtStats();
+    const exam = examStats();
+    const destination = destinationInfo();
     const savedJobs = Number(state.saved?.length || 0);
     const streak = Number(state.game?.current_streak || 0);
-    const walletBalance = Number(state.wallet?.balance || 0);
+    const journeySteps = journeyItems();
+    const currentJourneyStep = journeySteps.find((step) => step.current) || journeySteps[journeySteps.length - 1] || null;
     const readinessCircumference = 2 * Math.PI * 34;
     const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
 
     const learningFocus = [
-      { title: "Start CBT practice", id: "cbt" },
-      { title: "Patient safety", id: "adult-nursing" },
-      { title: "Professional practice", id: "adult-nursing" },
+      ...(destination.exam === "nclex" ? [{ title: "Continue NCLEX preparation", id: "nclex" }] : destination.exam === "cbt" ? [{ title: "Continue CBT preparation", id: "cbt" }] : [{ title: "Review registration pathway", id: "journey" }]),
+      { title: "Clinical learning library", id: "adult-nursing" },
+      { title: "Interview preparation", id: "interview" },
     ];
     const quickActions = [
-      { title: "CBT learning", copy: "Questions, explanations and mock tests", id: "cbt", icon: "CBT" },
-      { title: "Journey checklist", copy: "Complete your registration and visa steps", id: "journey", icon: "JL" },
-      { title: "Cost planner", copy: "Plan fees and relocation expenses", id: "costs", icon: "£" },
-      { title: "Ask Zibur", copy: "Get guidance based on your saved journey", id: "assistant", icon: "AI" },
-      { title: "My documents", copy: "Certificates, passport, visa and CV files", id: "documents", icon: "DOC" },
+      { title: "Mentor Marketplace", copy: "Find approved professional mentors", id: "mentors", icon: "🤝" },
+      { title: "Interview preparation", copy: "Practise role-specific healthcare interviews", id: "interview", icon: "🎙️" },
+      { title: "Jobs", copy: "Find and save suitable opportunities", id: "jobs", icon: "💼" },
+      { title: "My documents", copy: "Keep career and visa evidence organised", id: "documents", icon: "📂" },
     ];
 
     root.innerHTML = `<div class="dashboardLayout73">
@@ -308,26 +599,17 @@
           <div class="brandLogo73"><img src="login-logo-v72.png" alt="Beyond The Visa logo"></div>
           <div><b>Beyond The Visa</b><small>NURSING PLATFORM</small></div>
         </div>
+        <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(name)}">
+          <span class="avatar73">${esc(initials(name))}</span>
+          <span><b>${esc(name)}</b><small>View profile</small></span>
+          <span class="profileArrow73">${iconSvg("arrowRight")}</span>
+        </button>
         <div class="sidebarNavWrap73">
           <p class="sidebarGroup73">DASHBOARD</p>
           <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
-          <button class="sideNavItem73" data-go="study"><span class="sideIc73">${iconSvg("learn")}</span><span>Learn</span></button>
-          <button class="sideNavItem73" data-go="journey"><span class="sideIc73">${iconSvg("journey")}</span><span>Journey</span></button>
-          <button class="sideNavItem73" data-go="jobs"><span class="sideIc73">${iconSvg("search")}</span><span>Jobs</span></button>
-          <button class="sideNavItem73" data-go="assistant"><span class="sideIc73">${iconSvg("spark")}</span><span>Ask Zibur</span></button>
+          <nav class="sidebarMemberMenu73" aria-label="Account, learning, career and support menu">${menuMarkup("sidebar-menu73")}</nav>
         </div>
-        <div class="sidebarBottom73">
-          <button class="coinsCard73" data-go="wallet" aria-label="Open Beyond Coins">
-            <span class="coinDot73">${iconSvg("coin")}</span>
-            <span><b>${walletBalance} BC</b><small>Beyond Coins</small></span>
-          </button>
-          <div class="profileCard73">
-            <span class="avatar73">${esc(initials(name))}</span>
-            <span><b>${esc(name)}</b><small>${esc(pathway)}</small></span>
-            <button class="icon73 ghost73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-          </div>
-          <button class="signout73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>
-        </div>
+        <div class="sidebarLondon73" aria-hidden="true"></div>
       </aside>
       <div class="mainArea73">
         <header class="mainHeader73">
@@ -340,19 +622,22 @@
               <span>${iconSvg("search")}</span>
               <input type="search" placeholder="Search resources..." aria-label="Search resources">
             </form>
-            <button class="icon73" data-go="notifications" aria-label="Notifications">${iconSvg("bell")}</button>
+            <button class="coinBalance104" type="button" data-go="wallet" aria-label="Beyond Coins balance: ${Number(state.wallet?.balance || 0).toLocaleString('en-GB')} coins. Open wallet">
+              <img class="coinBalanceLogo106" src="beyond-coin-v84.png" alt="" aria-hidden="true"><span><b>${Number(state.wallet?.balance || 0).toLocaleString('en-GB')}</b><small>Beyond Coins</small></span>
+            </button>
+            ${notificationMarkup()}
             <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-            <button class="avatarBtn73" data-go="profile" aria-label="Open profile">${esc(initials(name))}</button>
-            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open menu" aria-expanded="false">${iconSvg("menu")}</button>
+            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg("menu")}</button>
           </div>
         </header>
         <div class="dashboardContent73">
-          <section class="welcomeCard73">
+          <section class="welcomeCard73" data-home-advice role="button" tabindex="0" aria-label="Open personalised recommendations and advice">
             <div class="welcomeOverlay73" aria-hidden="true"></div>
             <div class="welcomeLines73" aria-hidden="true"></div>
             <div class="welcomeNurse73" aria-hidden="true"></div>
             <div class="welcomeInner73">
               <p class="welcomeDate73">${fmtHeroDate()}</p>
+              <span class="welcomeDestination73"><b aria-hidden="true">${esc(destination.flag)}</b>${esc(destination.name)}</span>
               <h2>Welcome back, ${esc(name)}</h2>
               <p class="welcomePathway73">${esc(pathway)}</p>
               <div class="welcomeReadiness73">
@@ -361,7 +646,7 @@
                     <circle cx="42" cy="42" r="34" class="ringTrack73"></circle>
                     <circle cx="42" cy="42" r="34" class="ringValue73" style="stroke-dasharray:${readinessCircumference};stroke-dashoffset:${readinessOffset}"></circle>
                   </svg>
-                  <b>${j.pct}%</b>
+                  <b>${j.pct}%</b><small>READY</small>
                 </div>
                 <div class="readinessCopy73">
                   <b>Your career readiness</b>
@@ -373,18 +658,29 @@
           </section>
 
           <section class="statsRow73">
-            <article class="statCard73" data-go="journey"><small>Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="cbt"><small>CBT accuracy</small><b>${esc(cbt.value)}</b><span>${esc(cbt.sub)}</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="saved-jobs"><small>Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="analytics"><small>Study streak</small><b>${streak}</b><span>days active</span><em>Open guidance ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73 journeySummaryStat73" data-go="journey"><small>🧭 Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Open My Journey ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="${exam.route}"><small>🩺 ${esc(exam.label)}</small><b>${esc(exam.value)}</b><span>${esc(exam.sub)}</span><em>Open preparation ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="saved-jobs"><small>🔖 Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>View saved jobs ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg("arrowRight")}</em></article>
+          </section>
+
+          <section class="journeyPanel73" aria-labelledby="journey-title73">
+            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>Your current journey position</span></div><button type="button" data-go="journey">Go to My Journey ${iconSvg("arrowRight")}</button></div>
+            <div class="journeyProgress73" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div>
+            ${currentJourneyStep ? `<article class="journeyCurrent73 ${j.total > 0 && j.done >= j.total ? "complete" : "current"}">
+              <div class="journeyCurrentMarker73" aria-hidden="true">${j.total > 0 && j.done >= j.total ? "&#10003;" : esc(currentJourneyStep.order)}</div>
+              <div class="journeyCurrentCopy73"><span class="journeyStatus73">${j.total > 0 && j.done >= j.total ? "Journey complete" : "Current step"}</span><h4>${esc(currentJourneyStep.title)}</h4><p>${esc(currentJourneyStep.copy)}</p><small>${j.done} of ${j.total} steps completed · ${j.pct}% complete</small></div>
+              <button type="button" data-go="journey">${j.total > 0 && j.done >= j.total ? "Review journey" : "Continue journey"} ${iconSvg("arrowRight")}</button>
+            </article>` : `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`}
           </section>
 
           <section class="secondaryGrid73">
             <article class="panel73" data-go="${rec.id}">
               <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
               <div class="nextStep73">
-                <span class="nextIcon73">${iconSvg("arrowRight")}</span>
-                <div><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small><button data-go="${rec.id}">Continue now</button></div>
+                <span class="nextIcon73">${iconSvg("spark")}</span>
+                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
+                <button class="nextActionBtn73" data-go="${rec.id}">Continue ${iconSvg("arrowRight")}</button>
               </div>
             </article>
             <article class="panel73">
@@ -405,10 +701,16 @@
           </section>
         </div>
       </div>
+      <button type="button" class="floatingZibur73" data-go="assistant" aria-label="Open Ask Zibur assistant">${iconSvg("spark")}<span>Ask Zibur</span></button>
     </div>`;
 
+    setupMenuGroups(root);
     wire(root);
+    setupNotifications(root);
     setupCarousel(root);
+    const welcomeAdvice = root.querySelector("[data-home-advice]");
+    welcomeAdvice?.addEventListener("click", showHomeAdvice);
+    welcomeAdvice?.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); showHomeAdvice(); } });
   }
 
   function queueRender() {
@@ -422,9 +724,11 @@
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest("[data-open=\"home\"]")) return;
+    if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
     queueRender();
   });
   window.addEventListener("btv:wallet-changed", queueRender);
+  window.addEventListener("btv:destination-changed", queueRender);
   window.addEventListener("btv:auth-ready", queueRender);
   window.addEventListener("focus", queueRender);
   document.addEventListener("DOMContentLoaded", queueRender);
