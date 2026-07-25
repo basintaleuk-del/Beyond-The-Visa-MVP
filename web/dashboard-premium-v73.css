@@ -727,21 +727,19 @@ html,body{max-width:100%;overflow-x:clip}
 .rightMenuHead73 p,.menuAdmin73>p{margin:0;color:#789085;font-size:10px;letter-spacing:.14em;font-weight:800;text-transform:uppercase}
 .rightMenuHead73 h2{margin:7px 0 5px;font-size:19px;line-height:1.25;color:#173326}
 .rightMenuHead73 span{color:#75877e;font-size:12px;line-height:1.45}
-.rightMenuNav73{position:static;inset:auto;display:block;width:100%;max-width:none;height:auto;margin:0;transform:none;padding:10px 0 0;background:transparent;border:0;box-shadow:none;backdrop-filter:none;z-index:auto}.menuGroup73{border-bottom:1px solid #e8eee9}
-.menuGroupToggle73{width:100%;min-height:48px;border:0;background:transparent;color:#244637;padding:0 5px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-weight:750;cursor:pointer}
-.menuGroupToggle73:hover{color:#16845a}.menuChevron73{width:20px;height:20px;display:grid;place-items:center;transition:transform .18s ease}
-.menuChevron73 svg,.menuLink73 svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.menuGroupToggle73[aria-expanded="true"] .menuChevron73{transform:rotate(90deg)}
-.menuGroupLinks73{padding:0 0 9px 6px}.menuGroupLinks73[hidden]{display:none}
+.rightMenuNav73{position:static;inset:auto;display:block;width:100%;max-width:none;height:auto;margin:0;transform:none;padding:10px 0 0;background:transparent;border:0;box-shadow:none;backdrop-filter:none;z-index:auto}.menuGroup73{padding:10px 6px 12px;border-bottom:1px solid #e8eee9}
+.menuSectionTitle73{margin:0 0 8px;color:#244637;font-size:11px;letter-spacing:.11em;font-weight:850;text-transform:uppercase}
+.menuLink73 svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.menuGroupLinks73{display:grid;gap:4px;padding:0}
 .menuLink73{width:100%;min-height:38px;border:0;border-radius:9px;background:transparent;color:#5b7166;padding:0 8px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-size:13px;cursor:pointer}
 .menuLink73:hover{background:#eff7f1;color:#176a49}
 .menuAdmin73{margin-top:15px;padding:13px 6px;border:1px solid #e6d49c;border-radius:12px;background:#fffaf0}
 .menuAdmin73>p{color:#886a1e;margin:0 6px 7px}.adminLink73{color:#654d14;font-weight:750}.menuSignOut73{margin-top:18px;background:#173b2c}
-.menuGroupToggle73:focus-visible,.menuLink73:focus-visible,.profileAction73:focus-visible,.floatingZibur73:focus-visible{outline:3px solid #d5b24f;outline-offset:2px}
+.menuLink73:focus-visible,.profileAction73:focus-visible,.floatingZibur73:focus-visible{outline:3px solid #d5b24f;outline-offset:2px}
 
 .sidebarMemberMenu73{position:static;inset:auto;display:block;width:100%;max-width:none;margin:10px 0 0;padding:0;transform:none;background:transparent;border:0;box-shadow:none;backdrop-filter:none;z-index:auto}
 .sidebarMemberMenu73 .menuGroup73{border-color:rgba(220,233,227,.12)}
-.sidebarMemberMenu73 .menuGroupToggle73{color:#dce9e0;padding-inline:10px}.sidebarMemberMenu73 .menuGroupToggle73:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebarMemberMenu73 .menuSectionTitle73{color:#9ab6a8;padding-inline:10px}
 .sidebarMemberMenu73 .menuLink73{color:#adc5b7;padding-left:18px}.sidebarMemberMenu73 .menuLink73:hover{background:rgba(255,255,255,.07);color:#fff}
 .sidebarMemberMenu73 .menuAdmin73{background:rgba(213,178,79,.1);border-color:rgba(213,178,79,.35)}.sidebarMemberMenu73 .menuAdmin73>p{color:#e2c66f}.sidebarMemberMenu73 .adminLink73{color:#f1daa0}
 .sidebarMemberMenu73 .menuSignOut73{margin:16px 0 8px;background:rgba(255,255,255,.08)}.sidebarMemberMenu73 .menuSignOut73:hover{background:rgba(255,255,255,.14)}
@@ -823,7 +821,7 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   font-weight:800;
 }
 .drawerMenu73{margin-top:12px}.drawerMenu73 .menuGroup73{border-color:rgba(220,233,227,.12)}
-.drawerMenu73 .menuGroupToggle73{color:#e0ede5}.drawerMenu73 .menuGroupToggle73:hover{color:#fff;background:rgba(255,255,255,.05)}
+.drawerMenu73 .menuSectionTitle73{color:#9ab6a8}
 .drawerMenu73 .menuLink73{color:#bed2c6}.drawerMenu73 .menuLink73:hover{background:rgba(255,255,255,.07);color:#fff}
 .drawerMenu73 .menuAdmin73{background:rgba(213,178,79,.1);border-color:rgba(213,178,79,.35)}.drawerMenu73 .menuAdmin73>p{color:#e2c66f}.drawerMenu73 .adminLink73{color:#f1daa0}
 .drawerGroup73{margin-top:14px}
@@ -885,6 +883,32 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   stroke-linecap:round;
   stroke-linejoin:round;
 }
+
+.coinsCentreDialog73,.coinsDetailDialog73{border:0;padding:0;background:transparent}
+.coinsCentreDialog73::backdrop,.coinsDetailDialog73::backdrop{background:rgba(4,23,17,.62);backdrop-filter:blur(3px)}
+.coinsCentrePanel73{position:relative;width:min(94vw,620px);border:1px solid #d7e2db;border-radius:24px;background:linear-gradient(145deg,#fff,#f3f9f5);padding:24px;overflow:hidden;box-shadow:0 24px 64px rgba(10,41,29,.28)}
+.coinsCentrePanel73:before{content:"";position:absolute;inset:auto -40px -80px auto;width:260px;height:260px;background:url("beyond-coin-v84.png") center/contain no-repeat;opacity:.08;pointer-events:none}
+.coinsCentrePanel73 header{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.coinsCentrePanel73 header small{display:block;color:#8e6c1f;letter-spacing:.14em;font-weight:850;font-size:10px}
+.coinsCentrePanel73 header h2{margin:6px 0 4px;font-size:31px;color:#183c2d}
+.coinsCentrePanel73 header p{margin:0;color:#647d71;line-height:1.5}
+.coinsCentrePanel73 header button{width:36px;height:36px;border:0;border-radius:50%;background:#e9f3ee;color:#1f5f43;font-size:22px;cursor:pointer}
+.coinsBalance73{position:relative;z-index:1;margin:16px 0 12px;padding:16px;border:1px solid #d8e5dd;border-radius:16px;background:#fff}
+.coinsBalance73 b{display:block;font-size:34px;color:#194735}
+.coinsBalance73 span{display:block;margin-top:3px;color:#658074}
+.coinsDetails73{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coinsDetails73 button{min-height:50px;border:1px solid #d5e4db;border-radius:12px;background:#fff;color:#234637;padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-weight:700;cursor:pointer}
+.coinsDetails73 button:hover{background:#f4faf6;border-color:#b8d3c4}
+.coinsDetails73 button svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+.coinsCentrePanel73 footer{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.coinsCentrePanel73 footer button{min-height:38px;border:1px solid #cadfd2;border-radius:10px;background:#fff;color:#1f6045;padding:0 12px;font-weight:750;cursor:pointer}
+.coinsDetailPanel73{width:min(92vw,520px);border:1px solid #d7e2db;border-radius:20px;background:#fff;padding:22px;box-shadow:0 20px 50px rgba(10,41,29,.24)}
+.coinsDetailPanel73 header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.coinsDetailPanel73 h3{margin:0;color:#1a3e2e;font-size:24px}
+.coinsDetailPanel73 header button{width:34px;height:34px;border:0;border-radius:50%;background:#edf5ef;color:#1f6045;font-size:20px;cursor:pointer}
+.coinsDetailPanel73 p{margin:12px 0 0;color:#4f665c;line-height:1.65}
+.coinsDetailPanel73 footer{margin-top:16px}
+.coinsDetailPanel73 footer button{min-height:38px;border:0;border-radius:10px;background:#1f684a;color:#fff;padding:0 14px;font-weight:750}
 
 .dashboardCarousel73{
   min-height:210px;
@@ -987,6 +1011,9 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .nextStep73{grid-template-columns:1fr;align-items:start}
   .nextActionBtn73{justify-self:start}
   .nextIcon73{display:none}
+  .coinsCentrePanel73{padding:18px}
+  .coinsCentrePanel73 header h2{font-size:26px}
+  .coinsDetails73{grid-template-columns:1fr}
   .floatingZibur73{width:50px;height:50px;min-height:50px;padding:0;justify-content:center}
   .floatingZibur73 span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   .notificationMenu102{position:fixed;right:10px;top:70px;width:calc(100vw - 20px);max-height:calc(100vh - 160px)}
