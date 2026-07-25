@@ -30,5 +30,6 @@ test('Standalone IELTS writing renderer shows Task 1 bar chart data',()=>{
   assert.match(js,/function writingVisual\(question\)/);
   assert.match(js,/class="questionChart"/);
   assert.match(js,/class="questionBars"/);
+  assert.ok(js.includes('<p class="questionPrompt">${esc(question.prompt)}</p>${task1Data}'));
   assert.match(js,/const task1Data=current==='writing'&&question\.task===1\?writingVisual\(question\):''/);
 });
