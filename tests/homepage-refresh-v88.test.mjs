@@ -4,14 +4,16 @@ import { readFile } from 'node:fs/promises';
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
 
-test('homepage has one approved, guarded renderer and no obsolete layers', async () => {
+test('homepage restores the approved premium dashboard theme with guarded fallback rendering', async () => {
   const html = await read('web/index.html');
   assert.equal((html.match(/id=["']home["']/g) || []).length, 1);
   assert.equal((html.match(/id=["']btv-dashboard-v3-script["']/g) || []).length, 1);
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-premium-v73\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=113/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=113/);
+  assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
 
