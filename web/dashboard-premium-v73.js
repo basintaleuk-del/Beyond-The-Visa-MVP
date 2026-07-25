@@ -388,6 +388,103 @@
     renderBuyGrid(dialog.querySelector("#coinsBuyGrid73"), data.packages);
   }
 
+  function openStandalonePanel(type) {
+    const panels = {
+      mentors: {
+        icon: "🧑‍⚕️",
+        title: "Mentors",
+        subtitle: "Connect with nurses who have completed the journey you're starting.",
+        badge: null,
+        sections: [
+          {
+            heading: "What mentors offer",
+            items: [
+              { icon: "🎥", label: "1-to-1 video sessions", detail: "Guided conversations with nurses who have registered, relocated and are practising in your target country." },
+              { icon: "🗺️", label: "Pathway guidance", detail: "Tailored advice on registration, exam preparation, visa timing and employment based on your background." },
+              { icon: "📝", label: "Application review", detail: "Honest feedback on your personal statement, documents and interview technique before you submit." },
+              { icon: "💬", label: "Ongoing support", detail: "Message your mentor between sessions for quick guidance as questions come up." },
+            ]
+          }
+        ],
+        cta: { label: "Notify me when live", action: "feedback" }
+      },
+      bookings: {
+        icon: "📅",
+        title: "My Bookings",
+        subtitle: "Your upcoming mentor sessions and scheduled appointments.",
+        badge: null,
+        sections: [
+          {
+            heading: "Upcoming sessions",
+            items: [
+              { icon: "ℹ️", label: "No bookings yet", detail: "Once you book a mentor session or consultation, it will appear here. You can cancel or reschedule from this panel." },
+            ]
+          },
+          {
+            heading: "How to book",
+            items: [
+              { icon: "1️⃣", label: "Browse mentors", detail: "Open the Mentors panel and find a nurse with experience in your destination and specialty." },
+              { icon: "2️⃣", label: "Choose a time", detail: "Select an available slot that works for your time zone." },
+              { icon: "3️⃣", label: "Pay with coins", detail: "Session fees are deducted from your Beyond Coins balance." },
+            ]
+          }
+        ],
+        cta: { label: "Open mentors", action: "mentors" }
+      },
+      stories: {
+        icon: "✦",
+        title: "Success Stories",
+        subtitle: "Real journeys from nurses who made it to their destination.",
+        badge: null,
+        sections: [
+          {
+            heading: "Featured journeys",
+            items: [
+              { icon: "🇬🇧", label: "NHS nurse to NMC registration", detail: "\"Beyond The Visa helped me understand every step. I passed CBT first attempt and was registered within eight months.\" — Amara, London" },
+              { icon: "🇺🇸", label: "Nigerian nurse to NCLEX and US licensure", detail: "\"The question bank and the journey tracker kept me organised throughout the whole process.\" — Chisom, Texas" },
+              { icon: "🇦🇺", label: "UK nurse on the Australia streamlined pathway", detail: "\"I didn't realise the NCLEX wasn't required for me. The pathway guide made the whole thing much clearer.\" — Jade, Melbourne" },
+            ]
+          }
+        ],
+        cta: { label: "Share your story", action: "feedback" }
+      }
+    };
+    const cfg = panels[type];
+    if (!cfg) return;
+    let dialog = document.getElementById("standalonePanelDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "standalonePanelDialog73";
+      dialog.className = "standalonePanelDialog73";
+      document.body.append(dialog);
+    }
+    const sectionsHtml = cfg.sections.map(sec => `
+      <div class="spSection73">
+        <h3 class="spSectionHead73">${esc(sec.heading)}</h3>
+        ${sec.items.map(item => `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${item.icon}</span><div><b>${esc(item.label)}</b><small>${esc(item.detail)}</small></div></article>`).join("")}
+      </div>`).join("");
+    dialog.innerHTML = `<article class="standalonePanelContent73">
+      <header class="spHeader73">
+        <div><span class="spIcon73" aria-hidden="true">${cfg.icon}</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
+        <button type="button" data-sp-close class="spCloseBtn73" aria-label="Close">&times;</button>
+      </header>
+      <div class="spBody73">${sectionsHtml}</div>
+      <footer class="spFooter73">
+        <button type="button" class="spCtaBtn73" data-sp-cta="${esc(cfg.cta.action)}">${esc(cfg.cta.label)}</button>
+        <button type="button" class="spDoneBtn73" data-sp-close>Done</button>
+      </footer>
+    </article>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-sp-close]").forEach(b => b.onclick = close);
+    dialog.querySelector("[data-sp-cta]")?.addEventListener("click", (e) => {
+      const action = e.currentTarget.dataset.spCta;
+      close();
+      if (action === "mentors") setTimeout(() => openStandalonePanel("mentors"), 80);
+      else go(action);
+    });
+    if (!dialog.open) dialog.showModal();
+  }
+
   function go(id) {
     if (id === "dashboard") {
       if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
@@ -395,17 +492,13 @@
       return queueRender();
     }
     if (id === "change-destination") return window.openScreen?.("countries");
-    if (id === "explore" || id === "books") {
+    if (id === "books") {
       F()?.open("study");
       return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
     }
     if (id === "wallet") return openCoinsCentre();
-    if (id === "preferences") return go("profile");
-    if (id === "bookings") return go("mentors");
-    if (id === "membership") {
-      const button = document.querySelector("[data-open-premium]");
-      return button ? button.click() : F()?.open("membership");
-    }
+    if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
+    if (id === "stories") return openStandalonePanel("stories");
     if (id === "legal" || id === "feedback") return window.openScreen?.(id);
     if (id === "admin") return state.isAdmin ? location.assign("admin.html") : undefined;
     if (id === "assistant" && typeof window.BTVFloatingZiburToggle === "function") return window.BTVFloatingZiburToggle(true);
@@ -416,10 +509,10 @@
     const exam = destinationInfo().exam;
     const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
     return [
-      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Membership", "membership"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Account settings", "preferences"], ["Bookings", "bookings"], ["Privacy & legal", "legal"]] },
-      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Explore", "explore"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
+      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Privacy & legal", "legal"]] },
+      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
       { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
-      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Community", "community"], ["Success stories", "stories"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
+      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Bookings", "bookings"], ["Success stories", "stories"], ["Community", "community"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
     ];
   }
 
