@@ -59,10 +59,10 @@
     })[name.toLowerCase()] || "uk";
     const meta = {
       uk: { flag: "🇬🇧", exam: "cbt" }, us: { flag: "🇺🇸", exam: "nclex" },
-      au: { flag: "🇦🇺", exam: "nclex" }, ca: { flag: "🇨🇦", exam: "nclex" },
+      au: { flag: "🇦🇺", exam: "registration" }, ca: { flag: "🇨🇦", exam: "nclex" },
       nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
     }[key];
-    const exam = ({ au: "registration", ie: "registration" })[key] || meta.exam;
+    const exam = ({ ie: "registration" })[key] || meta.exam;
     return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam };
   }
 
