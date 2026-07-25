@@ -7,7 +7,7 @@ const read=file=>fs.readFileSync(file,'utf8');
 test('Standalone IELTS page uses listening readiness flow',()=>{
   const html=read('web/ielts.html');
   const js=read('web/ielts-centre-v103.js');
-  assert.match(html,/ielts-centre-v103\.js\?v=126/);
+  assert.match(html,/ielts-centre-v103\.js\?v=127/);
   assert.match(js,/Are you ready for your IELTS Listening\?/);
   assert.match(js,/Start my listening test/);
   assert.match(js,/SpeechSynthesisUtterance/);
