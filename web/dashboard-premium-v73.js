@@ -9,7 +9,6 @@
   let lastFocus = null;
   let carouselIndex = 0;
   let carouselTimer = null;
-  const menuStateKey = "btv-dashboard-menu-group-v99";
   const carouselSlides = [
     { category: "Motivation", title: "You did not come this far to stop now.", copy: "Every study session and completed milestone moves your international nursing journey forward." },
     { category: "Platform News", title: "New CBT practice questions available", copy: "Build confidence with fresh practice questions and detailed explanations.", action: "Start practising", route: "cbt", date: "23 July 2026" },
@@ -209,6 +208,79 @@
     dialog.querySelector("[data-advice-close]")?.focus();
   }
 
+  function coinDetailBody(key) {
+    const details = {
+      earning: {
+        title: "How to earn Beyond Coins",
+        body: "You earn coins through approved activity on the platform, including study milestones, streak goals, and selected promotional rewards. Rewards are credited to your wallet and can be used across supported preparation services."
+      },
+      usage: {
+        title: "Where Beyond Coins are used",
+        body: "Beyond Coins can be used for paid learning actions such as timed mock attempts and premium preparation unlocks where marked. The exact coin cost is shown before confirmation."
+      },
+      charges: {
+        title: "What counts as a charge",
+        body: "A charge is applied only when you confirm a paid action. If the action is session-based, the charge applies to that purchased session only."
+      },
+      refunds: {
+        title: "Refunds and reversals",
+        body: "If a technical failure prevents the purchased action from starting correctly, support can investigate and issue a coin reversal where applicable. Completed usage is normally not refundable."
+      },
+      history: {
+        title: "Transaction history",
+        body: "Your wallet history records each credit and debit with timestamps so you can audit your usage and support requests."
+      },
+    };
+    return details[key] || details.usage;
+  }
+
+  function openCoinDetail(key) {
+    const info = coinDetailBody(key);
+    let dialog = document.getElementById("coinsDetailDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsDetailDialog73";
+      dialog.className = "coinsDetailDialog73";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<article class="coinsDetailPanel73"><header><h3>${esc(info.title)}</h3><button type="button" data-coin-detail-close aria-label="Close">&times;</button></header><p>${esc(info.body)}</p><footer><button type="button" data-coin-detail-close>Close</button></footer></article>`;
+    const close = () => dialog.close();
+    dialog.querySelectorAll("[data-coin-detail-close]").forEach((button) => button.onclick = close);
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function openCoinsCentre() {
+    const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
+    const unresolved = state.notes?.filter((note) => !note.read_at).length || 0;
+    let dialog = document.getElementById("coinsCentreDialog73");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsCentreDialog73";
+      dialog.className = "coinsCentreDialog73";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<article class="coinsCentrePanel73">
+      <header><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>A shared currency across supported learning and preparation features.</p><button type="button" data-coin-close aria-label="Close">&times;</button></header>
+      <section class="coinsBalance73"><b>${balance} BC</b><span>Current wallet balance</span></section>
+      <section class="coinsDetails73">
+        <button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button>
+        <button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button>
+      </section>
+      <footer>
+        <button type="button" data-go="notifications">Unread updates: ${unresolved}</button>
+        <button type="button" data-go="study-plan">Open study plan</button>
+      </footer>
+    </article>`;
+    const close = () => dialog.close();
+    dialog.querySelector("[data-coin-close]")?.addEventListener("click", close);
+    dialog.querySelectorAll("[data-coin-detail]").forEach((button) => button.addEventListener("click", () => openCoinDetail(button.dataset.coinDetail)));
+    dialog.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => { close(); go(button.dataset.go); }));
+    if (!dialog.open) dialog.showModal();
+  }
+
   function go(id) {
     if (id === "dashboard") {
       if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
@@ -220,10 +292,9 @@
       F()?.open("study");
       return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
     }
-    if (["preferences", "bookings"].includes(id)) {
-      window.BTVPlatform?.open?.();
-      return setTimeout(() => document.querySelector(`[data-btv-pane="${id === "preferences" ? "prefs" : "book"}"]`)?.click(), 180);
-    }
+    if (id === "wallet") return openCoinsCentre();
+    if (id === "preferences") return go("profile");
+    if (id === "bookings") return go("mentors");
     if (id === "membership") {
       const button = document.querySelector("[data-open-premium]");
       return button ? button.click() : F()?.open("membership");
@@ -247,12 +318,9 @@
 
   function menuMarkup(prefix) {
     const sections = menuGroups().map((group) => {
-      const panelId = `${prefix}-${group.id}`;
       return `<section class="menuGroup73" data-menu-section="${group.id}">
-        <button type="button" class="menuGroupToggle73" data-menu-toggle="${group.id}" aria-expanded="false" aria-controls="${panelId}">
-          <span>${esc(group.label)}</span><span class="menuChevron73" aria-hidden="true">${iconSvg("arrowRight")}</span>
-        </button>
-        <div class="menuGroupLinks73" id="${panelId}" hidden>
+        <h3 class="menuSectionTitle73">${esc(group.label)}</h3>
+        <div class="menuGroupLinks73">
           ${group.links.map(([label, route]) => `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(label)}</span>${iconSvg("arrowRight")}</button>`).join("")}
         </div>
       </section>`;
@@ -261,30 +329,7 @@
     return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>`;
   }
 
-  function setupMenuGroups(root) {
-    const toggles = [...root.querySelectorAll("[data-menu-toggle]")];
-    if (!toggles.length) return;
-    const setOpen = (id, remember = true) => {
-      toggles.forEach((toggle) => {
-        const open = toggle.dataset.menuToggle === id;
-        const panel = root.querySelector(`#${toggle.getAttribute("aria-controls")}`);
-        toggle.setAttribute("aria-expanded", String(open));
-        if (panel) panel.hidden = !open;
-      });
-      if (remember) {
-        try { id ? sessionStorage.setItem(menuStateKey, id) : sessionStorage.removeItem(menuStateKey); } catch {}
-      }
-    };
-    let saved = "";
-    try { saved = sessionStorage.getItem(menuStateKey) || ""; } catch {}
-    if (saved && toggles.some((toggle) => toggle.dataset.menuToggle === saved)) setOpen(saved, false);
-    toggles.forEach((toggle) => {
-      toggle.onclick = () => setOpen(toggle.getAttribute("aria-expanded") === "true" ? "" : toggle.dataset.menuToggle);
-      toggle.closest("[data-menu-section]")?.querySelectorAll("[data-go]").forEach((link) => link.addEventListener("click", () => {
-        try { sessionStorage.setItem(menuStateKey, toggle.dataset.menuToggle); } catch {}
-      }));
-    });
-  }
+  function setupMenuGroups() {}
 
   function journeyItems() {
     const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
