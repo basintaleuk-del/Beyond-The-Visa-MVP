@@ -249,36 +249,143 @@
     if (!dialog.open) dialog.showModal();
   }
 
-  function openCoinsCentre() {
-    const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
-    const unresolved = state.notes?.filter((note) => !note.read_at).length || 0;
-    let dialog = document.getElementById("coinsCentreDialog73");
-    if (!dialog) {
-      dialog = document.createElement("dialog");
-      dialog.id = "coinsCentreDialog73";
-      dialog.className = "coinsCentreDialog73";
-      document.body.append(dialog);
+  async function loadCoinsData() {
+    const supa = window.btvSupabase;
+    if (!supa || !state.u) return { opportunities: [], claimed: new Set(), packages: [], referralCode: null };
+    const uid = state.u.id;
+    try {
+      const [opRes, claimRes, pkgRes] = await Promise.all([
+        supa.from("btv_coin_opportunities").select("code,title,description,coin_reward,sort_order").eq("is_active", true).order("sort_order"),
+        supa.from("btv_coin_rewards").select("opportunity_code").eq("user_id", uid),
+        supa.from("btv_coin_packages").select("code,title,coin_amount,price_minor,currency,bonus_coins,sort_order").eq("is_active", true).order("sort_order").limit(9),
+      ]);
+      let referralCode = null;
+      try { const { data } = await supa.rpc("btv_get_or_create_referral_code"); referralCode = data; } catch {}
+      return { opportunities: opRes.data || [], claimed: new Set((claimRes.data || []).map(r => r.opportunity_code)), packages: pkgRes.data || [], referralCode };
+    } catch (e) { console.error("[BTV] loadCoinsData:", e); return { opportunities: [], claimed: new Set(), packages: [], referralCode: null }; }
+  }
+
+  async function claimCoinOpportunity(code, btn, onSuccess) {
+    const supa = window.btvSupabase;
+    if (!supa) return;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = "Claiming…";
+    try {
+      const { data, error } = await supa.rpc("btv_claim_coin_opportunity", { p_code: code });
+      if (error) throw new Error(error.message);
+      onSuccess(data);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      const msg = String(e.message || "");
+      alert(msg.includes("Complete this activity") ? "Finish this activity first, then come back to claim your coins." : msg.includes("unavailable") ? "This reward is not available right now." : "Could not claim reward. Please try again.");
     }
+  }
+
+  async function initiateCoinPurchase(pkg) {
+    const supa = window.btvSupabase;
+    if (!supa || !state.u) { alert("Please sign in to purchase coins."); return null; }
+    try {
+      const { data, error } = await supa.rpc("btv_initiate_coin_purchase", { p_package_code: pkg.code });
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.message || "Purchase could not be initiated.");
+      return data;
+    } catch (e) { console.error("[BTV] initiateCoinPurchase:", e); alert(e.message || "Purchase could not be started. Please try again."); return null; }
+  }
+
+  function showBuyDialog(pkg, purchaseData) {
+    let d = document.getElementById("coinsBuyDialog73");
+    if (!d) { d = document.createElement("dialog"); d.id = "coinsBuyDialog73"; d.className = "coinsBuyDialog73"; document.body.append(d); }
+    const total = pkg.coin_amount + (pkg.bonus_coins || 0);
+    const sym = ({ GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" })[pkg.currency] || pkg.currency;
+    const price = (pkg.price_minor / 100).toFixed(2);
+    const ref = purchaseData?.reference || "N/A";
+    const email = "support@beyondthevisa.org";
+    const sub = encodeURIComponent("Beyond Coins Purchase – " + ref);
+    const body = encodeURIComponent("Hello,\n\nI would like to purchase the " + pkg.title + " pack (" + total + " Beyond Coins) at " + sym + price + ".\n\nMy purchase reference: " + ref + "\n\nPlease confirm payment details.\n\nThank you.");
+    d.innerHTML = `<article class="coinsBuyPanel73"><header><h3>Buy ${total} BC</h3><button type="button" data-buy-close aria-label="Close">&times;</button></header><div class="coinsBuyHero73"><b>${total} BC</b>${pkg.bonus_coins > 0 ? `<span class="coinsBuyBonusBadge73">+${pkg.bonus_coins} bonus</span>` : ""}<big>${sym}${price}</big></div><p class="coinsBuyInfo73">Email support with your purchase reference below. Beyond Coins are credited to your wallet once payment is confirmed — normally within one business day.</p><div class="coinsBuyRef73"><small>Your purchase reference</small><b>${esc(ref)}</b></div><a href="mailto:${email}?subject=${sub}&body=${body}" class="coinsBuyEmailBtn73">📧 Email support to pay</a><button type="button" data-buy-close class="coinsBuyDoneBtn73">Done</button></article>`;
+    d.querySelectorAll("[data-buy-close]").forEach(b => b.onclick = () => d.close());
+    if (!d.open) d.showModal();
+  }
+
+  function copyReferralLink(code, btn) {
+    const link = location.origin + "?ref=" + encodeURIComponent(code);
+    if (!navigator.clipboard) { prompt("Copy your referral link:", link); return; }
+    navigator.clipboard.writeText(link).then(() => {
+      const prev = btn.textContent;
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("refCopied73");
+      setTimeout(() => { btn.textContent = prev; btn.classList.remove("refCopied73"); }, 2500);
+    }).catch(() => prompt("Copy your referral link:", link));
+  }
+
+  function renderEarnList(container, opportunities, claimed, referralCode, dialog) {
+    if (!container) return;
+    if (!opportunities.length) { container.innerHTML = `<p class="coinsEmpty73">No earn activities available right now.</p>`; return; }
+    container.innerHTML = opportunities.map(op => {
+      const isClaimed = claimed.has(op.code);
+      const isRef = op.code === "invite-friend";
+      return `<article class="coinsEarnItem73${isClaimed ? " earned73" : ""}">
+        <div class="coinsEarnBody73"><b>${esc(op.title)}</b><small>${esc(op.description)}</small>${isRef && referralCode ? `<div class="coinsRefRow73"><code class="coinsRefCode73">${esc(referralCode)}</code><button type="button" class="coinsRefCopyBtn73" data-ref="${esc(referralCode)}">Copy link</button></div>` : ""}</div>
+        <div class="coinsEarnRight73"><span class="coinsRewardTag73">+${op.coin_reward} BC</span>${isClaimed ? `<span class="coinsEarned73">Earned ✓</span>` : `<button type="button" class="coinsClaimBtn73" data-earn="${esc(op.code)}">${isRef ? "Share" : "Claim"}</button>`}</div>
+      </article>`;
+    }).join("");
+    container.querySelectorAll("[data-ref]").forEach(btn => btn.addEventListener("click", () => copyReferralLink(btn.dataset.ref, btn)));
+    container.querySelectorAll("[data-earn]").forEach(btn => btn.addEventListener("click", () => {
+      const code = btn.dataset.earn;
+      if (code === "invite-friend") { const rb = container.querySelector("[data-ref]"); if (rb) copyReferralLink(rb.dataset.ref, rb); return; }
+      claimCoinOpportunity(code, btn, (newBal) => {
+        btn.parentElement.innerHTML = `<span class="coinsEarned73">Earned ✓</span>`;
+        btn.closest(".coinsEarnItem73")?.classList.add("earned73");
+        state.wallet = { ...(state.wallet || {}), balance: newBal };
+        const balEl = dialog?.querySelector(".coinsBalanceAmt73");
+        if (balEl) balEl.textContent = Number(newBal).toLocaleString("en-GB") + " BC";
+        window.dispatchEvent(new CustomEvent("btv:wallet-changed"));
+      });
+    }));
+  }
+
+  function renderBuyGrid(container, packages) {
+    if (!container) return;
+    if (!packages.length) { container.innerHTML = `<p class="coinsEmpty73">Coin packages coming soon.</p>`; return; }
+    const sym = { GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" };
+    container.innerHTML = packages.map(pkg => {
+      const total = pkg.coin_amount + (pkg.bonus_coins || 0);
+      const s = sym[pkg.currency] || pkg.currency;
+      const price = (pkg.price_minor / 100).toFixed(2);
+      return `<article class="coinsPkgCard73"><div class="coinsPkgTop73"><b>${total}</b><small>BC</small></div>${pkg.bonus_coins > 0 ? `<span class="coinsPkgBonus73">+${pkg.bonus_coins} bonus</span>` : `<span class="coinsPkgLabel73">${esc(pkg.title)}</span>`}<button type="button" class="coinsPkgBuyBtn73" data-pkg='${JSON.stringify({ code: pkg.code, title: pkg.title, coin_amount: pkg.coin_amount, bonus_coins: pkg.bonus_coins || 0, price_minor: pkg.price_minor, currency: pkg.currency })}'>Buy · ${s}${price}</button></article>`;
+    }).join("");
+    container.querySelectorAll("[data-pkg]").forEach(btn => btn.addEventListener("click", async () => {
+      const pkg = JSON.parse(btn.dataset.pkg);
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = "Setting up…";
+      const result = await initiateCoinPurchase(pkg);
+      btn.disabled = false;
+      btn.textContent = orig;
+      if (result) showBuyDialog(pkg, result);
+    }));
+  }
+
+  async function openCoinsCentre() {
+    const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
+    let dialog = document.getElementById("coinsCentreDialog73");
+    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "coinsCentreDialog73"; dialog.className = "coinsCentreDialog73"; document.body.append(dialog); }
     dialog.innerHTML = `<article class="coinsCentrePanel73">
-      <header><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>A shared currency across supported learning and preparation features.</p><button type="button" data-coin-close aria-label="Close">&times;</button></header>
-      <section class="coinsBalance73"><b>${balance} BC</b><span>Current wallet balance</span></section>
-      <section class="coinsDetails73">
-        <button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button>
-        <button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button>
-        <button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button>
-        <button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button>
-        <button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button>
-      </section>
-      <footer>
-        <button type="button" data-go="notifications">Unread updates: ${unresolved}</button>
-        <button type="button" data-go="study-plan">Open study plan</button>
-      </footer>
+      <header><div><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>Earn, buy or spend your coins across the platform.</p></div><button type="button" data-coin-close class="coinsCentreClose73" aria-label="Close">&times;</button></header>
+      <section class="coinsBalance73"><b class="coinsBalanceAmt73">${balance} BC</b><span>Current wallet balance</span></section>
+      <section class="coinsEarnSection73"><header class="coinsSub73"><span>EARN COINS</span><small>One-time activities · auto-credited</small></header><div class="coinsEarnList73" id="coinsEarnList73"><div class="coinsSpinner73">Loading activities…</div></div></section>
+      <section class="coinsBuySection73"><header class="coinsSub73"><span>BUY COINS</span><small>Instant top-up packages</small></header><div class="coinsBuyGrid73" id="coinsBuyGrid73"><div class="coinsSpinner73">Loading packages…</div></div></section>
+      <section class="coinsInfoSection73"><header class="coinsSub73"><span>ABOUT COINS</span></header><div class="coinsDetails73"><button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button></div></section>
     </article>`;
     const close = () => dialog.close();
     dialog.querySelector("[data-coin-close]")?.addEventListener("click", close);
-    dialog.querySelectorAll("[data-coin-detail]").forEach((button) => button.addEventListener("click", () => openCoinDetail(button.dataset.coinDetail)));
-    dialog.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => { close(); go(button.dataset.go); }));
+    dialog.querySelectorAll("[data-coin-detail]").forEach(b => b.addEventListener("click", () => openCoinDetail(b.dataset.coinDetail)));
     if (!dialog.open) dialog.showModal();
+    const data = await loadCoinsData();
+    renderEarnList(dialog.querySelector("#coinsEarnList73"), data.opportunities, data.claimed, data.referralCode, dialog);
+    renderBuyGrid(dialog.querySelector("#coinsBuyGrid73"), data.packages);
   }
 
   function go(id) {
