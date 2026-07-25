@@ -29,7 +29,47 @@ const rows=[
 ['summary completion','Participants with ______ shifts tended to show weaker gains.','irregular',[]],
 ['multiple choice','Why did the authors recommend further research before policy adoption?','Long-term outcomes and cost impact were not fully assessed.',['The intervention produced no measurable improvement.','Long-term outcomes and cost impact were not fully assessed.','The sample size was too small to analyse.','Observers refused to complete checklists.']]
 ];return{id:`reading-passage-${String(s+1).padStart(2,'0')}`,title:`Academic Reading Passage: ${topic}`,passage,questions:rows.map((r,i)=>({id:`reading-${s*10+i+1}`,section:'reading',setId:`reading-passage-${String(s+1).padStart(2,'0')}`,number:i+1,type:r[0],prompt:`${r[1]} [Study: ${topic}; ${place}, ${year}]`,answer:r[2],options:r[3],explanation:`Refer to the specific paragraph evidence in the passage and avoid assumptions beyond the stated text.`}))}}
-function writing(i){const task=i<250?1:2,n=i%250,topic=pick(topics,n),place=pick(places,n),person=pick(people,n+3),base=24+(n%25),start=1995+(n%31),values=[base,base+8+(n%7),base+3+(n%11),base+17+(n%9)],years=[start,start+5,start+10,start+15];if(task===1)return{id:`writing-${i+1}`,section:'writing',task:1,type:'Academic Writing Task 1',title:`Academic Task 1 · ${n+1}`,prompt:`The chart below shows the percentage of participants at ${place} who completed a programme related to ${topic} between ${years[0]} and ${years[3]}. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.`,minimumWords:150,visual:{kind:'bar',title:`Programme completion at ${place}`,unit:'Percent',labels:years,values},rubric:['Task achievement','Coherence and cohesion','Lexical resource','Grammatical range and accuracy']};const styles=['Discuss both views and give your own opinion.','To what extent do you agree or disagree?','What are the causes of this problem, and what solutions can be taken?','Do the advantages outweigh the disadvantages?','Why is this the case, and is it a positive or negative development?'];return{id:`writing-${i+1}`,section:'writing',task:2,type:'Academic Writing Task 2',title:`Academic Task 2 · ${n+1}`,prompt:`In ${start}, a ${place} policy paper led by ${person} argued that decisions about ${topic} should be made mainly by experts, while critics said the public should have a greater role. ${pick(styles,n)}`,minimumWords:250,rubric:['Task response','Coherence and cohesion','Lexical resource','Grammatical range and accuracy']}}
+function writing(i){
+  const task=i<250?1:2,n=i%250,topic=pick(topics,n),place=pick(places,n),person=pick(people,n+3),base=24+(n%25),start=1998+(n%24),values=[base,base+6+(n%8),base+2+(n%10),base+12+(n%11)],years=[start,start+5,start+10,start+15];
+  const task1Frames=[
+    `The chart below shows the proportion of adults at ${place} who participated in a programme connected to ${topic} between ${years[0]} and ${years[3]}.`,
+    `The chart illustrates changes in participation rates for a ${topic} initiative at ${place} from ${years[0]} to ${years[3]}.`,
+    `The chart presents the percentage of residents involved in a ${topic} programme organised by ${place} over the period ${years[0]} to ${years[3]}.`
+  ];
+  if(task===1)return{
+    id:`writing-${i+1}`,
+    section:'writing',
+    task:1,
+    type:'Academic Writing Task 1',
+    title:`Academic Task 1 · ${n+1}`,
+    prompt:`${pick(task1Frames,n)} Summarise the information by selecting and reporting the main features, and make comparisons where relevant.`,
+    minimumWords:150,
+    visual:{kind:'bar',title:`Participation at ${place}`,unit:'Percent',labels:years,values},
+    rubric:['Task achievement','Coherence and cohesion','Lexical resource','Grammatical range and accuracy']
+  };
+  const task2Frames=[
+    `Some people believe that decisions about ${topic} should be made mainly by experts, while others argue that the general public should have greater influence.`,
+    `In many countries, governments are investing heavily in ${topic}. Some people think this is essential, whereas others consider it a poor use of public funds.`,
+    `People hold different views about whether schools and universities should place more emphasis on ${topic} as part of their core curriculum.`
+  ];
+  const task2Questions=[
+    'Discuss both views and give your own opinion.',
+    'To what extent do you agree or disagree?',
+    'What are the main reasons for this, and what solutions can you suggest?',
+    'Do the advantages of this development outweigh the disadvantages?',
+    'Is this a positive or negative trend?'
+  ];
+  return{
+    id:`writing-${i+1}`,
+    section:'writing',
+    task:2,
+    type:'Academic Writing Task 2',
+    title:`Academic Task 2 · ${n+1}`,
+    prompt:`${pick(task2Frames,n)} ${pick(task2Questions,n)} In your response, support your ideas with relevant reasons and examples.`,
+    minimumWords:250,
+    rubric:['Task response','Coherence and cohesion','Lexical resource','Grammatical range and accuracy']
+  }
+}
 function speaking(i){const part=i%3+1,n=i+1,topic=pick(topics,i),person=pick(people,i),place=pick(places,i+Math.floor(i/8)),year=2000+(i%26);if(part===1)return{id:`speaking-${n}`,section:'speaking',part:1,type:'Speaking Part 1',title:`Speaking Part 1 · ${n}`,prompt:`Let us talk about learning and daily routines. Thinking about ${topic} and an event you encountered around ${year}, what do you usually do to learn about this subject? Do you prefer learning alone or with other people? Why?`,preparationSeconds:0,answerSeconds:45,rubric:['Fluency and coherence','Lexical resource','Grammatical range and accuracy','Pronunciation']};if(part===2)return{id:`speaking-${n}`,section:'speaking',part:2,type:'Speaking Part 2',title:`Speaking Part 2 · ${n}`,prompt:`Describe a useful piece of information about ${topic} that you learned from ${person} or another knowledgeable person connected with ${place}. You should say: what the information was; when and where you learned it; how you used it; and explain why it was useful to you.`,preparationSeconds:60,answerSeconds:120,rubric:['Fluency and coherence','Lexical resource','Grammatical range and accuracy','Pronunciation']};return{id:`speaking-${n}`,section:'speaking',part:3,type:'Speaking Part 3',title:`Speaking Part 3 · ${n}`,prompt:`Consider how ${topic} has been communicated by organisations such as ${place} since ${year}. How has access to expert knowledge changed? Should professional information always be simplified for the public? What risks arise when complex ideas are communicated too briefly?`,preparationSeconds:0,answerSeconds:90,rubric:['Fluency and coherence','Lexical resource','Grammatical range and accuracy','Pronunciation']}}
 const listeningSets=Array.from({length:60},(_,i)=>listeningSet(i)),readingSets=Array.from({length:60},(_,i)=>readingSet(i)),banks={listening:listeningSets.flatMap(x=>x.questions),reading:readingSets.flatMap(x=>x.questions),writing:Array.from({length:650},(_,i)=>writing(i)),speaking:Array.from({length:650},(_,i)=>speaking(i))};
 window.BTVIELTSAcademic={sections:Object.keys(banks),bank:s=>banks[s]||[],count:s=>(banks[s]||[]).length,total:()=>Object.values(banks).reduce((n,x)=>n+x.length,0),listeningSets,readingSets,esc};})();
