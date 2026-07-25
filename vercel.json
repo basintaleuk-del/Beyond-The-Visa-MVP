@@ -8,6 +8,9 @@
     { "source": "/blog/articles", "destination": "/blog/", "permanent": true },
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
+  "rewrites": [
+    { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

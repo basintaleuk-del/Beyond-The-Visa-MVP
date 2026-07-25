@@ -1,0 +1,755 @@
+{
+  "id": "clinical-sbar",
+  "slug": "sbar",
+  "title": "SBAR Communication",
+  "subtitle": "Structured escalation and clinical handover",
+  "category": "Leadership and communication",
+  "icon": "SBAR",
+  "difficulty": "beginner",
+  "estimatedMinutes": 45,
+  "summary": "An evidence-informed, safety-first nursing module about Situation, Background, Assessment and Recommendation communication, with structured assessment, escalation, practical reasoning and case-based revision. This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation.",
+  "learningObjectives": [
+    "Explain core principles of Situation, Background, Assessment and Recommendation communication.",
+    "Recognise relevant risks, signs and emergency red flags.",
+    "Apply a structured assessment and prioritise nursing actions.",
+    "Escalate and communicate concerns using accountable professional practice.",
+    "Evaluate response and prevent common errors."
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "This module develops safe nursing practice in Situation, Background, Assessment and Recommendation communication. It links structured assessment with timely action, communication, documentation and reassessment. The learner should use the material to understand why actions matter, not as a stand-alone clinical protocol."
+        },
+        {
+          "type": "warning",
+          "title": "Learner notice",
+          "text": "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Patient-centred practice requires consent where possible, privacy, reasonable adjustments, clear explanations and attention to distress. Immediate safety takes priority in an emergency, but dignity and communication should be restored as soon as practicable."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Safety principles"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Recognise personal limits and call for help early.",
+            "Treat immediate threats while gathering information.",
+            "Use current approved equipment, policies and escalation pathways.",
+            "Document contemporaneously and evaluate the response to every intervention."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "objectives",
+      "title": "Learning objectives",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "By the end of this module, the learner should be able to:"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Explain the purpose and safety principles of Situation, Background, Assessment and Recommendation communication.",
+            "Identify relevant risks, early indicators and emergency red flags.",
+            "Perform a structured nursing assessment and interpret findings in context.",
+            "Prioritise nursing actions, escalation and reassessment.",
+            "Communicate findings clearly and document accountable decisions.",
+            "Recognise common errors and describe practical prevention strategies."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anatomy",
+      "title": "Relevant anatomy and physiology",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Safe nursing decisions begin with basic physiology: a patent airway, effective ventilation and gas exchange, adequate circulation and perfusion, intact neurological function, and metabolic homeostasis are interdependent. A failure in one system can rapidly disrupt the others."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Airway patency permits movement of gas to and from the lungs.",
+            "Ventilation and pulmonary perfusion enable oxygen uptake and carbon dioxide removal.",
+            "Cardiac output and vascular tone distribute oxygen and substrates to organs.",
+            "The brain is sensitive to impaired oxygen, glucose and perfusion.",
+            "Kidneys, liver and endocrine responses influence fluid, electrolytes, medicines and recovery."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "For this topic, the key physiological relationship is: Structured communication reduces omissions and helps the receiver recognise urgency, relevant context, the sender's assessment and the action requested. Closed-loop confirmation reduces ambiguity in time-critical situations."
+        }
+      ]
+    },
+    {
+      "id": "terminology",
+      "title": "Terminology",
+      "blocks": [
+        {
+          "type": "definitions",
+          "items": [
+            {
+              "term": "Baseline",
+              "definition": "The patient's usual or previously documented state used for comparison."
+            },
+            {
+              "term": "Trend",
+              "definition": "The direction and rate of change across repeated observations or assessments."
+            },
+            {
+              "term": "Escalation",
+              "definition": "Seeking a response at a level and speed proportionate to clinical risk."
+            },
+            {
+              "term": "Reassessment",
+              "definition": "Repeating a focused or full assessment after time, treatment or change."
+            },
+            {
+              "term": "Human factors",
+              "definition": "Environmental, organisational and cognitive influences on performance and safety."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Terminology must be used precisely. Avoid labels such as 'stable' without the observations, trend, support being provided and time of assessment."
+        }
+      ]
+    },
+    {
+      "id": "pathophysiology",
+      "title": "Pathophysiology",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Structured communication reduces omissions and helps the receiver recognise urgency, relevant context, the sender's assessment and the action requested. Closed-loop confirmation reduces ambiguity in time-critical situations."
+        },
+        {
+          "type": "paragraph",
+          "text": "Compensation can temporarily preserve apparently acceptable values. A rising respiratory rate, altered behaviour, cool skin or reduced urine output may therefore precede a dramatic fall in blood pressure or consciousness. Conversely, chronic abnormalities may be normal for one person but still require comparison with an agreed target and baseline."
+        },
+        {
+          "type": "tip",
+          "title": "Think in mechanisms",
+          "text": "Ask which process could explain the complete pattern, what immediate harm could occur, and what finding would change urgency. Do not force the presentation into one diagnosis."
+        }
+      ]
+    },
+    {
+      "id": "causes-risks",
+      "title": "Causes and risk factors",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Risk factors increase vigilance but do not confirm a diagnosis. Absence of a familiar risk does not rule out acute illness."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "hierarchy or fear of speaking up",
+            "interruptions",
+            "incomplete records",
+            "unclear responsibility",
+            "language barriers",
+            "high workload"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider iatrogenic, infectious, respiratory, cardiovascular, neurological, metabolic and environmental causes. Review recent procedures and medicines, while maintaining a broad differential and seeking senior assessment where needed."
+        }
+      ]
+    },
+    {
+      "id": "signs-symptoms",
+      "title": "Signs, symptoms and red flags",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Combine what the patient reports with observed behaviour, complete vital signs and trajectory. A patient saying that something is seriously wrong is meaningful clinical information."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "a changing clinical state",
+            "unclear plans",
+            "delayed review",
+            "disagreement about urgency",
+            "transfer between teams or settings"
+          ]
+        },
+        {
+          "type": "red-flag",
+          "title": "Immediate concern",
+          "text": "Airway compromise, severe breathing difficulty, collapse, seizure, rapidly reduced consciousness, profound circulatory compromise or rapid worsening requires emergency escalation and ABCDE assessment. Do not wait for a score, test result or full documentation."
+        }
+      ]
+    },
+    {
+      "id": "assessment",
+      "title": "Structured assessment",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "First check immediate safety and use an emergency approach if the person appears critically unwell. Introduce yourself, confirm identity and gain consent when circumstances allow."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Confirm patient identity and immediate safety before preparing the call.",
+            "Gather current observations, trends, relevant history, medicines, allergies and treatment limitations without delaying an emergency call.",
+            "State the immediate situation and urgency first.",
+            "Give concise background that changes decisions.",
+            "Describe your assessment, including uncertainty.",
+            "Make a specific recommendation or request and confirm who will do what by when."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Interpret each value in context: measurement quality, baseline, treatment already in progress and trend all matter. Verify an unexpected result, but do not repeatedly remeasure to postpone escalation."
+        },
+        {
+          "type": "tip",
+          "title": "Reassess deliberately",
+          "text": "State when reassessment will occur, which parameters will be repeated, what improvement is expected and what trigger will cause further escalation."
+        }
+      ]
+    },
+    {
+      "id": "investigations",
+      "title": "Investigations and monitoring",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Investigations support a clinical question and must not delay treatment of immediate threats. Nurses should understand the purpose, preparation, specimen quality, timing and required response to results."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Repeat complete observations at a frequency based on risk and an explicit plan.",
+            "Use point-of-care testing only when trained, quality controls are current and results are interpreted safely.",
+            "Collect specimens using correct identity checks, containers, technique and labelling.",
+            "Track requested tests and escalate critical, unexpected or unreviewed results.",
+            "Monitor fluid balance, pain, cognition and treatment response where relevant."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Record the time and conditions of measurements, including oxygen delivery, position, device and relevant symptoms. Escalate discordance between a test and the clinical picture."
+        }
+      ]
+    },
+    {
+      "id": "nursing-management",
+      "title": "Nursing management",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Nursing management combines immediate safety, implementation of authorised care, coordination and repeated evaluation."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Use assertive, respectful language and graded escalation when the response does not match the risk.",
+            "Read back critical instructions and document the communication and agreed plan.",
+            "In an emergency, activate the emergency system first; SBAR supports the handover rather than delaying it.",
+            "Include the patient in communication where practicable and protect confidentiality."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Communication and records"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Use a structured handover with current findings, trends, concern and requested action.",
+            "Record who was contacted, when, the response, agreed review time and contingency.",
+            "Inform the patient and those important to them as appropriate, while respecting confidentiality.",
+            "Report safety incidents and near misses through local systems and contribute to learning."
+          ]
+        },
+        {
+          "type": "warning",
+          "title": "Failure to improve",
+          "text": "A completed intervention is not evidence of success. If the expected response does not occur, reassess, verify delivery and re-escalate."
+        }
+      ]
+    },
+    {
+      "id": "medical-management",
+      "title": "Medical and multidisciplinary management",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Receivers should listen, clarify, acknowledge urgency and create an explicit plan with contingencies."
+        },
+        {
+          "type": "paragraph",
+          "text": "Team leaders should support psychological safety and escalation across hierarchy."
+        },
+        {
+          "type": "paragraph",
+          "text": "The nurse contributes accurate observations, a medication and allergy history, functional baseline, patient priorities and response to treatment. Challenge or clarify any plan that is incomplete, unsafe or inconsistent with current findings."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Confirm the working diagnosis and important alternatives.",
+            "Clarify treatment, monitoring and review responsibilities.",
+            "Identify ceiling-of-care or treatment-escalation decisions without assuming they mean no active care.",
+            "Coordinate pharmacy, specialist, therapy and critical care input where indicated."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "medicines",
+      "title": "Medicines considerations",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Include allergies, high-risk medicines, recent administrations and suspected adverse effects when relevant."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read back verbal medication instructions under local policy and seek clarification of ambiguity."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Use two patient identifiers and check allergy status.",
+            "Confirm indication, prescription, formulation, route, timing and monitoring.",
+            "Question ambiguity, unexpected changes and contraindications before administration.",
+            "Observe for therapeutic and adverse effects and report suspected reactions through appropriate routes."
+          ]
+        },
+        {
+          "type": "warning",
+          "title": "No dose guidance",
+          "text": "This educational module intentionally does not supply medicine doses. Use current authorised prescriptions, national guidance, local policy and expert advice."
+        }
+      ]
+    },
+    {
+      "id": "practical-examples",
+      "title": "Practical examples",
+      "blocks": [
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "A safe pause before action"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Name the immediate risk.",
+            "Check the source data and patient identity.",
+            "Estimate what a plausible result or response should look like.",
+            "Act within competence and policy.",
+            "Reassess and communicate the outcome."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Example documentation"
+        },
+        {
+          "type": "paragraph",
+          "text": "Record objective findings and times rather than retrospective labels. A useful entry identifies the trigger, assessment, escalation, recipient, advice, intervention, patient response and next review trigger."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Managing uncertainty"
+        },
+        {
+          "type": "paragraph",
+          "text": "When findings do not fit neatly, state uncertainty explicitly: 'I am concerned because the patient has changed from baseline even though one value is within range.' Escalation is appropriate when concern persists."
+        }
+      ]
+    },
+    {
+      "id": "case-studies",
+      "title": "Case studies",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The two cases below are fictional learning scenarios. Work through priorities before reading the reasoning. In real practice use current policy and emergency systems."
+        },
+        {
+          "type": "tip",
+          "title": "Case method",
+          "text": "Identify the first life threat, information needed now, actions within competence, who must be contacted, and evidence that the plan is working."
+        }
+      ]
+    },
+    {
+      "id": "common-mistakes",
+      "title": "Common mistakes and prevention",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Avoid starting with a long history before stating urgency; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid reporting data without an assessment; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid not making a clear request; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid ending without confirming timing and contingency; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid using SBAR to delay emergency activation; use a deliberate check, explicit escalation or reassessment instead."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Human factors such as interruptions, fatigue, workload, confirmation bias and hierarchy can make these errors more likely. Use standardised tools, protected checks, clear team roles and a culture where concerns can be raised."
+        },
+        {
+          "type": "warning",
+          "title": "Normalisation of deviance",
+          "text": "Repeatedly seeing an unsafe workaround without immediate harm does not make it safe. Stop, protect the patient and report system problems."
+        }
+      ]
+    },
+    {
+      "id": "exam-osce-tips",
+      "title": "Exam and OSCE tips",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Begin with safety, identity, consent and hand hygiene as appropriate.",
+            "Verbalise the need to call for help when a red flag is present.",
+            "Use a clear sequence while treating threats as they are found.",
+            "Explain what each finding means rather than reciting a checklist.",
+            "State that you will reassess after intervention and document care.",
+            "Never invent a result, prescription, dose or local policy in an assessment."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Examiners commonly look for prioritisation, communication and safety-netting. A technically complete assessment that fails to escalate a life threat is not safe."
+        }
+      ]
+    },
+    {
+      "id": "knowledge-check",
+      "title": "Knowledge check",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Complete the checks after studying the module. Explanations focus on transferable reasoning. Review any incorrect response and return to the linked section."
+        },
+        {
+          "type": "tip",
+          "title": "Use retrieval practice",
+          "text": "Answer without looking back first, then explain why alternatives are less safe."
+        }
+      ]
+    },
+    {
+      "id": "key-takeaways",
+      "title": "Key takeaways",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Use a structured approach without allowing the tool to replace clinical judgement.",
+            "Recognise trajectory and patient concern as well as thresholds.",
+            "Escalate at a speed proportionate to risk and use emergency systems for immediate danger.",
+            "Act within competence and current policy; seek senior advice early.",
+            "Reassess response, communicate clearly and document accountable decisions.",
+            "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "References and further learning",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Use the official sources listed below and the current local policy. Guidance, pathways and medicine information change; verify currency and applicability before clinical use."
+        },
+        {
+          "type": "warning",
+          "title": "Publication check",
+          "text": "Clinical governance review is required before release. The status in this file is awaiting clinical review and does not imply endorsement."
+        }
+      ]
+    }
+  ],
+  "caseStudies": [
+    {
+      "id": "sbar-case-1",
+      "title": "Escalating hypotension",
+      "background": "A nurse reviews a patient six hours after surgery.",
+      "presentingComplaint": "Dizziness and falling blood pressure.",
+      "observations": [
+        "RR 24/min",
+        "HR 116/min",
+        "BP 86/50 mmHg",
+        "cool peripheries"
+      ],
+      "history": [
+        "estimated blood loss documented",
+        "urine output falling"
+      ],
+      "assessmentFindings": [
+        "airway patent",
+        "rapid pulse",
+        "abdominal dressing increasingly stained"
+      ],
+      "questions": [
+        "What is the immediate safety threat?",
+        "Which assessment and nursing actions take priority?",
+        "What information should be included in escalation?",
+        "How will response and deterioration be monitored?"
+      ],
+      "reasoning": [
+        "Use ABCDE first when acute illness is possible and treat threats as they are identified.",
+        "Compare findings with baseline and trend; do not allow one reassuring value to outweigh the overall picture.",
+        "Escalation should state urgency, concern, supporting findings and the action required.",
+        "Reassessment must have a defined time, expected response and contingency."
+      ],
+      "nursingPriorities": [
+        "Protect airway, breathing and circulation and summon appropriate help.",
+        "Complete focused observations without delaying emergency care.",
+        "Implement authorised interventions within competence and local policy.",
+        "Communicate using SBAR, document times and re-escalate if response is delayed or inadequate."
+      ],
+      "escalationDecision": "Activate urgent escalation and deliver an SBAR that requests immediate review, states suspected bleeding and confirms response time.",
+      "expectedOutcome": "Timely multidisciplinary assessment, treatment of the underlying cause, a documented monitoring plan and escalation to a higher level of care if the patient does not improve."
+    },
+    {
+      "id": "sbar-case-2",
+      "title": "Unanswered concern",
+      "background": "A care-home resident admitted with pneumonia is increasingly confused.",
+      "presentingComplaint": "Worsening confusion and oxygen need.",
+      "observations": [
+        "RR 28/min",
+        "SpO2 92% with oxygen",
+        "HR 110/min"
+      ],
+      "history": [
+        "normally orientated",
+        "first call has not produced review"
+      ],
+      "assessmentFindings": [
+        "new agitation",
+        "increased work of breathing"
+      ],
+      "questions": [
+        "What is the immediate safety threat?",
+        "Which assessment and nursing actions take priority?",
+        "What information should be included in escalation?",
+        "How will response and deterioration be monitored?"
+      ],
+      "reasoning": [
+        "Use ABCDE first when acute illness is possible and treat threats as they are identified.",
+        "Compare findings with baseline and trend; do not allow one reassuring value to outweigh the overall picture.",
+        "Escalation should state urgency, concern, supporting findings and the action required.",
+        "Reassessment must have a defined time, expected response and contingency."
+      ],
+      "nursingPriorities": [
+        "Protect airway, breathing and circulation and summon appropriate help.",
+        "Complete focused observations without delaying emergency care.",
+        "Implement authorised interventions within competence and local policy.",
+        "Communicate using SBAR, document times and re-escalate if response is delayed or inadequate."
+      ],
+      "escalationDecision": "Re-escalate through the local chain with explicit urgency, document previous contact, and use the emergency pathway if immediate threat develops.",
+      "expectedOutcome": "Timely multidisciplinary assessment, treatment of the underlying cause, a documented monitoring plan and escalation to a higher level of care if the patient does not improve."
+    }
+  ],
+  "knowledgeChecks": [
+    {
+      "id": "sbar-kc-1",
+      "sectionId": "signs-symptoms",
+      "type": "multiple-choice",
+      "prompt": "Which finding should trigger the fastest response?",
+      "options": [
+        "A rapidly developing airway or breathing problem",
+        "A stable long-term symptom at baseline",
+        "A routine documentation query",
+        "A non-urgent discharge question"
+      ],
+      "answer": "A rapidly developing airway or breathing problem",
+      "explanation": "Immediate airway or breathing compromise requires emergency escalation and ABCDE assessment.",
+      "incorrectExplanations": {
+        "A stable long-term symptom at baseline": "Baseline symptoms still need appropriate care but are less urgent than an acute life threat.",
+        "A routine documentation query": "Documentation matters but must not delay emergency care.",
+        "A non-urgent discharge question": "This can wait while immediate physiological danger is addressed."
+      }
+    },
+    {
+      "id": "sbar-kc-2",
+      "sectionId": "assessment",
+      "type": "true-false",
+      "prompt": "A single value within the reference range always rules out deterioration.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "False",
+      "explanation": "Trend, baseline, treatment, measurement quality and the overall clinical picture all matter.",
+      "incorrectExplanations": {
+        "True": "Compensation and early illness can coexist with apparently acceptable isolated observations."
+      }
+    },
+    {
+      "id": "sbar-kc-3",
+      "sectionId": "nursing-management",
+      "type": "prioritisation",
+      "prompt": "Put the safest sequence first for an acutely concerning change.",
+      "options": [
+        "Assess immediate threats, call appropriate help, act within competence, reassess",
+        "Complete all paperwork, wait, then reassess",
+        "Seek a diagnosis online before observing the patient",
+        "Repeat one observation until it becomes normal"
+      ],
+      "answer": "Assess immediate threats, call appropriate help, act within competence, reassess",
+      "explanation": "This sequence protects the patient while ensuring response is evaluated.",
+      "incorrectExplanations": {
+        "Complete all paperwork, wait, then reassess": "Administrative completion must not delay urgent care.",
+        "Seek a diagnosis online before observing the patient": "Direct structured assessment and escalation come first.",
+        "Repeat one observation until it becomes normal": "Repeated measurement must not become a reason to delay escalation."
+      }
+    },
+    {
+      "id": "sbar-kc-4",
+      "sectionId": "causes-risks",
+      "type": "scenario",
+      "prompt": "A patient has a changing clinical state, but one other observation is normal. What is the safest interpretation?",
+      "options": [
+        "Assess the complete pattern and escalate according to urgency",
+        "Ignore the finding because one value is normal",
+        "Wait for the next routine round",
+        "Assume the equipment is faulty without checking the patient"
+      ],
+      "answer": "Assess the complete pattern and escalate according to urgency",
+      "explanation": "One normal parameter does not cancel a concerning sign.",
+      "incorrectExplanations": {
+        "Ignore the finding because one value is normal": "This creates false reassurance.",
+        "Wait for the next routine round": "A concerning change needs timely assessment.",
+        "Assume the equipment is faulty without checking the patient": "Verify equipment while assessing the patient; do not dismiss risk."
+      }
+    },
+    {
+      "id": "sbar-kc-5",
+      "sectionId": "common-mistakes",
+      "type": "multiple-choice",
+      "prompt": "Which strategy best reduces the risk of starting with a long history before stating urgency?",
+      "options": [
+        "Use the structured process, pause at discrepancies and escalate concern",
+        "Rely on memory and habit",
+        "Skip independent checks to save time",
+        "Document only if harm occurs"
+      ],
+      "answer": "Use the structured process, pause at discrepancies and escalate concern",
+      "explanation": "Standardisation, deliberate checking and speaking up reduce preventable error.",
+      "incorrectExplanations": {
+        "Rely on memory and habit": "Memory is vulnerable to interruption and bias.",
+        "Skip independent checks to save time": "Required checks are safety controls.",
+        "Document only if harm occurs": "Near misses, decisions and care require appropriate records."
+      }
+    },
+    {
+      "id": "sbar-kc-6",
+      "sectionId": "medicines",
+      "type": "true-false",
+      "prompt": "It is safe to infer a medicine dose from an educational example when the ward is busy.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "False",
+      "explanation": "Use a valid prescription, current approved guidance, local policy and expert clarification. Educational examples are not prescriptions.",
+      "incorrectExplanations": {
+        "True": "Inferring doses risks serious medication harm."
+      }
+    },
+    {
+      "id": "sbar-kc-7",
+      "sectionId": "case-studies",
+      "type": "scenario",
+      "prompt": "After an intervention, the patient has not improved as expected. What should happen next?",
+      "options": [
+        "Reassess, verify delivery and re-escalate promptly",
+        "Assume treatment needs more time without review",
+        "Remove abnormal observations from the chart",
+        "Wait until shift handover"
+      ],
+      "answer": "Reassess, verify delivery and re-escalate promptly",
+      "explanation": "Failure to respond may indicate worsening illness, wrong cause or ineffective delivery.",
+      "incorrectExplanations": {
+        "Assume treatment needs more time without review": "Delay can permit preventable deterioration.",
+        "Remove abnormal observations from the chart": "Records must remain accurate and transparent.",
+        "Wait until shift handover": "Urgent concerns require immediate action."
+      }
+    }
+  ],
+  "keyTakeaways": [
+    "Structured tools support but never replace clinical judgement.",
+    "Treat immediate threats and call for help early.",
+    "Use trends, baseline and the complete clinical picture.",
+    "Work within competence and current policy.",
+    "Reassess every intervention and re-escalate failure to improve.",
+    "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+  ],
+  "references": [
+    {
+      "title": "The Code",
+      "publisher": "Nursing and Midwifery Council",
+      "url": "https://www.nmc.org.uk/standards/code/",
+      "reviewNote": "Apply current communication, record keeping and escalation standards."
+    },
+    {
+      "title": "The Code: Professional standards of practice and behaviour for nurses, midwives and nursing associates",
+      "publisher": "Nursing and Midwifery Council",
+      "url": "https://www.nmc.org.uk/standards/code/",
+      "reviewNote": "Use the current edition and local governance requirements."
+    },
+    {
+      "title": "NHS medicines information",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/medicines/",
+      "reviewNote": "Confirm current local and national guidance before publication."
+    }
+  ],
+  "clinicalReviewStatus": "awaiting_clinical_review",
+  "reviewedBy": null,
+  "reviewedAt": null,
+  "version": "1.0.0",
+  "tags": [
+    "leadership and communication",
+    "sbar",
+    "nursing education",
+    "patient safety",
+    "clinical escalation"
+  ],
+  "searchKeywords": [
+    "SBAR Communication",
+    "Situation, Background, Assessment and Recommendation communication",
+    "assessment",
+    "nursing management",
+    "red flags",
+    "OSCE",
+    "clinical safety"
+  ],
+  "featured": false,
+  "published": true
+}

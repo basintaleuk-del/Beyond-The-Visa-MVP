@@ -1,0 +1,758 @@
+{
+  "id": "clinical-hypoglycaemia",
+  "slug": "hypoglycaemia",
+  "title": "Hypoglycaemia",
+  "subtitle": "Recognition, immediate response and prevention",
+  "category": "Medicines management",
+  "icon": "HYPO",
+  "difficulty": "intermediate",
+  "estimatedMinutes": 55,
+  "summary": "An evidence-informed, safety-first nursing module about safe recognition and management of low blood glucose, with structured assessment, escalation, practical reasoning and case-based revision. This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation.",
+  "learningObjectives": [
+    "Explain core principles of safe recognition and management of low blood glucose.",
+    "Recognise relevant risks, signs and emergency red flags.",
+    "Apply a structured assessment and prioritise nursing actions.",
+    "Escalate and communicate concerns using accountable professional practice.",
+    "Evaluate response and prevent common errors."
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "This module develops safe nursing practice in safe recognition and management of low blood glucose. It links structured assessment with timely action, communication, documentation and reassessment. The learner should use the material to understand why actions matter, not as a stand-alone clinical protocol."
+        },
+        {
+          "type": "warning",
+          "title": "Learner notice",
+          "text": "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Patient-centred practice requires consent where possible, privacy, reasonable adjustments, clear explanations and attention to distress. Immediate safety takes priority in an emergency, but dignity and communication should be restored as soon as practicable."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Safety principles"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Recognise personal limits and call for help early.",
+            "Treat immediate threats while gathering information.",
+            "Use current approved equipment, policies and escalation pathways.",
+            "Document contemporaneously and evaluate the response to every intervention."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "objectives",
+      "title": "Learning objectives",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "By the end of this module, the learner should be able to:"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Explain the purpose and safety principles of safe recognition and management of low blood glucose.",
+            "Identify relevant risks, early indicators and emergency red flags.",
+            "Perform a structured nursing assessment and interpret findings in context.",
+            "Prioritise nursing actions, escalation and reassessment.",
+            "Communicate findings clearly and document accountable decisions.",
+            "Recognise common errors and describe practical prevention strategies."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anatomy",
+      "title": "Relevant anatomy and physiology",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Safe nursing decisions begin with basic physiology: a patent airway, effective ventilation and gas exchange, adequate circulation and perfusion, intact neurological function, and metabolic homeostasis are interdependent. A failure in one system can rapidly disrupt the others."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Airway patency permits movement of gas to and from the lungs.",
+            "Ventilation and pulmonary perfusion enable oxygen uptake and carbon dioxide removal.",
+            "Cardiac output and vascular tone distribute oxygen and substrates to organs.",
+            "The brain is sensitive to impaired oxygen, glucose and perfusion.",
+            "Kidneys, liver and endocrine responses influence fluid, electrolytes, medicines and recovery."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "For this topic, the key physiological relationship is: Glucose is a principal fuel for the brain. Falling blood glucose activates autonomic warning symptoms and can progress to neuroglycopenia, seizure, coma and injury. Diabetes medicines, reduced carbohydrate intake, illness and renal impairment may upset the balance."
+        }
+      ]
+    },
+    {
+      "id": "terminology",
+      "title": "Terminology",
+      "blocks": [
+        {
+          "type": "definitions",
+          "items": [
+            {
+              "term": "Baseline",
+              "definition": "The patient's usual or previously documented state used for comparison."
+            },
+            {
+              "term": "Trend",
+              "definition": "The direction and rate of change across repeated observations or assessments."
+            },
+            {
+              "term": "Escalation",
+              "definition": "Seeking a response at a level and speed proportionate to clinical risk."
+            },
+            {
+              "term": "Reassessment",
+              "definition": "Repeating a focused or full assessment after time, treatment or change."
+            },
+            {
+              "term": "Human factors",
+              "definition": "Environmental, organisational and cognitive influences on performance and safety."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Terminology must be used precisely. Avoid labels such as 'stable' without the observations, trend, support being provided and time of assessment."
+        }
+      ]
+    },
+    {
+      "id": "pathophysiology",
+      "title": "Pathophysiology",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Glucose is a principal fuel for the brain. Falling blood glucose activates autonomic warning symptoms and can progress to neuroglycopenia, seizure, coma and injury. Diabetes medicines, reduced carbohydrate intake, illness and renal impairment may upset the balance."
+        },
+        {
+          "type": "paragraph",
+          "text": "Compensation can temporarily preserve apparently acceptable values. A rising respiratory rate, altered behaviour, cool skin or reduced urine output may therefore precede a dramatic fall in blood pressure or consciousness. Conversely, chronic abnormalities may be normal for one person but still require comparison with an agreed target and baseline."
+        },
+        {
+          "type": "tip",
+          "title": "Think in mechanisms",
+          "text": "Ask which process could explain the complete pattern, what immediate harm could occur, and what finding would change urgency. Do not force the presentation into one diagnosis."
+        }
+      ]
+    },
+    {
+      "id": "causes-risks",
+      "title": "Causes and risk factors",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Risk factors increase vigilance but do not confirm a diagnosis. Absence of a familiar risk does not rule out acute illness."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "insulin or insulin secretagogues",
+            "missed or delayed meals",
+            "vomiting or poor intake",
+            "increased activity",
+            "alcohol",
+            "renal or hepatic impairment",
+            "previous impaired awareness"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider iatrogenic, infectious, respiratory, cardiovascular, neurological, metabolic and environmental causes. Review recent procedures and medicines, while maintaining a broad differential and seeking senior assessment where needed."
+        }
+      ]
+    },
+    {
+      "id": "signs-symptoms",
+      "title": "Signs, symptoms and red flags",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Combine what the patient reports with observed behaviour, complete vital signs and trajectory. A patient saying that something is seriously wrong is meaningful clinical information."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "sweating and tremor",
+            "hunger",
+            "palpitations",
+            "behaviour change or confusion",
+            "slurred speech",
+            "seizure or reduced consciousness"
+          ]
+        },
+        {
+          "type": "red-flag",
+          "title": "Immediate concern",
+          "text": "Airway compromise, severe breathing difficulty, collapse, seizure, rapidly reduced consciousness, profound circulatory compromise or rapid worsening requires emergency escalation and ABCDE assessment. Do not wait for a score, test result or full documentation."
+        }
+      ]
+    },
+    {
+      "id": "assessment",
+      "title": "Structured assessment",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "First check immediate safety and use an emergency approach if the person appears critically unwell. Introduce yourself, confirm identity and gain consent when circumstances allow."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Check capillary blood glucose promptly when symptoms or risk are present, using appropriate infection control and equipment.",
+            "Use ABCDE for severe symptoms and call emergency help for airway compromise, seizure or reduced consciousness.",
+            "Assess ability to swallow safely before offering anything orally.",
+            "Review meal timing, diabetes medicines, activity, illness and recurrence.",
+            "Recheck glucose and clinical response at the interval specified by current local policy."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Interpret each value in context: measurement quality, baseline, treatment already in progress and trend all matter. Verify an unexpected result, but do not repeatedly remeasure to postpone escalation."
+        },
+        {
+          "type": "tip",
+          "title": "Reassess deliberately",
+          "text": "State when reassessment will occur, which parameters will be repeated, what improvement is expected and what trigger will cause further escalation."
+        }
+      ]
+    },
+    {
+      "id": "investigations",
+      "title": "Investigations and monitoring",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Investigations support a clinical question and must not delay treatment of immediate threats. Nurses should understand the purpose, preparation, specimen quality, timing and required response to results."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Repeat complete observations at a frequency based on risk and an explicit plan.",
+            "Use point-of-care testing only when trained, quality controls are current and results are interpreted safely.",
+            "Collect specimens using correct identity checks, containers, technique and labelling.",
+            "Track requested tests and escalate critical, unexpected or unreviewed results.",
+            "Monitor fluid balance, pain, cognition and treatment response where relevant."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Record the time and conditions of measurements, including oxygen delivery, position, device and relevant symptoms. Escalate discordance between a test and the clinical picture."
+        }
+      ]
+    },
+    {
+      "id": "nursing-management",
+      "title": "Nursing management",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Nursing management combines immediate safety, implementation of authorised care, coordination and repeated evaluation."
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Treat according to the current local hypoglycaemia pathway and the patient's level of consciousness and swallowing safety.",
+            "Never give oral food or fluid to a person who cannot swallow safely.",
+            "After recovery, provide longer-acting carbohydrate or meal support if indicated by policy and investigate the cause.",
+            "Escalate recurrent, prolonged, unexplained or medicine-associated episodes for review."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Communication and records"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Use a structured handover with current findings, trends, concern and requested action.",
+            "Record who was contacted, when, the response, agreed review time and contingency.",
+            "Inform the patient and those important to them as appropriate, while respecting confidentiality.",
+            "Report safety incidents and near misses through local systems and contribute to learning."
+          ]
+        },
+        {
+          "type": "warning",
+          "title": "Failure to improve",
+          "text": "A completed intervention is not evidence of success. If the expected response does not occur, reassess, verify delivery and re-escalate."
+        }
+      ]
+    },
+    {
+      "id": "medical-management",
+      "title": "Medical and multidisciplinary management",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Clinical review should address medicine adjustment, underlying illness, renal function, nutrition and prevention."
+        },
+        {
+          "type": "paragraph",
+          "text": "Severe or unresolved hypoglycaemia needs urgent expert care and ongoing monitoring."
+        },
+        {
+          "type": "paragraph",
+          "text": "The nurse contributes accurate observations, a medication and allergy history, functional baseline, patient priorities and response to treatment. Challenge or clarify any plan that is incomplete, unsafe or inconsistent with current findings."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Confirm the working diagnosis and important alternatives.",
+            "Clarify treatment, monitoring and review responsibilities.",
+            "Identify ceiling-of-care or treatment-escalation decisions without assuming they mean no active care.",
+            "Coordinate pharmacy, specialist, therapy and critical care input where indicated."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "medicines",
+      "title": "Medicines considerations",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Follow authorised local treatment protocols and prescriptions; this module does not provide doses."
+        },
+        {
+          "type": "paragraph",
+          "text": "Avoid automatic omission or alteration of diabetes medicines without an authorised plan."
+        },
+        {
+          "type": "paragraph",
+          "text": "Document treatment, response and medicine review."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Use two patient identifiers and check allergy status.",
+            "Confirm indication, prescription, formulation, route, timing and monitoring.",
+            "Question ambiguity, unexpected changes and contraindications before administration.",
+            "Observe for therapeutic and adverse effects and report suspected reactions through appropriate routes."
+          ]
+        },
+        {
+          "type": "warning",
+          "title": "No dose guidance",
+          "text": "This educational module intentionally does not supply medicine doses. Use current authorised prescriptions, national guidance, local policy and expert advice."
+        }
+      ]
+    },
+    {
+      "id": "practical-examples",
+      "title": "Practical examples",
+      "blocks": [
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "A safe pause before action"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Name the immediate risk.",
+            "Check the source data and patient identity.",
+            "Estimate what a plausible result or response should look like.",
+            "Act within competence and policy.",
+            "Reassess and communicate the outcome."
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Example documentation"
+        },
+        {
+          "type": "paragraph",
+          "text": "Record objective findings and times rather than retrospective labels. A useful entry identifies the trigger, assessment, escalation, recipient, advice, intervention, patient response and next review trigger."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Managing uncertainty"
+        },
+        {
+          "type": "paragraph",
+          "text": "When findings do not fit neatly, state uncertainty explicitly: 'I am concerned because the patient has changed from baseline even though one value is within range.' Escalation is appropriate when concern persists."
+        }
+      ]
+    },
+    {
+      "id": "case-studies",
+      "title": "Case studies",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The two cases below are fictional learning scenarios. Work through priorities before reading the reasoning. In real practice use current policy and emergency systems."
+        },
+        {
+          "type": "tip",
+          "title": "Case method",
+          "text": "Identify the first life threat, information needed now, actions within competence, who must be contacted, and evidence that the plan is working."
+        }
+      ]
+    },
+    {
+      "id": "common-mistakes",
+      "title": "Common mistakes and prevention",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Avoid giving oral treatment to an unconscious patient; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid failing to recheck glucose; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid treating the number without exploring the cause; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid assuming recovery ends the risk of recurrence; use a deliberate check, explicit escalation or reassessment instead.",
+            "Avoid omitting escalation after severe events; use a deliberate check, explicit escalation or reassessment instead."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Human factors such as interruptions, fatigue, workload, confirmation bias and hierarchy can make these errors more likely. Use standardised tools, protected checks, clear team roles and a culture where concerns can be raised."
+        },
+        {
+          "type": "warning",
+          "title": "Normalisation of deviance",
+          "text": "Repeatedly seeing an unsafe workaround without immediate harm does not make it safe. Stop, protect the patient and report system problems."
+        }
+      ]
+    },
+    {
+      "id": "exam-osce-tips",
+      "title": "Exam and OSCE tips",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Begin with safety, identity, consent and hand hygiene as appropriate.",
+            "Verbalise the need to call for help when a red flag is present.",
+            "Use a clear sequence while treating threats as they are found.",
+            "Explain what each finding means rather than reciting a checklist.",
+            "State that you will reassess after intervention and document care.",
+            "Never invent a result, prescription, dose or local policy in an assessment."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Examiners commonly look for prioritisation, communication and safety-netting. A technically complete assessment that fails to escalate a life threat is not safe."
+        }
+      ]
+    },
+    {
+      "id": "knowledge-check",
+      "title": "Knowledge check",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Complete the checks after studying the module. Explanations focus on transferable reasoning. Review any incorrect response and return to the linked section."
+        },
+        {
+          "type": "tip",
+          "title": "Use retrieval practice",
+          "text": "Answer without looking back first, then explain why alternatives are less safe."
+        }
+      ]
+    },
+    {
+      "id": "key-takeaways",
+      "title": "Key takeaways",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Use a structured approach without allowing the tool to replace clinical judgement.",
+            "Recognise trajectory and patient concern as well as thresholds.",
+            "Escalate at a speed proportionate to risk and use emergency systems for immediate danger.",
+            "Act within competence and current policy; seek senior advice early.",
+            "Reassess response, communicate clearly and document accountable decisions.",
+            "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "References and further learning",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Use the official sources listed below and the current local policy. Guidance, pathways and medicine information change; verify currency and applicability before clinical use."
+        },
+        {
+          "type": "warning",
+          "title": "Publication check",
+          "text": "Clinical governance review is required before release. The status in this file is awaiting clinical review and does not imply endorsement."
+        }
+      ]
+    }
+  ],
+  "caseStudies": [
+    {
+      "id": "hypoglycaemia-case-1",
+      "title": "Reduced intake with insulin",
+      "background": "A 76-year-old with diabetes has eaten little because of nausea.",
+      "presentingComplaint": "Sweating and new confusion.",
+      "observations": [
+        "capillary glucose below the local treatment threshold",
+        "HR 108/min",
+        "awake and able to swallow"
+      ],
+      "history": [
+        "usual insulin given",
+        "renal impairment"
+      ],
+      "assessmentFindings": [
+        "tremor",
+        "clammy skin"
+      ],
+      "questions": [
+        "What is the immediate safety threat?",
+        "Which assessment and nursing actions take priority?",
+        "What information should be included in escalation?",
+        "How will response and deterioration be monitored?"
+      ],
+      "reasoning": [
+        "Use ABCDE first when acute illness is possible and treat threats as they are identified.",
+        "Compare findings with baseline and trend; do not allow one reassuring value to outweigh the overall picture.",
+        "Escalation should state urgency, concern, supporting findings and the action required.",
+        "Reassessment must have a defined time, expected response and contingency."
+      ],
+      "nursingPriorities": [
+        "Protect airway, breathing and circulation and summon appropriate help.",
+        "Complete focused observations without delaying emergency care.",
+        "Implement authorised interventions within competence and local policy.",
+        "Communicate using SBAR, document times and re-escalate if response is delayed or inadequate."
+      ],
+      "escalationDecision": "Treat promptly using the conscious-patient pathway, recheck response, support food intake and seek medication review.",
+      "expectedOutcome": "Timely multidisciplinary assessment, treatment of the underlying cause, a documented monitoring plan and escalation to a higher level of care if the patient does not improve."
+    },
+    {
+      "id": "hypoglycaemia-case-2",
+      "title": "Unconscious patient",
+      "background": "A 34-year-old using insulin is found unresponsive.",
+      "presentingComplaint": "Unable to swallow or respond.",
+      "observations": [
+        "low capillary glucose",
+        "airway at risk",
+        "normal temperature"
+      ],
+      "history": [
+        "exercise earlier",
+        "meal history unknown"
+      ],
+      "assessmentFindings": [
+        "reduced consciousness",
+        "no safe oral route"
+      ],
+      "questions": [
+        "What is the immediate safety threat?",
+        "Which assessment and nursing actions take priority?",
+        "What information should be included in escalation?",
+        "How will response and deterioration be monitored?"
+      ],
+      "reasoning": [
+        "Use ABCDE first when acute illness is possible and treat threats as they are identified.",
+        "Compare findings with baseline and trend; do not allow one reassuring value to outweigh the overall picture.",
+        "Escalation should state urgency, concern, supporting findings and the action required.",
+        "Reassessment must have a defined time, expected response and contingency."
+      ],
+      "nursingPriorities": [
+        "Protect airway, breathing and circulation and summon appropriate help.",
+        "Complete focused observations without delaying emergency care.",
+        "Implement authorised interventions within competence and local policy.",
+        "Communicate using SBAR, document times and re-escalate if response is delayed or inadequate."
+      ],
+      "escalationDecision": "Call emergency help, use ABCDE, give no oral intake, and follow the severe hypoglycaemia pathway within competence.",
+      "expectedOutcome": "Timely multidisciplinary assessment, treatment of the underlying cause, a documented monitoring plan and escalation to a higher level of care if the patient does not improve."
+    }
+  ],
+  "knowledgeChecks": [
+    {
+      "id": "hypoglycaemia-kc-1",
+      "sectionId": "signs-symptoms",
+      "type": "multiple-choice",
+      "prompt": "Which finding should trigger the fastest response?",
+      "options": [
+        "A rapidly developing airway or breathing problem",
+        "A stable long-term symptom at baseline",
+        "A routine documentation query",
+        "A non-urgent discharge question"
+      ],
+      "answer": "A rapidly developing airway or breathing problem",
+      "explanation": "Immediate airway or breathing compromise requires emergency escalation and ABCDE assessment.",
+      "incorrectExplanations": {
+        "A stable long-term symptom at baseline": "Baseline symptoms still need appropriate care but are less urgent than an acute life threat.",
+        "A routine documentation query": "Documentation matters but must not delay emergency care.",
+        "A non-urgent discharge question": "This can wait while immediate physiological danger is addressed."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-2",
+      "sectionId": "assessment",
+      "type": "true-false",
+      "prompt": "A single value within the reference range always rules out deterioration.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "False",
+      "explanation": "Trend, baseline, treatment, measurement quality and the overall clinical picture all matter.",
+      "incorrectExplanations": {
+        "True": "Compensation and early illness can coexist with apparently acceptable isolated observations."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-3",
+      "sectionId": "nursing-management",
+      "type": "prioritisation",
+      "prompt": "Put the safest sequence first for an acutely concerning change.",
+      "options": [
+        "Assess immediate threats, call appropriate help, act within competence, reassess",
+        "Complete all paperwork, wait, then reassess",
+        "Seek a diagnosis online before observing the patient",
+        "Repeat one observation until it becomes normal"
+      ],
+      "answer": "Assess immediate threats, call appropriate help, act within competence, reassess",
+      "explanation": "This sequence protects the patient while ensuring response is evaluated.",
+      "incorrectExplanations": {
+        "Complete all paperwork, wait, then reassess": "Administrative completion must not delay urgent care.",
+        "Seek a diagnosis online before observing the patient": "Direct structured assessment and escalation come first.",
+        "Repeat one observation until it becomes normal": "Repeated measurement must not become a reason to delay escalation."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-4",
+      "sectionId": "causes-risks",
+      "type": "scenario",
+      "prompt": "A patient has sweating and tremor, but one other observation is normal. What is the safest interpretation?",
+      "options": [
+        "Assess the complete pattern and escalate according to urgency",
+        "Ignore the finding because one value is normal",
+        "Wait for the next routine round",
+        "Assume the equipment is faulty without checking the patient"
+      ],
+      "answer": "Assess the complete pattern and escalate according to urgency",
+      "explanation": "One normal parameter does not cancel a concerning sign.",
+      "incorrectExplanations": {
+        "Ignore the finding because one value is normal": "This creates false reassurance.",
+        "Wait for the next routine round": "A concerning change needs timely assessment.",
+        "Assume the equipment is faulty without checking the patient": "Verify equipment while assessing the patient; do not dismiss risk."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-5",
+      "sectionId": "common-mistakes",
+      "type": "multiple-choice",
+      "prompt": "Which strategy best reduces the risk of giving oral treatment to an unconscious patient?",
+      "options": [
+        "Use the structured process, pause at discrepancies and escalate concern",
+        "Rely on memory and habit",
+        "Skip independent checks to save time",
+        "Document only if harm occurs"
+      ],
+      "answer": "Use the structured process, pause at discrepancies and escalate concern",
+      "explanation": "Standardisation, deliberate checking and speaking up reduce preventable error.",
+      "incorrectExplanations": {
+        "Rely on memory and habit": "Memory is vulnerable to interruption and bias.",
+        "Skip independent checks to save time": "Required checks are safety controls.",
+        "Document only if harm occurs": "Near misses, decisions and care require appropriate records."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-6",
+      "sectionId": "medicines",
+      "type": "true-false",
+      "prompt": "It is safe to infer a medicine dose from an educational example when the ward is busy.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "False",
+      "explanation": "Use a valid prescription, current approved guidance, local policy and expert clarification. Educational examples are not prescriptions.",
+      "incorrectExplanations": {
+        "True": "Inferring doses risks serious medication harm."
+      }
+    },
+    {
+      "id": "hypoglycaemia-kc-7",
+      "sectionId": "case-studies",
+      "type": "scenario",
+      "prompt": "After an intervention, the patient has not improved as expected. What should happen next?",
+      "options": [
+        "Reassess, verify delivery and re-escalate promptly",
+        "Assume treatment needs more time without review",
+        "Remove abnormal observations from the chart",
+        "Wait until shift handover"
+      ],
+      "answer": "Reassess, verify delivery and re-escalate promptly",
+      "explanation": "Failure to respond may indicate worsening illness, wrong cause or ineffective delivery.",
+      "incorrectExplanations": {
+        "Assume treatment needs more time without review": "Delay can permit preventable deterioration.",
+        "Remove abnormal observations from the chart": "Records must remain accurate and transparent.",
+        "Wait until shift handover": "Urgent concerns require immediate action."
+      }
+    }
+  ],
+  "keyTakeaways": [
+    "Structured tools support but never replace clinical judgement.",
+    "Treat immediate threats and call for help early.",
+    "Use trends, baseline and the complete clinical picture.",
+    "Work within competence and current policy.",
+    "Reassess every intervention and re-escalate failure to improve.",
+    "This learning supports education and revision and does not replace local policy, clinical judgement, senior advice, or emergency escalation."
+  ],
+  "references": [
+    {
+      "title": "Diabetes",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/conditions/diabetes/",
+      "reviewNote": "Confirm current local hypoglycaemia pathway before publication."
+    },
+    {
+      "title": "The Code: Professional standards of practice and behaviour for nurses, midwives and nursing associates",
+      "publisher": "Nursing and Midwifery Council",
+      "url": "https://www.nmc.org.uk/standards/code/",
+      "reviewNote": "Use the current edition and local governance requirements."
+    },
+    {
+      "title": "NHS medicines information",
+      "publisher": "NHS",
+      "url": "https://www.nhs.uk/medicines/",
+      "reviewNote": "Confirm current local and national guidance before publication."
+    }
+  ],
+  "clinicalReviewStatus": "awaiting_clinical_review",
+  "reviewedBy": null,
+  "reviewedAt": null,
+  "version": "1.0.0",
+  "tags": [
+    "medicines management",
+    "hypoglycaemia",
+    "nursing education",
+    "patient safety",
+    "clinical escalation"
+  ],
+  "searchKeywords": [
+    "Hypoglycaemia",
+    "safe recognition and management of low blood glucose",
+    "assessment",
+    "nursing management",
+    "red flags",
+    "OSCE",
+    "clinical safety"
+  ],
+  "featured": false,
+  "published": true
+}
