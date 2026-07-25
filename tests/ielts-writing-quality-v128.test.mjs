@@ -25,8 +25,10 @@ test('IELTS Academic writing bank follows standard task structure',()=>{
   }
 });
 
-test('Standalone IELTS writing renderer includes Task 1 source data block',()=>{
+test('Standalone IELTS writing renderer shows Task 1 bar chart data',()=>{
   const js=read('web/ielts-centre-v103.js');
   assert.match(js,/function writingVisual\(question\)/);
+  assert.match(js,/class="questionChart"/);
+  assert.match(js,/class="questionBars"/);
   assert.match(js,/const task1Data=current==='writing'&&question\.task===1\?writingVisual\(question\):''/);
 });
