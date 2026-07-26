@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+
+const opportunityCss = await readFile(new URL("../web/opportunity-centre-v138.css", import.meta.url), "utf8");
+const qualificationsCss = await readFile(new URL("../web/qualifications-registration-v139.css", import.meta.url), "utf8");
+const index = await readFile(new URL("../web/index.html", import.meta.url), "utf8");
+
+test("Opportunity Centre uses a bounded twelve-column desktop canvas", () => {
+  assert.match(opportunityCss, /@media\(min-width:1024px\)/);
+  assert.match(opportunityCss, /max-width:1600px/);
+  assert.match(opportunityCss, /\[data-opportunity-body\]\{display:grid;grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
+  assert.match(opportunityCss, /\[data-recommended-section\]\{grid-column:span 5\}/);
+});
+
+test("Qualifications hub separates guidance and records on desktop", () => {
+  assert.match(qualificationsCss, /@media\(min-width:1024px\)/);
+  assert.match(qualificationsCss, /max-width:1600px/);
+  assert.match(qualificationsCss, /\[data-qr-content\]\{display:grid;grid-template-columns:minmax\(300px,360px\) minmax\(0,1fr\)/);
+  assert.match(qualificationsCss, /qrFormGrid139\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+});
+
+test("desktop stylesheet revisions are cache-busted", () => {
+  assert.match(index, /opportunity-centre-v138\.css\?v=140/);
+  assert.match(index, /qualifications-registration-v139\.css\?v=140/);
+});
