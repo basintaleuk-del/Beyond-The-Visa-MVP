@@ -236,7 +236,9 @@ async function fetchNhsJobsFeed(source, fetchImpl = fetch, now = new Date()) {
   const maxPages = Math.min(Number(source.configuration?.max_pages) || LIMITS.maxPages, LIMITS.maxPages);
   const maxRecords = Math.min(Number(source.configuration?.max_records) || LIMITS.maxRecords, LIMITS.maxRecords);
   const initialDays = Math.min(Number(source.configuration?.initial_days) || 30, 90);
-  const publishedFrom = source.last_cursor || new Date(now.getTime() - initialDays * 86400000).toISOString();
+  // The official NHS Jobs endpoint validates this as a calendar date, not an
+  // ISO timestamp. Sending a timestamp returns HTTP 400 (search.validation.date).
+  const publishedFrom = (source.last_cursor ? new Date(source.last_cursor) : new Date(now.getTime() - initialDays * 86400000)).toISOString().slice(0, 10);
   const rows = [];
   const jobReference = clean(source.configuration?.job_reference, 180);
   let totalPages = 1;

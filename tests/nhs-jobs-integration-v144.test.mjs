@@ -30,7 +30,7 @@ test("NHS adapter follows official pagination with bounded requests", async () =
   const urls = [];
   const result = await fetchNhsJobsFeed(source, async (url) => { urls.push(String(url)); const page = new URL(url).searchParams.get("page"); return { ok: true, text: async () => xml([vacancy({ id: `N${page}`, title: "Community Nurse" })], 2) }; }, now);
   assert.equal(result.rows.length, 2); assert.equal(urls.length, 2);
-  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("limit"), "100"); }
+  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-25"); assert.equal(parsed.searchParams.get("limit"), "100"); }
 });
 
 test("rerunning the NHS importer updates without duplicating or deleting saves", async () => {

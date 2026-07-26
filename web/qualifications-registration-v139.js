@@ -123,12 +123,14 @@
     if (!content) return;
     if (!usesAustralianRegistration()) {
       const genericDone = completion();
+      content.classList.remove("qrContentWithPathway139");
       content.innerHTML = `<div class="qrSections139">${primarySection(genericDone.primary)}${registrationsSection(genericDone.registrations)}${practiceSection(genericDone.practice)}${assessmentsSection(genericDone.assessments)}${englishSection(genericDone.english)}${documentsSection(genericDone.documents)}</div>`;
       const assessment = $('[name="assessment_name"]', content);
       [...(assessment?.options || [])].forEach((option) => { if (australianAssessmentNames.has(option.value)) option.remove(); });
       return;
     }
     const done = completion(), pathway = window.BTVAustraliaPathway139?.indicate({ ...state.profile, registrations: state.registrations, practice: state.practice, assessments: state.assessments }) || { label: "Qualification Assessment Required", reason: "Complete the official IQNM Self-check." };
+    content.classList.add("qrContentWithPathway139");
     content.innerHTML = `<section class="qrPathway139"><span>INDICATIVE AUSTRALIAN PATHWAY</span><div><h2>${esc(pathway.label)}</h2>${badge(false, Boolean(state.profile.qualification_country))}</div><p>${esc(pathway.reason)}</p><small>This guidance is not an official Ahpra or NMBA assessment. Complete the official IQNM Self-check and follow the outcome provided by Ahpra.</small><a href="${esc(window.BTVAustraliaPathway139?.officialSelfCheckUrl || "https://www.ahpra.gov.au/Registration/International-practitioners.aspx")}" target="_blank" rel="noopener">Open the official IQNM Self-check guidance ↗</a></section>
       <div class="qrSections139">${primarySection(done.primary)}${registrationsSection(done.registrations)}${practiceSection(done.practice)}${assessmentsSection(done.assessments)}${englishSection(done.english)}${documentsSection(done.documents)}</div>`;
   }
