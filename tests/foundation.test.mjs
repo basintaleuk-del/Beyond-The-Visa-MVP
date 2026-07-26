@@ -40,8 +40,21 @@ test('five-item bottom navigation remains in the application shell', async () =>
   const html = await read('web/index.html');
   const nav = html.match(/<nav>([\s\S]*?)<\/nav>/)?.[1] || '';
   assert.equal((nav.match(/class="nav/g) || []).length, 5);
-  for (const label of ['Home', 'Journey', 'Ask Zibur', 'Learn', 'Costs']) {
+  for (const label of ['Home', 'Journey', 'Learn', 'Costs']) {
     if (label === 'Costs') assert.match(html, /data-open="costs">[\s\S]*?<small>Costs<\/small>[\s\S]*?opportunity-centre-v138\.js/);
     else assert.match(nav, new RegExp(`>${label}<`));
   }
+});
+
+test('mobile bottom navigation replaces only Ask Zibur with destination-aware Jobs', async () => {
+  const html = await read('web/index.html');
+  const navigation = await readFile(new URL('../web/mobile-jobs-nav-v157.js', import.meta.url), 'utf8');
+  assert.match(html, /mobile-jobs-nav-v157\.js\?v=157/);
+  assert.match(navigation, /#appShell>nav \.nav\[data-open="assistant"\]/);
+  assert.match(navigation, /button\.dataset\.open = "jobs"/);
+  assert.match(navigation, /label\.textContent = "Jobs"/);
+  assert.match(navigation, /M9 7V5a2 2 0 0 1 2-2h2/);
+  assert.match(navigation, /country === "us" \? "\/jobs\/usa" : "\/jobs"/);
+  assert.match(html, /<section id="assistant"/);
+  for (const label of ['Home', 'Journey', 'Learn', 'Costs']) assert.match(html, new RegExp(`<small>${label}</small>`));
 });
