@@ -16,7 +16,7 @@
     if (button.getAttribute("aria-label") !== "Open jobs for your selected destination") button.setAttribute("aria-label", "Open jobs for your selected destination");
     const label = button.querySelector("small");
     if (label?.textContent !== "Jobs") label.textContent = "Jobs";
-    if (!button.querySelector("[data-mobile-jobs-icon]")) {
+    if (!button.querySelector("[data-mobile-jobs-icon] svg")) {
       button.querySelector(".menuIconV72")?.remove();
       Array.from(button.childNodes).filter((node) => node.nodeType === 3).forEach((node) => node.remove());
       button.insertAdjacentHTML("afterbegin", `<span class="menuIconV72" data-mobile-jobs-icon><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg></span>`);
