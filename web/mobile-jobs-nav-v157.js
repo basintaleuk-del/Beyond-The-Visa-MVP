@@ -11,11 +11,11 @@
   function install() {
     const button = document.querySelector('#appShell>nav .nav[data-open="assistant"],#appShell>nav .nav[data-open="jobs"]');
     if (!button) return false;
-    button.dataset.open = "jobs";
-    button.hidden = false;
-    button.setAttribute("aria-label", "Open jobs for your selected destination");
+    if (button.dataset.open !== "jobs") button.dataset.open = "jobs";
+    if (button.hidden) button.hidden = false;
+    if (button.getAttribute("aria-label") !== "Open jobs for your selected destination") button.setAttribute("aria-label", "Open jobs for your selected destination");
     const label = button.querySelector("small");
-    if (label) label.textContent = "Jobs";
+    if (label?.textContent !== "Jobs") label.textContent = "Jobs";
     if (!button.querySelector("[data-mobile-jobs-icon]")) {
       button.querySelector(".menuIconV72")?.remove();
       Array.from(button.childNodes).filter((node) => node.nodeType === 3).forEach((node) => node.remove());
