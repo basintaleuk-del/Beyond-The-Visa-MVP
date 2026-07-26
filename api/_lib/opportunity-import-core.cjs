@@ -76,7 +76,8 @@ function safeUrl(value, source) {
   try { url = new URL(String(value)); } catch { return null; }
   if (url.protocol !== "https:" || url.username || url.password) return null;
   const base = new URL(source.base_url);
-  const allowed = new Set([base.hostname, ...(source.configuration?.allowed_link_hosts || [])].map((x) => String(x).toLowerCase()));
+  const officialNhsHosts = source.integration_type === "nhs_jobs_xml_v1" && base.hostname.toLowerCase() === "www.jobs.nhs.uk" ? ["beta.jobs.nhs.uk"] : [];
+  const allowed = new Set([base.hostname, ...officialNhsHosts, ...(source.configuration?.allowed_link_hosts || [])].map((x) => String(x).toLowerCase()));
   if (!allowed.has(url.hostname.toLowerCase())) return null;
   url.hash = "";
   return url.href;
@@ -236,9 +237,12 @@ async function fetchNhsJobsFeed(source, fetchImpl = fetch, now = new Date()) {
   const maxPages = Math.min(Number(source.configuration?.max_pages) || LIMITS.maxPages, LIMITS.maxPages);
   const maxRecords = Math.min(Number(source.configuration?.max_records) || LIMITS.maxRecords, LIMITS.maxRecords);
   const initialDays = Math.min(Number(source.configuration?.initial_days) || 30, 90);
+  const cursorOverlapDays = source.last_cursor ? Math.min(Number(source.configuration?.cursor_overlap_days) || 7, 30) : 0;
   // The official NHS Jobs endpoint validates this as a calendar date, not an
-  // ISO timestamp. Sending a timestamp returns HTTP 400 (search.validation.date).
-  const publishedFrom = (source.last_cursor ? new Date(source.last_cursor) : new Date(now.getTime() - initialDays * 86400000)).toISOString().slice(0, 10);
+  // ISO timestamp. Re-reading a bounded overlap prevents vacancies published
+  // around a prior cursor from being lost; canonical URL upserts keep it idempotent.
+  const cursorDate = source.last_cursor ? new Date(source.last_cursor) : new Date(now.getTime() - initialDays * 86400000);
+  const publishedFrom = new Date(cursorDate.getTime() - cursorOverlapDays * 86400000).toISOString().slice(0, 10);
   const rows = [];
   const jobReference = clean(source.configuration?.job_reference, 180);
   let totalPages = 1;
@@ -275,6 +279,7 @@ async function runSources({ sources, store, fetchImpl = fetch, now = new Date() 
       else throw new Error("Source adapter is disabled until an approved feed is configured.");
       const raw = payload.rows;
       const normalized = raw.map((row) => normalizeRecord(row, source, now)).filter(Boolean);
+      if (raw.length && !normalized.length) throw new Error("Source records were returned but none passed validation; the import cursor was not advanced.");
       const unique = dedupe(normalized);
       const nursing = unique.filter((row) => row.profession === "nurse" || row.profession === "both").length;
       const midwifery = unique.filter((row) => row.profession === "midwife" || row.profession === "both").length;

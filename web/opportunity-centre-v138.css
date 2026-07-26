@@ -4,9 +4,9 @@
 @media(min-width:1024px){
   .opportunityCentre138{box-sizing:border-box;width:100%;max-width:1600px;margin-inline:auto;padding:28px clamp(24px,3vw,48px) 112px}
   .opportunityCentre138 [data-opportunity-body]{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start}
-  .opportunityCentre138 [data-opportunity-body]>.opportunityIntro138:first-child{grid-column:span 8;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:28px;align-content:center;min-height:210px}
-  .opportunityIntro138>span{grid-column:1;grid-row:1}.opportunityIntro138>h2{grid-column:1;grid-row:2}.opportunityIntro138>p{grid-column:2;grid-row:1;margin:0}.opportunityIntro138>ul{grid-column:2;grid-row:2;margin-top:14px}
-  .opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{grid-column:span 4;grid-template-columns:repeat(2,minmax(0,1fr));align-self:stretch;margin:0;min-height:210px}
+  .opportunityCentre138 [data-opportunity-body]>.opportunityIntro138:first-child{grid-column:span 8;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-rows:auto auto auto;column-gap:32px;row-gap:10px;align-content:center;min-height:230px}
+  .opportunityIntro138>span{grid-column:1;grid-row:1}.opportunityIntro138>h2{grid-column:1;grid-row:2/4;align-self:center}.opportunityIntro138>p:not(.opportunityFreshness138){grid-column:2;grid-row:1;margin:0}.opportunityIntro138>.opportunityFreshness138{grid-column:2;grid-row:2;margin:0;font-size:12px;line-height:1.45}.opportunityIntro138>ul{grid-column:2;grid-row:3;margin:0}
+  .opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{grid-column:span 4;grid-template-columns:repeat(2,minmax(0,1fr));align-self:stretch;margin:0;min-height:230px}
   .opportunitySummary138 article:last-child{grid-column:1/-1}
   .opportunityCentre138 [data-opportunity-body]>.opportunityIntro138:not(:first-child){grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:20px;align-items:center;padding-block:14px}
   .opportunityCentre138 [data-opportunity-body]>.opportunityIntro138:not(:first-child)>p{grid-column:auto;grid-row:auto;margin:0}

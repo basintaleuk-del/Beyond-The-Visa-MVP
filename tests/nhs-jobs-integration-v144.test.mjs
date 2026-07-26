@@ -26,11 +26,19 @@ test("only nursing and midwifery vacancies are accepted", () => {
   assert.deepEqual(imported.map((row) => row.external_id), ["N1", "M1"]);
 });
 
+test("official NHS beta advert links are accepted without allowing arbitrary hosts", () => {
+  const raw = parseNhsJobsXml(xml([vacancy({ id: "B1", title: "Staff Nurse" })])).rows[0];
+  raw.source_url = raw.canonical_url = raw.application_url = "https://beta.jobs.nhs.uk/candidate/jobadvert/B1";
+  assert.equal(normalizeRecord(raw, source, now)?.canonical_url, "https://beta.jobs.nhs.uk/candidate/jobadvert/B1");
+  raw.source_url = raw.canonical_url = raw.application_url = "https://jobs-nhs.example/candidate/jobadvert/B1";
+  assert.equal(normalizeRecord(raw, source, now), null);
+});
+
 test("NHS adapter follows official pagination with bounded requests", async () => {
   const urls = [];
   const result = await fetchNhsJobsFeed(source, async (url) => { urls.push(String(url)); const page = new URL(url).searchParams.get("page"); return { ok: true, text: async () => xml([vacancy({ id: `N${page}`, title: "Community Nurse" })], 2) }; }, now);
   assert.equal(result.rows.length, 2); assert.equal(urls.length, 2);
-  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-25"); assert.equal(parsed.searchParams.get("limit"), "100"); }
+  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-18"); assert.equal(parsed.searchParams.get("limit"), "100"); }
 });
 
 test("rerunning the NHS importer updates without duplicating or deleting saves", async () => {
