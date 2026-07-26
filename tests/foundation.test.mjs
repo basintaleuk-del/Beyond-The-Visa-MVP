@@ -23,7 +23,7 @@ test('Edge Functions retain compatibility during client rollout', async () => {
 test('journey data uses the checked-in schema', async () => {
   const dashboard = await read('web/dashboard-premium-v73.js');
   const hub = await read('web/platform-upgrade-v72.js');
-  assert.match(dashboard, /\.eq\((['"])is_active\1,\s*true\).*\.order\((['"])sort_order\2\)/);
+  assert.match(dashboard, /\.eq\((['"])is_active\1,\s*true\)[\s\S]*\.order\((['"])sort_order\2\)/);
   assert.match(hub, /step_code/);
   assert.match(hub, /onConflict:'user_id,step_code'/);
 });

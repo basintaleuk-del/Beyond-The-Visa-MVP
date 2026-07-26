@@ -71,7 +71,7 @@ test('admin Guidance Centre supports lifecycle and version operations behind rol
 
 test('existing destination persistence and country-change contracts remain in use',async()=>{
   const [sync,client]=await Promise.all([read('web/destination-sync-v111.js'),read('web/journey-guidance-v133.js')]);
-  assert.match(sync,/rpc\('btv_set_destination_country'/);assert.match(sync,/destination_country/);assert.match(sync,/localStorage\.setItem\('btv-profile'/);assert.match(sync,/btv:destination-changed/);
+  assert.match(sync,/rpc\(["']btv_set_destination_country["']/);assert.match(sync,/destination_country/);assert.match(sync,/localStorage\.setItem\(["']btv-profile["']/);assert.match(sync,/btv:destination-changed/);
   assert.match(client,/addEventListener\('btv:destination-changed'/);assert.match(client,/data-change-destination/);assert.match(sync,/BTVDestinationJourney/);
 });
 

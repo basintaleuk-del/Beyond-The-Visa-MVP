@@ -7,18 +7,26 @@ const read=file=>readFile(new URL(`../${file}`,import.meta.url),'utf8');
 test('homepage and admin ship the Golden Question experiences',async()=>{
   const [home,admin,client,css]=await Promise.all([read('web/index.html'),read('web/admin.html'),read('web/golden-question-v126.js'),read('web/golden-question-v126.css')]);
   assert.match(home,/golden-question-v126\.css/);assert.match(home,/golden-question-v126\.js/);
-  assert.match(admin,/admin-golden-question-v126\.js/);assert.match(client,/Today’s Golden Question/);
+  assert.match(admin,/admin-golden-question-v126\.js\?v=137/);assert.match(client,/Today’s Golden Question/);
   assert.match(client,/profession_missing/);assert.match(client,/TERMS_REQUIRED/);assert.match(client,/navigator\.share/);
-  assert.match(css,/@media\(max-width:620px\)/);assert.doesNotMatch(css,/width:\s*100vw/);
+  assert.match(css,/@media\s*\(max-width:\s*620px\)/);assert.doesNotMatch(css,/width:\s*100vw/);
 });
 
 test('daily assignment and answer submission are server controlled',async()=>{
   const fn=await read('supabase/functions/golden-question/index.ts');
   assert.match(fn,/Europe\/London/);assert.match(fn,/golden_question_daily_assignments/);
   assert.match(fn,/btv_record_golden_attempt/);assert.match(fn,/ALREADY_ANSWERED/);
-  assert.match(fn,/select\('\*'\)\.eq\('id',a\.question_id\)/);
-  assert.match(fn,/action==='preview'/);assert.match(fn,/sharing_disabled/);
-  assert.match(fn,/action==='cron'/);assert.match(fn,/SERVICE_AUTH_REQUIRED/);
+  assert.match(fn,/from\(["']btv_golden_questions["']\)/);assert.match(fn,/audienceFor\(profession\)/);
+  assert.match(fn,/action\s*===\s*["']preview["']/);assert.match(fn,/publicPreview/);
+  assert.match(fn,/action\s*===\s*["']cron["']/);assert.match(fn,/SERVICE_AUTH_REQUIRED/);
+});
+
+test('existing bank bridge protects answers and makes retries idempotent',async()=>{
+  const sql=await read('supabase/migrations/202607260001_golden_question_bank_bridge_v137.sql');
+  assert.match(sql,/references public\.btv_golden_questions\(id\)/);
+  assert.match(sql,/revoke select on public\.btv_golden_questions from anon, authenticated/);
+  assert.match(sql,/if found then[\s\S]*'idempotent',true/);
+  assert.match(sql,/eligible_for_random/);assert.match(sql,/last_released_at/);
 });
 
 test('migration separates professions and prevents duplicate scoring and rewards',async()=>{

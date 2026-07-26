@@ -1,4 +1,4 @@
-(function(){
+(function () {
   if (window.__btvDashboardPremium73) return;
   window.__btvDashboardPremium73 = true;
 
@@ -10,30 +10,73 @@
   let carouselIndex = 0;
   let carouselTimer = null;
   const carouselSlides = [
-    { category: "Motivation", title: "You did not come this far to stop now.", copy: "Every study session and completed milestone moves your international nursing journey forward." },
-    { category: "Platform News", title: "New CBT practice questions available", copy: "Build confidence with fresh practice questions and detailed explanations.", action: "Start practising", route: "cbt", date: "23 July 2026" },
-    { category: "Motivation", title: "Keep learning. Keep preparing.", copy: "Your opportunity is coming. Focus on the next clear action and let steady progress compound." },
-    { category: "Platform News", title: "Visa Hub guidance updated", copy: "Review the latest pathway guidance saved for your destination.", action: "Review journey", route: "journey", date: "21 July 2026" }
+    {
+      category: "Motivation",
+      title: "You did not come this far to stop now.",
+      copy: "Every study session and completed milestone moves your international nursing journey forward.",
+    },
+    {
+      category: "Platform News",
+      title: "New CBT practice questions available",
+      copy: "Build confidence with fresh practice questions and detailed explanations.",
+      action: "Start practising",
+      route: "cbt",
+      date: "23 July 2026",
+    },
+    {
+      category: "Motivation",
+      title: "Keep learning. Keep preparing.",
+      copy: "Your opportunity is coming. Focus on the next clear action and let steady progress compound.",
+    },
+    {
+      category: "Platform News",
+      title: "Visa Hub guidance updated",
+      copy: "Review the latest pathway guidance saved for your destination.",
+      action: "Review journey",
+      route: "journey",
+      date: "21 July 2026",
+    },
   ];
 
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const iconSvg = (name) => ({
-    home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V21h-6v-7H9v7H3z"/></svg>',
-    journey: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="4" cy="6" r="1.4"/><circle cx="4" cy="12" r="1.4"/><circle cx="4" cy="18" r="1.4"/></svg>',
-    spark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.4L21 11l-6.6 2.6L12 20l-2.4-6.4L3 11l6.6-2.6z"/></svg>',
-    learn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 3v18"/></svg>',
-    cost: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M8.5 9.5h5a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h5"/></svg>',
-    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
-    users: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="18" cy="9" r="2.3"/><path d="M15.5 20a5 5 0 0 1 5-4.4"/></svg>',
-    mentor: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V7l8-4 8 4v13"/><path d="M8 10h8M8 14h8"/></svg>',
-    settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.6z"/></svg>',
-    bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21h4"/></svg>',
-    moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 1 1 11.5 4 7 7 0 0 0 20 15.5z"/></svg>',
-    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
-    coin: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M8.8 9.4H14a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h4.4"/></svg>',
-    logout: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
-    arrowRight: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>',
-  }[name] || "");
+  const esc = (s) =>
+    String(s ?? "").replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        }[c])
+    );
+  const iconSvg = (name) =>
+    ({
+      home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V21h-6v-7H9v7H3z"/></svg>',
+      journey:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="4" cy="6" r="1.4"/><circle cx="4" cy="12" r="1.4"/><circle cx="4" cy="18" r="1.4"/></svg>',
+      spark:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.4L21 11l-6.6 2.6L12 20l-2.4-6.4L3 11l6.6-2.6z"/></svg>',
+      learn:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M9 3v18"/></svg>',
+      cost: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M8.5 9.5h5a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h5"/></svg>',
+      search:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
+      users:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="18" cy="9" r="2.3"/><path d="M15.5 20a5 5 0 0 1 5-4.4"/></svg>',
+      mentor:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V7l8-4 8 4v13"/><path d="M8 10h8M8 14h8"/></svg>',
+      settings:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.6z"/></svg>',
+      bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21h4"/></svg>',
+      moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 1 1 11.5 4 7 7 0 0 0 20 15.5z"/></svg>',
+      menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+      coin: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M8.8 9.4H14a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h4.4"/></svg>',
+      logout:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>',
+      arrowRight:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>',
+    }[name] || "");
   const initials = (name) => {
     const token = String(name || "").trim();
     if (!token) return "M";
@@ -49,26 +92,53 @@
   }
 
   function destinationInfo() {
-    const selected = typeof window.country === "function" ? window.country() : null;
-    const raw = selected?.name || localProfile().destination || state.u?.user_metadata?.destination || "United Kingdom";
+    const selected =
+      typeof window.country === "function" ? window.country() : null;
+    const raw =
+      selected?.name ||
+      localProfile().destination ||
+      state.u?.user_metadata?.destination ||
+      "United Kingdom";
     const name = String(raw).trim();
-    const key = ({
-      "united kingdom": "uk", uk: "uk", england: "uk",
-      "united states": "us", "united states of america": "us", usa: "us", us: "us",
-      australia: "au", canada: "ca", "new zealand": "nz", ireland: "ie",
-    })[name.toLowerCase()] || "uk";
+    const key =
+      {
+        "united kingdom": "uk",
+        uk: "uk",
+        england: "uk",
+        "united states": "us",
+        "united states of america": "us",
+        usa: "us",
+        us: "us",
+        australia: "au",
+        canada: "ca",
+        "new zealand": "nz",
+        ireland: "ie",
+      }[name.toLowerCase()] || "uk";
     const meta = {
-      uk: { flag: "🇬🇧", exam: "cbt" }, us: { flag: "🇺🇸", exam: "nclex" },
-      au: { flag: "🇦🇺", exam: "registration" }, ca: { flag: "🇨🇦", exam: "nclex" },
-      nz: { flag: "🇳🇿", exam: "registration" }, ie: { flag: "🇮🇪", exam: "cbt" },
+      uk: { flag: "🇬🇧", exam: "cbt" },
+      us: { flag: "🇺🇸", exam: "nclex" },
+      au: { flag: "🇦🇺", exam: "registration" },
+      ca: { flag: "🇨🇦", exam: "nclex" },
+      nz: { flag: "🇳🇿", exam: "registration" },
+      ie: { flag: "🇮🇪", exam: "cbt" },
     }[key];
-    const exam = ({ ie: "registration" })[key] || meta.exam;
-    return { key, name: selected?.name || name, flag: selected?.flag || meta.flag, exam };
+    const exam = { ie: "registration" }[key] || meta.exam;
+    return {
+      key,
+      name: selected?.name || name,
+      flag: selected?.flag || meta.flag,
+      exam,
+    };
   }
 
   function safeName(u) {
     const p = localProfile();
-    const raw = p.preferredName || p.name || u?.user_metadata?.preferred_name || u?.user_metadata?.full_name || "";
+    const raw =
+      p.preferredName ||
+      p.name ||
+      u?.user_metadata?.preferred_name ||
+      u?.user_metadata?.full_name ||
+      "";
     const value = String(raw).trim().split(/\s+/)[0];
     return value && !/@/.test(value) ? value : "MR";
   }
@@ -82,48 +152,126 @@
 
   function fmtHeaderDate() {
     const d = new Date();
-    const weekday = d.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+    const weekday = d
+      .toLocaleDateString(undefined, { weekday: "long" })
+      .toUpperCase();
     const day = String(d.getDate()).padStart(2, "0");
-    const month = d.toLocaleDateString(undefined, { month: "long" }).toUpperCase();
+    const month = d
+      .toLocaleDateString(undefined, { month: "long" })
+      .toUpperCase();
     return `${weekday}, ${day} ${month} ${d.getFullYear()}`;
   }
 
   function fmtHeroDate() {
     const d = new Date();
-    const weekday = d.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+    const weekday = d
+      .toLocaleDateString(undefined, { weekday: "long" })
+      .toUpperCase();
     const day = String(d.getDate()).padStart(2, "0");
-    const month = d.toLocaleDateString(undefined, { month: "long" }).toUpperCase();
+    const month = d
+      .toLocaleDateString(undefined, { month: "long" })
+      .toUpperCase();
     return `${weekday} ${day} ${month}`;
   }
 
   async function load() {
     let session = null;
-    try { session = (await db()?.auth?.getSession())?.data?.session || null; } catch (e) { console.warn("v73 session fallback", e); }
+    try {
+      session = (await db()?.auth?.getSession())?.data?.session || null;
+    } catch (e) {
+      console.warn("v73 session fallback", e);
+    }
     const profile = localProfile();
     let account = {};
-    try { account = JSON.parse(localStorage.getItem("btv-account") || "{}"); } catch {}
-    const u = session?.user || { id: account.id || "local-account", email: account.email || "", user_metadata: { full_name: profile.preferredName || profile.name || account.name || "MR", profession: profile.profession, destination: profile.destination } };
+    try {
+      account = JSON.parse(localStorage.getItem("btv-account") || "{}");
+    } catch {}
+    const u = session?.user || {
+      id: account.id || "local-account",
+      email: account.email || "",
+      user_metadata: {
+        full_name:
+          profile.preferredName || profile.name || account.name || "MR",
+        profession: profile.profession,
+        destination: profile.destination,
+      },
+    };
     if (!session || !db()?.from) {
-      state = { u, isAdmin: false, wallet: { balance: Number(account.coins || 0) }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      state = {
+        u,
+        isAdmin: false,
+        wallet: { balance: Number(account.coins || 0) },
+        game: { level: 1, xp: 0, current_streak: 0 },
+        mocks: [],
+        notes: [],
+        saved: [],
+        progress: [],
+        steps: [],
+        activity: [],
+      };
       return state;
     }
     let platform = {};
     try {
-      const [wallet, game, mocks, notes, saved, progress, steps, activity] = await Promise.all([
-        db().from("btv_wallets").select("*").eq("user_id", u.id).maybeSingle(),
-        db().from("btv_gamification").select("*").eq("user_id", u.id).maybeSingle(),
-        db().from("btv_mock_sessions").select("*").eq("user_id", u.id).order("started_at", { ascending: false }).limit(12),
-        db().from("btv_notifications").select("*").eq("user_id", u.id).order("created_at", { ascending: false }).limit(12),
-        db().from("btv_saved_jobs").select("*").eq("user_id", u.id),
-        db().from("btv_user_journey_progress").select("*").eq("user_id", u.id),
-        db().from("btv_journey_steps").select("*").eq("is_active", true).order("sort_order"),
-        db().from("btv_study_activity").select("*").eq("user_id", u.id).order("created_at", { ascending: false }).limit(10),
-      ]);
-      const failed = [wallet, game, mocks, notes, saved, progress, steps, activity].find((x) => x.error);
+      const [wallet, game, mocks, notes, saved, progress, steps, activity] =
+        await Promise.all([
+          db()
+            .from("btv_wallets")
+            .select("*")
+            .eq("user_id", u.id)
+            .maybeSingle(),
+          db()
+            .from("btv_gamification")
+            .select("*")
+            .eq("user_id", u.id)
+            .maybeSingle(),
+          db()
+            .from("btv_mock_sessions")
+            .select("*")
+            .eq("user_id", u.id)
+            .order("started_at", { ascending: false })
+            .limit(12),
+          db()
+            .from("btv_notifications")
+            .select("*")
+            .eq("user_id", u.id)
+            .order("created_at", { ascending: false })
+            .limit(12),
+          db().from("btv_saved_jobs").select("*").eq("user_id", u.id),
+          db()
+            .from("btv_user_journey_progress")
+            .select("*")
+            .eq("user_id", u.id),
+          db()
+            .from("btv_journey_steps")
+            .select("*")
+            .eq("is_active", true)
+            .order("sort_order"),
+          db()
+            .from("btv_study_activity")
+            .select("*")
+            .eq("user_id", u.id)
+            .order("created_at", { ascending: false })
+            .limit(10),
+        ]);
+      const failed = [
+        wallet,
+        game,
+        mocks,
+        notes,
+        saved,
+        progress,
+        steps,
+        activity,
+      ].find((x) => x.error);
       if (failed) throw failed.error;
       let isAdmin = false;
       try {
-        const role = await db().from("profiles").select("role").eq("id", u.id).maybeSingle();
+        const role = await db()
+          .from("profiles")
+          .select("role")
+          .eq("id", u.id)
+          .maybeSingle();
         isAdmin = role.data?.role === "admin";
       } catch (e) {
         console.warn("v73 admin access check failed", e);
@@ -141,44 +289,154 @@
       };
     } catch (e) {
       console.warn("v73 data fallback", e);
-      platform = { isAdmin: false, wallet: { balance: 0 }, game: { level: 1, xp: 0, current_streak: 0 }, mocks: [], notes: [], saved: [], progress: [], steps: [], activity: [] };
+      platform = {
+        isAdmin: false,
+        wallet: { balance: 0 },
+        game: { level: 1, xp: 0, current_streak: 0 },
+        mocks: [],
+        notes: [],
+        saved: [],
+        progress: [],
+        steps: [],
+        activity: [],
+      };
     }
     state = { u, ...platform };
     return state;
   }
 
   function journey() {
-    const legacy = typeof window.completed === "function" ? window.completed() : 0;
+    const legacy =
+      typeof window.completed === "function" ? window.completed() : 0;
     const synced = window.destinationSync?.snapshot?.() || null;
     const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
     const destinationKey = destinationInfo().key;
-    const scopedSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
-    const legacyTotal = typeof window.country === "function" ? window.country()?.steps?.length || 0 : 0;
+    const role = String(
+      localProfile().profession || state.u?.user_metadata?.profession || ""
+    )
+      .trim()
+      .toLowerCase();
+    const canonicalRole = role.startsWith("midwi")
+      ? "midwifery"
+      : role.startsWith("nurs")
+      ? "nursing"
+      : "";
+    const scopedSteps = (state.steps || []).filter((step) => {
+      if (step?.destination && step.destination !== destinationKey)
+        return false;
+      if (
+        step?.is_active === false ||
+        step?.is_archived === true ||
+        step?.is_required === false
+      )
+        return false;
+      const roles = Array.isArray(step?.applicable_professions)
+        ? step.applicable_professions.map((value) =>
+            String(value || "").toLowerCase()
+          )
+        : [];
+      return (
+        !roles.length ||
+        !canonicalRole ||
+        roles.some((value) => value.startsWith(canonicalRole.slice(0, 5)))
+      );
+    });
+    const legacyTotal =
+      typeof window.country === "function"
+        ? window.country()?.steps?.length || 0
+        : 0;
     const useSynced = syncedSteps.length > 0;
     const usePlatformSteps = !useSynced && scopedSteps.length > 0;
-    const done = useSynced ? (synced?.done || 0) : usePlatformSteps ? state.progress?.filter((x) => x.completed === true || Boolean(x.completed_at)).length || 0 : legacy;
-    const total = useSynced ? syncedSteps.length : usePlatformSteps ? scopedSteps.length : legacyTotal || 7;
+    const scopedCodes = new Set(scopedSteps.map((step) => step.code));
+    const done = useSynced
+      ? synced?.done || 0
+      : usePlatformSteps
+      ? state.progress?.filter(
+          (x) =>
+            scopedCodes.has(x.step_code) &&
+            (x.completed === true || Boolean(x.completed_at))
+        ).length || 0
+      : legacy;
+    const total = useSynced
+      ? syncedSteps.length
+      : usePlatformSteps
+      ? scopedSteps.length
+      : legacyTotal || 7;
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
 
   function recommendation(j) {
     const p = localProfile();
-    if (!p.profession || !p.destination) return { title: "Complete your profile", copy: "Add your profession and destination for personalised guidance.", id: "profile" };
-    const active = state.mocks?.find((x) => x.status === "active" || x.status === "in_progress");
-    if (active) return { title: "Resume your active mock", copy: `Continue ${String(active.mock_code).replaceAll("_", " ")} without paying again.`, id: "mock-tests" };
-    if (!j.done) return { title: "Upload your essential documents", copy: "Start with the certificates and identity files your pathway will need.", id: "documents" };
-    if (state.notes?.some((x) => !x.read_at)) return { title: "Review your updates", copy: "You have unread guidance and account notifications.", id: "notifications" };
-    return { title: "Continue today’s study plan", copy: "Keep your learning streak moving forward.", id: "study-plan" };
+    if (!p.profession || !p.destination)
+      return {
+        title: "Complete your profile",
+        copy: "Add your profession and destination for personalised guidance.",
+        id: "profile",
+      };
+    const active = state.mocks?.find(
+      (x) => x.status === "active" || x.status === "in_progress"
+    );
+    if (active)
+      return {
+        title: "Resume your active mock",
+        copy: `Continue ${String(active.mock_code).replaceAll(
+          "_",
+          " "
+        )} without paying again.`,
+        id: "mock-tests",
+      };
+    if (!j.done)
+      return {
+        title: "Upload your essential documents",
+        copy: "Start with the certificates and identity files your pathway will need.",
+        id: "documents",
+      };
+    if (state.notes?.some((x) => !x.read_at))
+      return {
+        title: "Review your updates",
+        copy: "You have unread guidance and account notifications.",
+        id: "notifications",
+      };
+    return {
+      title: "Continue today’s study plan",
+      copy: "Keep your learning streak moving forward.",
+      id: "study-plan",
+    };
   }
 
   function examStats() {
     const destination = destinationInfo();
-    if (destination.exam === "registration") return { label: "Registration", route: "journey", value: `${journey().pct}%`, sub: `${destination.name} pathway` };
+    if (destination.exam === "registration")
+      return {
+        label: "Registration",
+        route: "journey",
+        value: `${journey().pct}%`,
+        sub: `${destination.name} pathway`,
+      };
     const token = destination.exam;
-    const latest = state.mocks?.find((x) => String(x.mock_code || "").toLowerCase().includes(token) && (x.status === "completed" || x.status === "submitted"));
-    if (!latest || !latest.total) return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: "-", sub: "0 questions answered" };
-    const pct = Math.round((Number(latest.score || 0) / Number(latest.total || 1)) * 100);
-    return { label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy", route: token, value: `${pct}%`, sub: `${Number(latest.total || 0)} questions answered` };
+    const latest = state.mocks?.find(
+      (x) =>
+        String(x.mock_code || "")
+          .toLowerCase()
+          .includes(token) &&
+        (x.status === "completed" || x.status === "submitted")
+    );
+    if (!latest || !latest.total)
+      return {
+        label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy",
+        route: token,
+        value: "-",
+        sub: "0 questions answered",
+      };
+    const pct = Math.round(
+      (Number(latest.score || 0) / Number(latest.total || 1)) * 100
+    );
+    return {
+      label: token === "nclex" ? "NCLEX accuracy" : "CBT accuracy",
+      route: token,
+      value: `${pct}%`,
+      sub: `${Number(latest.total || 0)} questions answered`,
+    };
   }
 
   function showHomeAdvice() {
@@ -188,22 +446,113 @@
     const current = journeyItems().find((step) => step.current);
     const unread = state.notes?.filter((note) => !note.read_at).length || 0;
     const choices = [
-      { tag: "RECOMMENDED NEXT STEP", title: suggested.title, copy: suggested.copy, route: suggested.id },
-      current ? { tag: "YOUR JOURNEY", title: current.title, copy: `${current.copy} You are ${progress.pct}% through your ${destination.name} checklist.`, route: "journey" } : null,
-      unread ? { tag: "ACCOUNT UPDATE", title: `Review ${unread} unread notification${unread === 1 ? "" : "s"}`, copy: "Open your updates for journey reminders, learning news and account information.", route: "notifications" } : null,
-      destination.exam === "cbt" ? { tag: "LEARNING ADVICE", title: "Keep CBT preparation consistent", copy: "A short focused practice session followed by explanation review is more useful than rushing through a large question set.", route: "cbt" } : destination.exam === "nclex" ? { tag: "LEARNING ADVICE", title: "Practise NCLEX clinical judgement", copy: "Use safety, assessment, prioritisation and least-harm reasoning before reviewing the explanation.", route: "nclex" } : { tag: "REGISTRATION ADVICE", title: `Review your ${destination.name} pathway`, copy: "Confirm every registration and immigration requirement through the responsible current official authority.", route: "journey" },
-      { tag: "CAREER ADVICE", title: "Keep one career action moving", copy: "Save a suitable role, improve one interview example, or organise one supporting document today.", route: "jobs" },
-      { tag: "PLANNING ADVICE", title: "Verify before paying or submitting", copy: "Check current regulator and government guidance before paying a fee, uploading evidence or making a travel commitment.", route: "resources" },
+      {
+        tag: "RECOMMENDED NEXT STEP",
+        title: suggested.title,
+        copy: suggested.copy,
+        route: suggested.id,
+      },
+      current
+        ? {
+            tag: "YOUR JOURNEY",
+            title: current.title,
+            copy: `${current.copy} You are ${progress.pct}% through your ${destination.name} checklist.`,
+            route: "journey",
+          }
+        : null,
+      unread
+        ? {
+            tag: "ACCOUNT UPDATE",
+            title: `Review ${unread} unread notification${
+              unread === 1 ? "" : "s"
+            }`,
+            copy: "Open your updates for journey reminders, learning news and account information.",
+            route: "notifications",
+          }
+        : null,
+      destination.exam === "cbt"
+        ? {
+            tag: "LEARNING ADVICE",
+            title: "Keep CBT preparation consistent",
+            copy: "A short focused practice session followed by explanation review is more useful than rushing through a large question set.",
+            route: "cbt",
+          }
+        : destination.exam === "nclex"
+        ? {
+            tag: "LEARNING ADVICE",
+            title: "Practise NCLEX clinical judgement",
+            copy: "Use safety, assessment, prioritisation and least-harm reasoning before reviewing the explanation.",
+            route: "nclex",
+          }
+        : {
+            tag: "REGISTRATION ADVICE",
+            title: `Review your ${destination.name} pathway`,
+            copy: "Confirm every registration and immigration requirement through the responsible current official authority.",
+            route: "journey",
+          },
+      {
+        tag: "CAREER ADVICE",
+        title: "Keep one career action moving",
+        copy: "Save a suitable role, improve one interview example, or organise one supporting document today.",
+        route: "jobs",
+      },
+      {
+        tag: "PLANNING ADVICE",
+        title: "Verify before paying or submitting",
+        copy: "Check current regulator and government guidance before paying a fee, uploading evidence or making a travel commitment.",
+        route: "resources",
+      },
     ].filter(Boolean);
     const selected = choices.sort(() => Math.random() - 0.5).slice(0, 3);
     let dialog = document.getElementById("homeAdvice107");
-    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "homeAdvice107"; dialog.className = "homeAdvice107"; document.body.append(dialog); }
-    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(destination.flag)} ${esc(destination.name.toUpperCase())} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice for your journey.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected.map((item, index) => `<article class="${index === 0 ? "featured" : ""}"><small>${esc(item.tag)}</small><h3>${esc(item.title)}</h3><p>${esc(item.copy)}</p><button type="button" data-advice-route="${esc(item.route)}">Open ${esc(item.title)}</button></article>`).join("")}</div><footer><button type="button" data-refresh-advice>Show different advice</button><button type="button" data-advice-close>Close</button></footer></div>`;
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "homeAdvice107";
+      dialog.className = "homeAdvice107";
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `<div class="homeAdvicePanel107"><header><div><small>${esc(
+      destination.flag
+    )} ${esc(
+      destination.name.toUpperCase()
+    )} PATHWAY</small><h2>Your recommendations</h2><p>Fresh practical advice for your journey.</p></div><button type="button" data-advice-close aria-label="Close recommendations">&times;</button></header><div class="homeAdviceGrid107">${selected
+      .map(
+        (item, index) =>
+          `<article class="${index === 0 ? "featured" : ""}"><small>${esc(
+            item.tag
+          )}</small><h3>${esc(item.title)}</h3><p>${esc(
+            item.copy
+          )}</p><button type="button" data-advice-route="${esc(
+            item.route
+          )}">Open ${esc(item.title)}</button></article>`
+      )
+      .join(
+        ""
+      )}</div><footer><button type="button" data-refresh-advice>Show different advice</button><button type="button" data-advice-close>Close</button></footer></div>`;
     const close = () => dialog.close();
-    dialog.querySelectorAll("[data-advice-close]").forEach((button) => button.onclick = close);
-    dialog.querySelectorAll("[data-advice-route]").forEach((button) => button.onclick = () => { const route = button.dataset.adviceRoute; close(); go(route); });
+    dialog
+      .querySelectorAll("[data-advice-close]")
+      .forEach((button) => (button.onclick = close));
+    dialog.querySelectorAll("[data-advice-route]").forEach(
+      (button) =>
+        (button.onclick = () => {
+          const route = button.dataset.adviceRoute;
+          close();
+          go(route);
+        })
+    );
     dialog.querySelector("[data-refresh-advice]").onclick = showHomeAdvice;
-    dialog.onclick = (event) => { if (event.target !== dialog) return; const box = dialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close(); };
+    dialog.onclick = (event) => {
+      if (event.target !== dialog) return;
+      const box = dialog.getBoundingClientRect();
+      if (
+        event.clientX < box.left ||
+        event.clientX > box.right ||
+        event.clientY < box.top ||
+        event.clientY > box.bottom
+      )
+        close();
+    };
     if (!dialog.open) dialog.showModal();
     dialog.querySelector("[data-advice-close]")?.focus();
   }
@@ -212,23 +561,23 @@
     const details = {
       earning: {
         title: "How to earn Beyond Coins",
-        body: "You earn coins through approved activity on the platform, including study milestones, streak goals, and selected promotional rewards. Rewards are credited to your wallet and can be used across supported preparation services."
+        body: "You earn coins through approved activity on the platform, including study milestones, streak goals, and selected promotional rewards. Rewards are credited to your wallet and can be used across supported preparation services.",
       },
       usage: {
         title: "Where Beyond Coins are used",
-        body: "Beyond Coins can be used for paid learning actions such as timed mock attempts and premium preparation unlocks where marked. The exact coin cost is shown before confirmation."
+        body: "Beyond Coins can be used for paid learning actions such as timed mock attempts and premium preparation unlocks where marked. The exact coin cost is shown before confirmation.",
       },
       charges: {
         title: "What counts as a charge",
-        body: "A charge is applied only when you confirm a paid action. If the action is session-based, the charge applies to that purchased session only."
+        body: "A charge is applied only when you confirm a paid action. If the action is session-based, the charge applies to that purchased session only.",
       },
       refunds: {
         title: "Refunds and reversals",
-        body: "If a technical failure prevents the purchased action from starting correctly, support can investigate and issue a coin reversal where applicable. Completed usage is normally not refundable."
+        body: "If a technical failure prevents the purchased action from starting correctly, support can investigate and issue a coin reversal where applicable. Completed usage is normally not refundable.",
       },
       history: {
         title: "Transaction history",
-        body: "Your wallet history records each credit and debit with timestamps so you can audit your usage and support requests."
+        body: "Your wallet history records each credit and debit with timestamps so you can audit your usage and support requests.",
       },
     };
     return details[key] || details.usage;
@@ -243,26 +592,68 @@
       dialog.className = "coinsDetailDialog73";
       document.body.append(dialog);
     }
-    dialog.innerHTML = `<article class="coinsDetailPanel73"><header><h3>${esc(info.title)}</h3><button type="button" data-coin-detail-close aria-label="Close">&times;</button></header><p>${esc(info.body)}</p><footer><button type="button" data-coin-detail-close>Close</button></footer></article>`;
+    dialog.innerHTML = `<article class="coinsDetailPanel73"><header><h3>${esc(
+      info.title
+    )}</h3><button type="button" data-coin-detail-close aria-label="Close">&times;</button></header><p>${esc(
+      info.body
+    )}</p><footer><button type="button" data-coin-detail-close>Close</button></footer></article>`;
     const close = () => dialog.close();
-    dialog.querySelectorAll("[data-coin-detail-close]").forEach((button) => button.onclick = close);
+    dialog
+      .querySelectorAll("[data-coin-detail-close]")
+      .forEach((button) => (button.onclick = close));
     if (!dialog.open) dialog.showModal();
   }
 
   async function loadCoinsData() {
     const supa = window.btvSupabase;
-    if (!supa || !state.u) return { opportunities: [], claimed: new Set(), packages: [], referralCode: null };
+    if (!supa || !state.u)
+      return {
+        opportunities: [],
+        claimed: new Set(),
+        packages: [],
+        referralCode: null,
+      };
     const uid = state.u.id;
     try {
       const [opRes, claimRes, pkgRes] = await Promise.all([
-        supa.from("btv_coin_opportunities").select("code,title,description,coin_reward,sort_order").eq("is_active", true).order("sort_order"),
-        supa.from("btv_coin_rewards").select("opportunity_code").eq("user_id", uid),
-        supa.from("btv_coin_packages").select("code,title,coin_amount,price_minor,currency,bonus_coins,sort_order").eq("is_active", true).order("sort_order").limit(9),
+        supa
+          .from("btv_coin_opportunities")
+          .select("code,title,description,coin_reward,sort_order")
+          .eq("is_active", true)
+          .order("sort_order"),
+        supa
+          .from("btv_coin_rewards")
+          .select("opportunity_code")
+          .eq("user_id", uid),
+        supa
+          .from("btv_coin_packages")
+          .select(
+            "code,title,coin_amount,price_minor,currency,bonus_coins,sort_order"
+          )
+          .eq("is_active", true)
+          .order("sort_order")
+          .limit(9),
       ]);
       let referralCode = null;
-      try { const { data } = await supa.rpc("btv_get_or_create_referral_code"); referralCode = data; } catch {}
-      return { opportunities: opRes.data || [], claimed: new Set((claimRes.data || []).map(r => r.opportunity_code)), packages: pkgRes.data || [], referralCode };
-    } catch (e) { console.error("[BTV] loadCoinsData:", e); return { opportunities: [], claimed: new Set(), packages: [], referralCode: null }; }
+      try {
+        const { data } = await supa.rpc("btv_get_or_create_referral_code");
+        referralCode = data;
+      } catch {}
+      return {
+        opportunities: opRes.data || [],
+        claimed: new Set((claimRes.data || []).map((r) => r.opportunity_code)),
+        packages: pkgRes.data || [],
+        referralCode,
+      };
+    } catch (e) {
+      console.error("[BTV] loadCoinsData:", e);
+      return {
+        opportunities: [],
+        claimed: new Set(),
+        packages: [],
+        referralCode: null,
+      };
+    }
   }
 
   async function claimCoinOpportunity(code, btn, onSuccess) {
@@ -272,119 +663,259 @@
     const orig = btn.textContent;
     btn.textContent = "Claiming…";
     try {
-      const { data, error } = await supa.rpc("btv_claim_coin_opportunity", { p_code: code });
+      const { data, error } = await supa.rpc("btv_claim_coin_opportunity", {
+        p_code: code,
+      });
       if (error) throw new Error(error.message);
       onSuccess(data);
     } catch (e) {
       btn.disabled = false;
       btn.textContent = orig;
       const msg = String(e.message || "");
-      alert(msg.includes("Complete this activity") ? "Finish this activity first, then come back to claim your coins." : msg.includes("unavailable") ? "This reward is not available right now." : "Could not claim reward. Please try again.");
+      alert(
+        msg.includes("Complete this activity")
+          ? "Finish this activity first, then come back to claim your coins."
+          : msg.includes("unavailable")
+          ? "This reward is not available right now."
+          : "Could not claim reward. Please try again."
+      );
     }
   }
 
   async function initiateCoinPurchase(pkg) {
     const supa = window.btvSupabase;
-    if (!supa || !state.u) { alert("Please sign in to purchase coins."); return null; }
+    if (!supa || !state.u) {
+      alert("Please sign in to purchase coins.");
+      return null;
+    }
     try {
-      const { data, error } = await supa.rpc("btv_initiate_coin_purchase", { p_package_code: pkg.code });
+      const { data, error } = await supa.rpc("btv_initiate_coin_purchase", {
+        p_package_code: pkg.code,
+      });
       if (error) throw new Error(error.message);
-      if (!data?.success) throw new Error(data?.message || "Purchase could not be initiated.");
+      if (!data?.success)
+        throw new Error(data?.message || "Purchase could not be initiated.");
       return data;
-    } catch (e) { console.error("[BTV] initiateCoinPurchase:", e); alert(e.message || "Purchase could not be started. Please try again."); return null; }
+    } catch (e) {
+      console.error("[BTV] initiateCoinPurchase:", e);
+      alert(e.message || "Purchase could not be started. Please try again.");
+      return null;
+    }
   }
 
   function showBuyDialog(pkg, purchaseData) {
     let d = document.getElementById("coinsBuyDialog73");
-    if (!d) { d = document.createElement("dialog"); d.id = "coinsBuyDialog73"; d.className = "coinsBuyDialog73"; document.body.append(d); }
+    if (!d) {
+      d = document.createElement("dialog");
+      d.id = "coinsBuyDialog73";
+      d.className = "coinsBuyDialog73";
+      document.body.append(d);
+    }
     const total = pkg.coin_amount + (pkg.bonus_coins || 0);
-    const sym = ({ GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" })[pkg.currency] || pkg.currency;
+    const sym =
+      { GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" }[pkg.currency] ||
+      pkg.currency;
     const price = (pkg.price_minor / 100).toFixed(2);
     const ref = purchaseData?.reference || "N/A";
     const email = "support@beyondthevisa.org";
     const sub = encodeURIComponent("Beyond Coins Purchase – " + ref);
-    const body = encodeURIComponent("Hello,\n\nI would like to purchase the " + pkg.title + " pack (" + total + " Beyond Coins) at " + sym + price + ".\n\nMy purchase reference: " + ref + "\n\nPlease confirm payment details.\n\nThank you.");
-    d.innerHTML = `<article class="coinsBuyPanel73"><header><h3>Buy ${total} BC</h3><button type="button" data-buy-close aria-label="Close">&times;</button></header><div class="coinsBuyHero73"><b>${total} BC</b>${pkg.bonus_coins > 0 ? `<span class="coinsBuyBonusBadge73">+${pkg.bonus_coins} bonus</span>` : ""}<big>${sym}${price}</big></div><p class="coinsBuyInfo73">Email support with your purchase reference below. Beyond Coins are credited to your wallet once payment is confirmed — normally within one business day.</p><div class="coinsBuyRef73"><small>Your purchase reference</small><b>${esc(ref)}</b></div><a href="mailto:${email}?subject=${sub}&body=${body}" class="coinsBuyEmailBtn73">📧 Email support to pay</a><button type="button" data-buy-close class="coinsBuyDoneBtn73">Done</button></article>`;
-    d.querySelectorAll("[data-buy-close]").forEach(b => b.onclick = () => d.close());
+    const body = encodeURIComponent(
+      "Hello,\n\nI would like to purchase the " +
+        pkg.title +
+        " pack (" +
+        total +
+        " Beyond Coins) at " +
+        sym +
+        price +
+        ".\n\nMy purchase reference: " +
+        ref +
+        "\n\nPlease confirm payment details.\n\nThank you."
+    );
+    d.innerHTML = `<article class="coinsBuyPanel73"><header><h3>Buy ${total} BC</h3><button type="button" data-buy-close aria-label="Close">&times;</button></header><div class="coinsBuyHero73"><b>${total} BC</b>${
+      pkg.bonus_coins > 0
+        ? `<span class="coinsBuyBonusBadge73">+${pkg.bonus_coins} bonus</span>`
+        : ""
+    }<big>${sym}${price}</big></div><p class="coinsBuyInfo73">Email support with your purchase reference below. Beyond Coins are credited to your wallet once payment is confirmed — normally within one business day.</p><div class="coinsBuyRef73"><small>Your purchase reference</small><b>${esc(
+      ref
+    )}</b></div><a href="mailto:${email}?subject=${sub}&body=${body}" class="coinsBuyEmailBtn73">📧 Email support to pay</a><button type="button" data-buy-close class="coinsBuyDoneBtn73">Done</button></article>`;
+    d.querySelectorAll("[data-buy-close]").forEach(
+      (b) => (b.onclick = () => d.close())
+    );
     if (!d.open) d.showModal();
   }
 
   function copyReferralLink(code, btn) {
     const link = location.origin + "?ref=" + encodeURIComponent(code);
-    if (!navigator.clipboard) { prompt("Copy your referral link:", link); return; }
-    navigator.clipboard.writeText(link).then(() => {
-      const prev = btn.textContent;
-      btn.textContent = "✓ Copied!";
-      btn.classList.add("refCopied73");
-      setTimeout(() => { btn.textContent = prev; btn.classList.remove("refCopied73"); }, 2500);
-    }).catch(() => prompt("Copy your referral link:", link));
+    if (!navigator.clipboard) {
+      prompt("Copy your referral link:", link);
+      return;
+    }
+    navigator.clipboard
+      .writeText(link)
+      .then(() => {
+        const prev = btn.textContent;
+        btn.textContent = "✓ Copied!";
+        btn.classList.add("refCopied73");
+        setTimeout(() => {
+          btn.textContent = prev;
+          btn.classList.remove("refCopied73");
+        }, 2500);
+      })
+      .catch(() => prompt("Copy your referral link:", link));
   }
 
-  function renderEarnList(container, opportunities, claimed, referralCode, dialog) {
+  function renderEarnList(
+    container,
+    opportunities,
+    claimed,
+    referralCode,
+    dialog
+  ) {
     if (!container) return;
-    if (!opportunities.length) { container.innerHTML = `<p class="coinsEmpty73">No earn activities available right now.</p>`; return; }
-    container.innerHTML = opportunities.map(op => {
-      const isClaimed = claimed.has(op.code);
-      const isRef = op.code === "invite-friend";
-      return `<article class="coinsEarnItem73${isClaimed ? " earned73" : ""}">
-        <div class="coinsEarnBody73"><b>${esc(op.title)}</b><small>${esc(op.description)}</small>${isRef && referralCode ? `<div class="coinsRefRow73"><code class="coinsRefCode73">${esc(referralCode)}</code><button type="button" class="coinsRefCopyBtn73" data-ref="${esc(referralCode)}">Copy link</button></div>` : ""}</div>
-        <div class="coinsEarnRight73"><span class="coinsRewardTag73">+${op.coin_reward} BC</span>${isClaimed ? `<span class="coinsEarned73">Earned ✓</span>` : `<button type="button" class="coinsClaimBtn73" data-earn="${esc(op.code)}">${isRef ? "Share" : "Claim"}</button>`}</div>
+    if (!opportunities.length) {
+      container.innerHTML = `<p class="coinsEmpty73">No earn activities available right now.</p>`;
+      return;
+    }
+    container.innerHTML = opportunities
+      .map((op) => {
+        const isClaimed = claimed.has(op.code);
+        const isRef = op.code === "invite-friend";
+        return `<article class="coinsEarnItem73${isClaimed ? " earned73" : ""}">
+        <div class="coinsEarnBody73"><b>${esc(op.title)}</b><small>${esc(
+          op.description
+        )}</small>${
+          isRef && referralCode
+            ? `<div class="coinsRefRow73"><code class="coinsRefCode73">${esc(
+                referralCode
+              )}</code><button type="button" class="coinsRefCopyBtn73" data-ref="${esc(
+                referralCode
+              )}">Copy link</button></div>`
+            : ""
+        }</div>
+        <div class="coinsEarnRight73"><span class="coinsRewardTag73">+${
+          op.coin_reward
+        } BC</span>${
+          isClaimed
+            ? `<span class="coinsEarned73">Earned ✓</span>`
+            : `<button type="button" class="coinsClaimBtn73" data-earn="${esc(
+                op.code
+              )}">${isRef ? "Share" : "Claim"}</button>`
+        }</div>
       </article>`;
-    }).join("");
-    container.querySelectorAll("[data-ref]").forEach(btn => btn.addEventListener("click", () => copyReferralLink(btn.dataset.ref, btn)));
-    container.querySelectorAll("[data-earn]").forEach(btn => btn.addEventListener("click", () => {
-      const code = btn.dataset.earn;
-      if (code === "invite-friend") { const rb = container.querySelector("[data-ref]"); if (rb) copyReferralLink(rb.dataset.ref, rb); return; }
-      claimCoinOpportunity(code, btn, (newBal) => {
-        btn.parentElement.innerHTML = `<span class="coinsEarned73">Earned ✓</span>`;
-        btn.closest(".coinsEarnItem73")?.classList.add("earned73");
-        state.wallet = { ...(state.wallet || {}), balance: newBal };
-        const balEl = dialog?.querySelector(".coinsBalanceAmt73");
-        if (balEl) balEl.textContent = Number(newBal).toLocaleString("en-GB") + " BC";
-        window.dispatchEvent(new CustomEvent("btv:wallet-changed"));
-      });
-    }));
+      })
+      .join("");
+    container
+      .querySelectorAll("[data-ref]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          copyReferralLink(btn.dataset.ref, btn)
+        )
+      );
+    container.querySelectorAll("[data-earn]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const code = btn.dataset.earn;
+        if (code === "invite-friend") {
+          const rb = container.querySelector("[data-ref]");
+          if (rb) copyReferralLink(rb.dataset.ref, rb);
+          return;
+        }
+        claimCoinOpportunity(code, btn, (newBal) => {
+          btn.parentElement.innerHTML = `<span class="coinsEarned73">Earned ✓</span>`;
+          btn.closest(".coinsEarnItem73")?.classList.add("earned73");
+          state.wallet = { ...(state.wallet || {}), balance: newBal };
+          const balEl = dialog?.querySelector(".coinsBalanceAmt73");
+          if (balEl)
+            balEl.textContent = Number(newBal).toLocaleString("en-GB") + " BC";
+          window.dispatchEvent(new CustomEvent("btv:wallet-changed"));
+        });
+      })
+    );
   }
 
   function renderBuyGrid(container, packages) {
     if (!container) return;
-    if (!packages.length) { container.innerHTML = `<p class="coinsEmpty73">Coin packages coming soon.</p>`; return; }
+    if (!packages.length) {
+      container.innerHTML = `<p class="coinsEmpty73">Coin packages coming soon.</p>`;
+      return;
+    }
     const sym = { GBP: "£", USD: "$", EUR: "€", GHS: "₵", NGN: "₦" };
-    container.innerHTML = packages.map(pkg => {
-      const total = pkg.coin_amount + (pkg.bonus_coins || 0);
-      const s = sym[pkg.currency] || pkg.currency;
-      const price = (pkg.price_minor / 100).toFixed(2);
-      return `<article class="coinsPkgCard73"><div class="coinsPkgTop73"><b>${total}</b><small>BC</small></div>${pkg.bonus_coins > 0 ? `<span class="coinsPkgBonus73">+${pkg.bonus_coins} bonus</span>` : `<span class="coinsPkgLabel73">${esc(pkg.title)}</span>`}<button type="button" class="coinsPkgBuyBtn73" data-pkg='${JSON.stringify({ code: pkg.code, title: pkg.title, coin_amount: pkg.coin_amount, bonus_coins: pkg.bonus_coins || 0, price_minor: pkg.price_minor, currency: pkg.currency })}'>Buy · ${s}${price}</button></article>`;
-    }).join("");
-    container.querySelectorAll("[data-pkg]").forEach(btn => btn.addEventListener("click", async () => {
-      const pkg = JSON.parse(btn.dataset.pkg);
-      btn.disabled = true;
-      const orig = btn.textContent;
-      btn.textContent = "Setting up…";
-      const result = await initiateCoinPurchase(pkg);
-      btn.disabled = false;
-      btn.textContent = orig;
-      if (result) showBuyDialog(pkg, result);
-    }));
+    container.innerHTML = packages
+      .map((pkg) => {
+        const total = pkg.coin_amount + (pkg.bonus_coins || 0);
+        const s = sym[pkg.currency] || pkg.currency;
+        const price = (pkg.price_minor / 100).toFixed(2);
+        return `<article class="coinsPkgCard73"><div class="coinsPkgTop73"><b>${total}</b><small>BC</small></div>${
+          pkg.bonus_coins > 0
+            ? `<span class="coinsPkgBonus73">+${pkg.bonus_coins} bonus</span>`
+            : `<span class="coinsPkgLabel73">${esc(pkg.title)}</span>`
+        }<button type="button" class="coinsPkgBuyBtn73" data-pkg='${JSON.stringify(
+          {
+            code: pkg.code,
+            title: pkg.title,
+            coin_amount: pkg.coin_amount,
+            bonus_coins: pkg.bonus_coins || 0,
+            price_minor: pkg.price_minor,
+            currency: pkg.currency,
+          }
+        )}'>Buy · ${s}${price}</button></article>`;
+      })
+      .join("");
+    container.querySelectorAll("[data-pkg]").forEach((btn) =>
+      btn.addEventListener("click", async () => {
+        const pkg = JSON.parse(btn.dataset.pkg);
+        btn.disabled = true;
+        const orig = btn.textContent;
+        btn.textContent = "Setting up…";
+        const result = await initiateCoinPurchase(pkg);
+        btn.disabled = false;
+        btn.textContent = orig;
+        if (result) showBuyDialog(pkg, result);
+      })
+    );
   }
 
   async function openCoinsCentre() {
     const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
     let dialog = document.getElementById("coinsCentreDialog73");
-    if (!dialog) { dialog = document.createElement("dialog"); dialog.id = "coinsCentreDialog73"; dialog.className = "coinsCentreDialog73"; document.body.append(dialog); }
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "coinsCentreDialog73";
+      dialog.className = "coinsCentreDialog73";
+      document.body.append(dialog);
+    }
     dialog.innerHTML = `<article class="coinsCentrePanel73">
       <header><div><small>BEYOND COINS</small><h2>Your Beyond Coins</h2><p>Earn, buy or spend your coins across the platform.</p></div><button type="button" data-coin-close class="coinsCentreClose73" aria-label="Close">&times;</button></header>
       <section class="coinsBalance73"><b class="coinsBalanceAmt73">${balance} BC</b><span>Current wallet balance</span></section>
       <section class="coinsEarnSection73"><header class="coinsSub73"><span>EARN COINS</span><small>One-time activities · auto-credited</small></header><div class="coinsEarnList73" id="coinsEarnList73"><div class="coinsSpinner73">Loading activities…</div></div></section>
       <section class="coinsBuySection73"><header class="coinsSub73"><span>BUY COINS</span><small>Instant top-up packages</small></header><div class="coinsBuyGrid73" id="coinsBuyGrid73"><div class="coinsSpinner73">Loading packages…</div></div></section>
-      <section class="coinsInfoSection73"><header class="coinsSub73"><span>ABOUT COINS</span></header><div class="coinsDetails73"><button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg("arrowRight")}</button><button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg("arrowRight")}</button></div></section>
+      <section class="coinsInfoSection73"><header class="coinsSub73"><span>ABOUT COINS</span></header><div class="coinsDetails73"><button type="button" data-coin-detail="earning"><span>How to earn coins</span>${iconSvg(
+        "arrowRight"
+      )}</button><button type="button" data-coin-detail="usage"><span>Where coins are used</span>${iconSvg(
+      "arrowRight"
+    )}</button><button type="button" data-coin-detail="charges"><span>Charging rules</span>${iconSvg(
+      "arrowRight"
+    )}</button><button type="button" data-coin-detail="refunds"><span>Refund policy</span>${iconSvg(
+      "arrowRight"
+    )}</button><button type="button" data-coin-detail="history"><span>Transaction history</span>${iconSvg(
+      "arrowRight"
+    )}</button></div></section>
     </article>`;
     const close = () => dialog.close();
     dialog.querySelector("[data-coin-close]")?.addEventListener("click", close);
-    dialog.querySelectorAll("[data-coin-detail]").forEach(b => b.addEventListener("click", () => openCoinDetail(b.dataset.coinDetail)));
+    dialog
+      .querySelectorAll("[data-coin-detail]")
+      .forEach((b) =>
+        b.addEventListener("click", () => openCoinDetail(b.dataset.coinDetail))
+      );
     if (!dialog.open) dialog.showModal();
     const data = await loadCoinsData();
-    renderEarnList(dialog.querySelector("#coinsEarnList73"), data.opportunities, data.claimed, data.referralCode, dialog);
+    renderEarnList(
+      dialog.querySelector("#coinsEarnList73"),
+      data.opportunities,
+      data.claimed,
+      data.referralCode,
+      dialog
+    );
     renderBuyGrid(dialog.querySelector("#coinsBuyGrid73"), data.packages);
   }
 
@@ -393,20 +924,41 @@
       mentors: {
         icon: "🧑‍⚕️",
         title: "Mentors",
-        subtitle: "Connect with nurses who have completed the journey you're starting.",
+        subtitle:
+          "Connect with nurses who have completed the journey you're starting.",
         badge: null,
         sections: [
           {
             heading: "What mentors offer",
             items: [
-              { icon: "🎥", label: "1-to-1 video sessions", detail: "Guided conversations with nurses who have registered, relocated and are practising in your target country." },
-              { icon: "🗺️", label: "Pathway guidance", detail: "Tailored advice on registration, exam preparation, visa timing and employment based on your background." },
-              { icon: "📝", label: "Application review", detail: "Honest feedback on your personal statement, documents and interview technique before you submit." },
-              { icon: "💬", label: "Ongoing support", detail: "Message your mentor between sessions for quick guidance as questions come up." },
-            ]
-          }
+              {
+                icon: "🎥",
+                label: "1-to-1 video sessions",
+                detail:
+                  "Guided conversations with nurses who have registered, relocated and are practising in your target country.",
+              },
+              {
+                icon: "🗺️",
+                label: "Pathway guidance",
+                detail:
+                  "Tailored advice on registration, exam preparation, visa timing and employment based on your background.",
+              },
+              {
+                icon: "📝",
+                label: "Application review",
+                detail:
+                  "Honest feedback on your personal statement, documents and interview technique before you submit.",
+              },
+              {
+                icon: "💬",
+                label: "Ongoing support",
+                detail:
+                  "Message your mentor between sessions for quick guidance as questions come up.",
+              },
+            ],
+          },
         ],
-        cta: { label: "Notify me when live", action: "feedback" }
+        cta: { label: "Notify me when live", action: "feedback" },
       },
       bookings: {
         icon: "📅",
@@ -417,19 +969,39 @@
           {
             heading: "Upcoming sessions",
             items: [
-              { icon: "ℹ️", label: "No bookings yet", detail: "Once you book a mentor session or consultation, it will appear here. You can cancel or reschedule from this panel." },
-            ]
+              {
+                icon: "ℹ️",
+                label: "No bookings yet",
+                detail:
+                  "Once you book a mentor session or consultation, it will appear here. You can cancel or reschedule from this panel.",
+              },
+            ],
           },
           {
             heading: "How to book",
             items: [
-              { icon: "1️⃣", label: "Browse mentors", detail: "Open the Mentors panel and find a nurse with experience in your destination and specialty." },
-              { icon: "2️⃣", label: "Choose a time", detail: "Select an available slot that works for your time zone." },
-              { icon: "3️⃣", label: "Pay with coins", detail: "Session fees are deducted from your Beyond Coins balance." },
-            ]
-          }
+              {
+                icon: "1️⃣",
+                label: "Browse mentors",
+                detail:
+                  "Open the Mentors panel and find a nurse with experience in your destination and specialty.",
+              },
+              {
+                icon: "2️⃣",
+                label: "Choose a time",
+                detail:
+                  "Select an available slot that works for your time zone.",
+              },
+              {
+                icon: "3️⃣",
+                label: "Pay with coins",
+                detail:
+                  "Session fees are deducted from your Beyond Coins balance.",
+              },
+            ],
+          },
         ],
-        cta: { label: "Open mentors", action: "mentors" }
+        cta: { label: "Open mentors", action: "mentors" },
       },
       stories: {
         icon: "✦",
@@ -440,14 +1012,29 @@
           {
             heading: "Featured journeys",
             items: [
-              { icon: "🇬🇧", label: "NHS nurse to NMC registration", detail: "\"Beyond The Visa helped me understand every step. I passed CBT first attempt and was registered within eight months.\" — Amara, London" },
-              { icon: "🇺🇸", label: "Nigerian nurse to NCLEX and US licensure", detail: "\"The question bank and the journey tracker kept me organised throughout the whole process.\" — Chisom, Texas" },
-              { icon: "🇦🇺", label: "UK nurse on the Australia streamlined pathway", detail: "\"I didn't realise the NCLEX wasn't required for me. The pathway guide made the whole thing much clearer.\" — Jade, Melbourne" },
-            ]
-          }
+              {
+                icon: "🇬🇧",
+                label: "NHS nurse to NMC registration",
+                detail:
+                  '"Beyond The Visa helped me understand every step. I passed CBT first attempt and was registered within eight months." — Amara, London',
+              },
+              {
+                icon: "🇺🇸",
+                label: "Nigerian nurse to NCLEX and US licensure",
+                detail:
+                  '"The question bank and the journey tracker kept me organised throughout the whole process." — Chisom, Texas',
+              },
+              {
+                icon: "🇦🇺",
+                label: "UK nurse on the Australia streamlined pathway",
+                detail:
+                  "\"I didn't realise the NCLEX wasn't required for me. The pathway guide made the whole thing much clearer.\" — Jade, Melbourne",
+              },
+            ],
+          },
         ],
-        cta: { label: "Share your story", action: "feedback" }
-      }
+        cta: { label: "Share your story", action: "feedback" },
+      },
     };
     const cfg = panels[type];
     if (!cfg) return;
@@ -458,28 +1045,48 @@
       dialog.className = "standalonePanelDialog73";
       document.body.append(dialog);
     }
-    const sectionsHtml = cfg.sections.map(sec => `
+    const sectionsHtml = cfg.sections
+      .map(
+        (sec) => `
       <div class="spSection73">
         <h3 class="spSectionHead73">${esc(sec.heading)}</h3>
-        ${sec.items.map(item => `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${item.icon}</span><div><b>${esc(item.label)}</b><small>${esc(item.detail)}</small></div></article>`).join("")}
-      </div>`).join("");
+        ${sec.items
+          .map(
+            (item) =>
+              `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${
+                item.icon
+              }</span><div><b>${esc(item.label)}</b><small>${esc(
+                item.detail
+              )}</small></div></article>`
+          )
+          .join("")}
+      </div>`
+      )
+      .join("");
     dialog.innerHTML = `<article class="standalonePanelContent73">
       <header class="spHeader73">
-        <div><span class="spIcon73" aria-hidden="true">${cfg.icon}</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
+        <div><span class="spIcon73" aria-hidden="true">${
+          cfg.icon
+        }</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
         <button type="button" data-sp-close class="spCloseBtn73" aria-label="Close">&times;</button>
       </header>
       <div class="spBody73">${sectionsHtml}</div>
       <footer class="spFooter73">
-        <button type="button" class="spCtaBtn73" data-sp-cta="${esc(cfg.cta.action)}">${esc(cfg.cta.label)}</button>
+        <button type="button" class="spCtaBtn73" data-sp-cta="${esc(
+          cfg.cta.action
+        )}">${esc(cfg.cta.label)}</button>
         <button type="button" class="spDoneBtn73" data-sp-close>Done</button>
       </footer>
     </article>`;
     const close = () => dialog.close();
-    dialog.querySelectorAll("[data-sp-close]").forEach(b => b.onclick = close);
+    dialog
+      .querySelectorAll("[data-sp-close]")
+      .forEach((b) => (b.onclick = close));
     dialog.querySelector("[data-sp-cta]")?.addEventListener("click", (e) => {
       const action = e.currentTarget.dataset.spCta;
       close();
-      if (action === "mentors") setTimeout(() => openStandalonePanel("mentors"), 80);
+      if (action === "mentors")
+        setTimeout(() => openStandalonePanel("mentors"), 80);
       else go(action);
     });
     if (!dialog.open) dialog.showModal();
@@ -487,74 +1094,182 @@
 
   function go(id) {
     if (id === "dashboard") {
-      if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
+      if (carouselSlides.length > 1)
+        carouselIndex = Math.floor(Math.random() * carouselSlides.length);
       F()?.open("dashboard");
       return queueRender();
     }
     if (id === "change-destination") return window.openScreen?.("countries");
     if (id === "books") {
       F()?.open("study");
-      return setTimeout(() => window.dispatchEvent(new CustomEvent("btv:feature-action", { detail: { id } })), 120);
+      return setTimeout(
+        () =>
+          window.dispatchEvent(
+            new CustomEvent("btv:feature-action", { detail: { id } })
+          ),
+        120
+      );
     }
     if (id === "wallet") return openCoinsCentre();
     if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
     if (id === "stories") return openStandalonePanel("stories");
     if (id === "legal" || id === "feedback") return window.openScreen?.(id);
-    if (id === "admin") return state.isAdmin ? location.assign("admin.html") : undefined;
-    if (id === "assistant" && typeof window.BTVFloatingZiburToggle === "function") return window.BTVFloatingZiburToggle(true);
+    if (id === "admin")
+      return state.isAdmin ? location.assign("admin.html") : undefined;
+    if (
+      id === "assistant" &&
+      typeof window.BTVFloatingZiburToggle === "function"
+    )
+      return window.BTVFloatingZiburToggle(true);
     F()?.open(id);
   }
 
   function menuGroups() {
     const exam = destinationInfo().exam;
-    const examLinks = exam === "nclex" ? [["NCLEX", "nclex"]] : exam === "cbt" ? [["CBT", "cbt"]] : [];
+    const examLinks =
+      exam === "nclex"
+        ? [["NCLEX", "nclex"]]
+        : exam === "cbt"
+        ? [["CBT", "cbt"]]
+        : [];
     return [
-      { id: "account", label: "Account", links: [["Profile", "profile"], ["Change destination country", "change-destination"], ["My Documents", "documents"], ["Notifications", "notifications"], ["Beyond Coins", "wallet"], ["Privacy & legal", "legal"]] },
-      { id: "learn", label: "Learn", links: [["Learning dashboard", "study"], ["Books", "books"], ...examLinks, ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Learning progress", "analytics"]] },
-      { id: "career", label: "Career and Journey", links: [["My Journey", "journey"], ["Jobs", "jobs"], ["Saved jobs", "saved-jobs"], ["Interview preparation", "interview"], ["Visa Hub", "resources"]] },
-      { id: "support", label: "Community and Support", links: [["Mentors", "mentors"], ["Bookings", "bookings"], ["Success stories", "stories"], ["Community", "community"], ["Help and support", "feedback"], ["Ask Zibur", "assistant"]] },
+      {
+        id: "account",
+        label: "Account",
+        links: [
+          ["Profile", "profile"],
+          ["Change destination country", "change-destination"],
+          ["My Documents", "documents"],
+          ["Notifications", "notifications"],
+          ["Beyond Coins", "wallet"],
+          ["Privacy & legal", "legal"],
+        ],
+      },
+      {
+        id: "learn",
+        label: "Learn",
+        links: [
+          ["Learning dashboard", "study"],
+          ["Books", "books"],
+          ...examLinks,
+          ["OSCE", "osce"],
+          ["IELTS", "ielts"],
+          ["CBT Numeracy", "calculations"],
+          ["Learning progress", "analytics"],
+        ],
+      },
+      {
+        id: "career",
+        label: "Career and Journey",
+        links: [
+          ["My Journey", "journey"],
+          ["Jobs", "jobs"],
+          ["Saved jobs", "saved-jobs"],
+          ["Interview preparation", "interview"],
+          ["Visa Hub", "resources"],
+        ],
+      },
+      {
+        id: "support",
+        label: "Community and Support",
+        links: [
+          ["Mentors", "mentors"],
+          ["Bookings", "bookings"],
+          ["Success stories", "stories"],
+          ["Community", "community"],
+          ["Help and support", "feedback"],
+          ["Ask Zibur", "assistant"],
+        ],
+      },
     ];
   }
 
   function menuMarkup(prefix) {
-    const sections = menuGroups().map((group) => {
-      return `<section class="menuGroup73" data-menu-section="${group.id}">
+    const sections = menuGroups()
+      .map((group) => {
+        return `<section class="menuGroup73" data-menu-section="${group.id}">
         <h3 class="menuSectionTitle73">${esc(group.label)}</h3>
         <div class="menuGroupLinks73">
-          ${group.links.map(([label, route]) => `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(label)}</span>${iconSvg("arrowRight")}</button>`).join("")}
+          ${group.links
+            .map(
+              ([label, route]) =>
+                `<button type="button" class="menuLink73" data-go="${route}"><span>${esc(
+                  label
+                )}</span>${iconSvg("arrowRight")}</button>`
+            )
+            .join("")}
         </div>
       </section>`;
-    }).join("");
-    const admin = state.isAdmin ? `<section class="menuAdmin73" aria-labelledby="${prefix}-admin-title"><p id="${prefix}-admin-title">Administration</p><button type="button" class="menuLink73 adminLink73" data-go="admin"><span>Admin Access</span>${iconSvg("arrowRight")}</button></section>` : "";
-    return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button>`;
+      })
+      .join("");
+    const admin = state.isAdmin
+      ? `<section class="menuAdmin73" aria-labelledby="${prefix}-admin-title"><p id="${prefix}-admin-title">Administration</p><button type="button" class="menuLink73 adminLink73" data-go="admin"><span>Admin Access</span>${iconSvg(
+          "arrowRight"
+        )}</button></section>`
+      : "";
+    return `${sections}${admin}<button class="drawerSignOut73 menuSignOut73" data-signout>${iconSvg(
+      "logout"
+    )}<span>Sign out</span></button>`;
   }
 
   function setupMenuGroups() {}
 
   function journeyItems() {
-    const legacySteps = typeof window.country === "function" ? window.country()?.steps || [] : [];
+    const legacySteps =
+      typeof window.country === "function" ? window.country()?.steps || [] : [];
     const synced = window.destinationSync?.snapshot?.() || null;
     const syncedSteps = Array.isArray(synced?.steps) ? synced.steps : [];
     const destinationKey = destinationInfo().key;
-    const platformSteps = (state.steps || []).filter((step) => !step?.destination || step.destination === destinationKey);
+    const platformSteps = (state.steps || []).filter(
+      (step) => !step?.destination || step.destination === destinationKey
+    );
     const useSynced = syncedSteps.length > 0;
     const usePlatformSteps = !useSynced && platformSteps.length > 0;
-    const useChecklist = !useSynced && !usePlatformSteps && legacySteps.length > 0;
-    const steps = useSynced ? syncedSteps : usePlatformSteps ? platformSteps : legacySteps.map((step, index) => ({ code: `legacy-${index}`, title: step[0], description: step[1], sort_order: index + 1 }));
-    const sourceProgress = useSynced ? (synced?.progress || []) : (state.progress || []);
-    const completedCodes = new Set(sourceProgress.filter((item) => item.completed === true || item.completed_at).map((item) => item.step_code));
+    const useChecklist =
+      !useSynced && !usePlatformSteps && legacySteps.length > 0;
+    const steps = useSynced
+      ? syncedSteps
+      : usePlatformSteps
+      ? platformSteps
+      : legacySteps.map((step, index) => ({
+          code: `legacy-${index}`,
+          title: step[0],
+          description: step[1],
+          sort_order: index + 1,
+        }));
+    const sourceProgress = useSynced
+      ? synced?.progress || []
+      : state.progress || [];
+    const completedCodes = new Set(
+      sourceProgress
+        .filter((item) => item.completed === true || item.completed_at)
+        .map((item) => item.step_code)
+    );
     let checklistStatus = {};
-    try { checklistStatus = JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[destinationInfo().key] || {}; } catch {}
+    try {
+      checklistStatus =
+        JSON.parse(localStorage.getItem("btv-v1") || "{}").done?.[
+          destinationInfo().key
+        ] || {};
+    } catch {}
     let currentFound = false;
     return steps.map((step, index) => {
-      const complete = useChecklist ? Boolean(checklistStatus[index]) : completedCodes.has(step.code);
+      const complete = useChecklist
+        ? Boolean(checklistStatus[index])
+        : completedCodes.has(step.code);
       const current = !complete && !currentFound;
       if (current) currentFound = true;
       return {
         title: step.title || `Journey step ${index + 1}`,
-        copy: step.description || "Review this milestone and keep the required evidence safe.",
+        copy:
+          step.description ||
+          "Review this milestone and keep the required evidence safe.",
         status: complete ? "Completed" : current ? "Current step" : "Upcoming",
-        action: complete ? "Review step" : current ? "Continue step" : "View details",
+        action: complete
+          ? "Review step"
+          : current
+          ? "Continue step"
+          : "View details",
         complete,
         current,
         order: step.sort_order || index + 1,
@@ -578,36 +1293,111 @@
     }
     const name = safeName(state.u);
     const nav = [
-      ["LEARNING", [["Learn overview", "study"], ["CBT", "cbt"], ["NCLEX", "nclex"], ["OSCE", "osce"], ["IELTS", "ielts"], ["CBT Numeracy", "calculations"], ["Saved learning", "analytics"]]],
-      ["CAREER AND MIGRATION", [["Journey Planner", "journey"], ["Visa Hub", "resources"], ["Jobs", "jobs"], ["Interview preparation", "interview"], ["Saved jobs", "saved-jobs"], ["Mentors", "mentors"]]],
-      ["COMMUNITY AND SUPPORT", [["Ask Zibur", "assistant"], ["Community", "community"], ["Notifications", "notifications"], ["Success stories", "stories"]]],
-      ["ACCOUNT", [["Profile", "profile"], ["Change destination country", "change-destination"], ["Beyond Coins", "wallet"], ["Settings", "profile"]]],
+      [
+        "LEARNING",
+        [
+          ["Learn overview", "study"],
+          ["CBT", "cbt"],
+          ["NCLEX", "nclex"],
+          ["OSCE", "osce"],
+          ["IELTS", "ielts"],
+          ["CBT Numeracy", "calculations"],
+          ["Saved learning", "analytics"],
+        ],
+      ],
+      [
+        "CAREER AND MIGRATION",
+        [
+          ["Journey Planner", "journey"],
+          ["Visa Hub", "resources"],
+          ["Jobs", "jobs"],
+          ["Interview preparation", "interview"],
+          ["Saved jobs", "saved-jobs"],
+          ["Mentors", "mentors"],
+        ],
+      ],
+      [
+        "COMMUNITY AND SUPPORT",
+        [
+          ["Ask Zibur", "assistant"],
+          ["Community", "community"],
+          ["Notifications", "notifications"],
+          ["Success stories", "stories"],
+        ],
+      ],
+      [
+        "ACCOUNT",
+        [
+          ["Profile", "profile"],
+          ["Change destination country", "change-destination"],
+          ["Beyond Coins", "wallet"],
+          ["Settings", "profile"],
+        ],
+      ],
     ];
-    o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div>${nav.map(([group, links]) => `<div class="drawerGroup73"><strong>${group}</strong>${links.map(([label, id]) => `<button class="drawerLink73" data-go="${id}"><span>${label}</span><span class="rowArrow73">${iconSvg("arrowRight")}</span></button>`).join("")}</div>`).join("")}<button class="drawerSignOut73" data-signout>${iconSvg("logout")}<span>Sign out</span></button></aside>`;
+    o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(
+      initials(name)
+    )}</span><span><b>${esc(name)}</b><small>${esc(
+      userPathway(state.u)
+    )}</small></span></div>${nav
+      .map(
+        ([group, links]) =>
+          `<div class="drawerGroup73"><strong>${group}</strong>${links
+            .map(
+              ([label, id]) =>
+                `<button class="drawerLink73" data-go="${id}"><span>${label}</span><span class="rowArrow73">${iconSvg(
+                  "arrowRight"
+                )}</span></button>`
+            )
+            .join("")}</div>`
+      )
+      .join("")}<button class="drawerSignOut73" data-signout>${iconSvg(
+      "logout"
+    )}<span>Sign out</span></button></aside>`;
     o.hidden = false;
     requestAnimationFrame(() => o.classList.add("open"));
     document.body.style.overflow = "hidden";
     const close = () => {
       o.classList.remove("open");
-      const finish = () => { o.hidden = true; };
-      matchMedia("(prefers-reduced-motion: reduce)").matches ? finish() : setTimeout(finish, 220);
+      const finish = () => {
+        o.hidden = true;
+      };
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? finish()
+        : setTimeout(finish, 220);
       document.body.style.overflow = "";
       trigger.setAttribute("aria-expanded", "false");
       lastFocus?.focus();
     };
     trigger.setAttribute("aria-expanded", "true");
     o.querySelector("[data-close]").onclick = close;
-    o.onclick = (e) => { if (e.target === o) close(); };
+    o.onclick = (e) => {
+      if (e.target === o) close();
+    };
     wire(o);
-    o.querySelectorAll("[data-go],[data-signout]").forEach((b) => b.addEventListener("click", close));
+    o.querySelectorAll("[data-go],[data-signout]").forEach((b) =>
+      b.addEventListener("click", close)
+    );
     o.onkeydown = (e) => {
-      if (e.key === "Escape") { e.preventDefault(); close(); return; }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+        return;
+      }
       if (e.key !== "Tab") return;
-      const focusable = [...o.querySelectorAll("button:not([disabled]),a[href]")].filter((x) => !x.hidden);
+      const focusable = [
+        ...o.querySelectorAll("button:not([disabled]),a[href]"),
+      ].filter((x) => !x.hidden);
       if (!focusable.length) return;
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      const first = focusable[0],
+        last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     o.querySelector("[data-close]").focus();
   }
@@ -623,32 +1413,58 @@
       document.body.append(backdrop);
     }
     const name = safeName(state.u);
-    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73"><span class="avatar">${esc(initials(name))}</span><span><b>${esc(name)}</b><small>${esc(userPathway(state.u))}</small></span></div><div class="drawerMenu73">${menuMarkup("drawer-menu73")}</div></aside>`;
+    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73"><span class="avatar">${esc(
+      initials(name)
+    )}</span><span><b>${esc(name)}</b><small>${esc(
+      userPathway(state.u)
+    )}</small></span></div><div class="drawerMenu73">${menuMarkup(
+      "drawer-menu73"
+    )}</div></aside>`;
     backdrop.hidden = false;
     requestAnimationFrame(() => backdrop.classList.add("open"));
     document.body.style.overflow = "hidden";
     const close = () => {
       backdrop.classList.remove("open");
-      const finish = () => { backdrop.hidden = true; };
-      matchMedia("(prefers-reduced-motion: reduce)").matches ? finish() : setTimeout(finish, 220);
+      const finish = () => {
+        backdrop.hidden = true;
+      };
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? finish()
+        : setTimeout(finish, 220);
       document.body.style.overflow = "";
       trigger.setAttribute("aria-expanded", "false");
       lastFocus?.focus();
     };
     trigger.setAttribute("aria-expanded", "true");
     backdrop.querySelector("[data-close]").onclick = close;
-    backdrop.onclick = (event) => { if (event.target === backdrop) close(); };
+    backdrop.onclick = (event) => {
+      if (event.target === backdrop) close();
+    };
     setupMenuGroups(backdrop);
     wire(backdrop);
-    backdrop.querySelectorAll("[data-go],[data-signout]").forEach((button) => button.addEventListener("click", close));
+    backdrop
+      .querySelectorAll("[data-go],[data-signout]")
+      .forEach((button) => button.addEventListener("click", close));
     backdrop.onkeydown = (event) => {
-      if (event.key === "Escape") { event.preventDefault(); close(); return; }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
       if (event.key !== "Tab") return;
-      const focusable = [...backdrop.querySelectorAll("button:not([disabled]),a[href]")].filter((element) => !element.hidden && !element.closest("[hidden]"));
+      const focusable = [
+        ...backdrop.querySelectorAll("button:not([disabled]),a[href]"),
+      ].filter((element) => !element.hidden && !element.closest("[hidden]"));
       if (!focusable.length) return;
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      const first = focusable[0],
+        last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     backdrop.querySelector("[data-close]").focus();
   }
@@ -663,24 +1479,71 @@
     let touchStart = 0;
     const renderSlide = (announce = false) => {
       const slide = carouselSlides[carouselIndex];
-      stage.innerHTML = `<div class="carouselCopy73"><span>${esc(slide.category)}</span><h3>${esc(slide.title)}</h3><p>${esc(slide.copy)}</p>${slide.date ? `<small>${esc(slide.date)}</small>` : ""}</div>${slide.action ? `<button data-go="${esc(slide.route)}">${esc(slide.action)} ${iconSvg("arrowRight")}</button>` : ""}`;
-      dots.innerHTML = carouselSlides.map((_, i) => `<button type="button" data-slide="${i}" class="${i === carouselIndex ? "active" : ""}" aria-label="Show slide ${i + 1}" aria-current="${i === carouselIndex}"></button>`).join("");
+      stage.innerHTML = `<div class="carouselCopy73"><span>${esc(
+        slide.category
+      )}</span><h3>${esc(slide.title)}</h3><p>${esc(slide.copy)}</p>${
+        slide.date ? `<small>${esc(slide.date)}</small>` : ""
+      }</div>${
+        slide.action
+          ? `<button data-go="${esc(slide.route)}">${esc(
+              slide.action
+            )} ${iconSvg("arrowRight")}</button>`
+          : ""
+      }`;
+      dots.innerHTML = carouselSlides
+        .map(
+          (_, i) =>
+            `<button type="button" data-slide="${i}" class="${
+              i === carouselIndex ? "active" : ""
+            }" aria-label="Show slide ${i + 1}" aria-current="${
+              i === carouselIndex
+            }"></button>`
+        )
+        .join("");
       wire(stage);
-      dots.querySelectorAll("[data-slide]").forEach((dot) => dot.onclick = () => { pausedByUser = true; carouselIndex = Number(dot.dataset.slide); renderSlide(true); });
+      dots.querySelectorAll("[data-slide]").forEach(
+        (dot) =>
+          (dot.onclick = () => {
+            pausedByUser = true;
+            carouselIndex = Number(dot.dataset.slide);
+            renderSlide(true);
+          })
+      );
       if (announce) status.textContent = `${slide.category}: ${slide.title}`;
     };
     const move = (direction, manual = true) => {
       if (manual) pausedByUser = true;
-      carouselIndex = (carouselIndex + direction + carouselSlides.length) % carouselSlides.length;
+      carouselIndex =
+        (carouselIndex + direction + carouselSlides.length) %
+        carouselSlides.length;
       renderSlide(manual);
     };
     carousel.querySelector("[data-carousel-prev]").onclick = () => move(-1);
     carousel.querySelector("[data-carousel-next]").onclick = () => move(1);
-    carousel.onkeydown = (e) => { if (e.key === "ArrowLeft") move(-1); if (e.key === "ArrowRight") move(1); };
-    carousel.addEventListener("touchstart", (e) => { touchStart = e.changedTouches[0].clientX; }, { passive: true });
-    carousel.addEventListener("touchend", (e) => { const delta = e.changedTouches[0].clientX - touchStart; if (Math.abs(delta) > 45) move(delta > 0 ? -1 : 1); }, { passive: true });
+    carousel.onkeydown = (e) => {
+      if (e.key === "ArrowLeft") move(-1);
+      if (e.key === "ArrowRight") move(1);
+    };
+    carousel.addEventListener(
+      "touchstart",
+      (e) => {
+        touchStart = e.changedTouches[0].clientX;
+      },
+      { passive: true }
+    );
+    carousel.addEventListener(
+      "touchend",
+      (e) => {
+        const delta = e.changedTouches[0].clientX - touchStart;
+        if (Math.abs(delta) > 45) move(delta > 0 ? -1 : 1);
+      },
+      { passive: true }
+    );
     clearInterval(carouselTimer);
-    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) carouselTimer = setInterval(() => { if (!pausedByUser && !carousel.matches(":hover")) move(1, false); }, 8000);
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+      carouselTimer = setInterval(() => {
+        if (!pausedByUser && !carousel.matches(":hover")) move(1, false);
+      }, 8000);
     renderSlide();
   }
 
@@ -688,11 +1551,51 @@
     const unread = state.notes?.filter((note) => !note.read_at).length || 0;
     const items = (state.notes || []).slice(0, 8);
     return `<div class="notificationWrap102">
-      <button class="icon73 notificationBell102" type="button" data-notification-toggle aria-label="Notifications${unread ? `, ${unread} unread` : ""}" aria-expanded="false" aria-controls="dashboard-notifications102">${iconSvg("bell")}${unread ? `<span>${unread > 9 ? "9+" : unread}</span>` : ""}</button>
+      <button class="icon73 notificationBell102" type="button" data-notification-toggle aria-label="Notifications${
+        unread ? `, ${unread} unread` : ""
+      }" aria-expanded="false" aria-controls="dashboard-notifications102">${iconSvg(
+      "bell"
+    )}${unread ? `<span>${unread > 9 ? "9+" : unread}</span>` : ""}</button>
       <section class="notificationMenu102" id="dashboard-notifications102" aria-label="Recent notifications" hidden>
-        <header><div><small>YOUR UPDATES</small><h2>Notifications</h2></div>${unread ? `<button type="button" data-notification-read>Mark all read</button>` : ""}</header>
-        <div class="notificationList102">${items.length ? items.map((note) => `<button type="button" class="notificationItem102 ${note.read_at ? "" : "unread"}" data-notification-id="${esc(note.id)}"${note.action_url ? ` data-notification-url="${esc(note.action_url)}"` : ""}><i aria-hidden="true">${note.read_at ? "✓" : "●"}</i><span><b>${esc(note.title || note.category || "Account update")}</b><small>${esc(note.body || note.message || "Open your account for more information.")}</small><time>${note.created_at ? new Date(note.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "Recent"}</time></span></button>`).join("") : `<div class="notificationEmpty102"><b>You are up to date</b><p>Journey reminders, learning updates and account messages will appear here.</p></div>`}</div>
-        <button type="button" class="notificationAll102" data-go="notifications">Open notification centre ${iconSvg("arrowRight")}</button>
+        <header><div><small>YOUR UPDATES</small><h2>Notifications</h2></div>${
+          unread
+            ? `<button type="button" data-notification-read>Mark all read</button>`
+            : ""
+        }</header>
+        <div class="notificationList102">${
+          items.length
+            ? items
+                .map(
+                  (note) =>
+                    `<button type="button" class="notificationItem102 ${
+                      note.read_at ? "" : "unread"
+                    }" data-notification-id="${esc(note.id)}"${
+                      note.action_url
+                        ? ` data-notification-url="${esc(note.action_url)}"`
+                        : ""
+                    }><i aria-hidden="true">${
+                      note.read_at ? "✓" : "●"
+                    }</i><span><b>${esc(
+                      note.title || note.category || "Account update"
+                    )}</b><small>${esc(
+                      note.body ||
+                        note.message ||
+                        "Open your account for more information."
+                    )}</small><time>${
+                      note.created_at
+                        ? new Date(note.created_at).toLocaleDateString(
+                            undefined,
+                            { day: "numeric", month: "short" }
+                          )
+                        : "Recent"
+                    }</time></span></button>`
+                )
+                .join("")
+            : `<div class="notificationEmpty102"><b>You are up to date</b><p>Journey reminders, learning updates and account messages will appear here.</p></div>`
+        }</div>
+        <button type="button" class="notificationAll102" data-go="notifications">Open notification centre ${iconSvg(
+          "arrowRight"
+        )}</button>
       </section>
     </div>`;
   }
@@ -701,22 +1604,61 @@
     const toggle = root.querySelector("[data-notification-toggle]");
     const menu = root.querySelector(".notificationMenu102");
     if (!toggle || !menu) return;
-    const close = () => { menu.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
-    toggle.onclick = (event) => { event.preventDefault(); event.stopPropagation(); const open = menu.hidden; menu.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); if (open) { menu.querySelector("button")?.focus(); setTimeout(() => document.addEventListener("click", close, { once: true }), 0); } };
+    const close = () => {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+    };
+    toggle.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+      if (open) {
+        menu.querySelector("button")?.focus();
+        setTimeout(
+          () => document.addEventListener("click", close, { once: true }),
+          0
+        );
+      }
+    };
     menu.onclick = (event) => event.stopPropagation();
-    root.addEventListener("keydown", (event) => { if (event.key === "Escape" && !menu.hidden) { close(); toggle.focus(); } });
-    menu.querySelector("[data-notification-read]")?.addEventListener("click", async () => {
-      if (state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("user_id", state.u.id).is("read_at", null);
-      state.notes = (state.notes || []).map((note) => ({ ...note, read_at: note.read_at || new Date().toISOString() }));
-      queueRender();
+    root.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.hidden) {
+        close();
+        toggle.focus();
+      }
     });
-    menu.querySelectorAll("[data-notification-id]").forEach((item) => item.addEventListener("click", async () => {
-      const id = item.dataset.notificationId;
-      if (id && state.u?.id && db()?.from) await db().from("btv_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).eq("user_id", state.u.id);
-      const url = item.dataset.notificationUrl;
-      if (url && (/^\//.test(url) || /^https:\/\//.test(url))) location.assign(url);
-      else go("notifications");
-    }));
+    menu
+      .querySelector("[data-notification-read]")
+      ?.addEventListener("click", async () => {
+        if (state.u?.id && db()?.from)
+          await db()
+            .from("btv_notifications")
+            .update({ read_at: new Date().toISOString() })
+            .eq("user_id", state.u.id)
+            .is("read_at", null);
+        state.notes = (state.notes || []).map((note) => ({
+          ...note,
+          read_at: note.read_at || new Date().toISOString(),
+        }));
+        queueRender();
+      });
+    menu.querySelectorAll("[data-notification-id]").forEach((item) =>
+      item.addEventListener("click", async () => {
+        const id = item.dataset.notificationId;
+        if (id && state.u?.id && db()?.from)
+          await db()
+            .from("btv_notifications")
+            .update({ read_at: new Date().toISOString() })
+            .eq("id", id)
+            .eq("user_id", state.u.id);
+        const url = item.dataset.notificationUrl;
+        if (url && (/^\//.test(url) || /^https:\/\//.test(url)))
+          location.assign(url);
+        else go("notifications");
+      })
+    );
   }
 
   function wire(root) {
@@ -763,7 +1705,9 @@
     document.getElementById("profileSummary")?.remove();
     document.getElementById("homeWelcomeArt")?.remove();
 
-    const root = document.getElementById("dashboardV3") || document.createElement("section");
+    const root =
+      document.getElementById("dashboardV3") ||
+      document.createElement("section");
     root.id = "dashboardV3";
     root.className = "mission73 dashboardShell73";
     if (!root.isConnected) home.prepend(root);
@@ -777,20 +1721,48 @@
     const savedJobs = Number(state.saved?.length || 0);
     const streak = Number(state.game?.current_streak || 0);
     const journeySteps = journeyItems();
-    const currentJourneyStep = journeySteps.find((step) => step.current) || journeySteps[journeySteps.length - 1] || null;
+    const currentJourneyStep =
+      journeySteps.find((step) => step.current) ||
+      journeySteps[journeySteps.length - 1] ||
+      null;
     const readinessCircumference = 2 * Math.PI * 34;
-    const readinessOffset = readinessCircumference - (readinessCircumference * j.pct) / 100;
+    const readinessOffset =
+      readinessCircumference - (readinessCircumference * j.pct) / 100;
 
     const learningFocus = [
-      ...(destination.exam === "nclex" ? [{ title: "Continue NCLEX preparation", id: "nclex" }] : destination.exam === "cbt" ? [{ title: "Continue CBT preparation", id: "cbt" }] : [{ title: "Review registration pathway", id: "journey" }]),
+      ...(destination.exam === "nclex"
+        ? [{ title: "Continue NCLEX preparation", id: "nclex" }]
+        : destination.exam === "cbt"
+        ? [{ title: "Continue CBT preparation", id: "cbt" }]
+        : [{ title: "Review registration pathway", id: "journey" }]),
       { title: "Clinical learning library", id: "adult-nursing" },
       { title: "Interview preparation", id: "interview" },
     ];
     const quickActions = [
-      { title: "Mentor Marketplace", copy: "Find approved professional mentors", id: "mentors", icon: "🤝" },
-      { title: "Interview preparation", copy: "Practise role-specific healthcare interviews", id: "interview", icon: "🎙️" },
-      { title: "Jobs", copy: "Find and save suitable opportunities", id: "jobs", icon: "💼" },
-      { title: "My documents", copy: "Keep career and visa evidence organised", id: "documents", icon: "📂" },
+      {
+        title: "Mentor Marketplace",
+        copy: "Find approved professional mentors",
+        id: "mentors",
+        icon: "🤝",
+      },
+      {
+        title: "Interview preparation",
+        copy: "Practise role-specific healthcare interviews",
+        id: "interview",
+        icon: "🎙️",
+      },
+      {
+        title: "Jobs",
+        copy: "Find and save suitable opportunities",
+        id: "jobs",
+        icon: "💼",
+      },
+      {
+        title: "My documents",
+        copy: "Keep career and visa evidence organised",
+        id: "documents",
+        icon: "📂",
+      },
     ];
 
     root.innerHTML = `<div class="dashboardLayout73">
@@ -799,15 +1771,21 @@
           <div class="brandLogo73"><img src="login-logo-v72.png" alt="Beyond The Visa logo"></div>
           <div><b>Beyond The Visa</b><small>NURSING PLATFORM</small></div>
         </div>
-        <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(name)}">
+        <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(
+          name
+        )}">
           <span class="avatar73">${esc(initials(name))}</span>
           <span><b>${esc(name)}</b><small>View profile</small></span>
           <span class="profileArrow73">${iconSvg("arrowRight")}</span>
         </button>
         <div class="sidebarNavWrap73">
           <p class="sidebarGroup73">DASHBOARD</p>
-          <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg("home")}</span><span>Home</span><i></i></button>
-          <nav class="sidebarMemberMenu73" aria-label="Account, learning, career and support menu">${menuMarkup("sidebar-menu73")}</nav>
+          <button class="sideNavItem73 active" data-go="dashboard"><span class="sideIc73">${iconSvg(
+            "home"
+          )}</span><span>Home</span><i></i></button>
+          <nav class="sidebarMemberMenu73" aria-label="Account, learning, career and support menu">${menuMarkup(
+            "sidebar-menu73"
+          )}</nav>
         </div>
         <div class="sidebarLondon73" aria-hidden="true"></div>
       </aside>
@@ -822,12 +1800,20 @@
               <span>${iconSvg("search")}</span>
               <input type="search" placeholder="Search resources..." aria-label="Search resources">
             </form>
-            <button class="coinBalance104" type="button" data-go="wallet" aria-label="Beyond Coins balance: ${Number(state.wallet?.balance || 0).toLocaleString('en-GB')} coins. Open wallet">
-              <img class="coinBalanceLogo106" src="beyond-coin-v84.png" alt="" aria-hidden="true"><span><b>${Number(state.wallet?.balance || 0).toLocaleString('en-GB')}</b><small>Beyond Coins</small></span>
+            <button class="coinBalance104" type="button" data-go="wallet" aria-label="Beyond Coins balance: ${Number(
+              state.wallet?.balance || 0
+            ).toLocaleString("en-GB")} coins. Open wallet">
+              <img class="coinBalanceLogo106" src="beyond-coin-v84.png" alt="" aria-hidden="true"><span><b>${Number(
+                state.wallet?.balance || 0
+              ).toLocaleString("en-GB")}</b><small>Beyond Coins</small></span>
             </button>
             ${notificationMarkup()}
-            <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg("moon")}</button>
-            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg("menu")}</button>
+            <button class="icon73" data-theme-toggle aria-label="Toggle dark mode">${iconSvg(
+              "moon"
+            )}</button>
+            <button class="icon73 mobileMenuBtn73" data-mobile-open aria-label="Open account and navigation menu" aria-expanded="false">${iconSvg(
+              "menu"
+            )}</button>
           </div>
         </header>
         <div class="dashboardContent73">
@@ -837,11 +1823,15 @@
             <div class="welcomeNurse73" aria-hidden="true"></div>
             <div class="welcomeInner73">
               <p class="welcomeDate73">${fmtHeroDate()}</p>
-              <span class="welcomeDestination73"><b aria-hidden="true">${esc(destination.flag)}</b>${esc(destination.name)}</span>
+              <span class="welcomeDestination73"><b aria-hidden="true">${esc(
+                destination.flag
+              )}</b>${esc(destination.name)}</span>
               <h2>Welcome back, ${esc(name)}</h2>
               <p class="welcomePathway73">${esc(pathway)}</p>
               <div class="welcomeReadiness73">
-                <div class="ring73" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}">
+                <div class="ring73" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${
+                  j.pct
+                }">
                   <svg viewBox="0 0 84 84">
                     <circle cx="42" cy="42" r="34" class="ringTrack73"></circle>
                     <circle cx="42" cy="42" r="34" class="ringValue73" style="stroke-dasharray:${readinessCircumference};stroke-dashoffset:${readinessOffset}"></circle>
@@ -858,41 +1848,103 @@
           </section>
 
           <section class="statsRow73">
-            <article class="statCard73 journeySummaryStat73" data-go="journey"><small>🧭 Journey</small><b>${j.pct}%</b><span>${j.done} of ${j.total} steps</span><em>Open My Journey ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="${exam.route}"><small>🩺 ${esc(exam.label)}</small><b>${esc(exam.value)}</b><span>${esc(exam.sub)}</span><em>Open preparation ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="saved-jobs"><small>🔖 Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>View saved jobs ${iconSvg("arrowRight")}</em></article>
-            <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73 journeySummaryStat73" data-go="journey"><small>🧭 Journey</small><b>${
+              j.pct
+            }%</b><span>${j.done} of ${
+      j.total
+    } steps</span><em>Open My Journey ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="${exam.route}"><small>🩺 ${esc(
+      exam.label
+    )}</small><b>${esc(exam.value)}</b><span>${esc(
+      exam.sub
+    )}</span><em>Open preparation ${iconSvg("arrowRight")}</em></article>
+            <article class="statCard73" data-go="saved-jobs"><small>🔖 Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>View saved jobs ${iconSvg(
+      "arrowRight"
+    )}</em></article>
+            <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg(
+      "arrowRight"
+    )}</em></article>
           </section>
 
           <section class="journeyPanel73" aria-labelledby="journey-title73">
-            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>Your current journey position</span></div><button type="button" data-go="journey">Go to My Journey ${iconSvg("arrowRight")}</button></div>
-            <div class="journeyProgress73" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${j.pct}"><i style="width:${j.pct}%"></i></div>
-            ${currentJourneyStep ? `<article class="journeyCurrent73 ${j.total > 0 && j.done >= j.total ? "complete" : "current"}">
-              <div class="journeyCurrentMarker73" aria-hidden="true">${j.total > 0 && j.done >= j.total ? "&#10003;" : esc(currentJourneyStep.order)}</div>
-              <div class="journeyCurrentCopy73"><span class="journeyStatus73">${j.total > 0 && j.done >= j.total ? "Journey complete" : "Current step"}</span><h4>${esc(currentJourneyStep.title)}</h4><p>${esc(currentJourneyStep.copy)}</p><small>${j.done} of ${j.total} steps completed · ${j.pct}% complete</small></div>
-              <button type="button" data-go="journey">${j.total > 0 && j.done >= j.total ? "Review journey" : "Continue journey"} ${iconSvg("arrowRight")}</button>
-            </article>` : `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`}
+            <div class="journeyHead73"><div><p>CAREER AND JOURNEY</p><h3 id="journey-title73">My Journey</h3><span>Your current journey position</span></div><button type="button" data-go="journey">Go to My Journey ${iconSvg(
+              "arrowRight"
+            )}</button></div>
+            <div class="journeyProgress73" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${
+              j.pct
+            }"><i style="width:${j.pct}%"></i></div>
+            ${
+              currentJourneyStep
+                ? `<article class="journeyCurrent73 ${
+                    j.total > 0 && j.done >= j.total ? "complete" : "current"
+                  }">
+              <div class="journeyCurrentMarker73" aria-hidden="true">${
+                j.total > 0 && j.done >= j.total
+                  ? "&#10003;"
+                  : esc(currentJourneyStep.order)
+              }</div>
+              <div class="journeyCurrentCopy73"><span class="journeyStatus73">${
+                j.total > 0 && j.done >= j.total
+                  ? "Journey complete"
+                  : "Current step"
+              }</span><h4>${esc(currentJourneyStep.title)}</h4><p>${esc(
+                    currentJourneyStep.copy
+                  )}</p><small>${j.done} of ${j.total} steps completed · ${
+                    j.pct
+                  }% complete</small></div>
+              <button type="button" data-go="journey">${
+                j.total > 0 && j.done >= j.total
+                  ? "Review journey"
+                  : "Continue journey"
+              } ${iconSvg("arrowRight")}</button>
+            </article>`
+                : `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`
+            }
           </section>
 
           <section class="secondaryGrid73">
             <article class="panel73" data-go="${rec.id}">
-              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
+              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg(
+                "arrowRight"
+              )}</button></div>
               <div class="nextStep73">
                 <span class="nextIcon73">${iconSvg("spark")}</span>
-                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
-                <button class="nextActionBtn73" data-go="${rec.id}">Continue ${iconSvg("arrowRight")}</button>
+                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(
+                  rec.title
+                )}</b><small>${esc(rec.copy)}</small></div>
+                <button class="nextActionBtn73" data-go="${
+                  rec.id
+                }">Continue ${iconSvg("arrowRight")}</button>
               </div>
             </article>
             <article class="panel73">
               <div class="panelHead73"><h3>Learning focus</h3><button data-go="study">See all</button></div>
               <div class="focusList73">
-                ${learningFocus.map((x) => `<button class="focusRow73" data-go="${x.id}"><span>${esc(x.title)}</span><em>NEW</em><i>${iconSvg("arrowRight")}</i></button>`).join("")}
+                ${learningFocus
+                  .map(
+                    (x) =>
+                      `<button class="focusRow73" data-go="${x.id}"><span>${esc(
+                        x.title
+                      )}</span><em>NEW</em><i>${iconSvg(
+                        "arrowRight"
+                      )}</i></button>`
+                  )
+                  .join("")}
               </div>
             </article>
           </section>
           <section class="quickPanel73" aria-labelledby="quick-actions-title">
             <div class="panelHead73"><h3 id="quick-actions-title">Quick actions</h3></div>
-            <div class="quickGrid73">${quickActions.map(x=>`<button type="button" data-go="${x.id}"><span>${x.icon}</span><div><b>${x.title}</b><small>${x.copy}</small></div>${iconSvg("arrowRight")}</button>`).join("")}</div>
+            <div class="quickGrid73">${quickActions
+              .map(
+                (x) =>
+                  `<button type="button" data-go="${x.id}"><span>${
+                    x.icon
+                  }</span><div><b>${x.title}</b><small>${
+                    x.copy
+                  }</small></div>${iconSvg("arrowRight")}</button>`
+              )
+              .join("")}</div>
           </section>
           <section class="dashboardCarousel73" data-dashboard-carousel tabindex="0" aria-label="Motivation and platform news carousel">
             <div class="carouselStage73" data-carousel-stage></div>
@@ -901,7 +1953,9 @@
           </section>
         </div>
       </div>
-      <button type="button" class="floatingZibur73" data-go="assistant" aria-label="Open Ask Zibur assistant">${iconSvg("spark")}<span>Ask Zibur</span></button>
+      <button type="button" class="floatingZibur73" data-go="assistant" aria-label="Open Ask Zibur assistant">${iconSvg(
+        "spark"
+      )}<span>Ask Zibur</span></button>
     </div>`;
 
     setupMenuGroups(root);
@@ -910,7 +1964,12 @@
     setupCarousel(root);
     const welcomeAdvice = root.querySelector("[data-home-advice]");
     welcomeAdvice?.addEventListener("click", showHomeAdvice);
-    welcomeAdvice?.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); showHomeAdvice(); } });
+    welcomeAdvice?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        showHomeAdvice();
+      }
+    });
   }
 
   function queueRender() {
@@ -923,8 +1982,9 @@
   }
 
   document.addEventListener("click", (e) => {
-    if (!e.target.closest("[data-open=\"home\"]")) return;
-    if (carouselSlides.length > 1) carouselIndex = Math.floor(Math.random() * carouselSlides.length);
+    if (!e.target.closest('[data-open="home"]')) return;
+    if (carouselSlides.length > 1)
+      carouselIndex = Math.floor(Math.random() * carouselSlides.length);
     queueRender();
   });
   window.addEventListener("btv:wallet-changed", queueRender);
@@ -933,7 +1993,10 @@
   window.addEventListener("focus", queueRender);
   document.addEventListener("DOMContentLoaded", queueRender);
 
-  if (typeof window.showApp === "function" && !window.__btvDashboardPremium73ShowAppWrapped) {
+  if (
+    typeof window.showApp === "function" &&
+    !window.__btvDashboardPremium73ShowAppWrapped
+  ) {
     window.__btvDashboardPremium73ShowAppWrapped = true;
     const oldShowApp = window.showApp;
     window.showApp = function () {
