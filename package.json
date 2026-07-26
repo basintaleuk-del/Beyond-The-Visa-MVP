@@ -4,6 +4,8 @@
   "private": true,
   "description": "Capacitor mobile shell for Beyond The Visa",
   "scripts": {
+    "lint": "node scripts/qa-release-audit.mjs && node scripts/validate-contracts.mjs",
+    "typecheck": "tsc --noEmit",
     "seo:pages": "node scripts/generate-seo-pages.mjs",
     "seo:sitemap": "node scripts/generate-sitemaps.mjs",
     "seo:audit": "node scripts/seo-audit.mjs",

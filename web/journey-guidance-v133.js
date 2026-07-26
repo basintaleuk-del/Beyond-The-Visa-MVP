@@ -96,9 +96,9 @@
     const steps=visibleSteps(),totals=summary();
     if(!steps.length)return `<div class="jgState"><h3>Guidance is under review</h3><p>No published ${esc(profession(state.profile?.profession))} guidance is available for ${esc(countries[state.profile.destination_country]||state.profile.destination_country)} yet.</p><button type="button" data-change-destination>Change My Destination</button></div>`;
     return `<section class="jgJourney" aria-labelledby="jg-title">
-      <header class="jgHero"><div><small>MY JOURNEY</small><h2 id="jg-title">Your ${esc(countries[state.profile.destination_country]||state.profile.destination_country)} pathway</h2><p>${totals.done} of ${totals.total} required steps completed — ${totals.pct}%</p></div><button type="button" data-change-destination>Change My Destination</button>
+      <div class="jgHero"><div><small>MY JOURNEY</small><h2 id="jg-title">Your ${esc(countries[state.profile.destination_country]||state.profile.destination_country)} pathway</h2><p>${totals.done} of ${totals.total} required steps completed — ${totals.pct}%</p></div><button type="button" data-change-destination>Change My Destination</button>
         <div class="jgProgress" role="progressbar" aria-label="Required journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${totals.pct}"><i style="width:${totals.pct}%"></i></div>
-      </header>${deadlinePanel()}<div class="jgNotice">Requirements, fees and processing times may change. Always confirm the latest information using the linked official authority before submitting an application or making payment.</div>
+      </div>${deadlinePanel()}<div class="jgNotice">Requirements, fees and processing times may change. Always confirm the latest information using the linked official authority before submitting an application or making payment.</div>
       <div class="jgTiles">${steps.map(tile).join('')}</div>
     </section>`;
   }
