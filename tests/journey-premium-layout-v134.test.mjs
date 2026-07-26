@@ -7,8 +7,14 @@ const read=(file)=>fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
 test('My Journey keeps the premium desktop shell instead of the legacy narrow page',()=>{
   const css=read('web/journey-polish-v101.css');
   const js=read('web/journey-polish-v101.js');
+  const html=read('web/index.html');
+  const worker=read('web/sw.js');
   assert.match(js,/installPremiumShell/);
+  assert.match(js,/__btvJourneyPolish134/);
   assert.match(js,/#dashboardV3 \.sidebar73/);
+  assert.match(html,/journey-polish-v101\.css\?v=134/);
+  assert.match(html,/journey-polish-v101\.js\?v=134/);
+  assert.match(worker,/beyond-the-visa-assets-v134/);
   assert.match(css,/grid-template-columns:286px minmax\(0,1fr\)/);
   assert.match(css,/width:min\(1360px,calc\(100% - 48px\)\)/);
   assert.match(css,/#checklistItems\.checklist\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
