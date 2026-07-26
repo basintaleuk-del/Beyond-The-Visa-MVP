@@ -88,12 +88,16 @@
 
   function install() {
     upgradeEntryPoints();
-    if (!$("#opportunities")) {
-      const section = document.createElement("section");
+    let section = $("#opportunities");
+    if (!section) {
+      section = document.createElement("section");
       section.id = "opportunities";
       section.className = "screen opportunityCentre138";
       section.innerHTML = shell();
       $("#appShell main")?.insertBefore(section, $("#cost-estimator"));
+    }
+    if (!section.dataset.opportunityWired138) {
+      section.dataset.opportunityWired138 = "true";
       wireStatic(section);
     }
     wrapNavigation();
@@ -393,10 +397,8 @@
   }
 
   function nhsCard(row, explanation = "") {
-    const original = row.canonical_url || row.source_url;
-    const external = original ? `<a href="${esc(original)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View on NHS Jobs ↗</a>` : "";
     const extra = `${row.band ? `<div><dt>NHS band</dt><dd>${esc(row.band)}</dd></div>` : ""}<div><dt>Published</dt><dd>${dateLabel(row.published_at)}</dd></div>${row.specialty ? `<div><dt>Category</dt><dd>${esc(row.profession === "midwife" ? "Midwife" : "Nurse")} · ${esc(row.specialty)}</dd></div>` : ""}`;
-    return baseCard(row, explanation).replace('<div class="opportunityCardTop138">', '<div class="opportunityCardTop138"><span>Source: NHS Jobs</span>').replace("</dl>", `${extra}</dl>`).replace('<div class="opportunityActions138">', `<p class="opportunityDisclaimer138">You’ll continue to NHS Jobs to view the full vacancy and apply. Confirm availability, sponsorship, salary, closing date, eligibility and registration requirements in the original advert.</p><div class="opportunityActions138">${external}`).replaceAll('rel="noopener"', 'rel="noopener noreferrer"');
+    return baseCard(row, explanation).replace('<div class="opportunityCardTop138">', '<div class="opportunityCardTop138"><span>Source: NHS Jobs</span>').replace("</dl>", `${extra}</dl>`).replace('<div class="opportunityActions138">', '<p class="opportunityDisclaimer138">View the full vacancy details here. Applying continues securely on the original NHS Jobs website.</p><div class="opportunityActions138">').replaceAll('rel="noopener"', 'rel="noopener noreferrer"').replace('>Apply</a>', '>Apply on NHS Jobs ↗</a>');
   }
 
   function baseCard(row, explanation = "") {
@@ -445,7 +447,7 @@
     if (button.matches("[data-ask-zibur]")) { showScreen("assistant"); const input = $("#question"); if (input) { input.value = "Which published opportunities best match my destination and current journey stage?"; input.focus(); } return; }
     const id = button.dataset.saveOpportunity || button.dataset.shareOpportunity || button.dataset.calendarOpportunity || button.dataset.dismissOpportunity || button.dataset.viewOpportunity || button.dataset.applyOpportunity;
     if (!id) return;
-    const row = state.rows.find((item) => item.id === id);
+    const row = [...state.rows, ...state.sponsorshipRows, ...state.fundingRows, ...state.eventRows].find((item) => item.id === id);
     if (!row) return;
     if (button.dataset.saveOpportunity) return toggleSave(row);
     if (button.dataset.shareOpportunity) return share(row);
@@ -486,14 +488,26 @@
     const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })); link.download = "opportunity-event.ics"; link.click(); URL.revokeObjectURL(link.href); track("opportunity_event_calendar", { opportunity_id: row.id });
   }
 
-  function showDetail(row) {
+  async function showDetail(row) {
     const dialog = $("[data-opportunity-detail]");
     if (row.source_name === "NHS Jobs") {
-      const url = row.canonical_url || row.source_url;
-      dialog.innerHTML = `<article><div class="opportunityDialogHead138"><span>Source: NHS Jobs</span><button aria-label="Close details">×</button></div><h2>${esc(row.title)}</h2><p>${esc(row.summary || "Open NHS Jobs for the full vacancy details.")}</p><p><b>Employer:</b> ${esc(row.employer)}<br><b>Published:</b> ${dateLabel(row.published_at)}<br><b>Closing:</b> ${dateLabel(row.closing_at)}<br><b>Sponsorship:</b> ${esc(SPONSOR_LABELS[row.sponsorship_status] || SPONSOR_LABELS.not_stated)}<br><b>Last checked:</b> ${dateLabel(row.last_checked_at)}</p><p class="opportunityDisclaimer138">You’ll continue to NHS Jobs to view the full vacancy and apply.</p>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View on NHS Jobs ↗</a>` : ""}</article>`;
-      $("button", dialog).onclick = () => dialog.close();
-      dialog.showModal(); track("opportunity_viewed", { opportunity_id: row.id }); return;
+      const source = row.canonical_url || row.source_url || row.application_url;
+      let advertId = ""; try { advertId = new URL(source, location.origin).pathname.match(/\/jobadvert\/([^/]+)/i)?.[1] || ""; } catch {}
+      advertId = advertId || row.external_reference || row.external_id || "";
+      dialog.classList.add("nhsJobDetail150");
+      dialog.innerHTML = '<article><button class="nhsJobDetailClose150" data-close-job-detail aria-label="Close job details">×</button><div class="nhsJobDetailLoading150"><b>Loading the full NHS Jobs advert...</b><p>Retrieving duties, requirements and employer details.</p></div></article>';
+      dialog.querySelector("[data-close-job-detail]").onclick = () => dialog.close();
+      dialog.showModal();
+      let details = {};
+      try { const response = await fetch(`/api/job-details?id=${encodeURIComponent(advertId)}`), payload = await response.json(); if (!response.ok) throw new Error(payload.error || "Details could not be loaded."); details = payload; }
+      catch (error) { details = { overview: row.summary, error: error.message, applyUrl: row.application_url || source, sourceUrl: source }; }
+      const block = (title, value) => value ? `<section><h2>${esc(title)}</h2><p>${esc(value).replace(/\n/g,"<br>")}</p></section>` : "";
+      const apply = details.applyUrl || row.application_url || source;
+      dialog.innerHTML = `<article><button class="nhsJobDetailClose150" data-close-job-detail aria-label="Close job details">×</button><header><span>VACANCY DETAILS · NHS JOBS</span><h1>${esc(details.title || row.title)}</h1><p>${esc(details.employer || row.employer)}</p></header><div class="nhsJobDetailActions150"><button data-close-job-detail>← Back to opportunities</button>${apply ? `<a href="${esc(apply)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">Apply on NHS Jobs ↗</a>` : ""}</div><dl class="nhsJobDetailFacts150"><div><dt>Salary</dt><dd>${esc(details.salary || row.salary_text || "Not stated")}</dd></div><div><dt>Location</dt><dd>${esc(details.address || row.location || row.city || "Not stated")}</dd></div><div><dt>Closing date</dt><dd>${esc(details.closingDate || dateLabel(row.closing_at))}</dd></div><div><dt>Reference</dt><dd>${esc(details.reference || row.external_reference || "Not stated")}</dd></div><div><dt>Published</dt><dd>${esc(details.datePosted || dateLabel(row.published_at))}</dd></div><div><dt>Sponsorship</dt><dd>${esc(SPONSOR_LABELS[row.sponsorship_status] || SPONSOR_LABELS.not_stated)}</dd></div></dl>${details.error ? `<p class="nhsJobDetailNotice150">${esc(details.error)} You can still continue to the official advert.</p>` : ""}${block("Job summary", details.overview || row.summary)}${block("Main duties of the job", details.mainDuties)}${block("Job description and responsibilities", details.jobDescription)}${block("About the employer", details.aboutEmployer)}${block("Person specification", details.personSpecification)}${block("Additional information", details.additionalInformation)}${block("Employer contact", [details.contactRole,details.contactName,details.contactEmail,details.contactPhone].filter(Boolean).join("\n") || "See the official advert for employer contact details.")}<footer><p>Vacancy information is reproduced from NHS Jobs. Confirm current availability, eligibility, salary, sponsorship and application requirements on the original advert.</p>${apply ? `<a href="${esc(apply)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">Apply on NHS Jobs ↗</a>` : ""}${details.sourceUrl ? `<a href="${esc(details.sourceUrl)}" target="_blank" rel="noopener noreferrer">View original advert</a>` : ""}</footer></article>`;
+      dialog.querySelectorAll("[data-close-job-detail]").forEach((button) => button.onclick = () => dialog.close());
+      track("opportunity_viewed", { opportunity_id: row.id }); return;
     }
+    dialog.classList.remove("nhsJobDetail150");
     dialog.innerHTML = `<article><div class="opportunityDialogHead138"><span>${esc(TYPE_LABELS[row.opportunity_type] || "Opportunity")}</span><button aria-label="Close details">×</button></div><h2>${esc(row.title)}</h2><p>${esc(row.description || row.summary || "Full information is available from the recorded source.")}</p><p><b>Source:</b> ${esc(row.source_name || row.provider_name || row.employer || "Not stated")}<br><b>Published:</b> ${dateLabel(row.published_at)}<br><b>Last checked:</b> ${dateLabel(row.last_checked_at)}</p>${row.source_url ? `<a href="${esc(row.source_url)}" target="_blank" rel="noopener">Open official or original source</a>` : ""}</article>`;
     $("button", dialog).onclick = () => dialog.close();
     dialog.showModal(); track("opportunity_viewed", { opportunity_id: row.id });
