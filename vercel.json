@@ -1,5 +1,7 @@
 {
   "redirects": [
+    { "source": "/costs", "destination": "/opportunities", "permanent": true },
+    { "source": "/cost-planner", "destination": "/opportunities", "permanent": true },
     { "source": "/admin", "destination": "/admin.html", "permanent": false },
     { "source": "/admin/", "destination": "/admin.html", "permanent": false },
     { "source": "/dashboard/admin", "destination": "/admin.html", "permanent": false },
@@ -9,6 +11,8 @@
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/opportunities", "destination": "/index.html?screen=opportunities" },
+    { "source": "/journey/tools/cost-estimator", "destination": "/index.html?screen=cost-estimator" },
     { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }
   ],
   "headers": [

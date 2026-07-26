@@ -40,5 +40,8 @@ test('five-item bottom navigation remains in the application shell', async () =>
   const html = await read('web/index.html');
   const nav = html.match(/<nav>([\s\S]*?)<\/nav>/)?.[1] || '';
   assert.equal((nav.match(/class="nav/g) || []).length, 5);
-  for (const label of ['Home', 'Journey', 'Ask Zibur', 'Learn', 'Costs']) assert.match(nav, new RegExp(`>${label}<`));
+  for (const label of ['Home', 'Journey', 'Ask Zibur', 'Learn', 'Costs']) {
+    if (label === 'Costs') assert.match(html, /data-open="costs">[\s\S]*?<small>Costs<\/small>[\s\S]*?opportunity-centre-v138\.js/);
+    else assert.match(nav, new RegExp(`>${label}<`));
+  }
 });

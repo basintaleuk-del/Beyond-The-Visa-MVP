@@ -1,0 +1,404 @@
+(() => {
+  "use strict";
+  if (window.__btvOpportunityCentre138) return;
+  window.__btvOpportunityCentre138 = true;
+
+  const COUNTRY_NAMES = {
+    uk: "United Kingdom",
+    au: "Australia",
+    us: "United States",
+    ca: "Canada",
+    nz: "New Zealand",
+  };
+  const COUNTRY_ALIASES = Object.fromEntries(
+    Object.entries(COUNTRY_NAMES).flatMap(([code, name]) => [
+      [code, code],
+      [name.toLowerCase(), code],
+    ])
+  );
+  const TYPE_LABELS = {
+    job: "Job",
+    scholarship: "Scholarship",
+    event: "Event",
+    registration_update: "Registration update",
+    immigration_update: "Immigration update",
+    employer_campaign: "Employer campaign",
+    learning: "Learning",
+    journey_action: "Journey action",
+  };
+  const SPONSOR_LABELS = {
+    confirmed: "Visa sponsorship confirmed",
+    may_be_available: "Sponsorship may be available",
+    not_stated: "Sponsorship not stated",
+  };
+  const state = {
+    rows: [],
+    employers: [],
+    saved: new Set(),
+    dismissed: new Set(),
+    profile: null,
+    counts: {},
+    total: 0,
+    page: 0,
+    loading: false,
+    loaded: false,
+    filters: {
+      search: "",
+      country: "",
+      profession: "",
+      type: "",
+      specialty: "",
+      employer: "",
+      salaryMin: "",
+      sponsorship: false,
+      newToday: false,
+      remote: false,
+      graduate: false,
+      saved: false,
+      closing: false,
+    },
+  };
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const esc = (value) =>
+    String(value ?? "").replace(/[&<>'"]/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    })[character]);
+  const codeFor = (value) => COUNTRY_ALIASES[String(value || "").toLowerCase()] || String(value || "").toLowerCase();
+  const today = () => new Date().toISOString().slice(0, 10);
+  const dateLabel = (value) => value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not stated";
+  const notify = (message) => typeof window.toast === "function" ? window.toast(message) : alert(message);
+  const db = () => window.btvSupabase;
+
+  function install() {
+    upgradeEntryPoints();
+    if (!$("#opportunities")) {
+      const section = document.createElement("section");
+      section.id = "opportunities";
+      section.className = "screen opportunityCentre138";
+      section.innerHTML = shell();
+      $("#appShell main")?.insertBefore(section, $("#cost-estimator"));
+      wireStatic(section);
+    }
+    wrapNavigation();
+    openInitialRoute();
+  }
+
+  function upgradeEntryPoints() {
+    const oldNav = $('#appShell nav .nav[data-open="costs"]');
+    if (oldNav) {
+      oldNav.dataset.open = "opportunities";
+      oldNav.querySelector(".menuIconV72")?.remove();
+      const label = $("small", oldNav);
+      if (label) label.textContent = "Opportunities";
+      Array.from(oldNav.childNodes).filter((node) => node.nodeType === 3).forEach((node) => node.remove());
+    }
+    $$('[data-open-target="costs"]').forEach((button) => {
+      button.dataset.openTarget = "opportunities";
+      const title = $("b", button), description = $("small", button);
+      if (title) title.textContent = "Opportunity Centre";
+      if (description) description.textContent = "Jobs, sponsorship, funding and events";
+    });
+    const navigation = $("#appShell nav");
+    if (navigation && !navigation.dataset.opportunityRoute138) {
+      navigation.dataset.opportunityRoute138 = "true";
+      navigation.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-open]");
+        if (button) setTimeout(() => { syncRoute(button.dataset.open); if (button.dataset.open === "opportunities") load(); }, 0);
+      });
+    }
+    const estimatorBack = $('#cost-estimator [data-open="opportunities"]');
+    if (estimatorBack && !estimatorBack.dataset.opportunityRoute138) {
+      estimatorBack.dataset.opportunityRoute138 = "true";
+      estimatorBack.addEventListener("click", () => setTimeout(() => { syncRoute("opportunities"); load(); }, 0));
+    }
+  }
+
+  function syncRoute(target) {
+    if (target === "opportunities" || target === "costs") history.replaceState(history.state, "", "/opportunities");
+    else if (target === "cost-estimator") history.replaceState(history.state, "", "/journey/tools/cost-estimator");
+    else if (location.pathname === "/opportunities" || location.pathname === "/journey/tools/cost-estimator") history.replaceState(history.state, "", "/");
+  }
+
+  function showScreen(id) {
+    const target = id === "costs" ? "opportunities" : id;
+    $$(".screen").forEach((screen) => screen.classList.toggle("active", screen.id === target));
+    $$(".nav").forEach((button) => button.classList.toggle("active", button.dataset.open === target));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    syncRoute(target);
+    if (target === "opportunities") load();
+  }
+
+  function wrapNavigation() {
+    if (window.__btvOpportunityNavigation138 || typeof window.openScreen !== "function") return;
+    window.__btvOpportunityNavigation138 = true;
+    const original = window.openScreen;
+    window.openScreen = function (id, ...args) {
+      const target = id === "costs" ? "opportunities" : id;
+      const result = original.call(this, target, ...args);
+      syncRoute(target);
+      if (target === "opportunities") load();
+      return result;
+    };
+  }
+
+  function openInitialRoute() {
+    const requested = new URLSearchParams(location.search).get("screen");
+    if (location.pathname === "/opportunities" || requested === "opportunities" || requested === "costs") {
+      if (requested === "costs") history.replaceState(history.state, "", "/opportunities");
+      setTimeout(() => showScreen("opportunities"), 0);
+    }
+    if (location.pathname === "/journey/tools/cost-estimator" || requested === "cost-estimator") {
+      setTimeout(() => showScreen("cost-estimator"), 0);
+    }
+  }
+
+  function shell() {
+    return `<div class="pageTitle opportunityTitle138"><button class="back" data-open="home" aria-label="Back to home">←</button><div><span>DISCOVER YOUR NEXT STEP</span><h1>Opportunity Centre</h1></div></div>
+      <p class="opportunityLead138">Jobs, sponsorship, registration updates, scholarships and events selected for your journey.</p>
+      <div data-opportunity-body aria-live="polite">${skeleton()}</div>
+      <dialog class="opportunityFilters138" data-opportunity-filters aria-label="Opportunity filters"></dialog>
+      <dialog class="opportunityDetail138" data-opportunity-detail aria-label="Opportunity details"></dialog>`;
+  }
+
+  function skeleton() {
+    return `<div class="opportunitySkeleton138"><i></i><i></i><i></i><i></i></div>`;
+  }
+
+  function wireStatic(root) {
+    root.addEventListener("click", handleClick);
+    root.addEventListener("input", handleInput);
+    root.addEventListener("change", handleInput);
+  }
+
+  async function countRows(configure) {
+    let query = db().from("btv_jobs").select("id", { count: "exact", head: true }).eq("status", "published").is("expired_at", null);
+    query = configure(query);
+    const { count, error } = await query;
+    if (error) throw error;
+    return count || 0;
+  }
+
+  async function load(reset = true) {
+    if (state.loading || !db()) return;
+    state.loading = true;
+    const body = $("[data-opportunity-body]");
+    if (body && !state.loaded) body.innerHTML = skeleton();
+    try {
+      const { data: auth } = await db().auth.getUser();
+      const user = auth?.user;
+      if (!user) throw new Error("Sign in to view personalised opportunities.");
+      if (reset) { state.page = 0; state.rows = []; }
+      const from = state.page * 24;
+      const [feed, profile, saved, dismissed, employers, newJobs, sponsors, scholarships, events] = await Promise.all([
+        db().from("btv_jobs").select("*", { count: "exact" }).eq("status", "published").is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
+        db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(),
+        db().from("btv_saved_jobs").select("job_id").eq("user_id", user.id),
+        db().from("btv_opportunity_dismissals").select("opportunity_id").eq("user_id", user.id),
+        db().from("btv_opportunity_employers").select("*").eq("verified", true).order("name").limit(20),
+        countRows((query) => query.eq("opportunity_type", "job").gte("published_at", `${today()}T00:00:00Z`)),
+        countRows((query) => query.eq("opportunity_type", "job").eq("sponsorship_status", "confirmed")),
+        countRows((query) => query.eq("opportunity_type", "scholarship").gte("published_at", `${today()}T00:00:00Z`)),
+        countRows((query) => { const end = new Date(); end.setUTCDate(end.getUTCDate() + 7); return query.eq("opportunity_type", "event").gte("event_start_at", new Date().toISOString()).lte("event_start_at", end.toISOString()); }),
+      ]);
+      for (const result of [feed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
+      state.rows = reset ? (feed.data || []) : [...state.rows, ...(feed.data || [])];
+      state.total = feed.count || 0;
+      state.profile = profile.data || {};
+      state.saved = new Set((saved.data || []).map((row) => row.job_id));
+      state.dismissed = new Set((dismissed.data || []).map((row) => row.opportunity_id));
+      state.employers = employers.data || [];
+      const destination = codeFor(state.profile?.destination_country || state.profile?.destination);
+      const profession = String(state.profile?.profession || "").toLowerCase().includes("midwi") ? "midwife" : "nurse";
+      const recommended = destination ? await countRows((query) => query.or(`country.eq.${destination},country.eq.${COUNTRY_NAMES[destination]}`).or(`profession.eq.both,profession.eq.${profession}`)) : 0;
+      state.counts = { newJobs, sponsors, scholarships, events, recommended };
+      state.loaded = true;
+      render();
+      const sharedId = new URLSearchParams(location.search).get("opportunity");
+      if (sharedId) { const shared = state.rows.find((row) => row.id === sharedId); if (shared) showDetail(shared); }
+    } catch (error) {
+      console.error("Opportunity Centre load failed", error);
+      if (body) body.innerHTML = `<div class="opportunityState138"><b>Opportunities could not be loaded.</b><p>${esc(error.message)}</p><button data-opportunity-retry>Try again</button></div>`;
+    } finally { state.loading = false; }
+  }
+
+  function score(row) {
+    const profile = state.profile || {};
+    const destination = codeFor(profile.destination_country || profile.destination || window.state?.country);
+    const profession = String(profile.profession || "").toLowerCase();
+    let points = row.featured ? 2 : 0;
+    if (codeFor(row.country) === destination) points += 8;
+    if (row.profession === "both" || profession.includes(row.profession)) points += 5;
+    if (row.sponsorship_status === "confirmed") points += 3;
+    if (row.internationally_educated_friendly) points += 2;
+    if (row.published_at && Date.now() - new Date(row.published_at).getTime() < 7 * 86400000) points += 2;
+    return points;
+  }
+
+  function reason(row) {
+    const destination = codeFor(state.profile?.destination_country || state.profile?.destination || window.state?.country);
+    if (codeFor(row.country) === destination) return `Recommended because ${COUNTRY_NAMES[destination] || row.country} is your selected destination.`;
+    if (row.sponsorship_status === "confirmed") return "Visa sponsorship is confirmed by the recorded source.";
+    if (row.internationally_educated_friendly) return "Suitable for internationally educated applicants.";
+    return "Matches your profession or current journey preferences.";
+  }
+
+  function filteredRows() {
+    const f = state.filters, now = Date.now(), fortnight = now + 14 * 86400000;
+    return state.rows.filter((row) => {
+      if (state.dismissed.has(row.id)) return false;
+      const haystack = `${row.title} ${row.employer} ${row.summary || ""} ${row.specialty || ""} ${row.country}`.toLowerCase();
+      return (!f.search || haystack.includes(f.search.toLowerCase())) &&
+        (!f.country || codeFor(row.country) === f.country) &&
+        (!f.profession || row.profession === "both" || row.profession === f.profession) &&
+        (!f.type || row.opportunity_type === f.type) &&
+        (!f.specialty || String(row.specialty || "").toLowerCase().includes(f.specialty.toLowerCase())) &&
+        (!f.employer || String(row.employer || row.provider_name || "").toLowerCase().includes(f.employer.toLowerCase())) &&
+        (!f.salaryMin || Number(row.salary_max || row.salary_min || 0) >= Number(f.salaryMin)) &&
+        (!f.sponsorship || row.sponsorship_status === "confirmed") &&
+        (!f.newToday || String(row.published_at || "").startsWith(today())) &&
+        (!f.remote || row.remote_interview) && (!f.graduate || row.graduate_friendly) &&
+        (!f.saved || state.saved.has(row.id)) &&
+        (!f.closing || (row.closing_at && new Date(row.closing_at).getTime() <= fortnight));
+    });
+  }
+
+  function render() {
+    const body = $("[data-opportunity-body]");
+    if (!body) return;
+    const rows = filteredRows();
+    const recommended = [...state.rows].filter((row) => !state.dismissed.has(row.id)).sort((a, b) => score(b) - score(a) || String(b.published_at).localeCompare(String(a.published_at))).slice(0, 5);
+    const activeFilters = Object.entries(state.filters).filter(([key, value]) => key !== "search" && Boolean(value)).length;
+    const profileEnough = Boolean(state.profile?.profession && (state.profile?.destination_country || state.profile?.destination));
+    body.innerHTML = `${intro()}
+      <section class="opportunitySummary138" aria-label="Live opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("Visa sponsorship roles", state.counts.sponsors)}${summaryCard("New scholarships", state.counts.scholarships)}${summaryCard("Events this week", state.counts.events)}${summaryCard("Recommended for you", state.counts.recommended)}</section>
+      <section class="ziburOpportunity138"><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>View recommended jobs</button><button data-improve-profile>Improve profile</button><button data-next-journey>Review next journey step</button><button data-ask-zibur>Ask Zibur</button></div></section>
+      <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED</span><h2>Recommended for you</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty("No personalised opportunities are published yet.")}</section>
+      <section class="opportunitySection138"><div class="opportunityToolbar138"><label><span class="sr">Search opportunities</span><input data-opportunity-search type="search" value="${esc(state.filters.search)}" placeholder="Search jobs, events and updates"></label><button data-open-filters>Filters${activeFilters ? ` (${activeFilters})` : ""}</button></div><div class="opportunityHeading138"><div><span>DISCOVER</span><h2>${rows.length} matching result${rows.length === 1 ? "" : "s"}</h2></div><button data-clear-filters ${activeFilters || state.filters.search ? "" : "hidden"}>Clear filters</button></div>${rows.length ? countrySections(rows) : empty("No matching opportunities are currently available. Try clearing filters or update your preferences.")}${state.rows.length < state.total ? '<button class="opportunityMore138" data-load-more>Load more opportunities</button>' : ""}</section>
+      ${typeSection("Scholarships & funding", "scholarship", rows)}
+      ${typeSection("Recruitment events & webinars", "event", rows)}
+      ${employerSection()}
+      <section class="opportunityTools138"><div><span>JOURNEY TOOL</span><h2>Planning your relocation budget?</h2><p>Your existing estimates and calculations are still available.</p></div><button data-open-estimator>Relocation Cost Estimator</button></section>`;
+    renderFilterDialog();
+  }
+
+  function intro() {
+    return `<section class="opportunityIntro138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><ul><li>Match jobs to your destination and profession.</li><li>Prioritise confirmed visa sponsorship.</li><li>Follow official sources and checked dates.</li><li>Save useful opportunities for later.</li></ul></section>`;
+  }
+  const summaryCard = (label, count) => `<article><b>${Number(count || 0)}</b><span>${esc(label)}</span></article>`;
+  const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
+
+  function countrySections(rows) {
+    return Object.entries(COUNTRY_NAMES).map(([code, name]) => {
+      const matches = rows.filter((row) => codeFor(row.country) === code);
+      return `<details class="opportunityCountry138" ${code === codeFor(state.profile?.destination_country || state.profile?.destination || window.state?.country) ? "open" : ""}><summary><span>${esc(name)}</span><b>${matches.length}</b></summary>${matches.length ? `<div class="opportunityGrid138">${matches.map((row) => card(row)).join("")}</div>` : `<p>No published opportunities for ${esc(name)} match these filters.</p>`}</details>`;
+    }).join("");
+  }
+
+  function typeSection(title, type, rows) {
+    const matches = rows.filter((row) => row.opportunity_type === type);
+    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>${type === "event" ? "CONNECT" : "FUND YOUR PROGRESS"}</span><h2>${title}</h2></div></div>${matches.length ? `<div class="opportunityGrid138">${matches.slice(0, 6).map((row) => card(row)).join("")}</div>` : empty(`No verified ${title.toLowerCase()} are currently published.`)}</section>`;
+  }
+
+  function employerSection() {
+    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>VERIFIED ORGANISATIONS</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => { const vacancies = state.rows.filter((row) => row.employer_id === employer.id && row.opportunity_type === "job").length; return `<article class="employerCard138">${employer.logo_url ? `<img src="${esc(employer.logo_url)}" alt="${esc(employer.name)} logo" loading="lazy">` : ""}<span>${employer.verified ? "Verified employer" : "Employer"}</span><h3>${esc(employer.name)}</h3><p>${esc(employer.description || COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)}</p><small>${vacancies} active vacanc${vacancies === 1 ? "y" : "ies"} · Last checked: ${dateLabel(employer.last_checked_at)}</small>${employer.website_url ? `<a href="${esc(employer.website_url)}" target="_blank" rel="noopener">Official website</a>` : ""}</article>`; }).join("")}</div>` : empty("No verified employer spotlights are currently published.")}</section>`;
+  }
+
+  function card(row, explanation = "") {
+    const type = TYPE_LABELS[row.opportunity_type] || "Opportunity";
+    const salary = row.salary_min || row.salary_max ? `${esc(row.currency || "")} ${Number(row.salary_min || row.salary_max).toLocaleString()}${row.salary_max && row.salary_min ? `–${Number(row.salary_max).toLocaleString()}` : ""}` : "";
+    const source = row.source_name || row.provider_name || row.employer;
+    return `<article class="opportunityCard138" data-opportunity-card="${row.id}"><div class="opportunityCardTop138"><span>${esc(type)}</span>${row.verified ? "<b>Verified</b>" : "<b>Source not verified</b>"}</div><h3>${esc(row.title)}</h3><p>${esc(row.summary || row.description || "Open the source for full details.")}</p>${explanation ? `<div class="opportunityReason138">${esc(explanation)}</div>` : ""}<dl><div><dt>Provider</dt><dd>${esc(row.employer || row.provider_name || "Not stated")}</dd></div><div><dt>Location</dt><dd>${esc([row.city || row.location, COUNTRY_NAMES[codeFor(row.country)] || row.country].filter(Boolean).join(", "))}</dd></div>${salary ? `<div><dt>Salary / funding</dt><dd>${salary}</dd></div>` : ""}<div><dt>Sponsorship</dt><dd>${esc(SPONSOR_LABELS[row.sponsorship_status] || SPONSOR_LABELS.not_stated)}</dd></div><div><dt>Closing date</dt><dd>${dateLabel(row.closing_at || row.closing_date)}</dd></div><div><dt>Source</dt><dd>${esc(source || "Not stated")} · checked ${dateLabel(row.last_checked_at)}</dd></div></dl><div class="opportunityActions138"><button data-view-opportunity="${row.id}">View details</button><button data-save-opportunity="${row.id}" aria-pressed="${state.saved.has(row.id)}">${state.saved.has(row.id) ? "Saved" : "Save"}</button><button data-share-opportunity="${row.id}">Share</button>${row.opportunity_type === "event" && row.event_start_at ? `<button data-calendar-opportunity="${row.id}">Add to calendar</button>` : ""}${row.application_url || row.registration_url || row.source_url ? `<a href="${esc(row.application_url || row.registration_url || row.source_url)}" target="_blank" rel="noopener" data-apply-opportunity="${row.id}">${row.opportunity_type === "event" ? "Register" : row.opportunity_type === "job" ? "Apply" : "Official source"}</a>` : ""}<button class="quiet138" data-dismiss-opportunity="${row.id}">Hide</button></div></article>`;
+  }
+
+  function renderFilterDialog() {
+    const dialog = $("[data-opportunity-filters]");
+    if (!dialog) return;
+    const f = state.filters;
+    dialog.innerHTML = `<form method="dialog"><div class="opportunityDialogHead138"><h2>Filter opportunities</h2><button value="cancel" aria-label="Close filters">×</button></div><label>Country<select name="country"><option value="">All countries</option>${Object.entries(COUNTRY_NAMES).map(([code, name]) => `<option value="${code}" ${f.country === code ? "selected" : ""}>${name}</option>`).join("")}</select></label><label>Profession<select name="profession"><option value="">All professions</option><option value="nurse" ${f.profession === "nurse" ? "selected" : ""}>Nurse</option><option value="midwife" ${f.profession === "midwife" ? "selected" : ""}>Midwife</option></select></label><label>Opportunity type<select name="type"><option value="">All types</option>${Object.entries(TYPE_LABELS).map(([value, label]) => `<option value="${value}" ${f.type === value ? "selected" : ""}>${label}</option>`).join("")}</select></label><label>Specialty<input name="specialty" value="${esc(f.specialty)}" placeholder="e.g. theatre"></label><label>Employer<input name="employer" value="${esc(f.employer)}" placeholder="Employer or provider"></label><label>Minimum salary or funding<input name="salaryMin" type="number" min="0" value="${esc(f.salaryMin)}"></label><div class="opportunityChecks138">${[["sponsorship","Visa sponsorship only"],["newToday","New today"],["remote","Remote interview"],["graduate","Graduate friendly"],["saved","Saved only"],["closing","Closing soon"]].map(([name, label]) => `<label><input type="checkbox" name="${name}" ${f[name] ? "checked" : ""}> ${label}</label>`).join("")}</div><div class="opportunityDialogActions138"><button type="button" data-filter-reset>Clear filters</button><button value="apply" data-filter-apply>Apply filters</button></div></form>`;
+  }
+
+  function handleInput(event) {
+    if (event.target.matches("[data-opportunity-search]")) {
+      state.filters.search = event.target.value;
+      clearTimeout(handleInput.timer);
+      handleInput.timer = setTimeout(render, 180);
+    }
+  }
+
+  async function handleClick(event) {
+    const button = event.target.closest("button,a");
+    if (!button) return;
+    if (button.dataset.open) return showScreen(button.dataset.open);
+    if (button.matches("[data-opportunity-retry]")) return load();
+    if (button.matches("[data-open-filters]")) return $("[data-opportunity-filters]")?.showModal();
+    if (button.matches("[data-filter-reset],[data-clear-filters]")) { state.filters = { search: "", country: "", profession: "", type: "", specialty: "", employer: "", salaryMin: "", sponsorship: false, newToday: false, remote: false, graduate: false, saved: false, closing: false }; $("[data-opportunity-filters]")?.close(); return render(); }
+    if (button.matches("[data-filter-apply]")) { event.preventDefault(); const form = button.form, data = new FormData(form); for (const key of ["country","profession","type","specialty","employer","salaryMin"]) state.filters[key] = String(data.get(key) || ""); for (const key of ["sponsorship","newToday","remote","graduate","saved","closing"]) state.filters[key] = data.has(key); $("[data-opportunity-filters]")?.close(); track("opportunity_filters_applied", { filters: state.filters }); return render(); }
+    if (button.matches("[data-load-more]")) { state.page += 1; return load(false); }
+    if (button.matches("[data-open-estimator]")) return showScreen("cost-estimator");
+    if (button.matches("[data-show-recommended]")) return $("[data-recommended-section]")?.scrollIntoView({ behavior: "smooth" });
+    if (button.matches("[data-improve-profile]")) return showScreen("profile");
+    if (button.matches("[data-next-journey]")) return showScreen("checklist");
+    if (button.matches("[data-ask-zibur]")) { showScreen("assistant"); const input = $("#question"); if (input) { input.value = "Which published opportunities best match my destination and current journey stage?"; input.focus(); } return; }
+    const id = button.dataset.saveOpportunity || button.dataset.shareOpportunity || button.dataset.calendarOpportunity || button.dataset.dismissOpportunity || button.dataset.viewOpportunity || button.dataset.applyOpportunity;
+    if (!id) return;
+    const row = state.rows.find((item) => item.id === id);
+    if (!row) return;
+    if (button.dataset.saveOpportunity) return toggleSave(row);
+    if (button.dataset.shareOpportunity) return share(row);
+    if (button.dataset.calendarOpportunity) return addToCalendar(row);
+    if (button.dataset.dismissOpportunity) return dismiss(row);
+    if (button.dataset.viewOpportunity) return showDetail(row);
+    if (button.dataset.applyOpportunity) track("opportunity_apply_clicked", { opportunity_id: id });
+  }
+
+  async function toggleSave(row) {
+    const { data: auth } = await db().auth.getUser(), user = auth?.user;
+    if (!user) return notify("Sign in to save opportunities.");
+    const saved = state.saved.has(row.id);
+    const result = saved ? await db().from("btv_saved_jobs").delete().eq("user_id", user.id).eq("job_id", row.id) : await db().from("btv_saved_jobs").insert({ user_id: user.id, job_id: row.id });
+    if (result.error) return notify(result.error.message);
+    saved ? state.saved.delete(row.id) : state.saved.add(row.id);
+    notify(saved ? "Removed from saved opportunities" : "Opportunity saved");
+    track(saved ? "opportunity_unsaved" : "opportunity_saved", { opportunity_id: row.id });
+    render();
+  }
+
+  async function dismiss(row) {
+    const { data: auth } = await db().auth.getUser(), user = auth?.user;
+    if (!user) return;
+    const { error } = await db().from("btv_opportunity_dismissals").insert({ user_id: user.id, opportunity_id: row.id });
+    if (error && !String(error.message).toLowerCase().includes("duplicate")) return notify(error.message);
+    state.dismissed.add(row.id); render();
+  }
+
+  async function share(row) {
+    const url = `${location.origin}/opportunities?opportunity=${encodeURIComponent(row.id)}`;
+    try { if (navigator.share) await navigator.share({ title: row.title, text: row.summary || row.title, url }); else { await navigator.clipboard.writeText(url); notify("Opportunity link copied"); } track("opportunity_shared", { opportunity_id: row.id }); } catch (error) { if (error.name !== "AbortError") notify("The opportunity link could not be shared."); }
+  }
+
+  function addToCalendar(row) {
+    const stamp = (value) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Beyond The Visa//Opportunity Centre//EN","BEGIN:VEVENT",`UID:${row.id}@beyondthevisa.org`,`DTSTART:${stamp(row.event_start_at)}`,`DTEND:${stamp(row.event_end_at || new Date(new Date(row.event_start_at).getTime() + 3600000))}`,`SUMMARY:${String(row.title).replace(/[\n,;]/g, " ")}`,`DESCRIPTION:${String(row.summary || "").replace(/[\n,;]/g, " ")}`,`URL:${row.registration_url || row.source_url || "https://www.beyondthevisa.org/opportunities"}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })); link.download = "opportunity-event.ics"; link.click(); URL.revokeObjectURL(link.href); track("opportunity_event_calendar", { opportunity_id: row.id });
+  }
+
+  function showDetail(row) {
+    const dialog = $("[data-opportunity-detail]");
+    dialog.innerHTML = `<article><div class="opportunityDialogHead138"><span>${esc(TYPE_LABELS[row.opportunity_type] || "Opportunity")}</span><button aria-label="Close details">×</button></div><h2>${esc(row.title)}</h2><p>${esc(row.description || row.summary || "Full information is available from the recorded source.")}</p><p><b>Source:</b> ${esc(row.source_name || row.provider_name || row.employer || "Not stated")}<br><b>Published:</b> ${dateLabel(row.published_at)}<br><b>Last checked:</b> ${dateLabel(row.last_checked_at)}</p>${row.source_url ? `<a href="${esc(row.source_url)}" target="_blank" rel="noopener">Open official or original source</a>` : ""}</article>`;
+    $("button", dialog).onclick = () => dialog.close();
+    dialog.showModal(); track("opportunity_viewed", { opportunity_id: row.id });
+  }
+
+  async function track(eventType, metadata) {
+    try { const { data } = await db().auth.getUser(); if (!data?.user) return; await db().from("btv_client_events").insert({ user_id: data.user.id, event_type: eventType, message: "Opportunity Centre interaction", route: "/opportunities", app_version: "138", metadata }); } catch {}
+  }
+
+  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", install, { once: true }) : install();
+  new MutationObserver(upgradeEntryPoints).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener("btv:session-restored", () => { if ($("#opportunities.active")) load(); });
+})();
