@@ -43,6 +43,7 @@
     loading: false,
     loaded: false,
     lastUpdated: null,
+    includePossibleSponsorship: false,
     filters: {
       search: "",
       country: "",
@@ -50,9 +51,16 @@
       type: "",
       specialty: "",
       employer: "",
+      band: "",
+      region: "",
+      city: "",
+      contract: "",
+      workingPattern: "",
       salaryMin: "",
       sponsorship: false,
+      sponsorshipPossible: false,
       newToday: false,
+      newWeek: false,
       remote: false,
       graduate: false,
       saved: false,
@@ -184,6 +192,12 @@
     return count || 0;
   }
 
+  async function countNhsEmployers() {
+    const { count, error } = await db().from("btv_opportunity_employers").select("id", { count: "exact", head: true }).eq("verified", true).eq("source_name", "NHS Jobs").gt("active_job_count", 0);
+    if (error) throw error;
+    return count || 0;
+  }
+
   async function load(reset = true) {
     if (state.loading || !db()) return;
     state.loading = true;
@@ -195,20 +209,24 @@
       if (!user) throw new Error("Sign in to view personalised opportunities.");
       if (reset) { state.page = 0; state.rows = []; }
       const from = state.page * 24;
-      const [feed, profile, saved, dismissed, employers, newJobs, sponsors, scholarships, events] = await Promise.all([
+      const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+      const [feed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await Promise.all([
         db().from("btv_jobs").select("*", { count: "exact" }).eq("status", "published").is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
         db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(),
         db().from("btv_saved_jobs").select("job_id").eq("user_id", user.id),
         db().from("btv_opportunity_dismissals").select("opportunity_id").eq("user_id", user.id),
-        db().from("btv_opportunity_employers").select("*").eq("verified", true).order("name").limit(20),
-        countRows((query) => query.eq("opportunity_type", "job").gte("published_at", `${today()}T00:00:00Z`)),
-        countRows((query) => query.eq("opportunity_type", "job").eq("sponsorship_status", "confirmed")),
-        countRows((query) => query.eq("opportunity_type", "scholarship").gte("published_at", `${today()}T00:00:00Z`)),
-        countRows((query) => { const end = new Date(); end.setUTCDate(end.getUTCDate() + 7); return query.eq("opportunity_type", "event").gte("event_start_at", new Date().toISOString()).lte("event_start_at", end.toISOString()); }),
+        db().from("btv_opportunity_employers").select("*").eq("verified", true).eq("source_name", "NHS Jobs").gt("active_job_count", 0).order("featured", { ascending: false }).order("active_job_count", { ascending: false }).limit(20),
+        countRows((query) => query.eq("source_name", "NHS Jobs").eq("opportunity_type", "job").gte("published_at", `${today()}T00:00:00Z`)),
+        countRows((query) => query.eq("source_name", "NHS Jobs").eq("profession", "nurse")),
+        countRows((query) => query.eq("source_name", "NHS Jobs").eq("profession", "midwife")),
+        countRows((query) => query.eq("source_name", "NHS Jobs").eq("sponsorship_status", "confirmed")),
+        countRows((query) => query.eq("source_name", "NHS Jobs").eq("sponsorship_status", "may_be_available")),
+        countRows((query) => query.eq("source_name", "NHS Jobs").gte("closing_at", new Date().toISOString()).lte("closing_at", weekEnd.toISOString())),
+        countNhsEmployers(),
       ]);
       for (const result of [feed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
       state.rows = reset ? (feed.data || []) : [...state.rows, ...(feed.data || [])];
-      state.lastUpdated = state.rows.map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
+      state.lastUpdated = state.rows.filter((row) => row.source_name === "NHS Jobs").map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
       state.total = feed.count || 0;
       state.profile = profile.data || {};
       state.saved = new Set((saved.data || []).map((row) => row.job_id));
@@ -216,8 +234,8 @@
       state.employers = employers.data || [];
       const destination = codeFor(state.profile?.destination_country || state.profile?.destination);
       const profession = String(state.profile?.profession || "").toLowerCase().includes("midwi") ? "midwife" : "nurse";
-      const recommended = destination ? await countRows((query) => query.or(`country.eq.${destination},country.eq.${COUNTRY_NAMES[destination]}`).or(`profession.eq.both,profession.eq.${profession}`)) : 0;
-      state.counts = { newJobs, sponsors, scholarships, events, recommended };
+      const recommended = destination ? await countRows((query) => query.eq("source_name", "NHS Jobs").or(`country.eq.${destination},country.eq.${COUNTRY_NAMES[destination]}`).or(`profession.eq.both,profession.eq.${profession}`)) : 0;
+      state.counts = { newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, recommended, employers: employerCount };
       state.loaded = true;
       render();
       const sharedId = new URLSearchParams(location.search).get("opportunity");
@@ -254,15 +272,23 @@
     return state.rows.filter((row) => {
       if (state.dismissed.has(row.id)) return false;
       const haystack = `${row.title} ${row.employer} ${row.summary || ""} ${row.specialty || ""} ${row.country}`.toLowerCase();
+      const publishedAt = row.published_at ? new Date(row.published_at).getTime() : 0;
       return (!f.search || haystack.includes(f.search.toLowerCase())) &&
         (!f.country || codeFor(row.country) === f.country) &&
         (!f.profession || row.profession === "both" || row.profession === f.profession) &&
         (!f.type || row.opportunity_type === f.type) &&
         (!f.specialty || String(row.specialty || "").toLowerCase().includes(f.specialty.toLowerCase())) &&
         (!f.employer || String(row.employer || row.provider_name || "").toLowerCase().includes(f.employer.toLowerCase())) &&
+        (!f.band || String(row.band || "").toLowerCase() === f.band.toLowerCase()) &&
+        (!f.region || String(row.region || "").toLowerCase().includes(f.region.toLowerCase())) &&
+        (!f.city || String(row.city || row.location || "").toLowerCase().includes(f.city.toLowerCase())) &&
+        (!f.contract || String(row.employment_type || "").toLowerCase().includes(f.contract.toLowerCase())) &&
+        (!f.workingPattern || String(row.working_pattern || "").toLowerCase().includes(f.workingPattern.toLowerCase())) &&
         (!f.salaryMin || Number(row.salary_max || row.salary_min || 0) >= Number(f.salaryMin)) &&
         (!f.sponsorship || row.sponsorship_status === "confirmed") &&
+        (!f.sponsorshipPossible || row.sponsorship_status === "confirmed" || row.sponsorship_status === "may_be_available") &&
         (!f.newToday || String(row.published_at || "").startsWith(today())) &&
+        (!f.newWeek || publishedAt >= now - 7 * 86400000) &&
         (!f.remote || row.remote_interview) && (!f.graduate || row.graduate_friendly) &&
         (!f.saved || state.saved.has(row.id)) &&
         (!f.closing || (row.closing_at && new Date(row.closing_at).getTime() <= fortnight));
@@ -276,22 +302,28 @@
     const recommended = [...state.rows].filter((row) => !state.dismissed.has(row.id)).sort((a, b) => score(b) - score(a) || String(b.published_at).localeCompare(String(a.published_at))).slice(0, 5);
     const activeFilters = Object.entries(state.filters).filter(([key, value]) => key !== "search" && Boolean(value)).length;
     const profileEnough = Boolean(state.profile?.profession && (state.profile?.destination_country || state.profile?.destination));
-    body.innerHTML = `${intro()}
-      <section class="opportunitySummary138" aria-label="Live opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("Visa sponsorship roles", state.counts.sponsors)}${summaryCard("New scholarships", state.counts.scholarships)}${summaryCard("Events this week", state.counts.events)}${summaryCard("Recommended for you", state.counts.recommended)}</section>
+    body.innerHTML = `${intro()}${nhsSourceNote()}
+      <section class="opportunitySummary138" aria-label="Live NHS Jobs opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("NHS nursing jobs", state.counts.nhsNursing)}${summaryCard("NHS midwifery jobs", state.counts.nhsMidwifery)}${summaryCard("Visa sponsorship confirmed", state.counts.sponsors)}${summaryCard("Sponsorship may be available", state.counts.possibleSponsors)}${summaryCard("Closing this week", state.counts.closingWeek)}${summaryCard("Recommended for you", state.counts.recommended)}${summaryCard("Employers currently recruiting", state.counts.employers)}</section>
       <section class="ziburOpportunity138"><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>View recommended jobs</button><button data-improve-profile>Improve profile</button><button data-next-journey>Review next journey step</button><button data-ask-zibur>Ask Zibur</button></div></section>
-      ${sponsorshipSection(rows)}
+      ${nhsSponsorshipSection(rows)}
+      ${nhsCategories(rows)}
       <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED</span><h2>Recommended for you</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty("No personalised opportunities are published yet.")}</section>
       <section class="opportunitySection138"><div class="opportunityToolbar138"><label><span class="sr">Search opportunities</span><input data-opportunity-search type="search" value="${esc(state.filters.search)}" placeholder="Search jobs, events and updates"></label><button data-open-filters>Filters${activeFilters ? ` (${activeFilters})` : ""}</button></div><div class="opportunityHeading138"><div><span>DISCOVER</span><h2>${rows.length} matching result${rows.length === 1 ? "" : "s"}</h2></div><button data-clear-filters ${activeFilters || state.filters.search ? "" : "hidden"}>Clear filters</button></div>${rows.length ? countrySections(rows) : empty("No matching opportunities are currently available. Try clearing filters or update your preferences.")}${state.rows.length < state.total ? '<button class="opportunityMore138" data-load-more>Load more opportunities</button>' : ""}</section>
       ${typeSection("Scholarships & funding", "scholarship", rows)}
       ${typeSection("Recruitment events & webinars", "event", rows)}
-      ${employerSection()}
+      ${nhsEmployerSection()}
       <section class="opportunityTools138"><div><span>JOURNEY TOOL</span><h2>Planning your relocation budget?</h2><p>Your existing estimates and calculations are still available.</p></div><button data-open-estimator>Relocation Cost Estimator</button></section>`;
     renderFilterDialog();
+    addNhsFilterControls($("[data-opportunity-filters]"), state.filters);
   }
 
   function intro() {
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
     return `<section class="opportunityIntro138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily.</b> ${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some opportunity information may be out of date. Please confirm details on the original provider’s website." : ""}` : "No approved automated source has completed an import yet."}</p><ul><li>Match jobs to your destination and profession.</li><li>Prioritise confirmed visa sponsorship.</li><li>Follow official sources and checked dates.</li><li>Save useful opportunities for later.</li></ul></section>`;
+  }
+  function nhsSourceNote() {
+    const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
+    return `<section class="opportunityIntro138"><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily from NHS Jobs.</b> ${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some vacancy information may be out of date. Confirm the latest details on NHS Jobs." : ""}` : "No NHS Jobs import has completed yet."}</p><p class="opportunityDisclaimer138">NHS vacancy information is sourced from <a href="https://www.jobs.nhs.uk" target="_blank" rel="noopener noreferrer">NHS Jobs</a>. Vacancy details, availability and application decisions remain with the recruiting employer and NHS Jobs. Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>.</p></section>`;
   }
   const summaryCard = (label, count) => `<article><b>${Number(count || 0)}</b><span>${esc(label)}</span></article>`;
   const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
@@ -318,15 +350,48 @@
     return `<section class="opportunitySection138 opportunitySponsor138"><div class="opportunityHeading138"><div><span>SPONSORSHIP FIRST</span><h2>Visa sponsorship opportunities</h2></div></div><p class="opportunityDisclaimer138">Sponsorship wording is classified conservatively from the recorded source. Confirm eligibility and availability with the employer before applying.</p>${matches.length ? `<div class="opportunityGrid138">${matches.slice(0, 6).map((row) => card(row)).join("")}</div>` : empty("No verified sponsorship roles are currently published.")}</section>`;
   }
 
+  function nhsEmployerSection() {
+    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>ADMIN-APPROVED NHS EMPLOYERS</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => `<article class="employerCard138"><span>Source: NHS Jobs</span><h3>${esc(employer.name)}</h3><p>${esc(COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)} · ${Number(employer.active_nursing_count || 0)} nursing · ${Number(employer.active_midwifery_count || 0)} midwifery · ${Number(employer.sponsorship_job_count || 0)} confirmed sponsorship</p><small>${Number(employer.active_job_count || 0)} active vacancies · Latest: ${dateLabel(employer.latest_vacancy_at)} · Checked: ${dateLabel(employer.last_checked_at)}</small>${employer.source_url ? `<a href="${esc(employer.source_url)}" target="_blank" rel="noopener noreferrer">View active NHS vacancies ↗</a>` : ""}</article>`).join("")}</div>` : empty("No admin-approved NHS employer spotlights are currently published.")}</section>`;
+  }
+
+  function nhsSponsorshipSection(rows) {
+    const rank = { confirmed: 0, may_be_available: 1 };
+    const matches = rows.filter((row) => row.source_name === "NHS Jobs" && row.opportunity_type === "job" && row.verified && row.sponsorship_status in rank && (state.includePossibleSponsorship || row.sponsorship_status === "confirmed")).sort((a, b) => rank[a.sponsorship_status] - rank[b.sponsorship_status] || new Date(b.published_at || 0) - new Date(a.closing_at || "9999-12-31"));
+    return `<section class="opportunitySection138 opportunitySponsor138"><div class="opportunityHeading138"><div><span>SPONSORSHIP FIRST</span><h2>Visa Sponsorship Jobs</h2></div><button data-toggle-possible-sponsorship aria-pressed="${state.includePossibleSponsorship}">${state.includePossibleSponsorship ? "Confirmed sponsorship only" : "Include sponsorship that may be available"}</button></div><p class="opportunityDisclaimer138">Always confirm sponsorship eligibility in the full NHS Jobs advert and with the recruiting employer before applying.</p>${matches.length ? `<div class="opportunityGrid138">${matches.slice(0, 6).map((row) => card(row)).join("")}</div>` : empty("No NHS Jobs vacancies with confirmed sponsorship are currently published.")}</section>`;
+  }
+
+  function nhsCategories(rows) {
+    const nhsRows = rows.filter((row) => row.source_name === "NHS Jobs" && row.opportunity_type === "job");
+    const categories = [
+      ["All NHS nursing jobs", (row) => row.profession === "nurse" || row.profession === "both"], ["All NHS midwifery jobs", (row) => row.profession === "midwife" || row.profession === "both"],
+      ["Visa sponsorship confirmed", (row) => row.sponsorship_status === "confirmed"], ["Sponsorship may be available", (row) => row.sponsorship_status === "may_be_available"],
+      ["Newly added today", (row) => String(row.published_at || "").startsWith(today())], ["Closing soon", (row) => row.closing_at && new Date(row.closing_at).getTime() <= Date.now() + 7 * 86400000],
+      ["Newly qualified roles", (row) => /newly qualified|preceptorship/i.test(`${row.title} ${row.summary || ""}`)], ["Band 5 roles", (row) => row.band === "Band 5"], ["Band 6 roles", (row) => row.band === "Band 6"],
+      ["Band 7 and above", (row) => /^Band (7|8|9)/.test(row.band || "")], ["Theatre and recovery", (row) => row.specialty === "theatre and recovery"], ["Critical care", (row) => row.specialty === "critical care"],
+      ["Emergency nursing", (row) => row.specialty === "emergency nursing"], ["Mental health nursing", (row) => row.specialty === "mental health nursing"], ["Community nursing", (row) => row.specialty === "community nursing"],
+      ["Paediatric and neonatal nursing", (row) => row.specialty === "paediatric and neonatal nursing"], ["Learning disability nursing", (row) => row.specialty === "learning disability nursing"], ["Maternity and midwifery", (row) => row.specialty === "maternity and midwifery"],
+      ["Practice development and education", (row) => row.specialty === "practice development and education"], ["Research nursing", (row) => row.specialty === "research nursing"], ["Management and leadership", (row) => row.specialty === "management and leadership"],
+    ].map(([label, matches]) => [label, nhsRows.filter(matches)]).filter(([, matches]) => matches.length);
+    return categories.length ? `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>UNITED KINGDOM · NHS JOBS</span><h2>NHS vacancy categories</h2></div></div>${categories.map(([label, matches]) => `<details class="opportunityCountry138"><summary><span>${label}</span><b>${matches.length}</b></summary><div class="opportunityGrid138">${matches.slice(0, 3).map((row) => card(row)).join("")}</div></details>`).join("")}</section>` : "";
+  }
+
   function card(row, explanation = "") {
+    if (row.source_name === "NHS Jobs") return nhsCard(row, explanation);
     const original = row.canonical_url || row.source_url;
     const external = original ? `<a href="${esc(original)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View original source ↗</a>` : "";
     return baseCard(row, explanation).replace('<div class="opportunityActions138">', `<p class="opportunityDisclaimer138">Verify eligibility, sponsorship, deadlines, salary, registration requirements and funding terms on the original source.</p><div class="opportunityActions138">${external}`).replaceAll('rel="noopener"', 'rel="noopener noreferrer"');
   }
 
+  function nhsCard(row, explanation = "") {
+    const original = row.canonical_url || row.source_url;
+    const external = original ? `<a href="${esc(original)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View on NHS Jobs ↗</a>` : "";
+    const extra = `${row.band ? `<div><dt>NHS band</dt><dd>${esc(row.band)}</dd></div>` : ""}<div><dt>Published</dt><dd>${dateLabel(row.published_at)}</dd></div>${row.specialty ? `<div><dt>Category</dt><dd>${esc(row.profession === "midwife" ? "Midwife" : "Nurse")} · ${esc(row.specialty)}</dd></div>` : ""}`;
+    return baseCard(row, explanation).replace('<div class="opportunityCardTop138">', '<div class="opportunityCardTop138"><span>Source: NHS Jobs</span>').replace("</dl>", `${extra}</dl>`).replace('<div class="opportunityActions138">', `<p class="opportunityDisclaimer138">You’ll continue to NHS Jobs to view the full vacancy and apply. Confirm availability, sponsorship, salary, closing date, eligibility and registration requirements in the original advert.</p><div class="opportunityActions138">${external}`).replaceAll('rel="noopener"', 'rel="noopener noreferrer"');
+  }
+
   function baseCard(row, explanation = "") {
     const type = TYPE_LABELS[row.opportunity_type] || "Opportunity";
-    const salary = row.salary_min || row.salary_max ? `${esc(row.currency || "")} ${Number(row.salary_min || row.salary_max).toLocaleString()}${row.salary_max && row.salary_min ? `–${Number(row.salary_max).toLocaleString()}` : ""}` : "";
+    const salary = row.salary_text || (row.salary_min || row.salary_max ? `${esc(row.currency || "")} ${Number(row.salary_min || row.salary_max).toLocaleString()}${row.salary_max && row.salary_min ? `–${Number(row.salary_max).toLocaleString()}` : ""}` : "");
     const source = row.source_name || row.provider_name || row.employer;
     return `<article class="opportunityCard138" data-opportunity-card="${row.id}"><div class="opportunityCardTop138"><span>${esc(type)}</span>${row.verified ? "<b>Verified</b>" : "<b>Source not verified</b>"}</div><h3>${esc(row.title)}</h3><p>${esc(row.summary || row.description || "Open the source for full details.")}</p>${explanation ? `<div class="opportunityReason138">${esc(explanation)}</div>` : ""}<dl><div><dt>Provider</dt><dd>${esc(row.employer || row.provider_name || "Not stated")}</dd></div><div><dt>Location</dt><dd>${esc([row.city || row.location, COUNTRY_NAMES[codeFor(row.country)] || row.country].filter(Boolean).join(", "))}</dd></div>${salary ? `<div><dt>Salary / funding</dt><dd>${salary}</dd></div>` : ""}<div><dt>Sponsorship</dt><dd>${esc(SPONSOR_LABELS[row.sponsorship_status] || SPONSOR_LABELS.not_stated)}</dd></div><div><dt>Closing date</dt><dd>${dateLabel(row.closing_at || row.closing_date)}</dd></div><div><dt>Source</dt><dd>${esc(source || "Not stated")} · checked ${dateLabel(row.last_checked_at)}</dd></div></dl><div class="opportunityActions138"><button data-view-opportunity="${row.id}">View details</button><button data-save-opportunity="${row.id}" aria-pressed="${state.saved.has(row.id)}">${state.saved.has(row.id) ? "Saved" : "Save"}</button><button data-share-opportunity="${row.id}">Share</button>${row.opportunity_type === "event" && row.event_start_at ? `<button data-calendar-opportunity="${row.id}">Add to calendar</button>` : ""}${row.application_url || row.registration_url || row.source_url ? `<a href="${esc(row.application_url || row.registration_url || row.source_url)}" target="_blank" rel="noopener" data-apply-opportunity="${row.id}">${row.opportunity_type === "event" ? "Register" : row.opportunity_type === "job" ? "Apply" : "Official source"}</a>` : ""}<button class="quiet138" data-dismiss-opportunity="${row.id}">Hide</button></div></article>`;
   }
@@ -336,6 +401,13 @@
     if (!dialog) return;
     const f = state.filters;
     dialog.innerHTML = `<form method="dialog"><div class="opportunityDialogHead138"><h2>Filter opportunities</h2><button value="cancel" aria-label="Close filters">×</button></div><label>Country<select name="country"><option value="">All countries</option>${Object.entries(COUNTRY_NAMES).map(([code, name]) => `<option value="${code}" ${f.country === code ? "selected" : ""}>${name}</option>`).join("")}</select></label><label>Profession<select name="profession"><option value="">All professions</option><option value="nurse" ${f.profession === "nurse" ? "selected" : ""}>Nurse</option><option value="midwife" ${f.profession === "midwife" ? "selected" : ""}>Midwife</option></select></label><label>Opportunity type<select name="type"><option value="">All types</option>${Object.entries(TYPE_LABELS).map(([value, label]) => `<option value="${value}" ${f.type === value ? "selected" : ""}>${label}</option>`).join("")}</select></label><label>Specialty<input name="specialty" value="${esc(f.specialty)}" placeholder="e.g. theatre"></label><label>Employer<input name="employer" value="${esc(f.employer)}" placeholder="Employer or provider"></label><label>Minimum salary or funding<input name="salaryMin" type="number" min="0" value="${esc(f.salaryMin)}"></label><div class="opportunityChecks138">${[["sponsorship","Visa sponsorship only"],["newToday","New today"],["remote","Remote interview"],["graduate","Graduate friendly"],["saved","Saved only"],["closing","Closing soon"]].map(([name, label]) => `<label><input type="checkbox" name="${name}" ${f[name] ? "checked" : ""}> ${label}</label>`).join("")}</div><div class="opportunityDialogActions138"><button type="button" data-filter-reset>Clear filters</button><button value="apply" data-filter-apply>Apply filters</button></div></form>`;
+  }
+
+  function addNhsFilterControls(dialog, f) {
+    const checks = $(".opportunityChecks138", dialog);
+    if (!checks) return;
+    checks.insertAdjacentHTML("beforebegin", `<label>NHS band<input name="band" value="${esc(f.band)}" placeholder="e.g. Band 5"></label><label>Region<input name="region" value="${esc(f.region)}"></label><label>Town or city<input name="city" value="${esc(f.city)}"></label><label>Contract type<input name="contract" value="${esc(f.contract)}"></label><label>Working pattern<input name="workingPattern" value="${esc(f.workingPattern)}"></label>`);
+    checks.insertAdjacentHTML("beforeend", `<label><input type="checkbox" name="sponsorshipPossible" ${f.sponsorshipPossible ? "checked" : ""}> Include sponsorship that may be available</label><label><input type="checkbox" name="newWeek" ${f.newWeek ? "checked" : ""}> Published this week</label>`);
   }
 
   function handleInput(event) {
@@ -352,9 +424,10 @@
     if (button.dataset.open) return showScreen(button.dataset.open);
     if (button.matches("[data-opportunity-retry]")) return load();
     if (button.matches("[data-open-filters]")) return $("[data-opportunity-filters]")?.showModal();
-    if (button.matches("[data-filter-reset],[data-clear-filters]")) { state.filters = { search: "", country: "", profession: "", type: "", specialty: "", employer: "", salaryMin: "", sponsorship: false, newToday: false, remote: false, graduate: false, saved: false, closing: false }; $("[data-opportunity-filters]")?.close(); return render(); }
-    if (button.matches("[data-filter-apply]")) { event.preventDefault(); const form = button.form, data = new FormData(form); for (const key of ["country","profession","type","specialty","employer","salaryMin"]) state.filters[key] = String(data.get(key) || ""); for (const key of ["sponsorship","newToday","remote","graduate","saved","closing"]) state.filters[key] = data.has(key); $("[data-opportunity-filters]")?.close(); track("opportunity_filters_applied", { filters: state.filters }); return render(); }
+    if (button.matches("[data-filter-reset],[data-clear-filters]")) { state.filters = { search: "", country: "", profession: "", type: "", specialty: "", employer: "", band: "", region: "", city: "", contract: "", workingPattern: "", salaryMin: "", sponsorship: false, sponsorshipPossible: false, newToday: false, newWeek: false, remote: false, graduate: false, saved: false, closing: false }; $("[data-opportunity-filters]")?.close(); return render(); }
+    if (button.matches("[data-filter-apply]")) { event.preventDefault(); const form = button.form, data = new FormData(form); for (const key of ["country","profession","type","specialty","employer","band","region","city","contract","workingPattern","salaryMin"]) state.filters[key] = String(data.get(key) || ""); for (const key of ["sponsorship","sponsorshipPossible","newToday","newWeek","remote","graduate","saved","closing"]) state.filters[key] = data.has(key); $("[data-opportunity-filters]")?.close(); track("opportunity_filters_applied", { filters: state.filters }); return render(); }
     if (button.matches("[data-load-more]")) { state.page += 1; return load(false); }
+    if (button.matches("[data-toggle-possible-sponsorship]")) { state.includePossibleSponsorship = !state.includePossibleSponsorship; return render(); }
     if (button.matches("[data-open-estimator]")) return showScreen("cost-estimator");
     if (button.matches("[data-show-recommended]")) return $("[data-recommended-section]")?.scrollIntoView({ behavior: "smooth" });
     if (button.matches("[data-improve-profile]")) return showScreen("profile");
@@ -405,6 +478,12 @@
 
   function showDetail(row) {
     const dialog = $("[data-opportunity-detail]");
+    if (row.source_name === "NHS Jobs") {
+      const url = row.canonical_url || row.source_url;
+      dialog.innerHTML = `<article><div class="opportunityDialogHead138"><span>Source: NHS Jobs</span><button aria-label="Close details">×</button></div><h2>${esc(row.title)}</h2><p>${esc(row.summary || "Open NHS Jobs for the full vacancy details.")}</p><p><b>Employer:</b> ${esc(row.employer)}<br><b>Published:</b> ${dateLabel(row.published_at)}<br><b>Closing:</b> ${dateLabel(row.closing_at)}<br><b>Sponsorship:</b> ${esc(SPONSOR_LABELS[row.sponsorship_status] || SPONSOR_LABELS.not_stated)}<br><b>Last checked:</b> ${dateLabel(row.last_checked_at)}</p><p class="opportunityDisclaimer138">You’ll continue to NHS Jobs to view the full vacancy and apply.</p>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View on NHS Jobs ↗</a>` : ""}</article>`;
+      $("button", dialog).onclick = () => dialog.close();
+      dialog.showModal(); track("opportunity_viewed", { opportunity_id: row.id }); return;
+    }
     dialog.innerHTML = `<article><div class="opportunityDialogHead138"><span>${esc(TYPE_LABELS[row.opportunity_type] || "Opportunity")}</span><button aria-label="Close details">×</button></div><h2>${esc(row.title)}</h2><p>${esc(row.description || row.summary || "Full information is available from the recorded source.")}</p><p><b>Source:</b> ${esc(row.source_name || row.provider_name || row.employer || "Not stated")}<br><b>Published:</b> ${dateLabel(row.published_at)}<br><b>Last checked:</b> ${dateLabel(row.last_checked_at)}</p>${row.source_url ? `<a href="${esc(row.source_url)}" target="_blank" rel="noopener">Open official or original source</a>` : ""}</article>`;
     $("button", dialog).onclick = () => dialog.close();
     dialog.showModal(); track("opportunity_viewed", { opportunity_id: row.id });
