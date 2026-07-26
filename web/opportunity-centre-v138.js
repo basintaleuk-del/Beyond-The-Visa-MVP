@@ -33,6 +33,9 @@
   };
   const state = {
     rows: [],
+    sponsorshipRows: [],
+    fundingRows: [],
+    eventRows: [],
     employers: [],
     saved: new Set(),
     dismissed: new Set(),
@@ -210,8 +213,11 @@
       if (reset) { state.page = 0; state.rows = []; }
       const from = state.page * 24;
       const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
-      const [feed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await Promise.all([
+      const [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await Promise.all([
         db().from("btv_jobs").select("*", { count: "exact" }).eq("status", "published").is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
+        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).in("sponsorship_status", ["confirmed", "may_be_available"]).order("sponsorship_status", { ascending: true }).order("published_at", { ascending: false }).limit(12),
+        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("opportunity_type", "scholarship").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(6),
+        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("opportunity_type", "event").eq("verified", true).gte("event_end_at", new Date().toISOString()).order("event_start_at", { ascending: true }).limit(6),
         db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(),
         db().from("btv_saved_jobs").select("job_id").eq("user_id", user.id),
         db().from("btv_opportunity_dismissals").select("opportunity_id").eq("user_id", user.id),
@@ -224,8 +230,11 @@
         countRows((query) => query.eq("source_name", "NHS Jobs").gte("closing_at", new Date().toISOString()).lte("closing_at", weekEnd.toISOString())),
         countNhsEmployers(),
       ]);
-      for (const result of [feed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
+      for (const result of [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
       state.rows = reset ? (feed.data || []) : [...state.rows, ...(feed.data || [])];
+      state.sponsorshipRows = sponsorshipFeed.data || [];
+      state.fundingRows = fundingFeed.data || [];
+      state.eventRows = eventFeed.data || [];
       state.lastUpdated = state.rows.filter((row) => row.source_name === "NHS Jobs").map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
       state.total = feed.count || 0;
       state.profile = profile.data || {};
@@ -306,12 +315,12 @@
       <section class="opportunitySummary138" data-opportunity-summary aria-label="Live NHS Jobs opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("NHS nursing jobs", state.counts.nhsNursing)}${summaryCard("NHS midwifery jobs", state.counts.nhsMidwifery)}${summaryCard("Visa sponsorship confirmed", state.counts.sponsors)}${summaryCard("Sponsorship may be available", state.counts.possibleSponsors)}${summaryCard("Closing this week", state.counts.closingWeek)}${summaryCard("Recommended for you", state.counts.recommended)}${summaryCard("Employers currently recruiting", state.counts.employers)}</section>
       ${nhsSourceNote()}
       <section class="ziburOpportunity138" data-opportunity-advisor><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>View recommended jobs</button><button data-improve-profile>Improve profile</button><button data-next-journey>Review next journey step</button><button data-ask-zibur>Ask Zibur</button></div></section>
-      ${nhsSponsorshipSection(rows)}
+      ${nhsSponsorshipSection(state.sponsorshipRows)}
       ${nhsCategories(rows)}
       <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED</span><h2>Recommended for you</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty("No personalised opportunities are published yet.")}</section>
       <section class="opportunitySection138" data-opportunity-discover><div class="opportunityToolbar138"><label><span class="sr">Search opportunities</span><input data-opportunity-search type="search" value="${esc(state.filters.search)}" placeholder="Search jobs, events and updates"></label><button data-open-filters>Filters${activeFilters ? ` (${activeFilters})` : ""}</button></div><div class="opportunityHeading138"><div><span>DISCOVER</span><h2>${rows.length} matching result${rows.length === 1 ? "" : "s"}</h2></div><button data-clear-filters ${activeFilters || state.filters.search ? "" : "hidden"}>Clear filters</button></div>${rows.length ? countrySections(rows) : empty("No matching opportunities are currently available. Try clearing filters or update your preferences.")}${state.rows.length < state.total ? '<button class="opportunityMore138" data-load-more>Load more opportunities</button>' : ""}</section>
-      ${typeSection("Scholarships & funding", "scholarship", rows)}
-      ${typeSection("Recruitment events & webinars", "event", rows)}
+      ${typeSection("Scholarships & funding", "scholarship", state.fundingRows)}
+      ${typeSection("Recruitment events & webinars", "event", state.eventRows)}
       ${nhsEmployerSection()}
       <section class="opportunityTools138"><div><span>JOURNEY TOOL</span><h2>Planning your relocation budget?</h2><p>Your existing estimates and calculations are still available.</p></div><button data-open-estimator>Relocation Cost Estimator</button></section>`;
     renderFilterDialog();
@@ -342,7 +351,7 @@
   }
 
   function employerSection() {
-    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>VERIFIED ORGANISATIONS</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => { const vacancies = state.rows.filter((row) => row.employer_id === employer.id && row.opportunity_type === "job").length; return `<article class="employerCard138">${employer.logo_url ? `<img src="${esc(employer.logo_url)}" alt="${esc(employer.name)} logo" loading="lazy">` : ""}<span>${employer.verified ? "Verified employer" : "Employer"}</span><h3>${esc(employer.name)}</h3><p>${esc(employer.description || COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)}</p><small>${vacancies} active vacanc${vacancies === 1 ? "y" : "ies"} · Last checked: ${dateLabel(employer.last_checked_at)}</small>${employer.website_url ? `<a href="${esc(employer.website_url)}" target="_blank" rel="noopener">Official website</a>` : ""}</article>`; }).join("")}</div>` : empty("No verified employer spotlights are currently published.")}</section>`;
+    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>CQC-RATED EMPLOYERS WITH LIVE VACANCIES</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => { const vacancies = Number(employer.active_job_count || state.rows.filter((row) => row.employer_id === employer.id && row.opportunity_type === "job").length); const cqc = /^CQC overall rating:\s*([^.]*)/i.exec(employer.description || ""); return `<article class="employerCard138">${employer.logo_url ? `<img src="${esc(employer.logo_url)}" alt="${esc(employer.name)} logo" loading="lazy">` : ""}<span>${cqc ? `CQC ${esc(cqc[1])}` : "Verified employer"}</span><h3>${esc(employer.name)}</h3><p>${esc(employer.description || COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)}</p><small>${vacancies} active vacanc${vacancies === 1 ? "y" : "ies"} · Rating checked: ${dateLabel(employer.last_checked_at)}</small><div class="opportunityActions138">${employer.source_url ? `<a href="${esc(employer.source_url)}" target="_blank" rel="noopener">View CQC rating</a>` : ""}${employer.website_url ? `<a href="${esc(employer.website_url)}" target="_blank" rel="noopener">Employer website</a>` : ""}</div></article>`; }).join("")}</div><p class="opportunityDisclaimer138">CQC ratings apply to the named provider and may not represent every individual service or location. Open the CQC record before applying.</p>` : empty("No CQC-verified employer spotlights with active vacancies are currently published.")}</section>`;
   }
 
   function sponsorshipSection(rows) {
@@ -352,7 +361,7 @@
   }
 
   function nhsEmployerSection() {
-    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>ADMIN-APPROVED NHS EMPLOYERS</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => `<article class="employerCard138"><span>Source: NHS Jobs</span><h3>${esc(employer.name)}</h3><p>${esc(COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)} · ${Number(employer.active_nursing_count || 0)} nursing · ${Number(employer.active_midwifery_count || 0)} midwifery · ${Number(employer.sponsorship_job_count || 0)} confirmed sponsorship</p><small>${Number(employer.active_job_count || 0)} active vacancies · Latest: ${dateLabel(employer.latest_vacancy_at)} · Checked: ${dateLabel(employer.last_checked_at)}</small>${employer.source_url ? `<a href="${esc(employer.source_url)}" target="_blank" rel="noopener noreferrer">View active NHS vacancies ↗</a>` : ""}</article>`).join("")}</div>` : empty("No admin-approved NHS employer spotlights are currently published.")}</section>`;
+    return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>CQC-RATED EMPLOYERS WITH LIVE VACANCIES</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => { const cqc = /^CQC overall rating:\s*([^.]*)/i.exec(employer.description || ""); const vacancies = Number(employer.active_job_count || 0); return `<article class="employerCard138"><span>${cqc ? `CQC ${esc(cqc[1])}` : "Verified employer"}</span><h3>${esc(employer.name)}</h3><p>${esc(employer.description || COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)}</p><small>${vacancies} active vacanc${vacancies === 1 ? "y" : "ies"} · ${Number(employer.active_nursing_count || 0)} nursing · ${Number(employer.active_midwifery_count || 0)} midwifery · Rating checked: ${dateLabel(employer.last_checked_at)}</small>${employer.source_url ? `<a href="${esc(employer.source_url)}" target="_blank" rel="noopener noreferrer">View official CQC rating ↗</a>` : ""}</article>`; }).join("")}</div><p class="opportunityDisclaimer138">CQC ratings apply to the named provider and may not represent every individual service or location. Open the official CQC record before applying.</p>` : empty("No CQC-verified employer spotlights with active vacancies are currently published.")}</section>`;
   }
 
   function nhsSponsorshipSection(rows) {

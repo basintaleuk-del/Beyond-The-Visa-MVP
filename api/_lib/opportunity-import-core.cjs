@@ -4,7 +4,8 @@ const LIMITS = Object.freeze({ maxRecords: 300, maxPages: 3, pageSize: 100, time
 const REJECTED_ROLES = /\b(doctor|physician|dentist|pharmacist|radiographer|physiotherapist|administrator|receptionist|care assistant|healthcare assistant|nursing associate)\b/i;
 const NURSE_WORDS = /\b(nurse|nursing|rn|registered nurse|clinical nurse|health visitor)\b/i;
 const MIDWIFE_WORDS = /\b(midwife|midwifery|maternity nurse)\b/i;
-const CONFIRMED_SPONSORSHIP = /\b(visa sponsorship (?:is )?available|skilled worker sponsorship (?:is )?available|certificate of sponsorship (?:is )?available|sponsorship (?:is )?provided|employer will sponsor (?:an )?eligible applicant|international applicants? (?:are )?accepted with sponsorship)\b/i;
+const NEGATIVE_SPONSORSHIP = /\b(?:we\s+)?(?:are\s+)?(?:currently\s+)?(?:unable to|cannot|can't|do not|don't|does not|doesn't|will not|won't)\s+(?:offer|provide|support)\s+(?:an?\s+)?(?:certificate of sponsorship|visa sponsorship|sponsorships?|sponsored visa|visas?)\b/i;
+const CONFIRMED_SPONSORSHIP = /\b(visa sponsorship (?:is )?available|skilled worker sponsorship (?:is )?available|certificate of sponsorship (?:is )?(?:available|provided)|sponsorship opportunities? (?:are )?available|sponsorship (?:is )?provided|(?:we|employer) (?:can|will) (?:offer|provide) sponsorship|employer will sponsor (?:an )?eligible applicant|international applicants? (?:are )?accepted with sponsorship)\b/i;
 const POSSIBLE_SPONSORSHIP = /\b(sponsorship may be available|may offer sponsorship|eligible for sponsorship|sponsorship can be considered)\b/i;
 const SPECIALTIES = [
   ["theatre and recovery", /\b(theatre|scrub|recovery|anaesthetic)\b/i], ["critical care", /\b(critical care|intensive care|icu)\b/i],
@@ -95,6 +96,14 @@ function professionFor(record) {
 
 function sponsorshipFor(value, evidenceUrl = null, checkedAt = new Date().toISOString()) {
   const text = clean(value, 2000);
+  const negative = text.match(NEGATIVE_SPONSORSHIP);
+  if (negative) return {
+    sponsorship_status: "not_stated",
+    sponsorship_evidence_text: clean(negative[0], 180),
+    sponsorship_evidence_url: evidenceUrl,
+    sponsorship_checked_at: checkedAt,
+    sponsorship_detection_method: "explicitly_unavailable",
+  };
   const confirmed = text.match(CONFIRMED_SPONSORSHIP);
   const possible = text.match(POSSIBLE_SPONSORSHIP);
   const match = confirmed || possible;
