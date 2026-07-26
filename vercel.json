@@ -11,6 +11,8 @@
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/jobs/usa", "destination": "/index.html" },
+    { "source": "/jobs/usa/:id", "destination": "/index.html" },
     { "source": "/jobs", "destination": "/index.html" },
     { "source": "/jobs/:id", "destination": "/index.html" },
     { "source": "/opportunities", "destination": "/index.html?screen=opportunities" },
@@ -18,7 +20,8 @@
     { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }
   ],
   "crons": [
-    { "path": "/api/opportunity-import", "schedule": "15 3 * * *" }
+    { "path": "/api/opportunity-import", "schedule": "15 3 * * *" },
+    { "path": "/api/usa-jobs-import", "schedule": "15 2,14 * * *" }
   ],
   "headers": [
     {

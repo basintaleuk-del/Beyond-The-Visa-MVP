@@ -8,6 +8,7 @@
   const esc = (v) => String(v ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
   const date = (v) => v ? new Date(v).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "Not stated";
   const db = () => window.btvSupabase, root = () => document.getElementById("jobsContent");
+  const usaDestination = () => { try { const profile=JSON.parse(localStorage.getItem("btv-profile")||"null"); return String(profile?.destination_country||profile?.destination||"").toLowerCase()==="us"; } catch { return false; } };
 
   function upgradeEntry(){
     const section=document.getElementById("jobs"); if(section)section.classList.add("nhsJobs148");
@@ -26,7 +27,7 @@
   }
 
   async function load(force=false){
-    upgradeEntry(); if(!root()||view.loading||(view.loaded&&!force))return render(); view.loading=true;
+    if(usaDestination())return; upgradeEntry(); if(!root()||view.loading||(view.loaded&&!force))return render(); view.loading=true;
     root().innerHTML='<div class="nhsJobsState148"><b>Loading NHS vacancies…</b><p>Checking the latest published jobs.</p></div>';
     try{
       const {data:auth}=await db().auth.getUser(); if(!auth?.user)throw new Error("Sign in to browse and save NHS jobs.");
