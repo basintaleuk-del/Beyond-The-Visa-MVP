@@ -95,10 +95,10 @@ test("USA importer is independent of the NHS opportunity importer", () => {
   assert.match(uk, /NHS Jobs/);
 });
 
-test("USA imports run twice daily without changing the UK schedule", () => {
+test("USA imports run daily without changing the UK schedule", () => {
   const config = JSON.parse(read("vercel.json"));
   assert.deepEqual(config.crons.find((row) => row.path === "/api/opportunity-import"), { path: "/api/opportunity-import", schedule: "15 3 * * *" });
-  assert.deepEqual(config.crons.find((row) => row.path === "/api/usa-jobs-import"), { path: "/api/usa-jobs-import", schedule: "15 2,14 * * *" });
+  assert.deepEqual(config.crons.find((row) => row.path === "/api/usa-jobs-import"), { path: "/api/usa-jobs-import", schedule: "30 4 * * *" });
 });
 
 test("USA alerts are generated only for USA destination profiles", () => {

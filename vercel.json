@@ -21,7 +21,7 @@
   ],
   "crons": [
     { "path": "/api/opportunity-import", "schedule": "15 3 * * *" },
-    { "path": "/api/usa-jobs-import", "schedule": "15 2,14 * * *" }
+    { "path": "/api/usa-jobs-import", "schedule": "30 4 * * *" }
   ],
   "headers": [
     {
