@@ -15,9 +15,10 @@ test('Costs is replaced at runtime without changing the other four bottom tabs',
 });
 
 test('Opportunity Centre is available from the Career and Journey side menu',async()=>{
-  const dashboard=await read('web/dashboard-premium-v73.js');
+  const [dashboard,page]=await Promise.all([read('web/dashboard-premium-v73.js'),read('web/index.html')]);
   assert.match(dashboard,/\["Opportunities", "opportunities"\]/);
   assert.match(dashboard,/if \(id === "opportunities"\) return window\.openScreen\?\.\("opportunities"\)/);
+  assert.match(page,/dashboard-premium-v73\.js\?v=141/);
 });
 
 test('semantic routes preserve old links and the relocation estimator',async()=>{
