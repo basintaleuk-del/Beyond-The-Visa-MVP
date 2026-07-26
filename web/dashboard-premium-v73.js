@@ -1100,6 +1100,7 @@
       return queueRender();
     }
     if (id === "qualifications-registration") return window.BTVQualificationsRegistration139?.open();
+    if (id === "opportunities") return window.openScreen?.("opportunities");
     if (id === "books") {
       F()?.open("study");
       return setTimeout(
@@ -1163,6 +1164,7 @@
         label: "Career and Journey",
         links: [
           ["My Journey", "journey"],
+          ["Opportunities", "opportunities"],
           ["Jobs", "jobs"],
           ["Saved jobs", "saved-jobs"],
           ["Interview preparation", "interview"],

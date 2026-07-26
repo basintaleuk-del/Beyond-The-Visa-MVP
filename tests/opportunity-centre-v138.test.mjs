@@ -14,6 +14,12 @@ test('Costs is replaced at runtime without changing the other four bottom tabs',
   assert.match(page,/#cost-estimator \.pageTitle/);
 });
 
+test('Opportunity Centre is available from the Career and Journey side menu',async()=>{
+  const dashboard=await read('web/dashboard-premium-v73.js');
+  assert.match(dashboard,/\["Opportunities", "opportunities"\]/);
+  assert.match(dashboard,/if \(id === "opportunities"\) return window\.openScreen\?\.\("opportunities"\)/);
+});
+
 test('semantic routes preserve old links and the relocation estimator',async()=>{
   const config=JSON.parse(await read('vercel.json'));
   assert.ok(config.redirects.some(x=>x.source==='/costs'&&x.destination==='/opportunities'));
