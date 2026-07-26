@@ -22,7 +22,13 @@ test('My Journey keeps the premium desktop shell instead of the legacy narrow pa
 
 test('My Journey remains responsive when the premium sidebar collapses',()=>{
   const css=read('web/journey-polish-v101.css');
+  const laptop=read('web/journey-layout-v135.css');
+  const html=read('web/index.html');
   assert.match(css,/@media\(max-width:1090px\)/);
   assert.match(css,/journeySidebar101\{display:none\}/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*grid-template-columns:1fr/);
+  assert.match(laptop,/@media\(max-width:1279px\)/);
+  assert.match(laptop,/journeySidebar101\{display:none\}/);
+  assert.match(laptop,/#checklist\{width:calc\(100% - 28px\)/);
+  assert.match(html,/journey-layout-v135\.css\?v=135/);
 });
