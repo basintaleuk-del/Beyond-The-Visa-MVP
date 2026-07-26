@@ -67,7 +67,8 @@ test("USA jobs schema and RLS enforce destination separation", () => {
   const sql = read("supabase/migrations/20260726233000_usa_nursing_jobs_v155.sql");
   assert.match(sql, /create table if not exists public\.btv_usa_jobs/i);
   assert.match(sql, /p\.destination_country='us'/);
-  assert.match(sql, /not exists\([\s\S]*p\.destination_country='us'/);
+  assert.match(sql, /create policy jobs_read on public\.btv_jobs for select to authenticated[\s\S]*p\.destination_country='uk'/);
+  assert.doesNotMatch(sql, /create policy jobs_read on public\.btv_jobs for select to anon/);
   assert.match(sql, /unique\(source_name, external_id\)/);
   assert.match(sql, /btv_usa_jobs_canonical_url_uq/);
   assert.match(sql, /btv_usa_jobs_fingerprint_uq/);

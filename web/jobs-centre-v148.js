@@ -8,10 +8,13 @@
   const esc = (v) => String(v ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
   const date = (v) => v ? new Date(v).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "Not stated";
   const db = () => window.btvSupabase, root = () => document.getElementById("jobsContent");
-  const usaDestination = () => { try { const profile=JSON.parse(localStorage.getItem("btv-profile")||"null"); return String(profile?.destination_country||profile?.destination||"").toLowerCase()==="us"; } catch { return false; } };
+  const destinationKey = () => { try { const profile=JSON.parse(localStorage.getItem("btv-profile")||"null"); return String(profile?.destination_country||profile?.destination||"").toLowerCase(); } catch { return ""; } };
 
   function upgradeEntry(){
     const section=document.getElementById("jobs"); if(section)section.classList.add("nhsJobs148");
+    const destination=destinationKey();
+    document.querySelectorAll('[data-open="jobs"]').forEach((button)=>{button.hidden=Boolean(destination&&!['uk','us'].includes(destination));});
+    if(destination&&destination!=="uk")return;
     const eyebrow=section?.querySelector(".pageTitle span"), heading=section?.querySelector(".pageTitle h1");
     if(eyebrow)eyebrow.textContent="LIVE NHS VACANCIES"; if(heading)heading.textContent="Jobs";
     document.querySelectorAll('[data-open="jobs"]').forEach((button)=>{const label=button.querySelector("span"),small=button.querySelector("small");if(label)label.textContent="NHS jobs";if(small)small.textContent="All professions and employers";});
@@ -27,7 +30,7 @@
   }
 
   async function load(force=false){
-    if(usaDestination())return; upgradeEntry(); if(!root()||view.loading||(view.loaded&&!force))return render(); view.loading=true;
+    if(destinationKey()&&destinationKey()!=="uk")return; upgradeEntry(); if(!root()||view.loading||(view.loaded&&!force))return render(); view.loading=true;
     root().innerHTML='<div class="nhsJobsState148"><b>Loading NHS vacancies…</b><p>Checking the latest published jobs.</p></div>';
     try{
       const {data:auth}=await db().auth.getUser(); if(!auth?.user)throw new Error("Sign in to browse and save NHS jobs.");
@@ -78,5 +81,5 @@
   function wire(){const form=root().querySelector("[data-nhs-job-filters]");form?.addEventListener("submit",(event)=>{event.preventDefault();view.filters={...EMPTY_FILTERS,...values()};view.visible=24;render();});form?.addEventListener("reset",()=>setTimeout(()=>{view.filters={...EMPTY_FILTERS};view.visible=24;render();},0));root().querySelector("[data-more-nhs-jobs]")?.addEventListener("click",()=>{view.visible+=24;render();});root().querySelectorAll("[data-save-nhs-job]").forEach((button)=>button.addEventListener("click",()=>toggleSave(button.dataset.saveNhsJob)));root().querySelectorAll("[data-view-nhs-job]").forEach((link)=>link.addEventListener("click",(event)=>{event.preventDefault();const row=view.rows.find((item)=>item.id===link.dataset.viewNhsJob);if(row)openDetail(row);}));}
   async function toggleSave(jobId){const {data:auth}=await db().auth.getUser();if(!auth?.user)return;if(view.saved.has(jobId)){const result=await db().from("btv_saved_jobs").delete().eq("user_id",auth.user.id).eq("job_id",jobId);if(result.error)return alert(result.error.message);view.saved.delete(jobId);}else{const result=await db().from("btv_saved_jobs").upsert({user_id:auth.user.id,job_id:jobId});if(result.error)return alert(result.error.message);view.saved.add(jobId);}render();}
 
-  window.btvOpenJobDetail=(row,options)=>openDetail(row,options);window.renderJobs=()=>load(false);const originalOpen=window.openScreen;if(typeof originalOpen==="function")window.openScreen=function(id,...args){const result=originalOpen.call(this,id,...args);if(id==="jobs")load(false);return result;};document.addEventListener("click",(event)=>{if(event.target.closest('[data-open="jobs"]'))setTimeout(()=>load(false),0);});window.addEventListener("popstate",()=>{if(!location.pathname.startsWith("/jobs/"))closeDetail(false);});upgradeEntry();const directJob=location.pathname.match(/^\/jobs\/([0-9a-f-]{36})$/i)?.[1];if(location.pathname==="/jobs")setTimeout(()=>{window.openScreen?.("jobs");load(false);},0);else if(directJob)setTimeout(async()=>{window.openScreen?.("jobs");try{const result=await db().from("btv_jobs").select("*").eq("id",directJob).single();if(result.error)throw result.error;openDetail(result.data,{pushRoute:false,returnUrl:"/jobs"});}catch{location.replace("/jobs");}},0);
+  window.btvOpenJobDetail=(row,options)=>openDetail(row,options);window.renderJobs=()=>load(false);const originalOpen=window.openScreen;if(typeof originalOpen==="function")window.openScreen=function(id,...args){const result=originalOpen.call(this,id,...args);if(id==="jobs")load(false);return result;};document.addEventListener("click",(event)=>{if(event.target.closest('[data-open="jobs"]'))setTimeout(()=>load(false),0);});window.addEventListener("btv:destination-changed",(event)=>{const key=String(event.detail?.country||destinationKey()).toLowerCase();if(key!=="uk"){view.rows=[];view.loaded=false;if(root())root().innerHTML=key==="us"?"":'<div class="nhsJobsState148"><b>UK jobs are not shown for this destination.</b><p>Change your preferred destination to the United Kingdom to browse NHS vacancies.</p></div>';}upgradeEntry();});window.addEventListener("popstate",()=>{if(!location.pathname.startsWith("/jobs/"))closeDetail(false);});upgradeEntry();const directJob=location.pathname.match(/^\/jobs\/([0-9a-f-]{36})$/i)?.[1];if(location.pathname==="/jobs")setTimeout(()=>{window.openScreen?.("jobs");load(false);},0);else if(directJob)setTimeout(async()=>{window.openScreen?.("jobs");try{const result=await db().from("btv_jobs").select("*").eq("id",directJob).single();if(result.error)throw result.error;openDetail(result.data,{pushRoute:false,returnUrl:"/jobs"});}catch{location.replace("/jobs");}},0);
 })();

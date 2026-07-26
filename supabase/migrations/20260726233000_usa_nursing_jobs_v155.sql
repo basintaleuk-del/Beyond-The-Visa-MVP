@@ -138,13 +138,12 @@ with check ((select auth.uid())=user_id and exists(select 1 from public.profiles
 -- Preserve the UK feed for UK/other destinations while preventing USA-destination
 -- accounts from reading UK opportunities at the database layer.
 drop policy if exists jobs_read on public.btv_jobs;
-create policy jobs_read on public.btv_jobs for select to anon, authenticated
+create policy jobs_read on public.btv_jobs for select to authenticated
 using (
   ((status='published' and expired_at is null and (closing_at is null or closing_at >= now())
-    and (opportunity_type <> 'scholarship' or verification_status='verified'))
-    and ((select auth.uid()) is null or not exists(
-      select 1 from public.profiles p where p.id=(select auth.uid()) and p.destination_country='us'
-    )))
+    and (opportunity_type <> 'scholarship' or verification_status='verified')) and exists(
+      select 1 from public.profiles p where p.id=(select auth.uid()) and p.destination_country='uk'
+    ))
   or (select public.btv_is_admin())
 );
 

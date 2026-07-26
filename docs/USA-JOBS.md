@@ -21,7 +21,7 @@ The scheduled importer runs at 02:15 and 14:15 UTC. It retries temporary USAJOBS
 
 - `/api/usa-jobs` authenticates the user and checks `profiles.destination_country = 'us'` before returning any vacancy.
 - Row-level security independently enforces the same destination rule.
-- USA users cannot read the UK `btv_jobs` feed; UK users cannot read `btv_usa_jobs`.
+- Only signed-in users with `profiles.destination_country = 'uk'` can read the UK `btv_jobs` feed. UK users cannot read `btv_usa_jobs`, and every other destination is excluded from both country-specific feeds.
 - USA alert generation explicitly filters `profiles.destination_country = 'us'`.
 - API credentials remain environment variables and are never returned to browsers or stored in Supabase.
 - Sponsorship defaults to `unclear`. Relocation assistance never implies sponsorship.
