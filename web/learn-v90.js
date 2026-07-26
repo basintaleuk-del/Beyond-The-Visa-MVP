@@ -5,6 +5,7 @@
 
   const baseModules=[
     {id:'explore',label:'Explore learning',icon:'EX',copy:'Discover Beyond The Visa through published guides, articles, videos and your complete platform guide.',hub:'discover',meta:'Platform guide & curated resources'},
+    {id:'intro-video',label:'Introductory video',icon:'&#9654;',copy:'Watch the latest introduction to Beyond The Visa and the tools available across your journey.',video:'welcome-video-v82.mp4',meta:'Start here · Latest video'},
     {id:'books',label:'Book library',icon:'▤',copy:'Books matched to your pathway',library:'books',meta:'Published reading'},
     {id:'cbt',label:'CBT',icon:'CBT',copy:'Question bank, explanations and timed mock exams.',url:'cbt.html',meta:'Practice and mocks'},
     {id:'nclex',label:'NCLEX-RN',icon:'RN',copy:'Clinical questions and adaptive exam preparation.',url:'nclex.html',meta:'Clinical readiness'},
@@ -74,10 +75,19 @@
 
   function go(item){
     sessionStorage.setItem('btv-return-screen','learn');
+    if(item.video){showIntroVideo(item);return;}
     if(item.library==='books'){openBooks();return;}
     if(item.url){sessionStorage.setItem('btv-learn-module',item.id);location.href=item.url;return;}
     if(item.hub){window.BTVPlatform?.open(item.hub);return;}
     window.BTVFeatures?.open(item.route);
+  }
+
+  function showIntroVideo(item){
+    buildLearning();
+    const grid=document.querySelector('.learnV90Grid');if(!grid)return;
+    const block=document.createElement('section');block.className='learnV90VideoBlock';block.tabIndex=-1;block.setAttribute('aria-labelledby','introductory-video-title');
+    block.innerHTML=`<div class="learnV90SectionHead"><span>START HERE</span><h2 id="introductory-video-title">Introductory video</h2><p>Get familiar with Beyond The Visa before continuing your learning journey.</p></div><article class="welcomeVideo82"><video controls playsinline preload="metadata" aria-label="Beyond The Visa introductory video"><source src="${esc(item.video)}?v=121" type="video/mp4">Your browser cannot play this video.</video><div class="welcomeVideoCopy82"><h2>Welcome to Beyond The Visa</h2><p>A practical introduction to your international career journey and the tools available throughout the site.</p><small class="videoPrivacy82">The video never autoplays. Use the controls to pause, mute, resize or replay.</small><a href="${esc(item.video)}?v=121">Open video</a></div></article>`;
+    grid.after(block);block.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});block.focus({preventScroll:true});
   }
 
   function buildLearning(){
