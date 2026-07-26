@@ -1913,19 +1913,14 @@
           </section>
 
           <section class="secondaryGrid73">
-            <article class="panel73" data-go="${rec.id}">
-              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg(
-                "arrowRight"
-              )}</button></div>
-              <div class="nextStep73">
-                <span class="nextIcon73">${iconSvg("spark")}</span>
-                <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(
-                  rec.title
-                )}</b><small>${esc(rec.copy)}</small></div>
-                <button class="nextActionBtn73" data-go="${
-                  rec.id
-                }">Continue ${iconSvg("arrowRight")}</button>
-              </div>
+            <article class="panel73 recommendedPanel73">
+              <div class="recommendedHead73"><div><h3>Recommended next step</h3><p>Based on your current journey</p></div><button type="button" data-go="study-plan">View plan</button></div>
+              <button type="button" class="studyPlanCard73" data-go="study-plan" aria-label="Continue today’s study plan">
+                <span class="studyPlanCopy73"><small class="studyPlanBadge73">RECOMMENDED NOW</small><b>Continue today’s study plan</b><small>Keep your learning streak moving forward.</small></span>
+                <span class="studyPlanSpark73" aria-hidden="true">${iconSvg(
+                  "spark"
+                )}</span>
+              </button>
             </article>
             <article class="panel73">
               <div class="panelHead73"><h3>Learning focus</h3><button data-go="study">See all</button></div>
