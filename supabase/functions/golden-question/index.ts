@@ -35,6 +35,19 @@ const londonDate = (d = new Date()) => {
   return `${p.year}-${p.month}-${p.day}`;
 };
 const monthStart = (date: string) => date.slice(0, 7) + "-01";
+const currentSponsor = (rows: any[], date: string) => {
+  const month = monthStart(date);
+  return (
+    rows.find((row: any) => row.sponsored_month === month) ||
+    rows.find(
+      (row: any) =>
+        !row.sponsored_month &&
+        (!row.start_date || row.start_date <= date) &&
+        (!row.end_date || row.end_date >= date)
+    ) ||
+    null
+  );
+};
 const canonicalProfession = (v: unknown) => {
   const x = clean(v, 40).toLowerCase();
   return x.startsWith("midwi")
@@ -91,7 +104,8 @@ async function profileFor(db: any, user: any) {
 }
 async function signedImage(db: any, path?: string) {
   if (!path) return null;
-  if (/^https?:\/\//i.test(path)) return path;
+  if (/^https?:\/\//i.test(path) || /^data:image\/svg\+xml[;,]/i.test(path))
+    return path;
   const { data } = await db.storage
     .from("golden-question-images")
     .createSignedUrl(path, 900);
@@ -340,17 +354,15 @@ async function getToday(db: any, user: any, body: any) {
     .eq("daily_question_id", assignment.id);
   const ranks = await rankRows(db, profession, monthStart(date), user.id),
     me = ranks.find((x: any) => x.is_me);
-  const month = monthStart(date),
-    { data: sponsor } = await db
+  const { data: sponsorRows } = await db
       .from("golden_question_sponsors")
-      .select("id,name,logo_path,website_url,message,prize_description")
-      .eq("is_active", true)
-      .or(
-        `sponsored_month.eq.${month},and(sponsored_month.is.null,start_date.lte.${date},end_date.gte.${date})`
+      .select(
+        "id,name,logo_path,website_url,message,prize_description,start_date,end_date,sponsored_month"
       )
+      .eq("is_active", true)
       .order("sponsored_month", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(50),
+    sponsor = currentSponsor(sponsorRows || [], date);
   const result: any = {
     state: attempt ? "answered" : "ready",
     date,
@@ -768,12 +780,12 @@ async function adminAction(db: any, user: any, body: any) {
         .eq("competition_month", month),
       db
         .from("golden_question_sponsors")
-        .select("id,name,prize_description")
-        .eq("is_active", true)
-        .or(
-          `sponsored_month.eq.${month},and(sponsored_month.is.null,start_date.lte.${date},end_date.gte.${date})`
+        .select(
+          "id,name,prize_description,start_date,end_date,sponsored_month"
         )
-        .limit(1),
+        .eq("is_active", true)
+        .order("sponsored_month", { ascending: false })
+        .limit(50),
     ]);
     const bank = questions.data || [],
       ids = (assign.data || []).map((x: any) => x.question_id),
@@ -815,7 +827,7 @@ async function adminAction(db: any, user: any, body: any) {
         scheduled: (assign.data || []).length,
         participants: participants.count || 0,
       },
-      sponsor: sponsors.data?.[0] || null,
+      sponsor: currentSponsor(sponsors.data || [], date),
     };
   }
   if (op === "questions") {
@@ -1111,28 +1123,51 @@ async function adminAction(db: any, user: any, body: any) {
     return data;
   }
   if (op === "save_sponsor") {
-    const row = {
+    const input = body.sponsor || {},
+      sponsorId = clean(input.id, 60) || null,
+      row = {
       name: clean(body.sponsor?.name, 200),
-      logo_path: clean(body.sponsor?.logo_path, 500) || null,
+      logo_path: clean(input.logo_path, 1000) || null,
       logo_permission_notes:
-        clean(body.sponsor?.logo_permission_notes, 1000) || null,
-      is_active: true,
-      created_by: user.id,
+        clean(input.logo_permission_notes, 1000) || null,
+      website_url: clean(input.website_url, 1000) || null,
+      message: clean(input.message, 1000) || null,
+      prize_description: clean(input.prize_description, 1000) || null,
+      start_date: clean(input.start_date, 10) || null,
+      end_date: clean(input.end_date, 10) || null,
+      sponsored_month: clean(input.sponsored_month, 10) || null,
+      is_active: input.is_active === true || input.is_active === "on",
+      updated_at: new Date().toISOString(),
     };
     if (!row.name) throw Error("Sponsor name is required.");
-    const { data, error } = await db
-      .from("golden_question_sponsors")
-      .insert(row)
-      .select()
-      .single();
+    if (row.start_date && row.end_date && row.start_date > row.end_date)
+      throw Error("Sponsor end date must be on or after its start date.");
+    const before = sponsorId
+      ? (
+          await db
+            .from("golden_question_sponsors")
+            .select("*")
+            .eq("id", sponsorId)
+            .single()
+        ).data
+      : null;
+    const write = sponsorId
+      ? db.from("golden_question_sponsors").update(row).eq("id", sponsorId)
+      : db
+          .from("golden_question_sponsors")
+          .insert({ ...row, created_by: user.id });
+    const { data, error } = await write.select().single();
     if (error) throw error;
     await db.from("golden_question_admin_audit_logs").insert({
       admin_id: user.id,
-      action: "sponsor_created",
+      action: sponsorId ? "sponsor_updated" : "sponsor_created",
       entity_type: "sponsor",
       entity_id: data.id,
+      before_data: before,
       after_data: data,
-      reason: "Sponsor and permission record created",
+      reason: sponsorId
+        ? "Sponsor and prize record updated"
+        : "Sponsor and permission record created",
     });
     return { sponsor: data };
   }

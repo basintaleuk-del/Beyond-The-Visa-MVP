@@ -19,6 +19,15 @@ test('daily assignment and answer submission are server controlled',async()=>{
   assert.match(fn,/from\(["']btv_golden_questions["']\)/);assert.match(fn,/audienceFor\(profession\)/);
   assert.match(fn,/action\s*===\s*["']preview["']/);assert.match(fn,/publicPreview/);
   assert.match(fn,/action\s*===\s*["']cron["']/);assert.match(fn,/SERVICE_AUTH_REQUIRED/);
+  assert.match(fn,/data:image\\\/svg\\\+xml/);assert.match(fn,/currentSponsor\(sponsorRows \|\| \[\], date\)/);
+});
+
+test('sponsor administration captures campaign, prize and permission details',async()=>{
+  const [fn,admin]=await Promise.all([read('supabase/functions/golden-question/index.ts'),read('web/admin-golden-question-v126.js')]);
+  for(const field of ['website_url','logo_path','prize_description','message','sponsored_month','start_date','end_date','logo_permission_notes']){
+    assert.match(fn,new RegExp(field));assert.match(admin,new RegExp(field));
+  }
+  assert.match(fn,/sponsor_updated/);assert.match(admin,/Campaign start/);
 });
 
 test('existing bank bridge protects answers and makes retries idempotent',async()=>{

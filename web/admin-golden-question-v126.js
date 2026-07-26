@@ -697,12 +697,43 @@
         "name",
         "Sponsor name"
       )}${field(
+        "website_url",
+        "Sponsor website",
+        "url"
+      )}${field(
+        "logo_path",
+        "Logo URL or storage path"
+      )}${field(
+        "prize_description",
+        "Prize description",
+        "textarea",
+        "",
+        true
+      )}${field(
+        "message",
+        "Sponsor message",
+        "textarea",
+        "",
+        true
+      )}${field(
+        "sponsored_month",
+        "Specific competition month",
+        "month"
+      )}${field(
+        "start_date",
+        "Campaign start",
+        "date"
+      )}${field(
+        "end_date",
+        "Campaign end",
+        "date"
+      )}${field(
         "logo_permission_notes",
         "Logo / prize usage permission notes",
         "textarea",
         "",
         true
-      )}<button class="gqaButton">Add sponsor</button></form><form class="gqaForm" data-fulfilment-form><label class="gqaField"><span>Winner</span><select name="winner_id">${d.winners
+      )}<label class="gqaCheck"><input type="checkbox" name="is_active" checked> Active</label><button class="gqaButton">Add sponsor</button></form><form class="gqaForm" data-fulfilment-form><label class="gqaField"><span>Winner</span><select name="winner_id">${d.winners
         .map(
           (x) =>
             `<option value="${x.id}">${esc(x.profession)} · ${esc(
@@ -773,8 +804,12 @@
       );
       $("[data-sponsor-form]", pane("prizes")).onsubmit = async (e) => {
         e.preventDefault();
+        const f = new FormData(e.currentTarget),
+          sponsor = Object.fromEntries(f.entries());
+        sponsor.is_active = f.has("is_active");
+        if (sponsor.sponsored_month) sponsor.sponsored_month += "-01";
         await call("save_sponsor", {
-          sponsor: Object.fromEntries(new FormData(e.currentTarget)),
+          sponsor,
         });
         prizes();
       };
