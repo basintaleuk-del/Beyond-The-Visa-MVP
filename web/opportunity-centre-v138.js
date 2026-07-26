@@ -42,6 +42,7 @@
     page: 0,
     loading: false,
     loaded: false,
+    lastUpdated: null,
     filters: {
       search: "",
       country: "",
@@ -207,6 +208,7 @@
       ]);
       for (const result of [feed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
       state.rows = reset ? (feed.data || []) : [...state.rows, ...(feed.data || [])];
+      state.lastUpdated = state.rows.map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
       state.total = feed.count || 0;
       state.profile = profile.data || {};
       state.saved = new Set((saved.data || []).map((row) => row.job_id));
@@ -277,6 +279,7 @@
     body.innerHTML = `${intro()}
       <section class="opportunitySummary138" aria-label="Live opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("Visa sponsorship roles", state.counts.sponsors)}${summaryCard("New scholarships", state.counts.scholarships)}${summaryCard("Events this week", state.counts.events)}${summaryCard("Recommended for you", state.counts.recommended)}</section>
       <section class="ziburOpportunity138"><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>View recommended jobs</button><button data-improve-profile>Improve profile</button><button data-next-journey>Review next journey step</button><button data-ask-zibur>Ask Zibur</button></div></section>
+      ${sponsorshipSection(rows)}
       <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED</span><h2>Recommended for you</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty("No personalised opportunities are published yet.")}</section>
       <section class="opportunitySection138"><div class="opportunityToolbar138"><label><span class="sr">Search opportunities</span><input data-opportunity-search type="search" value="${esc(state.filters.search)}" placeholder="Search jobs, events and updates"></label><button data-open-filters>Filters${activeFilters ? ` (${activeFilters})` : ""}</button></div><div class="opportunityHeading138"><div><span>DISCOVER</span><h2>${rows.length} matching result${rows.length === 1 ? "" : "s"}</h2></div><button data-clear-filters ${activeFilters || state.filters.search ? "" : "hidden"}>Clear filters</button></div>${rows.length ? countrySections(rows) : empty("No matching opportunities are currently available. Try clearing filters or update your preferences.")}${state.rows.length < state.total ? '<button class="opportunityMore138" data-load-more>Load more opportunities</button>' : ""}</section>
       ${typeSection("Scholarships & funding", "scholarship", rows)}
@@ -287,7 +290,8 @@
   }
 
   function intro() {
-    return `<section class="opportunityIntro138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><ul><li>Match jobs to your destination and profession.</li><li>Prioritise confirmed visa sponsorship.</li><li>Follow official sources and checked dates.</li><li>Save useful opportunities for later.</li></ul></section>`;
+    const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
+    return `<section class="opportunityIntro138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily.</b> ${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some opportunity information may be out of date. Please confirm details on the original provider’s website." : ""}` : "No approved automated source has completed an import yet."}</p><ul><li>Match jobs to your destination and profession.</li><li>Prioritise confirmed visa sponsorship.</li><li>Follow official sources and checked dates.</li><li>Save useful opportunities for later.</li></ul></section>`;
   }
   const summaryCard = (label, count) => `<article><b>${Number(count || 0)}</b><span>${esc(label)}</span></article>`;
   const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
@@ -308,7 +312,19 @@
     return `<section class="opportunitySection138"><div class="opportunityHeading138"><div><span>VERIFIED ORGANISATIONS</span><h2>Employer spotlight</h2></div></div>${state.employers.length ? `<div class="opportunityGrid138">${state.employers.map((employer) => { const vacancies = state.rows.filter((row) => row.employer_id === employer.id && row.opportunity_type === "job").length; return `<article class="employerCard138">${employer.logo_url ? `<img src="${esc(employer.logo_url)}" alt="${esc(employer.name)} logo" loading="lazy">` : ""}<span>${employer.verified ? "Verified employer" : "Employer"}</span><h3>${esc(employer.name)}</h3><p>${esc(employer.description || COUNTRY_NAMES[codeFor(employer.country_code)] || employer.country_code)}</p><small>${vacancies} active vacanc${vacancies === 1 ? "y" : "ies"} · Last checked: ${dateLabel(employer.last_checked_at)}</small>${employer.website_url ? `<a href="${esc(employer.website_url)}" target="_blank" rel="noopener">Official website</a>` : ""}</article>`; }).join("")}</div>` : empty("No verified employer spotlights are currently published.")}</section>`;
   }
 
+  function sponsorshipSection(rows) {
+    const rank = { confirmed: 0, may_be_available: 1 };
+    const matches = rows.filter((row) => row.opportunity_type === "job" && row.verified && row.sponsorship_status in rank).sort((a, b) => rank[a.sponsorship_status] - rank[b.sponsorship_status] || new Date(b.published_at || 0) - new Date(a.published_at || 0) || new Date(a.closing_at || "9999-12-31") - new Date(b.closing_at || "9999-12-31"));
+    return `<section class="opportunitySection138 opportunitySponsor138"><div class="opportunityHeading138"><div><span>SPONSORSHIP FIRST</span><h2>Visa sponsorship opportunities</h2></div></div><p class="opportunityDisclaimer138">Sponsorship wording is classified conservatively from the recorded source. Confirm eligibility and availability with the employer before applying.</p>${matches.length ? `<div class="opportunityGrid138">${matches.slice(0, 6).map((row) => card(row)).join("")}</div>` : empty("No verified sponsorship roles are currently published.")}</section>`;
+  }
+
   function card(row, explanation = "") {
+    const original = row.canonical_url || row.source_url;
+    const external = original ? `<a href="${esc(original)}" target="_blank" rel="noopener noreferrer" data-apply-opportunity="${row.id}">View original source ↗</a>` : "";
+    return baseCard(row, explanation).replace('<div class="opportunityActions138">', `<p class="opportunityDisclaimer138">Verify eligibility, sponsorship, deadlines, salary, registration requirements and funding terms on the original source.</p><div class="opportunityActions138">${external}`).replaceAll('rel="noopener"', 'rel="noopener noreferrer"');
+  }
+
+  function baseCard(row, explanation = "") {
     const type = TYPE_LABELS[row.opportunity_type] || "Opportunity";
     const salary = row.salary_min || row.salary_max ? `${esc(row.currency || "")} ${Number(row.salary_min || row.salary_max).toLocaleString()}${row.salary_max && row.salary_min ? `–${Number(row.salary_max).toLocaleString()}` : ""}` : "";
     const source = row.source_name || row.provider_name || row.employer;

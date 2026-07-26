@@ -77,17 +77,16 @@
       `${h} hours and ${m} minutes until the next question`
     );
   }
-  function host() {
-    let h = $("#goldenQuestion126");
-    if (h) return h;
-    h = document.createElement("section");
-    h.id = "goldenQuestion126";
-    h.setAttribute("aria-label", "Today's Golden Question");
-    const home = $("#home"),
-      anchor = $(".dashboardV3", home) || $(".welcome", home);
-    if (anchor) anchor.insertAdjacentElement("afterend", h);
-    else home?.prepend(h);
-    return h;
+  function installHomeTile() {
+    $("#goldenQuestion126")?.remove();
+    const home = $("#home"), quick = $(".quick", home);
+    if (!home || $("#dashboardV3", home) || !quick || $("[data-gq-home-tile]", home)) return;
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.dataset.gqHomeTile = "true";
+    tile.innerHTML = '<i>♛</i><span>Today’s Golden Question</span><small>Challenge, leaderboard, history and rules</small>';
+    tile.addEventListener("click", openToday);
+    quick.append(tile);
   }
   const state = (title, message, extra = "") =>
     `<article class="gqCard"><div class="gqTop"><div class="gqTrophy" aria-hidden="true">♛</div><div><small>DAILY CLINICAL CHALLENGE</small><h2>Today’s Golden Question</h2></div></div><div class="gqState"><h3>${esc(
@@ -242,8 +241,13 @@
         : ""
     }</div></article>`;
   }
-  async function load() {
-    const h = host();
+  async function openToday() {
+    const dialog = modal("Today’s Golden Question", '<div class="gqExperience"><p class="gqNotice">Loading today’s challenge…</p></div>');
+    await load($(".gqExperience", dialog));
+  }
+  async function load(target) {
+    const h = target || $(".gqExperience", $("#gqModal126"));
+    if (!h) return;
     if (!db()) {
       h.innerHTML = state(
         "Connection unavailable",
@@ -610,13 +614,13 @@
   }
   function boot() {
     if (!$("#home")) return;
-    load();
+    installHomeTile();
   }
-  window.BTVGoldenQuestion = { load, open: centre };
+  window.BTVGoldenQuestion = { load, open: centre, openToday };
   addEventListener("btv:home-rendered", boot);
   addEventListener("btv:auth-ready", boot);
   addEventListener("online", () => {
-    if ($("#goldenQuestion126")) load();
+    if ($(".gqExperience", $("#gqModal126"))) load();
   });
   if (document.readyState === "loading")
     addEventListener("DOMContentLoaded", () => setTimeout(boot, 400));

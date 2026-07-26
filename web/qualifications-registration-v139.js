@@ -9,14 +9,17 @@
     assessments: "btv_professional_assessments",
   };
   const assessmentNames = ["NCLEX-RN", "Multiple-choice question examination — MCQ", "Objective Structured Clinical Examination — OSCE", "Outcomes-Based Assessment — OBA", "Orientation Part 1", "Orientation Part 2", "IELTS", "OET", "Other professional examination"];
+  const australianAssessmentNames = new Set(["Multiple-choice question examination — MCQ", "Outcomes-Based Assessment — OBA", "Orientation Part 1", "Orientation Part 2"]);
   const countries = ["United Kingdom", "Australia", "Canada", "New Zealand", "Ireland", "United States", "Other"];
-  const state = { user: null, profile: {}, registrations: [], practice: [], assessments: [], documents: [], loading: false, editing: {} };
+  const state = { user: null, profile: {}, destination: "", registrations: [], practice: [], assessments: [], documents: [], loading: false, editing: {} };
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const db = () => window.btvSupabase;
   const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
   const label = (value) => String(value || "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
   const dateValue = (value) => value ? String(value).slice(0, 10) : "";
+  const destinationCode = (value) => ({ australia: "au", au: "au", "new zealand": "nz", nz: "nz", "united kingdom": "uk", uk: "uk", canada: "ca", ca: "ca", "united states": "us", us: "us", usa: "us", ireland: "ie", ie: "ie" })[String(value || "").trim().toLowerCase()] || "";
+  const usesAustralianRegistration = () => destinationCode(state.destination) === "au";
 
   function showScreen(id) {
     $$(".screen").forEach((screen) => screen.classList.toggle("active", screen.id === id));
@@ -71,7 +74,7 @@
       const user = await account();
       const [professional, canonical, registrations, practice, assessments] = await Promise.all([
         db().from(TABLES.profile).select("*").eq("user_id", user.id).maybeSingle(),
-        db().from("profiles").select("profession,qualification_country").eq("id", user.id).maybeSingle(),
+        db().from("profiles").select("profession,qualification_country,destination_country,destination").eq("id", user.id).maybeSingle(),
         db().from(TABLES.registrations).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         db().from(TABLES.practice).select("*").eq("user_id", user.id).order("start_date", { ascending: false }),
         db().from(TABLES.assessments).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
@@ -80,6 +83,7 @@
       state.profile = professional.data || {};
       if (!state.profile.profession && canonical.data?.profession) state.profile.profession = String(canonical.data.profession).toLowerCase().includes("midwi") ? "midwife" : "registered_nurse";
       if (!state.profile.qualification_country) state.profile.qualification_country = canonical.data?.qualification_country || "";
+      state.destination = canonical.data?.destination_country || canonical.data?.destination || "";
       state.registrations = registrations.data || [];
       state.practice = practice.data || [];
       state.assessments = assessments.data || [];
@@ -117,6 +121,13 @@
   function render() {
     const content = $("[data-qr-content]");
     if (!content) return;
+    if (!usesAustralianRegistration()) {
+      const genericDone = completion();
+      content.innerHTML = `<div class="qrSections139">${primarySection(genericDone.primary)}${registrationsSection(genericDone.registrations)}${practiceSection(genericDone.practice)}${assessmentsSection(genericDone.assessments)}${englishSection(genericDone.english)}${documentsSection(genericDone.documents)}</div>`;
+      const assessment = $('[name="assessment_name"]', content);
+      [...(assessment?.options || [])].forEach((option) => { if (australianAssessmentNames.has(option.value)) option.remove(); });
+      return;
+    }
     const done = completion(), pathway = window.BTVAustraliaPathway139?.indicate({ ...state.profile, registrations: state.registrations, practice: state.practice, assessments: state.assessments }) || { label: "Qualification Assessment Required", reason: "Complete the official IQNM Self-check." };
     content.innerHTML = `<section class="qrPathway139"><span>INDICATIVE AUSTRALIAN PATHWAY</span><div><h2>${esc(pathway.label)}</h2>${badge(false, Boolean(state.profile.qualification_country))}</div><p>${esc(pathway.reason)}</p><small>This guidance is not an official Ahpra or NMBA assessment. Complete the official IQNM Self-check and follow the outcome provided by Ahpra.</small><a href="${esc(window.BTVAustraliaPathway139?.officialSelfCheckUrl || "https://www.ahpra.gov.au/Registration/International-practitioners.aspx")}" target="_blank" rel="noopener">Open the official IQNM Self-check guidance ↗</a></section>
       <div class="qrSections139">${primarySection(done.primary)}${registrationsSection(done.registrations)}${practiceSection(done.practice)}${assessmentsSection(done.assessments)}${englishSection(done.english)}${documentsSection(done.documents)}</div>`;

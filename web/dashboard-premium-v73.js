@@ -1100,6 +1100,7 @@
       return queueRender();
     }
     if (id === "qualifications-registration") return window.BTVQualificationsRegistration139?.open();
+    if (id === "golden-question") return window.BTVGoldenQuestion?.openToday?.();
     if (id === "opportunities") return window.openScreen?.("opportunities");
     if (id === "books") {
       F()?.open("study");
@@ -1702,6 +1703,7 @@
     if (!home || !(await load())) return;
 
     home.classList.add("dashboard73-active");
+    home.querySelectorAll("[data-gq-home-tile]").forEach((tile) => tile.remove());
     document.getElementById("careerDashboard")?.remove();
     document.getElementById("btvTop73")?.remove();
     document.getElementById("profileSummary")?.remove();
@@ -1741,6 +1743,12 @@
       { title: "Interview preparation", id: "interview" },
     ];
     const quickActions = [
+      {
+        title: "Today’s Golden Question",
+        copy: "Open today’s challenge, leaderboard, history and rules",
+        id: "golden-question",
+        icon: "♛",
+      },
       {
         title: "Mentor Marketplace",
         copy: "Find approved professional mentors",

@@ -15,6 +15,9 @@
     { "source": "/journey/tools/cost-estimator", "destination": "/index.html?screen=cost-estimator" },
     { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }
   ],
+  "crons": [
+    { "path": "/api/opportunity-import", "schedule": "15 3 * * *" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

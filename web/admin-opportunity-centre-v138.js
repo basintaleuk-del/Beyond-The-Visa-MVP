@@ -6,7 +6,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
   const db = () => window.btvSupabase;
-  let root, rows = [], employers = [], filter = { query: "", country: "", type: "", status: "" };
+  let root, rows = [], employers = [], sources = [], runs = [], filter = { query: "", country: "", type: "", status: "" };
   const types = ["job", "scholarship", "event", "registration_update", "immigration_update", "employer_campaign", "learning", "journey_action"];
 
   function install() {
@@ -29,18 +29,22 @@
 
   async function load() {
     root.innerHTML = '<div class="opAdminLoading138">Loading Opportunity Centre data…</div>';
-    const [opportunities, employerRows] = await Promise.all([
+    const [opportunities, employerRows, sourceRows, runRows] = await Promise.all([
       db().from("btv_jobs").select("*,btv_opportunity_source_reviews(verification_notes,verified_by,checked_at)").order("created_at", { ascending: false }).limit(300),
       db().from("btv_opportunity_employers").select("*").order("name").limit(200),
+      db().from("btv_approved_sources").select("*").order("name"),
+      db().from("btv_opportunity_import_runs").select("*,btv_approved_sources(name)").order("started_at", { ascending: false }).limit(30),
     ]);
-    if (opportunities.error || employerRows.error) return error(opportunities.error || employerRows.error);
-    rows = opportunities.data || []; employers = employerRows.data || []; render();
+    if (opportunities.error || employerRows.error || sourceRows.error || runRows.error) return error(opportunities.error || employerRows.error || sourceRows.error || runRows.error);
+    rows = opportunities.data || []; employers = employerRows.data || []; sources = sourceRows.data || []; runs = runRows.data || []; render();
   }
 
   function render() {
     const visible = rows.filter((row) => (!filter.query || JSON.stringify(row).toLowerCase().includes(filter.query.toLowerCase())) && (!filter.country || row.country === filter.country) && (!filter.type || row.opportunity_type === filter.type) && (!filter.status || row.status === filter.status));
     const count = (predicate) => rows.filter(predicate).length;
     root.innerHTML = `<div class="opAdminHero138"><span>CONTENT & SOURCE GOVERNANCE</span><h2>Opportunity Centre</h2><p>Create, verify, feature, publish and archive opportunities without changing existing job saves.</p></div><div class="opAdminStats138">${[["Active", count((x) => x.status === "published")],["Jobs", count((x) => x.opportunity_type === "job")],["Sponsored", count((x) => x.sponsorship_status === "confirmed")],["Scholarships", count((x) => x.opportunity_type === "scholarship")],["Events", count((x) => x.opportunity_type === "event")],["Official updates", count((x) => /_update$/.test(x.opportunity_type))],["Employers", employers.length],["Unverified", count((x) => !x.verified)],["Archived", count((x) => x.status === "archived")]].map(([label, value]) => `<article><span>${label}</span><b>${value}</b></article>`).join("")}</div><div class="opAdminTabs138"><button data-admin-view="opportunities" class="active">Opportunities</button><button data-admin-view="employers">Employers</button></div><section data-admin-pane="opportunities"><div class="opAdminToolbar138"><input type="search" data-admin-search placeholder="Search title, employer or source" value="${esc(filter.query)}"><select data-admin-filter="country"><option value="">All countries</option>${[...new Set(rows.map((x) => x.country).filter(Boolean))].sort().map((value) => `<option ${filter.country === value ? "selected" : ""}>${esc(value)}</option>`).join("")}</select><select data-admin-filter="type"><option value="">All types</option>${types.map((value) => `<option ${filter.type === value ? "selected" : ""}>${value}</option>`).join("")}</select><select data-admin-filter="status"><option value="">All statuses</option>${["draft","review","published","expired","archived"].map((value) => `<option ${filter.status === value ? "selected" : ""}>${value}</option>`).join("")}</select><button data-create-opportunity>+ Create opportunity</button></div><div class="opAdminRows138">${visible.map(row).join("") || "<p>No opportunities match these filters.</p>"}</div></section><section data-admin-pane="employers" hidden><button data-create-employer>+ Create employer</button><div class="opAdminRows138">${employers.map(employer).join("") || "<p>No employers recorded.</p>"}</div></section>`;
+    $(".opAdminTabs138", root)?.insertAdjacentHTML("beforeend", '<button data-admin-view="imports">Daily imports</button>');
+    root.insertAdjacentHTML("beforeend", `<section data-admin-pane="imports" hidden><div class="opAdminImportHead138"><div><span>AUTOMATION</span><h3>Daily import · 03:15 UTC</h3><p>Only approved structured feeds can be enabled. Disabled sources are never fetched.</p></div><button data-run-import>Run now</button></div><h3>Approved-source register</h3><div class="opAdminRows138">${sources.map(sourceRow).join("") || "<p>No sources registered.</p>"}</div><h3>Recent runs</h3><div class="opAdminRows138">${runs.map(runRow).join("") || "<p>No import runs yet.</p>"}</div></section>`);
     wire();
   }
 
@@ -51,6 +55,14 @@
     return `<article><div><span>${esc(item.country_code)} · ${item.verified ? "verified" : "unverified"}</span><h3>${esc(item.name)}</h3><p>${esc(item.website_url || "No website recorded")}</p></div><button data-edit-employer="${item.id}">Edit</button></article>`;
   }
 
+  function sourceRow(item) {
+    const canEnable = item.permission_status === "approved" && item.integration_type === "json_feed_v1";
+    return `<article><div><span>${esc(item.source_type)} · permission ${esc(item.permission_status)}</span><h3>${esc(item.name)}</h3><p>${esc(item.integration_type)} · ${item.last_successful_run_at ? `last success ${new Date(item.last_successful_run_at).toLocaleString("en-GB")}` : "never imported"}${item.last_error ? ` · ${esc(item.last_error)}` : ""}</p></div><button data-source-toggle="${item.id}" data-enabled="${item.enabled}" ${!item.enabled && !canEnable ? 'disabled title="Approval and a structured feed are required"' : ""}>${item.enabled ? "Disable" : "Enable"}</button></article>`;
+  }
+  function runRow(item) {
+    return `<article><div><span>${esc(item.status)} · ${esc(item.triggered_by)}</span><h3>${esc(item.btv_approved_sources?.name || "Daily orchestration")}</h3><p>${new Date(item.started_at).toLocaleString("en-GB")} · found ${item.records_found} · created ${item.records_created} · updated ${item.records_updated} · archived ${item.records_archived}${item.error_summary ? ` · ${esc(item.error_summary)}` : ""}</p></div></article>`;
+  }
+
   function wire() {
     $$('[data-admin-view]', root).forEach((button) => button.onclick = () => { $$('[data-admin-view]', root).forEach((item) => item.classList.toggle("active", item === button)); $$('[data-admin-pane]', root).forEach((pane) => pane.hidden = pane.dataset.adminPane !== button.dataset.adminView); });
     $("[data-admin-search]", root)?.addEventListener("input", (event) => { filter.query = event.target.value; clearTimeout(wire.timer); wire.timer = setTimeout(render, 180); });
@@ -59,6 +71,8 @@
     $("[data-create-employer]", root)?.addEventListener("click", () => employerForm());
     $$('[data-edit-opportunity]', root).forEach((button) => button.onclick = () => opportunityForm(rows.find((item) => item.id === button.dataset.editOpportunity)));
     $$('[data-edit-employer]', root).forEach((button) => button.onclick = () => employerForm(employers.find((item) => item.id === button.dataset.editEmployer)));
+    $$('[data-source-toggle]', root).forEach((button) => button.onclick = async () => { const result = await db().from("btv_approved_sources").update({ enabled: button.dataset.enabled !== "true", updated_at: new Date().toISOString() }).eq("id", button.dataset.sourceToggle); if (result.error) alert(result.error.message); else load(); });
+    $("[data-run-import]", root)?.addEventListener("click", async (event) => { event.currentTarget.disabled = true; event.currentTarget.textContent = "Running…"; const { data } = await db().auth.getSession(); const response = await fetch("/api/opportunity-import", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}` } }); const result = await response.json(); if (!response.ok) alert(result.error || "Import failed"); await load(); });
     $$('[data-duplicate-opportunity]', root).forEach((button) => button.onclick = () => { const item = rows.find((x) => x.id === button.dataset.duplicateOpportunity); opportunityForm({ ...item, id: null, title: `${item.title} (copy)`, status: "draft", source_identifier: "", source_url: "" }); });
     $$('[data-state-opportunity]', root).forEach((button) => button.onclick = async () => { const patch = { status: button.dataset.status, updated_at: new Date().toISOString() }; if (button.dataset.status === "published") patch.published_at = new Date().toISOString(); if (button.dataset.status === "expired") patch.expired_at = new Date().toISOString(); const result = await db().from("btv_jobs").update(patch).eq("id", button.dataset.stateOpportunity); if (result.error) alert(result.error.message); else load(); });
   }
@@ -84,6 +98,7 @@
       for (const name of ["salary_min","salary_max"]) data[name] = data[name] ? Number(data[name]) : null;
       for (const name of ["published_at","closing_at","event_start_at","event_end_at","last_checked_at","application_url","registration_url","source_identifier","specialty"]) data[name] = data[name] || null;
       data.visa_sponsorship = data.sponsorship_status === "confirmed"; data.updated_at = new Date().toISOString();
+      data.verification_status = data.verified ? "verified" : "pending";
       if (data.status === "published" && !data.published_at) data.published_at = new Date().toISOString();
       const result = item.id ? await db().from("btv_jobs").update(data).eq("id", item.id).select("id").single() : await db().from("btv_jobs").insert(data).select("id").single();
       if (result.error) throw result.error;
