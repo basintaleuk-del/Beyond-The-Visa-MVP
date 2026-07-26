@@ -11,7 +11,7 @@ const raw = { id: "J1", title: "Registered Nurse", employer: "Example NHS Trust"
 
 test("keeps the exact original source page", () => assert.equal(normalizeRecord(raw, source, now).source_url, raw.source_url));
 test("keeps the employer and original application page", () => { const row = normalizeRecord(raw, source, now); assert.equal(row.employer, raw.employer); assert.equal(row.application_url, raw.application_url); });
-test("filters non-nursing and non-midwifery roles", () => { assert.equal(professionFor({ title: "Hospital Receptionist" }), null); assert.equal(professionFor({ title: "Registered Midwife" }), "midwife"); });
+test("classifies NHS roles across staff families", () => { assert.equal(professionFor({ title: "Hospital Receptionist" }), "administrative_clerical"); assert.equal(professionFor({ title: "Registered Midwife" }), "midwife"); assert.equal(professionFor({ title: "Biomedical Scientist" }), "scientific_technical"); });
 test("only explicit wording confirms sponsorship", () => { assert.equal(sponsorshipFor("Visa sponsorship is available").sponsorship_status, "confirmed"); assert.equal(sponsorshipFor("We welcome applications").sponsorship_status, "not_stated"); });
 
 test("real NHS vacancy wording classifies sponsorship conservatively", () => {

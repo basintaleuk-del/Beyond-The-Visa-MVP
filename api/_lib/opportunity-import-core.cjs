@@ -1,7 +1,6 @@
 const { createHash } = require("node:crypto");
 
-const LIMITS = Object.freeze({ maxRecords: 300, maxPages: 3, pageSize: 100, timeoutMs: 10000, retries: 2, maxRuntimeMs: 50000 });
-const REJECTED_ROLES = /\b(doctor|physician|dentist|pharmacist|radiographer|physiotherapist|administrator|receptionist|care assistant|healthcare assistant|nursing associate)\b/i;
+const LIMITS = Object.freeze({ maxRecords: 1000, maxPages: 10, pageSize: 100, timeoutMs: 10000, retries: 2, maxRuntimeMs: 50000 });
 const NURSE_WORDS = /\b(nurse|nursing|rn|registered nurse|clinical nurse|health visitor)\b/i;
 const MIDWIFE_WORDS = /\b(midwife|midwifery|maternity nurse)\b/i;
 const NEGATIVE_SPONSORSHIP = /\b(?:we\s+)?(?:are\s+)?(?:currently\s+)?(?:unable to|cannot|can't|do not|don't|does not|doesn't|will not|won't)\s+(?:offer|provide|support)\s+(?:an?\s+)?(?:certificate of sponsorship|visa sponsorship|sponsorships?|sponsored visa|visas?)\b/i;
@@ -86,12 +85,20 @@ function safeUrl(value, source) {
 
 function professionFor(record) {
   const text = clean([record.title, record.profession, record.category, record.summary].filter(Boolean).join(" "), 1000);
-  if (REJECTED_ROLES.test(text) && !NURSE_WORDS.test(record.title || "") && !MIDWIFE_WORDS.test(record.title || "")) return null;
   const nurse = NURSE_WORDS.test(text), midwife = MIDWIFE_WORDS.test(text);
   if (nurse && midwife) return "both";
   if (midwife) return "midwife";
   if (nurse) return "nurse";
-  return null;
+  if (/\b(doctor|physician|consultant|surgeon|general practitioner|salaried gp|dentist|dental|orthodont|psychiatrist|anaesthetist)\b/i.test(text)) return "medical_dental";
+  if (/\b(physiotherap|occupational therap|radiograph|speech and language|dietitian|podiatr|orthopt|prosthet|operating department practitioner|art therap|music therap|paramedic)\b/i.test(text)) return "allied_health";
+  if (/\b(pharmac|pharmacy|pharmacy technician|dispens)\b/i.test(text)) return "pharmacy";
+  if (/\b(biomedical|clinical scientist|healthcare scientist|laboratory|lab technician|cardiac physiolog|audiolog|medical physics|genomic|microbiolog)\b/i.test(text)) return "scientific_technical";
+  if (/\b(ambulance|emergency medical technician|call handler|emergency care assistant)\b/i.test(text)) return "ambulance";
+  if (/\b(healthcare assistant|health care assistant|care assistant|support worker|therapy assistant|clinical support|maternity support|porter)\b/i.test(text)) return "healthcare_support";
+  if (/\b(administrator|administrative|reception\w*|secretar\w*|clerical|business support|finance|accountant|human resources|people partner|communications?|project manager|programme manager|data analyst|information analyst|procurement)\b/i.test(text)) return "administrative_clerical";
+  if (/\b(estates?|facilities|maintenance|electrician|engineer|housekeep|catering|domestic|security officer|fire safety)\b/i.test(text)) return "estates_facilities";
+  if (/\b(social worker|social care|care home|home manager|care manager)\b/i.test(text)) return "social_care";
+  return "other";
 }
 
 function sponsorshipFor(value, evidenceUrl = null, checkedAt = new Date().toISOString()) {
@@ -259,7 +266,8 @@ async function fetchNhsJobsFeed(source, fetchImpl = fetch, now = new Date()) {
     const url = new URL(endpoint);
     if (jobReference) url.searchParams.set("jobReference", jobReference);
     else {
-      url.searchParams.set("staffGroup", "NURSING_AND_MIDWIFERY_REGD");
+      const staffGroup = clean(source.configuration?.staff_group, 100);
+      if (staffGroup && staffGroup !== "ALL") url.searchParams.set("staffGroup", staffGroup);
       url.searchParams.set("publishedFrom", publishedFrom);
       url.searchParams.set("sort", "publicationDateAsc");
     }

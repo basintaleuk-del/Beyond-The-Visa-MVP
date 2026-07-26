@@ -11,6 +11,7 @@
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/jobs", "destination": "/index.html" },
     { "source": "/opportunities", "destination": "/index.html?screen=opportunities" },
     { "source": "/journey/tools/cost-estimator", "destination": "/index.html?screen=cost-estimator" },
     { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }

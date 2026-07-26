@@ -20,10 +20,11 @@ test("official XML parser maps the supplied NHS vacancy fields", () => {
   assert.equal(row.canonical_url, "https://www.jobs.nhs.uk/candidate/jobadvert/A1");
 });
 
-test("only nursing and midwifery vacancies are accepted", () => {
+test("vacancies across NHS professions are accepted and classified", () => {
   const parsed = parseNhsJobsXml(xml([vacancy({ id: "N1", title: "Registered Nurse" }), vacancy({ id: "M1", title: "Registered Midwife" }), vacancy({ id: "D1", title: "Consultant Doctor" }), vacancy({ id: "H1", title: "Healthcare Assistant" })]));
   const imported = parsed.rows.map((row) => normalizeRecord(row, source, now)).filter(Boolean);
-  assert.deepEqual(imported.map((row) => row.external_id), ["N1", "M1"]);
+  assert.deepEqual(imported.map((row) => row.external_id), ["N1", "M1", "D1", "H1"]);
+  assert.deepEqual(imported.map((row) => row.profession), ["nurse", "midwife", "medical_dental", "healthcare_support"]);
 });
 
 test("official NHS beta advert links are accepted without allowing arbitrary hosts", () => {
@@ -38,7 +39,7 @@ test("NHS adapter follows official pagination with bounded requests", async () =
   const urls = [];
   const result = await fetchNhsJobsFeed(source, async (url) => { urls.push(String(url)); const page = new URL(url).searchParams.get("page"); return { ok: true, text: async () => xml([vacancy({ id: `N${page}`, title: "Community Nurse" })], 2) }; }, now);
   assert.equal(result.rows.length, 2); assert.equal(urls.length, 2);
-  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-18"); assert.equal(parsed.searchParams.get("limit"), "100"); }
+  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.has("staffGroup"), false); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-18"); assert.equal(parsed.searchParams.get("limit"), "100"); }
 });
 
 test("rerunning the NHS importer updates without duplicating or deleting saves", async () => {
@@ -61,6 +62,14 @@ test("Opportunity Centre attributes and links NHS Jobs securely", async () => {
   assert.match(ui, /View on NHS Jobs/); assert.match(ui, /rel="noopener noreferrer"/);
   assert.match(ui, /You’ll continue to NHS Jobs to view the full vacancy and apply/);
   assert.match(ui, /from\("btv_saved_jobs"\)/); assert.doesNotMatch(ui, /overflow-x:\s*hidden/);
+});
+
+test("Jobs centre renders direct NHS vacancies for all staff families", async () => {
+  const [ui, css, shell, migration] = await Promise.all([read("web/jobs-centre-v148.js"), read("web/jobs-centre-v148.css"), read("web/index.html"), read("supabase/migrations/20260726213000_all_nhs_professions_jobs_v148.sql")]);
+  assert.match(ui, /Find your next role across the NHS/); assert.match(ui, /All professions/); assert.match(ui, /View job and apply/);
+  assert.match(ui, /source_name","NHS Jobs/); assert.doesNotMatch(ui, /\bTrac\b|HealthJobsUK|NursingNetUK/i);
+  assert.match(css, /nhsJobsLayout148/); assert.match(shell, /jobs-centre-v148\.js\?v=148/);
+  assert.match(migration, /'medical_dental'/); assert.match(migration, /'administrative_clerical'/); assert.match(migration, /'staff_group', 'ALL'/);
 });
 
 test("migration reuses jobs, saves, run logs and seeds only the official feed", async () => {
