@@ -1099,7 +1099,7 @@
       F()?.open("dashboard");
       return queueRender();
     }
-    if (id === "change-destination") return window.openScreen?.("countries");
+    if (id === "qualifications-registration") return window.BTVQualificationsRegistration139?.open();
     if (id === "books") {
       F()?.open("study");
       return setTimeout(
@@ -1138,7 +1138,7 @@
         label: "Account",
         links: [
           ["Profile", "profile"],
-          ["Change destination country", "change-destination"],
+          ["Qualifications & Registration", "qualifications-registration"],
           ["My Documents", "documents"],
           ["Notifications", "notifications"],
           ["Beyond Coins", "wallet"],
@@ -1329,7 +1329,7 @@
         "ACCOUNT",
         [
           ["Profile", "profile"],
-          ["Change destination country", "change-destination"],
+          ["Qualifications & Registration", "qualifications-registration"],
           ["Beyond Coins", "wallet"],
           ["Settings", "profile"],
         ],
