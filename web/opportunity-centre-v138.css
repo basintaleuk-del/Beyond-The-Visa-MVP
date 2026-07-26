@@ -14,12 +14,12 @@
   .ziburOpportunity138>span,.ziburOpportunity138>h2,.ziburOpportunity138>p{grid-column:1}.ziburOpportunity138>div{grid-column:2;grid-row:1/4;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
   .opportunityCentre138 [data-opportunity-body]>.opportunitySection138{grid-column:span 4}
   .opportunityCentre138 [data-opportunity-body]>.opportunitySponsor138{grid-column:span 7}
-  .opportunityCentre138 [data-opportunity-body]>[data-recommended-section]{grid-column:span 5}
+  .opportunityCentre138 [data-opportunity-body]>[data-recommended-section]{grid-column:1/-1}
   .opportunityCentre138 [data-opportunity-body]>.opportunitySection138:has(.opportunityCountry138){grid-column:1/-1}
   .opportunityCentre138 [data-opportunity-body]>[data-opportunity-discover]{grid-column:1/-1}
   .opportunityCentre138 [data-opportunity-body]>.opportunityTools138{grid-column:1/-1}
   .opportunityCentre138 [data-opportunity-body]>.opportunityIntro138,.opportunityCentre138 [data-opportunity-body]>.ziburOpportunity138,.opportunityCentre138 [data-opportunity-body]>.opportunitySection138,.opportunityCentre138 [data-opportunity-body]>.opportunityTools138{margin:0}
   .opportunityCentre138 [data-opportunity-body]>.opportunitySection138>.opportunityGrid138{grid-template-columns:1fr}
   .opportunityCentre138 [data-opportunity-body]>.opportunitySponsor138>.opportunityGrid138{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .opportunityCentre138 [data-recommended-section] .opportunityGrid138{grid-template-columns:1fr}
+  .opportunityCentre138 [data-opportunity-body]>[data-recommended-section].opportunitySection138>.opportunityGrid138{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 }
