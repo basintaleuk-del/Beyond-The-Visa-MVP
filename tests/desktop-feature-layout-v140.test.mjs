@@ -33,5 +33,5 @@ test("Qualifications hub separates guidance and records on desktop", () => {
 
 test("desktop stylesheet revisions are cache-busted", () => {
   assert.match(index, /opportunity-centre-v138\.css\?v=162/);
-  assert.match(index, /qualifications-registration-v139\.css\?v=147/);
+  assert.match(index, /qualifications-registration-v139\.css\?v=163/);
 });
