@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 
 const read=file=>readFile(new URL(`../${file}`,import.meta.url),'utf8');
 
@@ -52,6 +52,19 @@ test('mobile styles avoid horizontal overflow and protect bottom navigation spac
   const css=await read('web/opportunity-centre-v138.css');
   assert.match(css,/@media\(max-width:650px\)/);assert.match(css,/minmax\(0,1fr\)/);
   assert.doesNotMatch(css,/width:\s*100vw/);assert.doesNotMatch(css,/overflow-x:\s*hidden/);
+});
+
+test('Opportunity Centre uses the approved responsive hero, statistics and advisor presentation',async()=>{
+  const [feature,css,hero,advisor]=await Promise.all([
+    read('web/opportunity-centre-v138.js'),
+    read('web/opportunity-centre-v138.css'),
+    stat(new URL('../web/assets/opportunities/opportunity-centre-hero.jpg',import.meta.url)),
+    stat(new URL('../web/assets/opportunities/zibur-advisor.jpg',import.meta.url)),
+  ]);
+  assert.match(feature,/opportunityHeroArt138/);assert.match(feature,/opportunitySummaryIcon138/);assert.match(feature,/ziburOpportunityArt138/);
+  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);assert.match(css,/@media\(min-width:1024px\)/);assert.match(css,/@media\(min-width:1440px\)/);
+  assert.ok(hero.size<150_000);assert.ok(advisor.size<100_000);
+  assert.doesNotMatch(feature,/New jobs today",\s*\d/);
 });
 
 test('existing Admin Centre is extended with opportunity and employer governance',async()=>{

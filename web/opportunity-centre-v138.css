@@ -24,3 +24,90 @@
   .opportunityCentre138 [data-opportunity-body]>[data-recommended-section].opportunitySection138>.opportunityGrid138{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 }
 body.dark .opportunityCardTop138 b{color:var(--gold)}
+
+/* Responsive Opportunity Centre presentation v160 */
+.opportunityCentre138{box-sizing:border-box;width:min(100%,1280px);margin-inline:auto;padding:18px clamp(14px,3vw,36px) 120px;overflow-x:clip}
+.opportunityPageHeader138{margin-bottom:20px}
+.opportunityCentre138 .opportunityTitle138{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:start;gap:16px;margin:0}
+.opportunityCentre138 .opportunityTitle138 .back{width:52px;height:52px;border-radius:16px;box-shadow:0 8px 18px rgba(14,49,42,.1)}
+.opportunityCentre138 .opportunityTitle138 span{display:block;color:var(--teal);font-size:10px;font-weight:900;letter-spacing:.16em}
+.opportunityCentre138 .opportunityTitle138 h1{margin:6px 0 0;font:clamp(30px,7vw,42px)/1.04 Georgia,serif;color:var(--ink)}
+.opportunityCentre138 .opportunityLead138{max-width:680px;margin:10px 0 0 68px;color:var(--muted);font-size:14px;line-height:1.55}
+.opportunityCentre138 [data-opportunity-body]{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.opportunityCentre138 [data-opportunity-body]>.opportunityIntro138,.opportunityCentre138 [data-opportunity-body]>.ziburOpportunity138,.opportunityCentre138 [data-opportunity-body]>.opportunitySection138,.opportunityCentre138 [data-opportunity-body]>.opportunityTools138{margin:0}
+.opportunityHero138{position:relative;isolation:isolate;overflow:hidden;min-height:520px;padding:28px 24px 22px!important;border-color:rgba(156,222,209,.28);border-radius:28px;background:#004e50!important;box-shadow:0 18px 42px rgba(5,55,50,.18)}
+.opportunityHero138::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,55,57,.99) 0%,rgba(0,65,66,.94) 48%,rgba(0,71,70,.62) 70%,rgba(0,52,53,.16) 100%)}
+.opportunityHeroArt138{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:right center}
+.opportunityHeroCopy138{position:relative;z-index:1;max-width:590px}
+.opportunityHeroCopy138>span{display:block;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.14em}
+.opportunityHero138 .opportunityHeroCopy138 h2{max-width:520px;margin:10px 0 12px;color:#fff;font:clamp(28px,7.5vw,42px)/1.08 Georgia,serif}
+.opportunityHero138 .opportunityHeroCopy138>p:not(.opportunityFreshness138){max-width:480px;margin:0;color:#e2f0ed;font-size:14px;line-height:1.6}
+.opportunityHero138 .opportunityFreshness138{display:flex;align-items:flex-start;gap:10px;margin:16px 0 0;color:#d7ece7;font-size:12px;line-height:1.45}
+.opportunityHero138 .opportunityFreshness138>span:last-child{display:grid;gap:2px}
+.opportunityHero138 .opportunityFreshness138 b,.opportunitySource138 .opportunityFreshness138 b{color:#7be0c8;font-size:13px}
+.opportunityHero138 .opportunityFreshness138 small,.opportunitySource138 .opportunityFreshness138 small{display:block;color:inherit;font-size:11px}
+.opportunityStatusIcon138,.opportunitySourceIcon138,.opportunitySummaryIcon138,.opportunityBenefits138>li>span{display:grid;place-items:center;flex:0 0 auto}
+.opportunityStatusIcon138{width:27px;height:27px;border-radius:50%;background:rgba(91,208,184,.2);color:#92ecd8}
+.opportunityStatusIcon138 svg,.opportunitySourceIcon138 svg,.opportunitySummaryIcon138 svg,.opportunityBenefits138 svg,.ziburOpportunity138 button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.opportunityHero138 .opportunityBenefits138{position:absolute;left:24px;right:24px;bottom:22px;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0;padding:14px 0 0;border-top:1px solid rgba(199,236,228,.18);list-style:none}
+.opportunityBenefits138 li{min-width:0;padding:10px 12px;display:grid;justify-items:center;align-content:start;gap:8px;text-align:center;border-right:1px solid rgba(199,236,228,.16)}
+.opportunityBenefits138 li:nth-child(2n){border-right:0}.opportunityBenefits138 li:nth-child(n+3){border-top:1px solid rgba(199,236,228,.16)}
+.opportunityBenefits138>li>span{width:38px;height:38px;border:1px solid rgba(139,227,208,.32);border-radius:50%;background:rgba(4,99,96,.55);color:#f1faf7}
+.opportunityBenefits138 small{max-width:150px;color:#e4f0ed;font-size:10px;line-height:1.35}
+.opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0}
+.opportunitySummary138 article{box-sizing:border-box;min-height:92px;padding:13px;display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;gap:11px;border-radius:17px;background:var(--card);border:1px solid var(--line);box-shadow:0 7px 19px rgba(19,58,46,.07)}
+.opportunitySummaryIcon138{width:48px;height:48px;border-radius:50%;background:var(--mint);color:var(--teal)}
+.opportunitySummary138 article>div{min-width:0}.opportunitySummary138 article b{margin:0;color:var(--teal);font:28px/1 Georgia,serif}
+.opportunitySummary138 article span:not(.opportunitySummaryIcon138){margin-top:5px;color:var(--muted);font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+.opportunityCentre138 [data-opportunity-body]>.opportunitySource138{display:grid;grid-template-columns:42px minmax(0,1fr);gap:13px;padding:18px;border-radius:22px;background:linear-gradient(135deg,#00494c,#00615f);color:#e9f4f1}
+.opportunitySourceIcon138{width:42px;height:42px;border-radius:50%;background:rgba(100,220,197,.18);color:#9be7d6}
+.opportunitySource138>div{min-width:0}.opportunitySource138 .opportunityFreshness138{margin:0;color:#d7ebe7;line-height:1.45}
+.opportunitySource138 .opportunityDisclaimer138{margin:9px 0 0;color:#d6e6e3;font-size:11px;line-height:1.5}
+.opportunitySource138 a{color:#91dfd2;text-decoration:underline;text-underline-offset:2px}
+.opportunityCentre138 [data-opportunity-body]>.ziburOpportunity138{position:relative;isolation:isolate;overflow:hidden;display:block;min-height:270px;padding:22px;border-radius:23px;background:linear-gradient(135deg,var(--cream),var(--card));color:var(--ink)}
+.ziburOpportunity138::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--cream) 0%,color-mix(in srgb,var(--cream) 92%,transparent) 54%,transparent 78%)}
+.ziburOpportunityArt138{position:absolute;right:0;top:0;z-index:-2;width:62%;height:100%;object-fit:cover;object-position:right center}
+.ziburOpportunity138>span{position:relative;display:block;color:#b98119;font-size:10px;font-weight:900;letter-spacing:.14em}
+.ziburOpportunity138 h2{position:relative;max-width:62%;margin:8px 0;color:var(--ink);font:27px/1.12 Georgia,serif}
+.ziburOpportunity138>p{position:relative;max-width:66%;margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.ziburOpportunity138>div{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:22px}
+.ziburOpportunity138 button{min-width:0;min-height:45px;padding:10px 12px;display:flex;align-items:center;justify-content:flex-start;gap:9px;border-radius:11px;background:var(--mint);color:var(--teal);text-align:left}
+.ziburOpportunity138 button:first-child{background:var(--brand);color:#fff}.ziburOpportunity138 button svg{width:19px;height:19px;flex:0 0 auto}
+.ziburOpportunity138 button span{min-width:0;line-height:1.25}
+.opportunityCentre138 button,.opportunityCentre138 a{transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease}
+.opportunityCentre138 button:hover,.opportunityCentre138 a:hover{transform:translateY(-1px)}
+body.dark .opportunitySummary138 article{background:var(--card);border-color:var(--line)}
+body.dark .opportunitySummaryIcon138{background:color-mix(in srgb,var(--mint) 58%,var(--card));color:var(--teal)}
+body.dark .ziburOpportunity138{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 10%,var(--card)),var(--card))}
+body.dark .ziburOpportunity138::after{background:linear-gradient(90deg,var(--card) 0%,color-mix(in srgb,var(--card) 92%,transparent) 62%,transparent 86%)}
+body.dark .ziburOpportunityArt138{opacity:.35}
+
+@media(max-width:390px){
+  .opportunityCentre138 .opportunityTitle138{grid-template-columns:46px minmax(0,1fr);gap:12px}.opportunityCentre138 .opportunityTitle138 .back{width:46px;height:46px}.opportunityCentre138 .opportunityLead138{margin-left:58px}
+  .opportunityHero138{min-height:560px;padding-inline:18px!important}.opportunityHero138 .opportunityBenefits138{left:18px;right:18px}.opportunityBenefits138 li{padding-inline:7px}
+  .opportunitySummary138 article{grid-template-columns:42px minmax(0,1fr);padding:11px;gap:8px}.opportunitySummaryIcon138{width:42px;height:42px}
+  .ziburOpportunity138>div{grid-template-columns:1fr}.ziburOpportunity138 h2,.ziburOpportunity138>p{max-width:78%}.ziburOpportunityArt138{width:74%;opacity:.62}.ziburOpportunity138::after{background:linear-gradient(90deg,var(--cream) 0%,color-mix(in srgb,var(--cream) 94%,transparent) 62%,transparent 92%)}
+}
+
+@media(min-width:768px){
+  .opportunityCentre138{padding-top:28px}.opportunityPageHeader138{margin-bottom:24px}.opportunityCentre138 .opportunityLead138{font-size:16px}
+  .opportunityHero138{min-height:430px;padding:34px 34px 26px!important}.opportunityHero138 .opportunityBenefits138{left:34px;right:34px;bottom:26px;grid-template-columns:repeat(4,minmax(0,1fr))}.opportunityBenefits138 li{border-top:0!important}.opportunityBenefits138 li:nth-child(2n){border-right:1px solid rgba(199,236,228,.16)}.opportunityBenefits138 li:last-child{border-right:0}.opportunityBenefits138 small{font-size:11px}
+  .opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .opportunityCentre138 [data-opportunity-body]>.ziburOpportunity138{min-height:245px;padding:28px 30px}.ziburOpportunity138 h2{font-size:31px}.ziburOpportunity138>div{max-width:680px}.ziburOpportunityArt138{width:54%}
+}
+
+@media(min-width:1024px){
+  .opportunityCentre138{max-width:1280px;padding:34px clamp(28px,4vw,54px) 96px}
+  .opportunityCentre138 [data-opportunity-body]{grid-template-columns:repeat(12,minmax(0,1fr));gap:18px}
+  .opportunityCentre138 [data-opportunity-body]>.opportunityHero138:first-child{grid-column:1/-1;display:block;min-height:410px;padding:38px 42px 28px!important}
+  .opportunityHero138 .opportunityHeroCopy138 h2{font-size:44px}.opportunityHero138 .opportunityHeroCopy138>p:not(.opportunityFreshness138){font-size:15px}
+  .opportunityHero138 .opportunityBenefits138{left:42px;right:42px;bottom:28px}
+  .opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{grid-column:1/-1;grid-template-columns:repeat(4,minmax(0,1fr))}
+  .opportunitySummary138 article{min-height:104px;padding:16px}
+  .opportunityCentre138 [data-opportunity-body]>.opportunitySource138{grid-column:1/-1;display:grid;grid-template-columns:48px minmax(0,1fr);padding:22px 26px}.opportunitySourceIcon138{width:48px;height:48px}.opportunitySource138 .opportunityDisclaimer138{max-width:980px;font-size:12px}
+  .opportunityCentre138 [data-opportunity-body]>.ziburOpportunity138{grid-column:1/-1;display:block;min-height:250px;padding:30px 34px}.ziburOpportunity138>span,.ziburOpportunity138>h2,.ziburOpportunity138>p,.ziburOpportunity138>div{grid-column:auto;grid-row:auto}.ziburOpportunity138>div{max-width:720px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opportunityCentre138 [data-opportunity-body]>.opportunitySection138{grid-column:span 4}.opportunityCentre138 [data-opportunity-body]>.opportunitySponsor138{grid-column:span 8}.opportunityCentre138 [data-opportunity-body]>[data-recommended-section],.opportunityCentre138 [data-opportunity-body]>.opportunitySection138:has(.opportunityCountry138),.opportunityCentre138 [data-opportunity-body]>[data-opportunity-discover],.opportunityCentre138 [data-opportunity-body]>.opportunityTools138{grid-column:1/-1}
+}
+
+@media(min-width:1440px){.opportunityCentre138 [data-opportunity-body]>.opportunitySummary138{grid-template-columns:repeat(8,minmax(0,1fr))}.opportunitySummary138 article{grid-template-columns:42px minmax(0,1fr);padding:12px;gap:9px}.opportunitySummaryIcon138{width:42px;height:42px}}
+@media(prefers-reduced-motion:reduce){.opportunityCentre138 button,.opportunityCentre138 a{transition:none}}

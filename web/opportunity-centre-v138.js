@@ -85,6 +85,23 @@
   const dateLabel = (value) => value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not stated";
   const notify = (message) => typeof window.toast === "function" ? window.toast(message) : alert(message);
   const db = () => window.btvSupabase;
+  const OPPORTUNITY_ICONS = {
+    target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m15 9 5-5m0 0v4m0-4h-4"/>',
+    shield: '<path d="M12 3 5 6v5c0 4.8 2.8 8.2 7 10 4.2-1.8 7-5.2 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+    verified: '<path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/>',
+    bookmark: '<path d="M6 4h12v17l-6-4-6 4V4Z"/>',
+    briefcase: '<path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 12h18M10 12v2h4v-2"/>',
+    users: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-4 2.4-6 6-6s6 2 6 6M15 14c3.5 0 5.5 2 5.5 5"/>',
+    clinical: '<path d="M7 3v7a5 5 0 0 0 10 0V3M5 3h4M15 3h4"/><circle cx="17" cy="17" r="3"/><path d="M14 17h-2"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+    star: '<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/>',
+    building: '<path d="M4 21V7l8-4v18M12 9h8v12M7 9h2m-2 4h2m-2 4h2m8-4h1m-1 4h1M2 21h20"/>',
+    bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-5 3.4-7 8-7s7.2 2 8 7"/>',
+    checklist: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12 5 13.5 7.5 11M3.5 18 5 19.5 7.5 17"/>',
+    message: '<path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/>',
+  };
+  const opportunityIcon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${OPPORTUNITY_ICONS[name] || OPPORTUNITY_ICONS.briefcase}</svg>`;
 
   function install() {
     upgradeEntryPoints();
@@ -174,8 +191,8 @@
   }
 
   function shell() {
-    return `<div class="pageTitle opportunityTitle138"><button class="back" data-open="home" aria-label="Back to home">←</button><div><span>DISCOVER YOUR NEXT STEP</span><h1>Opportunity Centre</h1></div></div>
-      <p class="opportunityLead138">Jobs, sponsorship, registration updates, scholarships and events selected for your journey.</p>
+    return `<header class="opportunityPageHeader138"><div class="pageTitle opportunityTitle138"><button class="back" data-open="home" aria-label="Back to home">←</button><div><span>DISCOVER YOUR NEXT STEP</span><h1>Opportunity Centre</h1></div></div>
+      <p class="opportunityLead138">Jobs, sponsorship, registration updates, scholarships and events selected for your journey.</p></header>
       <div data-opportunity-body aria-live="polite">${skeleton()}</div>
       <dialog class="opportunityFilters138" data-opportunity-filters aria-label="Opportunity filters"></dialog>
       <dialog class="opportunityDetail138" data-opportunity-detail aria-label="Opportunity details"></dialog>`;
@@ -316,9 +333,9 @@
     const activeFilters = Object.entries(state.filters).filter(([key, value]) => key !== "search" && Boolean(value)).length;
     const profileEnough = Boolean(state.profile?.profession && (state.profile?.destination_country || state.profile?.destination));
     body.innerHTML = `${intro()}
-      <section class="opportunitySummary138" data-opportunity-summary aria-label="Live NHS Jobs opportunity summary">${summaryCard("New jobs today", state.counts.newJobs)}${summaryCard("NHS nursing jobs", state.counts.nhsNursing)}${summaryCard("NHS midwifery jobs", state.counts.nhsMidwifery)}${summaryCard("Visa sponsorship confirmed", state.counts.sponsors)}${summaryCard("Sponsorship may be available", state.counts.possibleSponsors)}${summaryCard("Closing this week", state.counts.closingWeek)}${summaryCard("Recommended for you", state.counts.recommended)}${summaryCard("Employers currently recruiting", state.counts.employers)}</section>
+      <section class="opportunitySummary138" data-opportunity-summary aria-label="Live NHS Jobs opportunity summary">${summaryCard("New jobs today", state.counts.newJobs, "briefcase")}${summaryCard("NHS nursing jobs", state.counts.nhsNursing, "users")}${summaryCard("NHS midwifery jobs", state.counts.nhsMidwifery, "clinical")}${summaryCard("Visa sponsorship confirmed", state.counts.sponsors, "shield")}${summaryCard("Sponsorship may be available", state.counts.possibleSponsors, "target")}${summaryCard("Closing this week", state.counts.closingWeek, "calendar")}${summaryCard("Recommended for you", state.counts.recommended, "star")}${summaryCard("Employers currently recruiting", state.counts.employers, "building")}</section>
       ${nhsSourceNote()}
-      <section class="ziburOpportunity138" data-opportunity-advisor><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>View recommended jobs</button><button data-improve-profile>Improve profile</button><button data-next-journey>Review next journey step</button><button data-ask-zibur>Ask Zibur</button></div></section>
+      <section class="ziburOpportunity138" data-opportunity-advisor><img class="ziburOpportunityArt138" src="assets/opportunities/zibur-advisor.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"><span>ZIBUR OPPORTUNITY ADVISOR</span><h2>Your next move, made clearer.</h2><p>${profileEnough ? "Based on your saved destination and profession, the strongest matches appear first." : "Complete your profile and journey preferences to improve your recommendations."}</p><div><button data-show-recommended>${opportunityIcon("briefcase")}<span>View recommended jobs</span></button><button data-improve-profile>${opportunityIcon("user")}<span>Improve profile</span></button><button data-next-journey>${opportunityIcon("checklist")}<span>Review next journey step</span></button><button data-ask-zibur>${opportunityIcon("message")}<span>Ask Zibur</span></button></div></section>
       ${nhsSponsorshipSection(state.sponsorshipRows)}
       ${nhsCategories(rows)}
       <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED</span><h2>Recommended for you</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty("No personalised opportunities are published yet.")}</section>
@@ -333,13 +350,13 @@
 
   function intro() {
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
-    return `<section class="opportunityIntro138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily.</b> ${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some opportunity information may be out of date. Please confirm details on the original provider’s website." : ""}` : "No approved automated source has completed an import yet."}</p><ul><li>Match jobs to your destination and profession.</li><li>Prioritise confirmed visa sponsorship.</li><li>Follow official sources and checked dates.</li><li>Save useful opportunities for later.</li></ul></section>`;
+    return `<section class="opportunityIntro138 opportunityHero138"><img class="opportunityHeroArt138" src="assets/opportunities/opportunity-centre-hero.jpg" alt="" aria-hidden="true" decoding="async" fetchpriority="high"><div class="opportunityHeroCopy138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><span class="opportunityStatusIcon138">${opportunityIcon("verified")}</span><span><b>Updated daily.</b><small>${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some opportunity information may be out of date. Please confirm details on the original provider’s website." : ""}` : "No approved automated source has completed an import yet."}</small></span></p></div><ul class="opportunityBenefits138"><li><span>${opportunityIcon("target")}</span><small>Match jobs to your destination and profession</small></li><li><span>${opportunityIcon("shield")}</span><small>Prioritise confirmed visa sponsorship</small></li><li><span>${opportunityIcon("verified")}</span><small>Follow official sources and checked dates</small></li><li><span>${opportunityIcon("bookmark")}</span><small>Save useful opportunities for later</small></li></ul></section>`;
   }
   function nhsSourceNote() {
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
-    return `<section class="opportunityIntro138"><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily from NHS Jobs.</b> ${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some vacancy information may be out of date. Confirm the latest details on NHS Jobs." : ""}` : "No NHS Jobs import has completed yet."}</p><p class="opportunityDisclaimer138">NHS vacancy information is sourced from <a href="https://www.jobs.nhs.uk" target="_blank" rel="noopener noreferrer">NHS Jobs</a>. Vacancy details, availability and application decisions remain with the recruiting employer and NHS Jobs. Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>.</p></section>`;
+    return `<section class="opportunityIntro138 opportunitySource138"><span class="opportunitySourceIcon138">${opportunityIcon("bell")}</span><div><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily from NHS Jobs.</b><small>${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some vacancy information may be out of date. Confirm the latest details on NHS Jobs." : ""}` : "No NHS Jobs import has completed yet."}</small></p><p class="opportunityDisclaimer138">NHS vacancy information is sourced from <a href="https://www.jobs.nhs.uk" target="_blank" rel="noopener noreferrer">NHS Jobs</a>. Vacancy details, availability and application decisions remain with the recruiting employer and NHS Jobs. Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>.</p></div></section>`;
   }
-  const summaryCard = (label, count) => `<article><b>${Number(count || 0)}</b><span>${esc(label)}</span></article>`;
+  const summaryCard = (label, count, icon) => `<article><span class="opportunitySummaryIcon138">${opportunityIcon(icon)}</span><div><b>${Number(count || 0)}</b><span>${esc(label)}</span></div></article>`;
   const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
 
   function countrySections(rows) {
