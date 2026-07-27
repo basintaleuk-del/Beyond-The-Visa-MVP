@@ -1748,30 +1748,35 @@
         copy: "Open today’s challenge, leaderboard, history and rules",
         id: "golden-question",
         icon: "♛",
+        image: "assets/quick-actions/quick-action-golden-question.webp",
       },
       {
         title: "Mentor Marketplace",
         copy: "Find approved professional mentors",
         id: "mentors",
         icon: "🤝",
+        image: "assets/quick-actions/quick-action-mentor-marketplace.webp",
       },
       {
         title: "Interview preparation",
         copy: "Practise role-specific healthcare interviews",
         id: "interview",
         icon: "🎙️",
+        image: "assets/quick-actions/quick-action-interview-preparation.webp",
       },
       {
         title: "Jobs",
         copy: "Find and save suitable opportunities",
         id: "jobs",
         icon: "💼",
+        image: "assets/quick-actions/quick-action-jobs.webp",
       },
       {
         title: "My documents",
         copy: "Keep career and visa evidence organised",
         id: "documents",
         icon: "📂",
+        image: "assets/quick-actions/quick-action-documents.webp",
       },
     ];
 
@@ -1943,7 +1948,7 @@
             <div class="quickGrid73">${quickActions
               .map(
                 (x) =>
-                  `<button type="button" data-go="${x.id}"><span>${
+                  `<button type="button" data-go="${x.id}"><img class="quickActionMedia73" src="${x.image}" alt="" aria-hidden="true" loading="lazy" decoding="async"><span>${
                     x.icon
                   }</span><div><b>${x.title}</b><small>${
                     x.copy

@@ -748,6 +748,7 @@ html,body{max-width:100%;overflow-x:clip}
 .quickGrid73{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px}
 .quickGrid73>button{min-width:0;min-height:128px;border:1px solid #dfeae3;border-radius:17px;background:linear-gradient(145deg,#fff,#f3f8f4);color:#1d3a2c;padding:15px;text-align:left;display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:11px;align-items:start;cursor:pointer;box-shadow:0 8px 20px rgba(20,60,42,.05);transition:.18s ease}
 .quickGrid73>button:hover{transform:translateY(-3px);border-color:#9fcbb2;background:#f2f9f4;box-shadow:0 14px 28px rgba(20,60,42,.1)}
+.quickActionMedia73{display:none}
 .quickGrid73>button>span{width:46px;height:46px;border-radius:14px;background:#e0f0e5;color:#21744f;display:grid;place-items:center;font-size:22px;font-weight:900}
 .quickGrid73 b,.quickGrid73 small{display:block}.quickGrid73 b{font-size:14px}.quickGrid73 small{margin-top:4px;color:#71877b;font-size:11px;line-height:1.35}.quickGrid73 svg{width:14px;height:14px;stroke:#83a091;fill:none;stroke-width:1.8}
 
@@ -1122,6 +1123,15 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .carouselStage73>button{width:max-content}
   .dashboardCarousel73{padding:19px;min-height:240px}
   .quickGrid73{grid-template-columns:1fr}
+  .quickGrid73>button{position:relative;isolation:isolate;overflow:hidden;min-height:132px;grid-template-columns:48px minmax(0,1fr) 42px;align-items:center;gap:12px;padding:16px;border-color:#d8e4dc;border-radius:17px;background:#f5ead1;box-shadow:0 8px 22px rgba(18,50,35,.1)}
+  .quickGrid73>button::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 48%,rgba(255,255,255,.58) 68%,rgba(255,255,255,.08) 100%)}
+  .quickGrid73>button:hover{background:#f5ead1}
+  .quickActionMedia73{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+  .quickGrid73>button>span,.quickGrid73>button>div,.quickGrid73>button>svg{position:relative;z-index:2}
+  .quickGrid73>button>span{width:48px;height:48px;border:1px solid rgba(32,101,73,.1);background:rgba(232,245,237,.92);box-shadow:0 4px 12px rgba(19,62,67,.08)}
+  .quickGrid73 b{color:#153b2e;font-size:15px;line-height:1.25}.quickGrid73 small{max-width:220px;color:#52665c;font-size:12px;line-height:1.4}
+  .quickGrid73>button>svg{box-sizing:border-box;width:42px;height:42px;padding:12px;border-radius:50%;background:#133e43;stroke:#fff;stroke-width:2.2;box-shadow:0 6px 16px rgba(19,62,67,.24)}
+  body.dark .quickGrid73>button{border-color:#52655d;background:#f5ead1;color:#153b2e}
   .journeyPanel73{padding:15px}
   .journeyHead73{align-items:flex-start}
   .journeyHead73>button{font-size:0}.journeyHead73>button svg{width:18px;height:18px}
@@ -1147,3 +1157,4 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
 }
 
 @media(prefers-reduced-motion:reduce){.drawerBackdrop73,.drawer73,.statCard73{transition:none!important}.dashboardCarousel73 *{scroll-behavior:auto!important}}
+body.dark{--teal:#72c9c0}

@@ -103,3 +103,220 @@
 @media (max-width: 480px) {
   #checklist .trackerStats { grid-template-columns: 1fr; }
 }
+
+/* Responsive Journey dashboard */
+#checklist.journeyDashboard136 {
+  max-width: 1600px;
+  padding: 26px clamp(16px, 3vw, 40px) 132px;
+}
+#checklist.journeyDashboard136 > .miniProgress,
+#checklist.journeyDashboard136 > .trackerDashboard { display: none; }
+#checklist.journeyDashboard136 .pageTitle {
+  width: min(100%, 1320px);
+  margin: 0 auto 18px;
+}
+#checklist.journeyDashboard136 .pageTitle h1 { color: var(--ink); }
+#checklist.journeyDashboard136 .pageTitle .back:focus-visible,
+#checklist.journeyDashboard136 button:focus-visible,
+#checklist.journeyDashboard136 a:focus-visible {
+  outline: 3px solid #e2b94f;
+  outline-offset: 3px;
+}
+#checklistItems.jgChecklistSurface .jgJourney {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+  gap: 18px;
+}
+
+.jgProgressHero {
+  position: relative;
+  isolation: isolate;
+  min-height: 240px;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  padding: 34px clamp(26px, 4vw, 54px);
+  border: 1px solid rgba(151, 210, 193, .28);
+  border-radius: 28px;
+  background: linear-gradient(120deg, #073d37 0%, #075b52 58%, #0b7168 100%);
+  color: #fff;
+  box-shadow: 0 18px 42px rgba(5, 54, 48, .2);
+}
+.jgProgressHero > div { position: relative; z-index: 2; width: min(100%, 680px); }
+.jgProgressHero h2 {
+  margin: 0;
+  color: #fff;
+  font: 850 clamp(30px, 4vw, 46px)/1.1 "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+  letter-spacing: -.035em;
+}
+.jgProgressHero p { margin: 11px 0 24px; color: #e0efea; font-size: clamp(16px, 1.7vw, 20px); }
+.jgProgressHero .jgProgress { width: min(100%, 620px); height: 13px; border: 1px solid rgba(255,255,255,.38); background: rgba(255,255,255,.22); }
+.jgProgressHero .jgProgress i,
+.jgHero .jgProgress i { background: linear-gradient(90deg, #ffc95c, #e6ad36); transition: width .35s ease; }
+.jgProgressHero strong { display: block; margin-top: 13px; color: #eef8f5; font-size: 17px; font-weight: 500; }
+.jgProgressHero strong b { color: #ffc95c; font-size: 21px; }
+.jgTravelArt {
+  position: absolute;
+  z-index: 1;
+  right: clamp(-44px, 1vw, 14px);
+  top: 50%;
+  width: min(34%, 360px);
+  transform: translateY(-50%);
+  fill: none;
+  stroke: rgba(213, 243, 234, .22);
+  stroke-width: 2;
+  pointer-events: none;
+}
+.jgTravelArt circle:last-child { fill: rgba(255,255,255,.78); stroke: none; }
+.jgTravelArt path:nth-last-child(2) { fill: rgba(255,255,255,.8); stroke: none; }
+.jgTravelArt .jgRoute { stroke: rgba(255, 222, 132, .78); stroke-dasharray: 6 7; }
+
+.jgDashboardStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.jgDashboardStats article {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr);
+  grid-template-rows: auto auto;
+  column-gap: 13px;
+  align-items: center;
+  padding: 17px 19px;
+  border: 1px solid #dce5df;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 9px 24px rgba(21, 57, 43, .06);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.jgDashboardStats article:hover { transform: translateY(-2px); border-color: #a9ccba; box-shadow: 0 14px 30px rgba(21,57,43,.1); }
+.jgDashboardStats article > span { grid-row: 1 / 3; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; background: #e5f3eb; color: #0c7466; }
+.jgDashboardStats svg,.jgPlannerTip svg,.jgDeadlineIcon svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.jgDashboardStats small { align-self: end; color: var(--muted); font-size: 12px; }
+.jgDashboardStats b { align-self: start; margin-top: 2px; color: var(--ink); font-size: 27px; line-height: 1; }
+
+.jgPlannerTip {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 68px;
+  padding: 13px 18px;
+  border: 1px solid #bad8c8;
+  border-radius: 17px;
+  background: linear-gradient(90deg, #e7f5ed, #f1f8f3);
+  color: #17493c;
+}
+.jgPlannerTip > span { flex: none; width: 43px; height: 43px; display: grid; place-items: center; border-radius: 14px; background: #08675e; color: #fff; }
+.jgPlannerTip p { margin: 0; line-height: 1.5; }
+
+.jgOverviewGrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); gap: 18px; align-items: stretch; }
+.jgOverviewGrid .jgHero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px;
+  border: 1px solid rgba(164,225,208,.27);
+  border-radius: 26px;
+  background: linear-gradient(135deg, #07564f, #0b867c);
+  box-shadow: 0 16px 38px rgba(5,61,54,.16);
+}
+.jgOverviewGrid .jgHero > div:first-child { position: relative; z-index: 2; width: min(72%, 540px); }
+.jgOverviewGrid .jgHero small { color: #f4c85d; font-size: 12px; letter-spacing: .18em; }
+.jgOverviewGrid .jgHero h2 { margin-top: 13px; color: #fff; font-size: clamp(31px, 4vw, 50px); }
+.jgOverviewGrid .jgHero p { color: #e2f1ed; font-size: 15px; line-height: 1.5; }
+.jgOverviewGrid .jgHero > button {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 23px;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 13px;
+  background: #fff;
+  color: #0a5048;
+  box-shadow: 0 8px 22px rgba(0,0,0,.13);
+}
+.jgOverviewGrid .jgHero > button:hover { background: #f2faf6; transform: translateY(-1px); }
+.jgOverviewGrid .jgHero > .jgProgress { position: relative; z-index: 2; width: 100%; height: 11px; margin-top: auto; }
+.jgLandmark { position: absolute; z-index: 1; right: -10px; bottom: 16px; width: min(40%, 255px); fill: rgba(215,239,231,.28); stroke: rgba(230,249,243,.35); stroke-width: 2; pointer-events: none; }
+
+.jgOverviewGrid .jgDeadlines {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #dfe5e0;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 12px 32px rgba(21,57,43,.07);
+}
+.jgDeadlines > header { position: static; height: auto; display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 11px; padding: 0 0 15px; border: 0; background: transparent; }
+.jgDeadlineIcon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: #fff0c7; color: #8a6716; }
+.jgDeadlines h3 { margin: 0; color: var(--ink); font-size: 21px; }
+.jgDeadlines header a { color: #08736a; font-size: 13px; font-weight: 800; text-decoration: none; }
+.jgDeadlineRows { display: grid; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.jgDeadlineRows > p { margin: 0; padding: 22px 16px; color: var(--muted); line-height: 1.5; }
+.jgDeadlineRows button { grid-template-columns: minmax(0,1fr) auto; gap: 4px 12px; padding: 14px 13px; border-top: 1px solid var(--line); }
+.jgDeadlineRows button:first-child { border-top: 0; }
+.jgDeadlineRows button > span { grid-column: 1; color: #8c702c; font-weight: 700; }
+.jgDeadlineRows button > b { grid-column: 1; min-width: 0; overflow-wrap: anywhere; color: var(--ink); }
+.jgDeadlineRows button > time { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: 8px 10px; border-radius: 10px; background: #fff0df; color: #b65b20; font-weight: 850; white-space: nowrap; }
+.jgDeadlineRows button:hover { background: #f7faf8; }
+
+.jgJourney > .jgNotice { border: 1px solid #ead8a8; border-left-width: 4px; background: var(--cream); }
+#checklistItems.jgChecklistSurface .jgTiles { scroll-margin-top: 90px; }
+
+body.dark .jgDashboardStats article,
+body.dark .jgOverviewGrid .jgDeadlines { background: var(--card); border-color: var(--line); }
+body.dark .jgDashboardStats article > span { background: #203f37; color: #82d6bb; }
+body.dark .jgPlannerTip { border-color: #34584d; background: linear-gradient(90deg,#173b33,#1c332e); color: #e7f4ef; }
+body.dark .jgDeadlineRows button:hover { background: #1d3030; }
+body.dark .jgDeadlineRows button > time { background: #493522; color: #ffd39a; }
+body.dark .jgJourney > .jgNotice { border-color: #725e31; color: #f3dfaa; }
+
+@media (max-width: 1023px) {
+  .jgOverviewGrid { grid-template-columns: 1fr; }
+  .jgOverviewGrid .jgHero { min-height: 320px; }
+  #checklistItems.jgChecklistSurface .jgTiles { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 767px) {
+  #checklist.journeyDashboard136 { padding: 12px 12px calc(126px + env(safe-area-inset-bottom)); }
+  #checklist.journeyDashboard136 .pageTitle { margin-bottom: 12px; }
+  #checklist.journeyDashboard136 .pageTitle h1 { font-size: 27px; }
+  .jgProgressHero { min-height: 222px; padding: 24px 20px; border-radius: 23px; }
+  .jgProgressHero > div { width: 78%; }
+  .jgProgressHero h2 { font-size: clamp(27px,8vw,36px); }
+  .jgProgressHero p { margin: 8px 0 20px; font-size: 15px; }
+  .jgProgressHero .jgProgress { height: 11px; }
+  .jgTravelArt { right: -66px; width: 53%; opacity: .78; }
+  .jgDashboardStats { gap: 8px; }
+  .jgDashboardStats article { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 126px; padding: 12px 10px; border-radius: 16px; }
+  .jgDashboardStats article > span { width: 38px; height: 38px; border-radius: 12px; }
+  .jgDashboardStats svg { width: 21px; height: 21px; }
+  .jgDashboardStats small { font-size: 10px; }
+  .jgDashboardStats b { font-size: 24px; }
+  .jgPlannerTip { padding: 12px; gap: 11px; font-size: 13px; }
+  .jgPlannerTip > span { width: 39px; height: 39px; }
+  .jgOverviewGrid { gap: 14px; }
+  .jgOverviewGrid .jgHero { min-height: 330px; padding: 25px 21px; border-radius: 23px; }
+  .jgOverviewGrid .jgHero > div:first-child { width: 79%; }
+  .jgOverviewGrid .jgHero h2 { font-size: clamp(30px,9vw,42px); }
+  .jgOverviewGrid .jgHero > button { margin-top: 18px; }
+  .jgLandmark { right: -19px; bottom: 27px; width: 45%; opacity: .8; }
+  .jgOverviewGrid .jgDeadlines { padding: 17px; border-radius: 21px; }
+  .jgDeadlines > header { grid-template-columns: 38px 1fr auto; }
+  .jgDeadlineIcon { width: 38px; height: 38px; }
+  .jgDeadlines h3 { font-size: 19px; }
+  .jgDeadlineRows button { grid-template-columns: minmax(0,1fr) auto; }
+  #checklistItems.jgChecklistSurface .jgTiles { grid-template-columns: 1fr; }
+}
+@media (max-width: 390px) {
+  .jgProgressHero > div { width: 82%; }
+  .jgProgressHero h2 { font-size: 27px; }
+  .jgDashboardStats article { min-height: 120px; padding-inline: 9px; }
+  .jgOverviewGrid .jgHero > div:first-child { width: 86%; }
+  .jgDeadlines header a { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jgProgressHero .jgProgress i,.jgHero .jgProgress i,.jgDashboardStats article { transition: none; }
+}

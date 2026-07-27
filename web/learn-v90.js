@@ -96,8 +96,12 @@
     root.classList.add('learnV90Page');
     root.innerHTML=`
       <header class="learnV90Header">
+        <picture class="learnV90HeroMedia" aria-hidden="true">
+          <source media="(max-width: 640px)" srcset="assets/learn/learning-centre-hero-mobile.webp">
+          <img src="assets/learn/learning-centre-hero.webp" alt="" width="1600" height="757" decoding="async" fetchpriority="high">
+        </picture>
         <button class="back" type="button" data-learn-home aria-label="Back to dashboard">&#8592;</button>
-        <div><span>LEARNING CENTRE · ${selected.flag} ${selected.name.toUpperCase()}</span><h1>Build your confidence</h1><p>${selected.intro}</p></div>
+        <div class="learnV90HeroCopy"><span>LEARNING CENTRE · ${selected.flag} ${selected.name.toUpperCase()}</span><h1>Build your confidence</h1><p>${selected.intro}</p></div>
       </header>
       <section class="learnV90Intro" aria-labelledby="learn-modules-title"><div><span>YOUR LEARNING</span><h2 id="learn-modules-title">Choose where to continue</h2></div><button type="button" data-learning-progress>View progress</button></section>
       <div class="learnV90Grid">${modules.map(x=>`<article class="learnV90Card"><span class="learnV90Icon" aria-hidden="true">${x.icon}</span><div><small>${x.meta}</small><h2>${x.label}</h2><p>${x.copy}</p></div><button type="button" data-module="${x.id}">Open ${x.label}<span aria-hidden="true">&#8594;</span></button></article>`).join('')}</div>

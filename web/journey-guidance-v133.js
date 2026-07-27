@@ -44,6 +44,26 @@
       item.expiry_date&&{code:item.step_code,label:'Expiry',value:item.expiry_date}
     ].filter(Boolean)).filter(item=>{const time=new Date(item.value).getTime();return time>=now&&time<=limit}).sort((a,b)=>new Date(a.value)-new Date(b.value));
   }
+  function dashboardStats(){
+    const codes=new Set(visibleSteps().map(step=>step.code));
+    const rows=state.progress.filter(item=>codes.has(item.step_code));
+    return {
+      tracked:rows.filter(item=>(item.status||'not_started')!=='not_started'||item.completed===true).length,
+      submitted:rows.filter(item=>['submitted','awaiting_decision','completed'].includes(item.status)||item.completed===true).length,
+      deadlines:upcoming().length
+    };
+  }
+  const dashboardIcon=name=>({
+    tracked:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c-2.3 0-4-1.8-4-4.2 0-2.6 2.2-6.5 4-9.8 1.8 3.3 4 7.2 4 9.8C10 17.2 8.3 19 6 19Zm12 0c-2.3 0-4-1.8-4-4.2 0-2.6 2.2-6.5 4-9.8 1.8 3.3 4 7.2 4 9.8 0 2.4-1.7 4.2-4 4.2Z"/></svg>',
+    submitted:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 15h8M8 11h2M11 18l-2-2-2 2"/></svg>',
+    deadlines:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3M14 14h2M8 17h2"/></svg>',
+    tip:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 22h4M8.7 15.5A7 7 0 1 1 15.3 15.5c-.8.7-1.3 1.5-1.3 2.5h-4c0-1-.5-1.8-1.3-2.5Z"/></svg>',
+    calendar:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>'
+  }[name]||'');
+  function journeyArt(destination){
+    if(destination==='uk')return '<svg class="jgLandmark" viewBox="0 0 250 240" aria-hidden="true"><path d="M0 218h250v22H0zM28 218v-38h20v38m18 0v-62h20v62m92 0v-36h24v36m18 0v-54h18v54"/><path d="M117 218V83h43v135M125 83l13-43 14 43M130 111h17v28h-17zM135 10h7v30h-7z"/><circle cx="139" cy="156" r="13"/><path d="M139 148v8l6 4M109 218h59"/><circle cx="67" cy="205" r="43" fill="none"/><path d="M67 162v86M24 205h86M37 175l60 60M97 175l-60 60" fill="none"/></svg>';
+    return '<svg class="jgLandmark" viewBox="0 0 250 240" aria-hidden="true"><circle cx="146" cy="112" r="74" fill="none"/><path d="M72 112h148M146 38c27 25 40 50 40 74s-13 49-40 74c-27-25-40-50-40-74s13-49 40-74ZM94 65c30 16 74 16 104 0M94 159c30-16 74-16 104 0" fill="none"/><path d="M31 213c38-51 73-72 106-62 28 8 46 33 79 16" fill="none"/><path d="m212 157 11 16-19 4"/></svg>';
+  }
 
   async function load(force=false){
     if(state.loading)return state.loading;
@@ -90,16 +110,20 @@
       </div>
     </article>`;
   }
-  function deadlinePanel(){const items=upcoming();return items.length?`<section class="jgDeadlines" aria-labelledby="jg-deadlines-title"><h3 id="jg-deadlines-title">Approaching dates</h3>${items.map(item=>{const step=state.steps.find(row=>row.code===item.code);return `<button type="button" data-open-guidance="${esc(item.code)}"><span>${esc(item.label)}</span><b>${esc(step?.title||item.code)}</b><time>${esc(date(item.value))}</time></button>`}).join('')}</section>`:''}
+  function deadlinePanel(){const items=upcoming();return `<section class="jgDeadlines" aria-labelledby="jg-deadlines-title"><header><span class="jgDeadlineIcon">${dashboardIcon('calendar')}</span><h3 id="jg-deadlines-title">Approaching dates</h3><a href="#jg-journey-steps">View all <span aria-hidden="true">→</span></a></header><div class="jgDeadlineRows">${items.length?items.map(item=>{const step=state.steps.find(row=>row.code===item.code);return `<button type="button" data-open-guidance="${esc(item.code)}"><span>${esc(item.label)}</span><b>${esc(step?.title||item.code)}</b><time>${esc(date(item.value))}</time></button>`}).join(''):'<p>No approaching dates are saved yet. Add a date inside a journey step when you are ready.</p>'}</div></section>`}
   function pageMarkup(){
     if(!state.profile?.destination_country)return `<div class="jgState"><h3>Choose your destination</h3><p>Select a destination to receive the correct professional and immigration journey.</p><button type="button" data-change-destination>Choose destination</button></div>`;
     const steps=visibleSteps(),totals=summary();
     if(!steps.length)return `<div class="jgState"><h3>Guidance is under review</h3><p>No published ${esc(profession(state.profile?.profession))} guidance is available for ${esc(countries[state.profile.destination_country]||state.profile.destination_country)} yet.</p><button type="button" data-change-destination>Change My Destination</button></div>`;
+    const stats=dashboardStats(),destination=state.profile.destination_country,destinationName=countries[destination]||destination;
     return `<section class="jgJourney" aria-labelledby="jg-title">
-      <div class="jgHero"><div><small>MY JOURNEY</small><h2 id="jg-title">Your ${esc(countries[state.profile.destination_country]||state.profile.destination_country)} pathway</h2><p>${totals.done} of ${totals.total} required steps completed — ${totals.pct}%</p></div><button type="button" data-change-destination>Change My Destination</button>
+      <section class="jgProgressHero" aria-labelledby="jg-progress-title"><div><h2 id="jg-progress-title">${totals.done} of ${totals.total} complete</h2><p>${totals.pct===100?'Your pathway is complete.':totals.done?'You’re on your way!':'Start with your first journey step.'}</p><div class="jgProgress" role="progressbar" aria-label="Required journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${totals.pct}"><i style="width:${totals.pct}%"></i></div><strong><b>${totals.pct}%</b> completed</strong></div><svg class="jgTravelArt" viewBox="0 0 320 220" aria-hidden="true"><circle cx="214" cy="96" r="88"/><path d="M126 96h176M214 8c32 31 48 60 48 88s-16 57-48 88c-32-31-48-60-48-88s16-57 48-88ZM151 38c40 24 86 24 126 0M151 154c40-24 86-24 126 0"/><path d="M24 187c56-65 109-91 158-77 37 10 58 45 103 20" class="jgRoute"/><path d="m276 118 18 10-15 15" class="jgRoute"/><path d="M285 50c0 18-23 40-23 40s-23-22-23-40a23 23 0 1 1 46 0Z"/><circle cx="262" cy="50" r="7"/></svg></section>
+      <div class="jgDashboardStats"><article><span>${dashboardIcon('tracked')}</span><small>Tracked</small><b>${stats.tracked}</b></article><article><span>${dashboardIcon('submitted')}</span><small>Submitted+</small><b>${stats.submitted}</b></article><article><span>${dashboardIcon('deadlines')}</span><small>Deadlines</small><b>${stats.deadlines}</b></article></div>
+      <div class="jgPlannerTip"><span>${dashboardIcon('tip')}</span><p><b>Add a deadline inside any journey step</b> to build your planner and never miss a date.</p></div>
+      <div class="jgOverviewGrid"><div class="jgHero"><div><small>MY JOURNEY</small><h2 id="jg-title">Your ${esc(destinationName)} pathway</h2><p>${totals.done} of ${totals.total} required steps completed — ${totals.pct}%</p></div><button type="button" data-change-destination>Change My Destination <span aria-hidden="true">→</span></button>${journeyArt(destination)}
         <div class="jgProgress" role="progressbar" aria-label="Required journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${totals.pct}"><i style="width:${totals.pct}%"></i></div>
-      </div>${deadlinePanel()}<div class="jgNotice">Requirements, fees and processing times may change. Always confirm the latest information using the linked official authority before submitting an application or making payment.</div>
-      <div class="jgTiles">${steps.map(tile).join('')}</div>
+      </div>${deadlinePanel()}</div><div class="jgNotice">Requirements, fees and processing times may change. Always confirm the latest information using the linked official authority before submitting an application or making payment.</div>
+      <div class="jgTiles" id="jg-journey-steps">${steps.map(tile).join('')}</div>
     </section>`;
   }
   function bindPage(root){
@@ -115,7 +139,7 @@
   async function renderChecklistSurface(){
     const root=document.getElementById('checklistItems');if(!root)return;
     root.innerHTML='<div class="jgState">Loading your saved journey…</div>';
-    try{await load(true);root.classList.add('jgChecklistSurface');root.innerHTML=pageMarkup();bindPage(root)}catch(error){root.innerHTML=`<div class="jgState"><h3>Journey unavailable</h3><p>${esc(friendly(error))}</p></div>`}
+    try{await load(true);root.classList.add('jgChecklistSurface');document.getElementById('checklist')?.classList.add('journeyDashboard136');root.innerHTML=pageMarkup();bindPage(root)}catch(error){root.innerHTML=`<div class="jgState"><h3>Journey unavailable</h3><p>${esc(friendly(error))}</p></div>`}
   }
 
   function listSection(title,items,empty='No additional items are listed for this step.'){
