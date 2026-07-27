@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Midwife question bank background</title>
+  <desc id="desc">Professional maternity care themed illustration used in the CBT midwife question bank.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e3b4a"/>
+      <stop offset="100%" stop-color="#3f5aa4"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="76%" cy="18%" r="55%">
+      <stop offset="0%" stop-color="#f6c0d8" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#f6c0d8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <circle cx="910" cy="70" r="240" fill="url(#halo)"/>
+  <g fill="#ffffff" fill-opacity=".24">
+    <circle cx="230" cy="125" r="56"/>
+    <path d="M160 285c0-52 40-94 90-94s90 42 90 94v42H160z"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".2">
+    <circle cx="530" cy="145" r="42"/>
+    <path d="M470 286c0-44 34-79 76-79s76 35 76 79v36H470z"/>
+  </g>
+  <g fill="#f8df93" fill-opacity=".23">
+    <path d="M778 286c46-88 141-87 190 0-51 41-139 41-190 0z"/>
+    <circle cx="870" cy="212" r="48"/>
+  </g>
+</svg>

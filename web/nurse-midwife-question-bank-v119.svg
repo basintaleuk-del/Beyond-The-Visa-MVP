@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Nurse and midwife question bank background</title>
+  <desc id="desc">Combined clinical illustration used for shared nurse and midwife CBT questions.</desc>
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#123f43"/>
+      <stop offset="100%" stop-color="#2f7f7c"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f7d682" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#f7d682" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg2)"/>
+  <rect x="0" y="0" width="1200" height="210" fill="url(#glow)"/>
+  <g fill="#ffffff" fill-opacity=".26">
+    <circle cx="240" cy="122" r="50"/>
+    <path d="M176 282c0-46 38-84 84-84s84 38 84 84v34H176z"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".2">
+    <circle cx="470" cy="132" r="44"/>
+    <path d="M410 286c0-40 33-73 73-73s73 33 73 73v30H410z"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".2">
+    <circle cx="736" cy="128" r="48"/>
+    <path d="M666 292c0-46 37-83 83-83s83 37 83 83v30H666z"/>
+  </g>
+  <g fill="#f8df93" fill-opacity=".24">
+    <circle cx="984" cy="110" r="42"/>
+    <path d="M918 278c0-42 35-77 77-77s77 35 77 77v36H918z"/>
+  </g>
+</svg>

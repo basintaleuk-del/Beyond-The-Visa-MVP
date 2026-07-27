@@ -394,6 +394,7 @@
         icon: "🧑‍⚕️",
         title: "Mentors",
         subtitle: "Connect with nurses who have completed the journey you're starting.",
+        panelClass: "standalonePanelMentors73",
         badge: null,
         sections: [
           {
@@ -461,11 +462,11 @@
     const sectionsHtml = cfg.sections.map(sec => `
       <div class="spSection73">
         <h3 class="spSectionHead73">${esc(sec.heading)}</h3>
-        ${sec.items.map(item => `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${item.icon}</span><div><b>${esc(item.label)}</b><small>${esc(item.detail)}</small></div></article>`).join("")}
+        ${sec.items.map(item => `<article class="spItem73"><span class="spItemIcon73" aria-hidden="true">${item.icon}</span><div class="spItemCopy73"><b>${esc(item.label)}</b><small>${esc(item.detail)}</small></div></article>`).join("")}
       </div>`).join("");
-    dialog.innerHTML = `<article class="standalonePanelContent73">
+    dialog.innerHTML = `<article class="standalonePanelContent73 ${esc(cfg.panelClass || "")}" data-panel-type="${esc(type)}">
       <header class="spHeader73">
-        <div><span class="spIcon73" aria-hidden="true">${cfg.icon}</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
+        <div class="spHeaderCopy73"><span class="spIcon73" aria-hidden="true">${cfg.icon}</span><h2>${esc(cfg.title)}</h2><p>${esc(cfg.subtitle)}</p></div>
         <button type="button" data-sp-close class="spCloseBtn73" aria-label="Close">&times;</button>
       </header>
       <div class="spBody73">${sectionsHtml}</div>
@@ -876,11 +877,11 @@
 
           <section class="secondaryGrid73">
             <article class="panel73" data-go="${rec.id}">
-              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan ${iconSvg("arrowRight")}</button></div>
+              <div class="panelHead73"><h3>Recommended next step</h3><button data-go="study-plan">View plan</button></div>
               <div class="nextStep73">
                 <span class="nextIcon73">${iconSvg("spark")}</span>
                 <div class="nextCopy73"><small class="nextTag73">Recommended now</small><b>${esc(rec.title)}</b><small>${esc(rec.copy)}</small></div>
-                <button class="nextActionBtn73" data-go="${rec.id}">Continue ${iconSvg("arrowRight")}</button>
+                <button class="nextActionBtn73" data-go="${rec.id}">Continue</button>
               </div>
             </article>
             <article class="panel73">

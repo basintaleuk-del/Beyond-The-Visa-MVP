@@ -45,6 +45,7 @@
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.0.0",
     "esbuild": "^0.25.0",
+    "supabase": "^2.109.1",
     "typescript": "^5.9.0"
   },
   "engines": {
