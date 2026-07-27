@@ -77,6 +77,14 @@ test('all eight live statistic tiles open current filtered NHS job results',asyn
   assert.match(config,/\/api\/opportunity-import/);assert.match(config,/15 3 \* \* \*/);
 });
 
+test('statistic tiles use the premium arrow-free presentation and reduced-motion-safe count animation',async()=>{
+  const [feature,css]=await Promise.all([read('web/opportunity-centre-v138.js'),read('web/opportunity-centre-v138.css')]);
+  assert.doesNotMatch(feature,/opportunitySummaryArrow/);assert.doesNotMatch(css,/opportunitySummaryArrow/);
+  assert.match(feature,/data-stat-value/);assert.match(feature,/function animateSummaryCounts/);assert.match(feature,/duration = 620/);assert.match(feature,/prefers-reduced-motion: reduce/);
+  assert.match(css,/min-height:220px;padding:24px/);assert.match(css,/width:64px;height:64px/);assert.match(css,/border-radius:24px/);assert.match(css,/translateY\(-4px\) scale\(1\.02\)/);
+  assert.match(css,/@media\(min-width:768px\) and \(max-width:1023px\)[\s\S]*?repeat\(3,minmax\(0,1fr\)\)/);assert.match(css,/@media\(min-width:1024px\)[\s\S]*?repeat\(4,minmax\(0,1fr\)\)/);
+});
+
 test('existing Admin Centre is extended with opportunity and employer governance',async()=>{
   const [page,admin]=await Promise.all([read('web/admin.html'),read('web/admin-opportunity-centre-v138.js')]);
   assert.match(page,/admin-opportunity-centre-v138\.js/);

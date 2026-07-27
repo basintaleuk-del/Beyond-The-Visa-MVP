@@ -69,7 +69,7 @@ test("Jobs centre renders direct NHS vacancies for all staff families", async ()
   const [ui, css, shell, migration] = await Promise.all([read("web/jobs-centre-v148.js"), read("web/jobs-centre-v148.css"), read("web/index.html"), read("supabase/migrations/20260726213000_all_nhs_professions_jobs_v148.sql")]);
   assert.match(ui, /Find your next role across the NHS/); assert.match(ui, /All professions/); assert.match(ui, /View details/); assert.match(ui, /Apply on NHS Jobs/);
   assert.match(ui, /source_name","NHS Jobs/); assert.doesNotMatch(ui, /\bTrac\b|HealthJobsUK|NursingNetUK/i);
-  assert.match(css, /nhsJobsLayout148/); assert.match(css, /nhsJobDetail150/); assert.match(shell, /jobs-centre-v148\.js\?v=158[\s\S]*opportunity-centre-v138\.js\?v=161/);
+  assert.match(css, /nhsJobsLayout148/); assert.match(css, /nhsJobDetail150/); assert.match(shell, /jobs-centre-v148\.js\?v=158[\s\S]*opportunity-centre-v138\.js\?v=162/);
   assert.match(migration, /'medical_dental'/); assert.match(migration, /'administrative_clerical'/); assert.match(migration, /'staff_group', 'ALL'/);
 });
 

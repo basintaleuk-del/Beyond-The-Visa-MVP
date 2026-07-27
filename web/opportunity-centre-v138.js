@@ -346,6 +346,7 @@
       ${typeSection("Recruitment events & webinars", "event", state.eventRows)}
       ${nhsEmployerSection()}
       <section class="opportunityTools138"><div><span>JOURNEY TOOL</span><h2>Planning your relocation budget?</h2><p>Your existing estimates and calculations are still available.</p></div><button data-open-estimator>Relocation Cost Estimator</button></section>`;
+    animateSummaryCounts(body);
     renderFilterDialog();
     addNhsFilterControls($("[data-opportunity-filters]"), state.filters);
   }
@@ -360,9 +361,25 @@
   }
   const summaryCard = (label, count, icon) => {
     const key = { "New jobs today": "new-today", "NHS nursing jobs": "nursing", "NHS midwifery jobs": "midwifery", "Visa sponsorship confirmed": "sponsorship-confirmed", "Sponsorship may be available": "sponsorship-possible", "Closing this week": "closing-week", "Recommended for you": "recommended", "Employers currently recruiting": "employers" }[label];
-    return `<button type="button" data-summary-filter="${key}" aria-label="View ${Number(count || 0)} ${esc(label)}"><span class="opportunitySummaryIcon138">${opportunityIcon(icon)}</span><span class="opportunitySummaryCopy138"><b>${Number(count || 0)}</b><span>${esc(label)}</span></span><span class="opportunitySummaryArrow138" aria-hidden="true">&rarr;</span></button>`;
+    return `<button type="button" data-summary-filter="${key}" aria-label="View ${Number(count || 0)} ${esc(label)}"><span class="opportunitySummaryIcon138">${opportunityIcon(icon)}</span><span class="opportunitySummaryCopy138"><b data-stat-value="${Number(count || 0)}" aria-hidden="true">${Number(count || 0)}</b><span>${esc(label)}</span></span></button>`;
   };
   const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
+
+  function animateSummaryCounts(root) {
+    if (!root || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    $$('[data-opportunity-summary] [data-stat-value]', root).forEach((number) => {
+      const target = Number(number.dataset.statValue || 0);
+      if (!Number.isFinite(target) || target <= 0) return;
+      const duration = 620, startedAt = performance.now();
+      number.textContent = "0";
+      const tick = (now) => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        number.textContent = String(Math.round(target * (1 - Math.pow(1 - progress, 3))));
+        if (progress < 1 && number.isConnected) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
 
   function countrySections(rows) {
     return Object.entries(COUNTRY_NAMES).map(([code, name]) => {
