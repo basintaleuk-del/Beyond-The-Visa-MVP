@@ -36,6 +36,7 @@
     sponsorshipRows: [],
     fundingRows: [],
     eventRows: [],
+    summaryRows: [],
     employers: [],
     saved: new Set(),
     dismissed: new Set(),
@@ -195,6 +196,7 @@
       <p class="opportunityLead138">Jobs, sponsorship, registration updates, scholarships and events selected for your journey.</p></header>
       <div data-opportunity-body aria-live="polite">${skeleton()}</div>
       <dialog class="opportunityFilters138" data-opportunity-filters aria-label="Opportunity filters"></dialog>
+      <dialog class="opportunitySummaryDialog138" data-opportunity-summary-dialog aria-label="Jobs matching the selected opportunity category"></dialog>
       <dialog class="opportunityDetail138" data-opportunity-detail aria-label="Opportunity details"></dialog>`;
   }
 
@@ -356,7 +358,10 @@
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
     return `<section class="opportunityIntro138 opportunitySource138"><span class="opportunitySourceIcon138">${opportunityIcon("bell")}</span><div><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><b>Updated daily from NHS Jobs.</b><small>${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some vacancy information may be out of date. Confirm the latest details on NHS Jobs." : ""}` : "No NHS Jobs import has completed yet."}</small></p><p class="opportunityDisclaimer138">NHS vacancy information is sourced from <a href="https://www.jobs.nhs.uk" target="_blank" rel="noopener noreferrer">NHS Jobs</a>. Vacancy details, availability and application decisions remain with the recruiting employer and NHS Jobs. Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noopener noreferrer">Open Government Licence v3.0</a>.</p></div></section>`;
   }
-  const summaryCard = (label, count, icon) => `<article><span class="opportunitySummaryIcon138">${opportunityIcon(icon)}</span><div><b>${Number(count || 0)}</b><span>${esc(label)}</span></div></article>`;
+  const summaryCard = (label, count, icon) => {
+    const key = { "New jobs today": "new-today", "NHS nursing jobs": "nursing", "NHS midwifery jobs": "midwifery", "Visa sponsorship confirmed": "sponsorship-confirmed", "Sponsorship may be available": "sponsorship-possible", "Closing this week": "closing-week", "Recommended for you": "recommended", "Employers currently recruiting": "employers" }[label];
+    return `<button type="button" data-summary-filter="${key}" aria-label="View ${Number(count || 0)} ${esc(label)}"><span class="opportunitySummaryIcon138">${opportunityIcon(icon)}</span><span class="opportunitySummaryCopy138"><b>${Number(count || 0)}</b><span>${esc(label)}</span></span><span class="opportunitySummaryArrow138" aria-hidden="true">&rarr;</span></button>`;
+  };
   const empty = (text) => `<div class="opportunityState138"><b>Nothing to show yet</b><p>${esc(text)}</p></div>`;
 
   function countrySections(rows) {
@@ -452,6 +457,8 @@
     if (!button) return;
     if (button.dataset.open) return showScreen(button.dataset.open);
     if (button.matches("[data-opportunity-retry]")) return load();
+    if (button.matches("[data-summary-filter]")) return showSummaryJobs(button.dataset.summaryFilter);
+    if (button.matches("[data-summary-close]")) return $("[data-opportunity-summary-dialog]")?.close();
     if (button.matches("[data-open-filters]")) return $("[data-opportunity-filters]")?.showModal();
     if (button.matches("[data-filter-reset],[data-clear-filters]")) { state.filters = { search: "", country: "", profession: "", type: "", specialty: "", employer: "", band: "", region: "", city: "", contract: "", workingPattern: "", salaryMin: "", sponsorship: false, sponsorshipPossible: false, newToday: false, newWeek: false, remote: false, graduate: false, saved: false, closing: false }; $("[data-opportunity-filters]")?.close(); return render(); }
     if (button.matches("[data-filter-apply]")) { event.preventDefault(); const form = button.form, data = new FormData(form); for (const key of ["country","profession","type","specialty","employer","band","region","city","contract","workingPattern","salaryMin"]) state.filters[key] = String(data.get(key) || ""); for (const key of ["sponsorship","sponsorshipPossible","newToday","newWeek","remote","graduate","saved","closing"]) state.filters[key] = data.has(key); $("[data-opportunity-filters]")?.close(); track("opportunity_filters_applied", { filters: state.filters }); return render(); }
@@ -464,13 +471,13 @@
     if (button.matches("[data-ask-zibur]")) { showScreen("assistant"); const input = $("#question"); if (input) { input.value = "Which published opportunities best match my destination and current journey stage?"; input.focus(); } return; }
     const id = button.dataset.saveOpportunity || button.dataset.shareOpportunity || button.dataset.calendarOpportunity || button.dataset.dismissOpportunity || button.dataset.viewOpportunity || button.dataset.applyOpportunity;
     if (!id) return;
-    const row = [...state.rows, ...state.sponsorshipRows, ...state.fundingRows, ...state.eventRows].find((item) => item.id === id);
+    const row = [...state.rows, ...state.sponsorshipRows, ...state.fundingRows, ...state.eventRows, ...state.summaryRows].find((item) => item.id === id);
     if (!row) return;
     if (button.dataset.saveOpportunity) return toggleSave(row);
     if (button.dataset.shareOpportunity) return share(row);
     if (button.dataset.calendarOpportunity) return addToCalendar(row);
     if (button.dataset.dismissOpportunity) return dismiss(row);
-    if (button.dataset.viewOpportunity) return showDetail(row);
+    if (button.dataset.viewOpportunity) { $("[data-opportunity-summary-dialog]")?.close(); return showDetail(row); }
     if (button.dataset.applyOpportunity) track("opportunity_apply_clicked", { opportunity_id: id });
   }
 
@@ -503,6 +510,50 @@
     const stamp = (value) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Beyond The Visa//Opportunity Centre//EN","BEGIN:VEVENT",`UID:${row.id}@beyondthevisa.org`,`DTSTART:${stamp(row.event_start_at)}`,`DTEND:${stamp(row.event_end_at || new Date(new Date(row.event_start_at).getTime() + 3600000))}`,`SUMMARY:${String(row.title).replace(/[\n,;]/g, " ")}`,`DESCRIPTION:${String(row.summary || "").replace(/[\n,;]/g, " ")}`,`URL:${row.registration_url || row.source_url || "https://www.beyondthevisa.org/opportunities"}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");
     const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })); link.download = "opportunity-event.ics"; link.click(); URL.revokeObjectURL(link.href); track("opportunity_event_calendar", { opportunity_id: row.id });
+  }
+
+  async function showSummaryJobs(filterKey) {
+    const dialog = $("[data-opportunity-summary-dialog]");
+    if (!dialog || !db()) return;
+    const definitions = {
+      "new-today": ["New jobs today", "Vacancies published today", "briefcase"],
+      nursing: ["NHS nursing jobs", "Current nursing vacancies from NHS Jobs", "users"],
+      midwifery: ["NHS midwifery jobs", "Current midwifery vacancies from NHS Jobs", "clinical"],
+      "sponsorship-confirmed": ["Visa sponsorship confirmed", "Vacancies whose current advert explicitly confirms sponsorship", "shield"],
+      "sponsorship-possible": ["Sponsorship may be available", "Vacancies where the current advert indicates sponsorship may be available", "target"],
+      "closing-week": ["Closing this week", "Vacancies closing during the next seven days", "calendar"],
+      recommended: ["Recommended for you", "Current vacancies matched to your saved destination and profession", "star"],
+      employers: ["Employers currently recruiting", "Current vacancies from active NHS employers", "building"],
+    };
+    const definition = definitions[filterKey];
+    if (!definition) return;
+    const [title, description, icon] = definition;
+    dialog.innerHTML = `<section class="opportunitySummaryModal138"><header><span class="opportunitySummaryModalIcon138">${opportunityIcon(icon)}</span><div><small>UPDATED DAILY FROM NHS JOBS</small><h2>${esc(title)}</h2><p>${esc(description)}</p></div><button type="button" data-summary-close aria-label="Close ${esc(title)}">&times;</button></header><div class="opportunitySummaryLoading138" role="status"><span></span><b>Loading current vacancies&hellip;</b></div></section>`;
+    dialog.showModal();
+    try {
+      let query = db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(48);
+      if (filterKey === "new-today") query = query.gte("published_at", `${today()}T00:00:00Z`);
+      if (filterKey === "nursing") query = query.in("profession", ["nurse", "both"]);
+      if (filterKey === "midwifery") query = query.in("profession", ["midwife", "both"]);
+      if (filterKey === "sponsorship-confirmed") query = query.eq("sponsorship_status", "confirmed");
+      if (filterKey === "sponsorship-possible") query = query.eq("sponsorship_status", "may_be_available");
+      if (filterKey === "closing-week") { const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7); query = query.gte("closing_at", new Date().toISOString()).lte("closing_at", weekEnd.toISOString()).order("closing_at", { ascending: true }); }
+      if (filterKey === "recommended") {
+        const destination = codeFor(state.profile?.destination_country || state.profile?.destination);
+        const profession = String(state.profile?.profession || "").toLowerCase().includes("midwi") ? "midwife" : "nurse";
+        if (destination) query = query.or(`country.eq.${destination},country.eq.${COUNTRY_NAMES[destination]}`).or(`profession.eq.both,profession.eq.${profession}`);
+        else query = query.in("profession", [profession, "both"]);
+      }
+      if (filterKey === "employers") query = query.not("employer", "is", null).order("employer", { ascending: true });
+      const { data, error } = await query;
+      if (error) throw error;
+      state.summaryRows = data || [];
+      const updated = state.lastUpdated ? `Last updated ${new Date(state.lastUpdated).toLocaleString("en-GB")}` : "Updated through the daily NHS Jobs import";
+      dialog.innerHTML = `<section class="opportunitySummaryModal138"><header><span class="opportunitySummaryModalIcon138">${opportunityIcon(icon)}</span><div><small>UPDATED DAILY FROM NHS JOBS</small><h2>${esc(title)}</h2><p>${esc(description)} &middot; ${esc(updated)}</p></div><button type="button" data-summary-close aria-label="Close ${esc(title)}">&times;</button></header>${state.summaryRows.length ? `<div class="opportunitySummaryResults138">${state.summaryRows.map((row) => card(row)).join("")}</div>` : empty("No current vacancies are available in this category. The list will update after the next daily NHS Jobs import.")}</section>`;
+      track("opportunity_summary_opened", { category: filterKey, result_count: state.summaryRows.length });
+    } catch (error) {
+      dialog.innerHTML = `<section class="opportunitySummaryModal138"><header><div><small>OPPORTUNITY CENTRE</small><h2>${esc(title)}</h2></div><button type="button" data-summary-close aria-label="Close ${esc(title)}">&times;</button></header><div class="opportunityState138"><b>These jobs could not be loaded.</b><p>${esc(error.message)}</p><button type="button" data-summary-filter="${esc(filterKey)}">Try again</button></div></section>`;
+    }
   }
 
   async function showDetail(row) {
