@@ -1,11 +1,17 @@
 (()=>{
   'use strict';
-  const stack=[];let goingBack=false;
+  const STACKKEY='btv-screen-history-v169',PREVKEY='btv-previous-screen-v169';
+  const blocked=new Set(['auth']);
+  const readStack=()=>{try{const value=JSON.parse(sessionStorage.getItem(STACKKEY)||'[]');return Array.isArray(value)?value.filter(id=>typeof id==='string'&&!blocked.has(id)).slice(-20):[]}catch{return[]}};
+  const stack=readStack();let goingBack=false;
+  const persist=()=>{try{sessionStorage.setItem(STACKKEY,JSON.stringify(stack.slice(-20)))}catch{}};
   function activeScreen(){return document.querySelector('.screen.active')?.id||''}
   function fallback(){if(location.pathname.endsWith('/index.html')||location.pathname.endsWith('/')){window.openScreen?.('home');return}location.href='index.html'}
   function rememberDestination(){window.BTVDestination?.remember?.()}
-  function back(){rememberDestination();if(stack.length&&window.openScreen){goingBack=true;window.openScreen(stack.pop());goingBack=false;window.BTVDestination?.restore?.();return}let same=false;try{same=Boolean(document.referrer)&&new URL(document.referrer).origin===location.origin}catch{}if(same&&history.length>1){history.back();return}fallback()}
-  function wrap(){if(typeof window.openScreen!=='function'||window.__btvHistoryWrapped108)return;window.__btvHistoryWrapped108=true;const original=window.openScreen;window.openScreen=function(id){const current=activeScreen();if(!goingBack&&current&&current!==id)stack.push(current);return original.apply(this,arguments)}}
+  function previousScreen(){try{const id=sessionStorage.getItem(PREVKEY)||'';return !blocked.has(id)&&document.getElementById(id)?.classList.contains('screen')?id:''}catch{return''}}
+  function openPrevious(id){if(!id||!window.openScreen)return false;goingBack=true;window.openScreen(id);goingBack=false;window.BTVDestination?.restore?.();return true}
+  function back(){rememberDestination();const app=document.getElementById('appShell');if(app&&!app.hidden){let target='';while(stack.length&&!target){const candidate=stack.pop();if(candidate!==activeScreen()&&document.getElementById(candidate)?.classList.contains('screen'))target=candidate}persist();if(openPrevious(target||previousScreen()||'home'))return}let same=false;try{same=Boolean(document.referrer)&&new URL(document.referrer).origin===location.origin}catch{}if(same&&history.length>1){history.back();return}fallback()}
+  function wrap(){if(typeof window.openScreen!=='function'||window.__btvHistoryWrapped108)return;window.__btvHistoryWrapped108=true;const original=window.openScreen;window.openScreen=function(id){const current=activeScreen();if(!goingBack&&current&&current!==id&&!blocked.has(current)){if(stack.at(-1)!==current)stack.push(current);persist()}return original.apply(this,arguments)}}
   function ensure(){
     wrap();
     const app=document.getElementById('appShell');
