@@ -192,9 +192,7 @@
   }
 
   function shell() {
-    return `<header class="opportunityPageHeader138"><div class="pageTitle opportunityTitle138"><button class="back" data-open="home" aria-label="Back to home">←</button><div><span>DISCOVER YOUR NEXT STEP</span><h1>Opportunity Centre</h1></div></div>
-      <p class="opportunityLead138">Jobs, sponsorship, registration updates, scholarships and events selected for your journey.</p></header>
-      <div data-opportunity-body aria-live="polite">${skeleton()}</div>
+    return `<div data-opportunity-body aria-live="polite">${skeleton()}</div>
       <dialog class="opportunityFilters138" data-opportunity-filters aria-label="Opportunity filters"></dialog>
       <dialog class="opportunitySummaryDialog138" data-opportunity-summary-dialog aria-label="Jobs matching the selected opportunity category"></dialog>
       <dialog class="opportunityDetail138" data-opportunity-detail aria-label="Opportunity details"></dialog>`;
@@ -352,8 +350,7 @@
   }
 
   function intro() {
-    const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
-    return `<section class="opportunityIntro138 opportunityHero138"><img class="opportunityHeroArt138" src="assets/opportunities/opportunity-centre-hero.jpg" alt="" aria-hidden="true" decoding="async" fetchpriority="high"><div class="opportunityHeroCopy138"><span>WHAT IS THE OPPORTUNITY CENTRE?</span><h2>One place for the opportunities that move your journey forward.</h2><p>Your personalised place to discover nursing and midwifery jobs, sponsorship opportunities, official updates, scholarships and recruitment events.</p><p class="opportunityFreshness138 ${stale ? "stale" : ""}"><span class="opportunityStatusIcon138">${opportunityIcon("verified")}</span><span><b>Updated daily.</b><small>${state.lastUpdated ? `Last updated: ${new Date(state.lastUpdated).toLocaleString("en-GB")}.${stale ? " Some opportunity information may be out of date. Please confirm details on the original provider’s website." : ""}` : "No approved automated source has completed an import yet."}</small></span></p></div><ul class="opportunityBenefits138"><li><span>${opportunityIcon("target")}</span><small>Match jobs to your destination and profession</small></li><li><span>${opportunityIcon("shield")}</span><small>Prioritise confirmed visa sponsorship</small></li><li><span>${opportunityIcon("verified")}</span><small>Follow official sources and checked dates</small></li><li><span>${opportunityIcon("bookmark")}</span><small>Save useful opportunities for later</small></li></ul></section>`;
+    return `<section class="opportunityIntro138 opportunityHero138" aria-labelledby="opportunityHeroTitle138"><div class="opportunityHeroCopy138"><div class="opportunityHeroEyebrow138"><button class="back" data-open="home" aria-label="Back to home">←</button><span>NEXT STEP</span></div><h1 id="opportunityHeroTitle138">Opportunity <em>Centre</em></h1><p>Jobs, sponsorship, registration updates, partnerships and events selected for your journey.</p></div><div class="opportunityHeroVisual138" aria-hidden="true"><img class="opportunityHeroArt138" src="assets/opportunities/opportunity-centre-hero-v165.webp" alt="" decoding="async" fetchpriority="high"></div></section>`;
   }
   function nhsSourceNote() {
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;

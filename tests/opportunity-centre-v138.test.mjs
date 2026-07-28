@@ -58,10 +58,11 @@ test('Opportunity Centre uses the approved responsive hero, statistics and advis
   const [feature,css,hero,advisor]=await Promise.all([
     read('web/opportunity-centre-v138.js'),
     read('web/opportunity-centre-v138.css'),
-    stat(new URL('../web/assets/opportunities/opportunity-centre-hero.jpg',import.meta.url)),
+    stat(new URL('../web/assets/opportunities/opportunity-centre-hero-v165.webp',import.meta.url)),
     stat(new URL('../web/assets/opportunities/zibur-advisor.jpg',import.meta.url)),
   ]);
   assert.match(feature,/opportunityHeroArt138/);assert.match(feature,/opportunitySummaryIcon138/);assert.match(feature,/ziburOpportunityArt138/);
+  assert.match(feature,/NEXT STEP/);assert.match(feature,/Opportunity <em>Centre<\/em>/);assert.match(feature,/partnerships and events selected for your journey/);
   assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);assert.match(css,/@media\(min-width:1024px\)/);assert.match(css,/@media\(min-width:1440px\)/);
   assert.ok(hero.size<150_000);assert.ok(advisor.size<100_000);
   assert.doesNotMatch(feature,/New jobs today",\s*\d/);
