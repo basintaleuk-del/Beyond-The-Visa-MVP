@@ -77,3 +77,10 @@ test('global feature installers do not poll or observe every page mutation',()=>
   assert.doesNotMatch(inbox,/new MutationObserver\(refresh\)/);
   assert.match(mockAccess,/if\(b\.dataset\.mockLabelV72===tier\)return/);
 });
+
+test('learning experience observer does not rebuild its own mock panels',()=>{
+  const experience=fs.readFileSync(path.join(root,'web/experience-v86.js'),'utf8');
+  assert.match(experience,/if\(!p\|\|p\.querySelector\('\.mockAccess85'\)\)return/);
+  assert.doesNotMatch(experience,/if\(box\)box\.remove\(\)/);
+  assert.match(html,/experience-v86\.js\?v=174/);
+});
