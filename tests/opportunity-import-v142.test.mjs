@@ -11,8 +11,15 @@ const raw = { id: "J1", title: "Registered Nurse", employer: "Example NHS Trust"
 
 test("keeps the exact original source page", () => assert.equal(normalizeRecord(raw, source, now).source_url, raw.source_url));
 test("keeps the employer and original application page", () => { const row = normalizeRecord(raw, source, now); assert.equal(row.employer, raw.employer); assert.equal(row.application_url, raw.application_url); });
-test("filters non-nursing and non-midwifery roles", () => { assert.equal(professionFor({ title: "Hospital Receptionist" }), null); assert.equal(professionFor({ title: "Registered Midwife" }), "midwife"); });
+test("classifies NHS roles across staff families", () => { assert.equal(professionFor({ title: "Hospital Receptionist" }), "administrative_clerical"); assert.equal(professionFor({ title: "Registered Midwife" }), "midwife"); assert.equal(professionFor({ title: "Biomedical Scientist" }), "scientific_technical"); });
 test("only explicit wording confirms sponsorship", () => { assert.equal(sponsorshipFor("Visa sponsorship is available").sponsorship_status, "confirmed"); assert.equal(sponsorshipFor("We welcome applications").sponsorship_status, "not_stated"); });
+
+test("real NHS vacancy wording classifies sponsorship conservatively", () => {
+  assert.equal(sponsorshipFor("Sponsorship opportunities available for suitable registered nurses.").sponsorship_status, "confirmed");
+  assert.equal(sponsorshipFor("We do not support sponsorships for visas.").sponsorship_status, "not_stated");
+  assert.equal(sponsorshipFor("We are currently unable to offer a certificate of sponsorship.").sponsorship_status, "not_stated");
+  assert.equal(sponsorshipFor("We are currently unable to offer a certificate of sponsorship.").sponsorship_detection_method, "explicitly_unavailable");
+});
 test("deduplicates by source id and canonical URL", () => assert.equal(dedupe([normalizeRecord(raw, source, now), normalizeRecord(raw, source, now)]).length, 1));
 test("expired jobs are archived", () => assert.equal(normalizeRecord({ ...raw, closing_at: "2026-07-01T00:00:00Z" }, source, now).status, "archived"));
 test("closed scholarships are never opened", () => { const funding = { ...source, source_type: "funding" }; const row = normalizeRecord({ ...raw, title: "Nursing education scholarship", eligibility_summary: "For registered nurses", closing_at: "2026-07-01T00:00:00Z" }, funding, now); assert.equal(row.status, "archived"); });

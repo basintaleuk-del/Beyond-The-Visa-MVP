@@ -1,5 +1,31 @@
 .btvAuthV69[hidden], #onboarding[hidden], #appShell[hidden] { display: none !important; }
 
+/* Keep signed-out controls above late-loading dashboard overlays and decorations. */
+#auth.btvAuthV69:not([hidden]) {
+  position: relative;
+  z-index: 2147483000;
+  isolation: isolate;
+  pointer-events: auto !important;
+}
+
+#auth.btvAuthV69:not([hidden]) .authWorkspace,
+#auth.btvAuthV69:not([hidden]) .authMain,
+#auth.btvAuthV69:not([hidden]) .authCard,
+#auth.btvAuthV69:not([hidden]) form,
+#auth.btvAuthV69:not([hidden]) label,
+#auth.btvAuthV69:not([hidden]) input,
+#auth.btvAuthV69:not([hidden]) button,
+#auth.btvAuthV69:not([hidden]) select,
+#auth.btvAuthV69:not([hidden]) a {
+  pointer-events: auto !important;
+}
+
+#auth.btvAuthV69:not([hidden]) .authStory,
+#auth.btvAuthV69:not([hidden]) .authStory::before,
+#auth.btvAuthV69:not([hidden]) .authStory::after {
+  pointer-events: none !important;
+}
+
 .auth.btvAuthV69 {
   min-height: 100svh;
   padding: 0;

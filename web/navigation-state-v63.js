@@ -1,18 +1,23 @@
 (()=>{
  'use strict';
  if(window.__btvNavigationStateV63)return;window.__btvNavigationStateV63=true;
- const KEY='btv-current-screen-v63',SUBKEY='btv-current-subview-v63';
+ const KEY='btv-current-screen-v63',SUBKEY='btv-current-subview-v63',PREVKEY='btv-previous-screen-v169';
  const blocked=new Set(['auth']);
  let desired='';let ready=false;let restoring=false;let announced=false;let startupRestored=false;let startupObserver=null;let started=false;
  const announceReady=()=>{if(announced)return;announced=true;document.documentElement.classList.add('btv-navigation-ready');window.dispatchEvent(new CustomEvent('btv:navigation-ready',{detail:{screen:active()||'home'}}));};
  const read=()=>{try{return sessionStorage.getItem(KEY)||''}catch{return''}};
- const save=id=>{if(!id||blocked.has(id))return;try{sessionStorage.setItem(KEY,id)}catch{}}
+ const save=id=>{if(!id||blocked.has(id))return;desired=id;try{sessionStorage.setItem(KEY,id)}catch{}}
+ const savePrevious=id=>{if(!id||blocked.has(id))return;try{sessionStorage.setItem(PREVKEY,id)}catch{}}
  const active=()=>document.querySelector('#appShell .screen.active')?.id||'';
  const saveSubview=value=>{if(value)try{sessionStorage.setItem(SUBKEY,value)}catch{}};
- desired=read();
+ const requested=(()=>{try{return new URLSearchParams(location.search).get('screen')||''}catch{return''}})();
+ desired=/^[A-Za-z][\w-]*$/.test(requested)&&!blocked.has(requested)?requested:read();
+ if(requested&&desired===requested)save(desired);
 
  const original=window.openScreen;
  if(typeof original==='function')window.openScreen=function(id,...args){
+  const current=active();
+  if(current&&current!==id)savePrevious(current);
   const result=original.call(this,id,...args);
   if(!restoring)save(id);
   return result;

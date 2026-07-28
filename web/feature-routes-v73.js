@@ -2,7 +2,8 @@
  const features=[
   {id:'dashboard',title:'Dashboard',description:'Your personalised mission control.',icon:'home',category:'main',target:{screen:'home'},desktopOrder:1,mobileOrder:1},
   {id:'study',title:'Study',description:'Learning, guides and preparation resources.',icon:'book',category:'main',target:{screen:'learn'},desktopOrder:2,mobileOrder:2},
-  {id:'mock-tests',title:'Mock Tests',description:'Timed CBT, NCLEX and IELTS mock examinations.',icon:'target',category:'main',target:{screen:'learn',action:'mock-tests'},desktopOrder:3,mobileOrder:3},
+  {id:'exam-prep',title:'Exam Prep',description:'Original nursing practice, timed mocks and personalised progress.',icon:'target',category:'main',target:{url:'exam-prep.html'},desktopOrder:3,mobileOrder:3},
+  {id:'mock-tests',title:'Mock Tests',description:'Timed CBT, NCLEX and IELTS mock examinations.',icon:'target',category:'main',target:{screen:'learn',action:'mock-tests'},desktopOrder:4,mobileOrder:4},
   {id:'journey',title:'Journey',description:'Follow every stage of your international journey.',icon:'route',category:'main',target:{screen:'checklist'},desktopOrder:4,mobileOrder:4},
   {id:'jobs',title:'Job Search',description:'Find and save suitable opportunities.',icon:'briefcase',category:'career',target:{screen:'jobs'},desktopOrder:5,mobileOrder:5},
   {id:'community',title:'Community',description:'Connect with nurses and midwives worldwide.',icon:'users',category:'career',target:{screen:'community'},desktopOrder:6,mobileOrder:6},

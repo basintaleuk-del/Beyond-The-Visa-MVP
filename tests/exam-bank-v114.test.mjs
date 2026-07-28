@@ -50,7 +50,11 @@ test('v117 adds 1,000 further independent review-gated samples to every bank', a
 });
 
 test('exam clients and bank health paginate beyond the Supabase 1,000-row limit', async () => {
-  for (const path of ['web/cbt.js', 'web/nclex.js', 'web/admin-bank-tools.js']) {
+  const cbt = await read('web/cbt.js');
+  assert.match(cbt, /btv_cbt_practice_catalog/, 'CBT must use the bounded secure catalog RPC');
+  assert.match(cbt, /btv_cbt_next_practice_question/, 'CBT must fetch one safe question at a time');
+  assert.doesNotMatch(cbt, /from\('cbt_questions'\)\.select\('\*'\)/, 'CBT must not download the full answer-bearing bank');
+  for (const path of ['web/nclex.js', 'web/admin-bank-tools.js']) {
     const source = await read(path);
     assert.match(source, /range\(from,from\+999\)/, `${path} must load every bank page`);
   }

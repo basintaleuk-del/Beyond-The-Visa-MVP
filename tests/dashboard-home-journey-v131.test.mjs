@@ -15,8 +15,16 @@ test('home journey summary uses destination-scoped or synced steps', () => {
 test('recommended next step tile uses professional CTA structure', () => {
   const js = read('web/dashboard-premium-v73.js');
   const css = read('web/dashboard-premium-v73.css');
-  assert.match(js, /class="nextCopy73"/);
-  assert.match(js, /class="nextActionBtn73"/);
-  assert.match(css, /\.nextActionBtn73\{/);
-  assert.match(css, /\.nextTag73\{/);
+  const section = js.match(/<article class="panel73 recommendedPanel73">[\s\S]*?<\/article>/)?.[0] || '';
+  assert.match(section, /Recommended next step/);
+  assert.match(section, /Based on your current journey/);
+  assert.match(section, />View plan<\/button>/);
+  assert.match(section, /class="studyPlanCard73"/);
+  assert.match(section, /RECOMMENDED NOW/);
+  assert.match(section, /Continue today’s study plan/);
+  assert.match(section, /Keep your learning streak moving forward\./);
+  assert.match(section, /iconSvg\([\s\S]*"spark"/);
+  assert.doesNotMatch(section, /arrowRight|nextActionBtn73|nextIcon73/);
+  assert.match(css, /\.recommendedHead73 button\{[\s\S]*border:1\.5px solid #2f8f67/);
+  assert.match(css, /\.studyPlanCard73\{[\s\S]*background:linear-gradient/);
 });

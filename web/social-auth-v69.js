@@ -37,7 +37,7 @@
       if (!window.btvSupabase?.auth) throw new Error('The secure sign-in service is still loading. Please try again.');
       button.disabled = true;
       button.setAttribute('aria-busy', 'true');
-      const redirectTo = `${location.origin}${location.pathname}`;
+      const redirectTo = `${location.origin}${location.pathname}${location.search}`;
       const { error } = await window.btvSupabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo, queryParams: { access_type: 'offline', prompt: 'consent' } }

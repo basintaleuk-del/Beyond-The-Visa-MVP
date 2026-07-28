@@ -668,6 +668,23 @@ html,body{max-width:100%;overflow-x:clip}
 .nextActionBtn73:hover{background:#1b5f44}
 .nextActionBtn73 svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 
+/* Scoped redesign: recommended heading and today's study-plan card only. */
+.recommendedPanel73{min-height:0;background:#fff;border-color:#dfe8e2;box-shadow:0 10px 26px rgba(18,50,35,.06);padding:18px;overflow:visible}
+.recommendedHead73{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:15px}
+.recommendedHead73 h3{margin:0;color:#213a2f;font-size:19px;font-weight:750;line-height:1.25;text-align:left}
+.recommendedHead73 p{margin:5px 0 0;color:#71857a;font-size:12px;line-height:1.4;text-align:left}
+.recommendedHead73 button{flex:none;min-height:40px;border:1.5px solid #2f8f67;border-radius:999px;background:#fff;color:#247552;padding:0 16px;font-size:13px;font-weight:800;cursor:pointer;transition:background .16s ease,color .16s ease,box-shadow .16s ease}
+.recommendedHead73 button:hover{background:#edf7f1;box-shadow:0 6px 16px rgba(32,111,76,.1)}
+.recommendedHead73 button:focus-visible,.studyPlanCard73:focus-visible{outline:3px solid rgba(47,143,103,.28);outline-offset:3px}
+.studyPlanCard73{width:100%;min-height:132px;border:1px solid #eadcae;border-radius:17px;background:linear-gradient(135deg,#fff9e8,#f8edc9);color:#20392e;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;cursor:pointer;box-shadow:0 8px 20px rgba(104,78,18,.07);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.studyPlanCard73:hover{transform:translateY(-1px);border-color:#dcc77f;box-shadow:0 12px 26px rgba(104,78,18,.1)}
+.studyPlanCopy73{display:block;min-width:0}
+.studyPlanBadge73{display:inline-flex;align-items:center;min-height:22px;border-radius:999px;background:#f0dfaa;color:#73591b;padding:0 9px;font-size:9px;font-weight:850;letter-spacing:.1em}
+.studyPlanCopy73 b{display:block;margin-top:11px;color:#20392e;font-size:18px;line-height:1.3}
+.studyPlanCopy73>small:last-child{display:block;margin-top:6px;color:#63766c;font-size:12px;line-height:1.45}
+.studyPlanSpark73{width:48px;height:48px;flex:none;border-radius:50%;background:#f2dfaa;color:#775b16;display:grid;place-items:center}
+.studyPlanSpark73 svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+
 /* Colourful recommended next step tile */
 .nextStepPanel73{background:linear-gradient(145deg,#0e3d28,#155c3b,#1e7a4e)!important;border-color:#256b42!important;overflow:hidden;position:relative}
 .nextStepPanel73::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 10%,rgba(212,178,79,.22),transparent 60%),radial-gradient(ellipse at 10% 90%,rgba(45,160,95,.25),transparent 55%);pointer-events:none;z-index:0}
@@ -728,11 +745,16 @@ html,body{max-width:100%;overflow-x:clip}
 }
 .focusRow73:hover{background:#f8fcf8}
 .quickPanel73{min-height:227px;border-radius:16px;border:1px solid var(--btv-line);background:var(--btv-card);box-shadow:0 10px 24px rgba(18,50,35,.06);overflow:hidden}
-.quickGrid73{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px}
-.quickGrid73>button{min-width:0;min-height:128px;border:1px solid #dfeae3;border-radius:17px;background:linear-gradient(145deg,#fff,#f3f8f4);color:#1d3a2c;padding:15px;text-align:left;display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:11px;align-items:start;cursor:pointer;box-shadow:0 8px 20px rgba(20,60,42,.05);transition:.18s ease}
-.quickGrid73>button:hover{transform:translateY(-3px);border-color:#9fcbb2;background:#f2f9f4;box-shadow:0 14px 28px rgba(20,60,42,.1)}
-.quickGrid73>button>span{width:46px;height:46px;border-radius:14px;background:#e0f0e5;color:#21744f;display:grid;place-items:center;font-size:22px;font-weight:900}
-.quickGrid73 b,.quickGrid73 small{display:block}.quickGrid73 b{font-size:14px}.quickGrid73 small{margin-top:4px;color:#71877b;font-size:11px;line-height:1.35}.quickGrid73 svg{width:14px;height:14px;stroke:#83a091;fill:none;stroke-width:1.8}
+.quickGrid73{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px}
+.quickGrid73>button{position:relative;isolation:isolate;overflow:hidden;min-width:0;min-height:148px;border:1px solid #d8e4dc;border-radius:17px;background:#f5ead1;color:#153b2e;padding:18px;text-align:left;display:grid;grid-template-columns:48px minmax(0,1fr) 42px;gap:13px;align-items:center;cursor:pointer;box-shadow:0 8px 22px rgba(18,50,35,.1);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.quickGrid73>button:last-child:nth-child(odd){grid-column:1/-1}
+.quickGrid73>button::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 45%,rgba(255,255,255,.58) 68%,rgba(255,255,255,.08) 100%)}
+.quickGrid73>button:hover{transform:translateY(-3px);border-color:#9fcbb2;background:#f5ead1;box-shadow:0 14px 28px rgba(20,60,42,.14)}
+.quickActionMedia73{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+.quickGrid73>button>span,.quickGrid73>button>div,.quickGrid73>button>svg{position:relative;z-index:2}
+.quickGrid73>button>span{width:48px;height:48px;border:1px solid rgba(32,101,73,.1);border-radius:14px;background:rgba(232,245,237,.92);color:#21744f;display:grid;place-items:center;font-size:22px;font-weight:900;box-shadow:0 4px 12px rgba(19,62,67,.08)}
+.quickGrid73 b,.quickGrid73 small{display:block}.quickGrid73 b{color:#153b2e;font-size:16px;line-height:1.25}.quickGrid73 small{max-width:260px;margin-top:5px;color:#52665c;font-size:12px;line-height:1.4}.quickGrid73>button>svg{box-sizing:border-box;width:42px;height:42px;padding:12px;border-radius:50%;background:#133e43;stroke:#fff;fill:none;stroke-width:2.2;box-shadow:0 6px 16px rgba(19,62,67,.24)}
+body.dark .quickGrid73>button{border-color:#52655d;background:#f5ead1;color:#153b2e}
 
 #home.dashboard73-active>#profileSummary,#home.dashboard73-active>#homeWelcomeArt{display:none!important}
 
@@ -1105,6 +1127,16 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .carouselStage73>button{width:max-content}
   .dashboardCarousel73{padding:19px;min-height:240px}
   .quickGrid73{grid-template-columns:1fr}
+  .quickGrid73>button:last-child:nth-child(odd){grid-column:auto}
+  .quickGrid73>button{position:relative;isolation:isolate;overflow:hidden;min-height:132px;grid-template-columns:48px minmax(0,1fr) 42px;align-items:center;gap:12px;padding:16px;border-color:#d8e4dc;border-radius:17px;background:#f5ead1;box-shadow:0 8px 22px rgba(18,50,35,.1)}
+  .quickGrid73>button::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 48%,rgba(255,255,255,.58) 68%,rgba(255,255,255,.08) 100%)}
+  .quickGrid73>button:hover{background:#f5ead1}
+  .quickActionMedia73{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+  .quickGrid73>button>span,.quickGrid73>button>div,.quickGrid73>button>svg{position:relative;z-index:2}
+  .quickGrid73>button>span{width:48px;height:48px;border:1px solid rgba(32,101,73,.1);background:rgba(232,245,237,.92);box-shadow:0 4px 12px rgba(19,62,67,.08)}
+  .quickGrid73 b{color:#153b2e;font-size:15px;line-height:1.25}.quickGrid73 small{max-width:220px;color:#52665c;font-size:12px;line-height:1.4}
+  .quickGrid73>button>svg{box-sizing:border-box;width:42px;height:42px;padding:12px;border-radius:50%;background:#133e43;stroke:#fff;stroke-width:2.2;box-shadow:0 6px 16px rgba(19,62,67,.24)}
+  body.dark .quickGrid73>button{border-color:#52655d;background:#f5ead1;color:#153b2e}
   .journeyPanel73{padding:15px}
   .journeyHead73{align-items:flex-start}
   .journeyHead73>button{font-size:0}.journeyHead73>button svg{width:18px;height:18px}
@@ -1114,6 +1146,13 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .nextStep73{grid-template-columns:1fr;align-items:start}
   .nextActionBtn73{justify-self:start}
   .nextIcon73{display:none}
+  .recommendedPanel73{padding:16px}
+  .recommendedHead73{gap:12px;align-items:flex-start}
+  .recommendedHead73 h3{font-size:18px}
+  .recommendedHead73 button{min-height:38px;padding:0 13px}
+  .studyPlanCard73{min-height:120px;padding:16px;gap:12px}
+  .studyPlanCopy73 b{font-size:17px}
+  .studyPlanSpark73{display:grid;width:44px;height:44px}
   .coinsCentrePanel73{padding:18px}
   .coinsCentrePanel73 header h2{font-size:26px}
   .coinsDetails73{grid-template-columns:1fr}
@@ -1123,3 +1162,4 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
 }
 
 @media(prefers-reduced-motion:reduce){.drawerBackdrop73,.drawer73,.statCard73{transition:none!important}.dashboardCarousel73 *{scroll-behavior:auto!important}}
+body.dark{--teal:#72c9c0}

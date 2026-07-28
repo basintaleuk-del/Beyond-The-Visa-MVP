@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 
 const require = createRequire(import.meta.url);
 const { parseNhsJobsXml, normalizeRecord, fetchNhsJobsFeed, runSources } = require("../api/_lib/opportunity-import-core.cjs");
+const { parseNhsJobDetail } = require("../api/_lib/nhs-job-detail.cjs");
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
 const now = new Date("2026-07-26T03:15:00Z");
 const source = { id: "nhs", name: "NHS Jobs", source_type: "job", base_url: "https://www.jobs.nhs.uk", integration_type: "nhs_jobs_xml_v1", enabled: true, permission_status: "approved", last_cursor: "2026-07-25T03:15:00Z", configuration: { feed_url: "https://www.jobs.nhs.uk/api/v1/search_xml", max_pages: 3, max_records: 300 } };
@@ -20,17 +21,26 @@ test("official XML parser maps the supplied NHS vacancy fields", () => {
   assert.equal(row.canonical_url, "https://www.jobs.nhs.uk/candidate/jobadvert/A1");
 });
 
-test("only nursing and midwifery vacancies are accepted", () => {
+test("vacancies across NHS professions are accepted and classified", () => {
   const parsed = parseNhsJobsXml(xml([vacancy({ id: "N1", title: "Registered Nurse" }), vacancy({ id: "M1", title: "Registered Midwife" }), vacancy({ id: "D1", title: "Consultant Doctor" }), vacancy({ id: "H1", title: "Healthcare Assistant" })]));
   const imported = parsed.rows.map((row) => normalizeRecord(row, source, now)).filter(Boolean);
-  assert.deepEqual(imported.map((row) => row.external_id), ["N1", "M1"]);
+  assert.deepEqual(imported.map((row) => row.external_id), ["N1", "M1", "D1", "H1"]);
+  assert.deepEqual(imported.map((row) => row.profession), ["nurse", "midwife", "medical_dental", "healthcare_support"]);
+});
+
+test("official NHS beta advert links are accepted without allowing arbitrary hosts", () => {
+  const raw = parseNhsJobsXml(xml([vacancy({ id: "B1", title: "Staff Nurse" })])).rows[0];
+  raw.source_url = raw.canonical_url = raw.application_url = "https://beta.jobs.nhs.uk/candidate/jobadvert/B1";
+  assert.equal(normalizeRecord(raw, source, now)?.canonical_url, "https://beta.jobs.nhs.uk/candidate/jobadvert/B1");
+  raw.source_url = raw.canonical_url = raw.application_url = "https://jobs-nhs.example/candidate/jobadvert/B1";
+  assert.equal(normalizeRecord(raw, source, now), null);
 });
 
 test("NHS adapter follows official pagination with bounded requests", async () => {
   const urls = [];
   const result = await fetchNhsJobsFeed(source, async (url) => { urls.push(String(url)); const page = new URL(url).searchParams.get("page"); return { ok: true, text: async () => xml([vacancy({ id: `N${page}`, title: "Community Nurse" })], 2) }; }, now);
   assert.equal(result.rows.length, 2); assert.equal(urls.length, 2);
-  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.get("staffGroup"), "NURSING_AND_MIDWIFERY_REGD"); assert.equal(parsed.searchParams.get("limit"), "100"); }
+  for (const url of urls) { const parsed = new URL(url); assert.equal(parsed.hostname, "www.jobs.nhs.uk"); assert.equal(parsed.searchParams.has("staffGroup"), false); assert.equal(parsed.searchParams.get("publishedFrom"), "2026-07-18"); assert.equal(parsed.searchParams.get("limit"), "100"); }
 });
 
 test("rerunning the NHS importer updates without duplicating or deleting saves", async () => {
@@ -50,9 +60,26 @@ test("failed NHS requests retain existing records", async () => {
 test("Opportunity Centre attributes and links NHS Jobs securely", async () => {
   const ui = await read("web/opportunity-centre-v138.js");
   assert.match(ui, /Updated daily from NHS Jobs/); assert.match(ui, /Open Government Licence v3\.0/);
-  assert.match(ui, /View on NHS Jobs/); assert.match(ui, /rel="noopener noreferrer"/);
-  assert.match(ui, /You’ll continue to NHS Jobs to view the full vacancy and apply/);
+  assert.match(ui, /Apply on NHS Jobs/); assert.match(ui, /rel="noopener noreferrer"/);
+  assert.match(ui, /\/api\/job-details\?id=/); assert.match(ui, /View the full vacancy details here/); assert.match(ui, /opportunityWired138/); assert.match(ui, /\.\.\.state\.sponsorshipRows, \.\.\.state\.fundingRows, \.\.\.state\.eventRows/);
   assert.match(ui, /from\("btv_saved_jobs"\)/); assert.doesNotMatch(ui, /overflow-x:\s*hidden/);
+});
+
+test("Jobs centre renders direct NHS vacancies for all staff families", async () => {
+  const [ui, css, shell, migration] = await Promise.all([read("web/jobs-centre-v148.js"), read("web/jobs-centre-v148.css"), read("web/index.html"), read("supabase/migrations/20260726213000_all_nhs_professions_jobs_v148.sql")]);
+  assert.match(ui, /Find your next role across the NHS/); assert.match(ui, /All professions/); assert.match(ui, /View details/); assert.match(ui, /Apply on NHS Jobs/);
+  assert.match(ui, /source_name","NHS Jobs/); assert.doesNotMatch(ui, /\bTrac\b|HealthJobsUK|NursingNetUK/i);
+  assert.match(css, /nhsJobsLayout148/); assert.match(css, /nhsJobDetail150/); assert.match(shell, /jobs-centre-v148\.js\?v=158[\s\S]*opportunity-centre-v138\.js\?v=165/);
+  assert.match(migration, /'medical_dental'/); assert.match(migration, /'administrative_clerical'/); assert.match(migration, /'staff_group', 'ALL'/);
+});
+
+test("NHS advert details are rendered locally while apply stays on NHS Jobs", async () => {
+  const html = `<h1 id="heading">Staff Nurse</h1><span id="employer_name">Example NHS Trust</span><p id="job_overview">Full summary</p><p id="job_description">Main duties</p><p id="about_organisation">About the trust</p><p id="fixed_salary">GBP 30,000</p><p id="contract_type">Permanent</p><p id="date_posted">26 July 2026</p><p id="trac-job-reference">REF-1</p><p id="employer_town">Leeds</p><p id="employer_postcode">LS1 1AA</p><a id="apply-ats-direct" href="/candidate/jobadvert/REF-1/ats-direct-apply">Apply</a><h2>Job description</h2><h3>Job responsibilities</h3><p>Care for patients.</p><h2>Person Specification</h2><h3>Qualifications</h3><ul><li>Registered professional</li></ul><div id="dbs-container"><h3>Additional information</h3><p>DBS check required.</p></div><div class="show-mobile"></div>`;
+  const detail = parseNhsJobDetail(html, "https://www.jobs.nhs.uk/candidate/jobadvert/REF-1");
+  assert.equal(detail.title, "Staff Nurse"); assert.match(detail.jobDescription, /Care for patients/); assert.match(detail.personSpecification, /Registered professional/);
+  assert.equal(detail.applyUrl, "https://www.jobs.nhs.uk/candidate/jobadvert/REF-1/ats-direct-apply");
+  const [api, config] = await Promise.all([read("api/job-details.js"), read("vercel.json")]);
+  assert.match(api, /parseNhsJobDetail/); assert.ok(JSON.parse(config).rewrites.some((route) => route.source === "/jobs/:id"));
 });
 
 test("migration reuses jobs, saves, run logs and seeds only the official feed", async () => {
@@ -68,7 +95,7 @@ test("cron and admin import remain server protected", async () => {
   assert.match(api, /if \(!caller\) return json\(res, 401/); assert.match(api, /already running/);
   assert.match(api, /requestBody\.action === "recheck"/); assert.match(admin, /data-recheck-vacancy/);
   assert.match(admin, /NHS JOBS FEED/); assert.match(admin, /records_nursing/); assert.match(admin, /Review employer spotlight candidates/);
-  assert.ok(JSON.parse(config).crons.some((cron) => cron.path === "/api/opportunity-import" && cron.schedule === "15 3 * * *"));
+  assert.ok(JSON.parse(config).crons.some((cron) => cron.path === "/api/global-jobs-import" && cron.schedule === "15 3 * * *"));
 });
 
 function mockStore(records) {

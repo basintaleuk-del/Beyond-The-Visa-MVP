@@ -95,6 +95,67 @@ function createStore(orchestrationRunId) {
   };
 }
 
+const CURATED_OPPORTUNITIES = [
+  {
+    external_id: "nhsbsa-lsf", source_identifier: "nhsbsa-lsf", title: "NHS Learning Support Fund", employer: "NHS Business Services Authority", provider_name: "NHS Business Services Authority", country: "uk", profession: "both", opportunity_type: "scholarship",
+    summary: "Eligible nursing and midwifery students can apply for a £5,000 Training Grant each academic year, with additional support available in some circumstances.", description: "Official NHSBSA funding for eligible pre-registration nursing and midwifery students studying at a university in England. Applications must be made within six months of the academic year starting.",
+    salary_min: 5000, salary_max: 5000, currency: "GBP", salary_text: "£5,000 per academic year", source_name: "NHSBSA", source_type: "funding", source_url: "https://www.nhsbsa.nhs.uk/nhs-learning-support-fund-lsf", canonical_url: "https://www.nhsbsa.nhs.uk/nhs-learning-support-fund-lsf", application_url: "https://www.nhsbsa.nhs.uk/nhs-learning-support-fund-lsf/nhs-learning-support-fund-account",
+    funding_coverage: "£5,000 Training Grant per academic year; some students may qualify for further support.", eligibility_summary: "Pre-registration nursing or midwifery students at a university in England who meet NHS LSF eligibility rules.", international_applicant_eligibility: "Eligibility depends on student-finance support status; check the official criteria.",
+  },
+  {
+    external_id: "rcnf-hardship", source_identifier: "rcnf-hardship", title: "RCN Foundation hardship grant", employer: "RCN Foundation", provider_name: "RCN Foundation", country: "uk", profession: "both", opportunity_type: "scholarship",
+    summary: "One-off hardship grants of up to £800 for eligible nurses, midwives and healthcare support workers resident in the UK or Channel Islands.", description: "A rolling, non-repayable hardship grant. RCN membership is not required; applicants should complete the official eligibility checker.",
+    salary_min: 0, salary_max: 800, currency: "GBP", salary_text: "Up to £800", source_name: "RCN Foundation", source_type: "funding", source_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants", canonical_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants", application_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants",
+    funding_coverage: "One-off non-repayable payment of up to £800.", eligibility_summary: "Eligible nurses, midwives and healthcare support workers resident in the UK or Channel Islands; limits apply to repeat awards.", international_applicant_eligibility: "UK or Channel Islands residence is required; the official page includes guidance for applicants with No Recourse to Public Funds.",
+  },
+  {
+    external_id: "rcnf-domestic-abuse", source_identifier: "rcnf-domestic-abuse", title: "RCN Foundation Domestic Abuse Fund", employer: "RCN Foundation", provider_name: "RCN Foundation", country: "uk", profession: "both", opportunity_type: "scholarship",
+    summary: "Confidential hardship grants of up to £800 for nurses and midwives experiencing or fleeing domestic abuse.", description: "A dedicated, non-repayable hardship fund for eligible nurses, nursing associates, midwives and healthcare support workers. RCN membership is not required.",
+    salary_min: 0, salary_max: 800, currency: "GBP", salary_text: "Up to £800", source_name: "RCN Foundation", source_type: "funding", source_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants/The-RCN-Foundation-Domestic-Abuse-Fund", canonical_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants/The-RCN-Foundation-Domestic-Abuse-Fund", application_url: "https://rcnfoundation.rcn.org.uk/Grants-and-funding/Hardship-grants/The-RCN-Foundation-Domestic-Abuse-Fund",
+    funding_coverage: "One-off non-repayable payment of up to £800.", eligibility_summary: "Eligible nurses, nursing associates, midwives and healthcare support workers experiencing or fleeing domestic abuse.", international_applicant_eligibility: "Check the official hardship criteria before applying.",
+  },
+  {
+    external_id: "nhse-etoc-review-2026-07-30", source_identifier: "nhse-etoc-review-2026-07-30", title: "ETOC webinar: review, step down and discontinuation", employer: "NHS England", provider_name: "NHS England", country: "uk", profession: "nurse", opportunity_type: "event",
+    summary: "A free NHS England Nursing Directorate webinar on safe, patient-centred review and adjustment of enhanced therapeutic observation and care.", description: "For nursing teams, ETOC teams, nursing workforce leads and staffing leads. Registration closes at 5pm on 29 July 2026.",
+    source_name: "NHS England Events", source_type: "event", source_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-etoc-review-step-down-and-discontinuation", canonical_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-etoc-review-step-down-and-discontinuation", application_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-etoc-review-step-down-and-discontinuation", registration_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-etoc-review-step-down-and-discontinuation", event_start_at: "2026-07-30T12:00:00Z", event_end_at: "2026-07-30T13:00:00Z", event_timezone: "Europe/London", closing_at: "2026-07-29T16:00:00Z", location: "Virtual (Microsoft Teams)",
+  },
+  {
+    external_id: "nhse-palliative-workforce-2026-07-30", source_identifier: "nhse-palliative-workforce-2026-07-30", title: "Palliative and end-of-life care workforce development webinar", employer: "NHS England", provider_name: "NHS England", country: "uk", profession: "nurse", opportunity_type: "event",
+    summary: "A free NHS England webinar on the ASPIRE palliative and end-of-life care career, capabilities and education framework.", description: "Relevant to clinical professionals, educators, heads of nursing, matrons, directors of nursing and workforce leads.",
+    source_name: "NHS England Events", source_type: "event", source_url: "https://www.events.england.nhs.uk/events/developing-aspirant-palliative-care-and-end-of-life-care-workforce-development-programme", canonical_url: "https://www.events.england.nhs.uk/events/developing-aspirant-palliative-care-and-end-of-life-care-workforce-development-programme", application_url: "https://www.events.england.nhs.uk/events/developing-aspirant-palliative-care-and-end-of-life-care-workforce-development-programme", registration_url: "https://www.events.england.nhs.uk/events/developing-aspirant-palliative-care-and-end-of-life-care-workforce-development-programme", event_start_at: "2026-07-30T15:00:00Z", event_end_at: "2026-07-30T16:00:00Z", event_timezone: "Europe/London", location: "Virtual (Microsoft Teams)",
+  },
+  {
+    external_id: "nhse-etoc-education-2026-08-18", source_identifier: "nhse-etoc-education-2026-08-18", title: "ETOC webinar: education and training", employer: "NHS England", provider_name: "NHS England", country: "uk", profession: "nurse", opportunity_type: "event",
+    summary: "A free NHS England Nursing Directorate webinar on sustainable ETOC training programmes that build staff confidence and capability.", description: "For ETOC teams, nursing workforce and staffing leads, and clinical education teams.",
+    source_name: "NHS England Events", source_type: "event", source_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-education-and-training", canonical_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-education-and-training", application_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-education-and-training", registration_url: "https://www.events.england.nhs.uk/events/enhanced-therapeutic-observation-and-care-etoc-webinar-education-and-training", event_start_at: "2026-08-18T12:00:00Z", event_end_at: "2026-08-18T13:00:00Z", event_timezone: "Europe/London", location: "Virtual (Microsoft Teams)",
+  },
+];
+
+const CQC_SPOTLIGHTS = [
+  { name: "South Warwickshire University NHS Foundation Trust", rating: "Outstanding", providerId: "RJC", url: "https://www.cqc.org.uk/provider/RJC", detail: "CQC overall rating: Outstanding. CQC confirmed in June 2026 that the trust's overall rating remains Outstanding." },
+  { name: "Northumbria Healthcare NHS Foundation Trust", rating: "Outstanding", providerId: "RTF", url: "https://www.cqc.org.uk/provider/RTF/inspection-summary", detail: "CQC overall rating: Outstanding. The provider page records Outstanding overall and was checked against CQC's latest published profile." },
+  { name: "The Royal Marsden NHS Foundation Trust", rating: "Outstanding", providerId: "RPY", url: "https://www.cqc.org.uk/provider/RPY/reports", detail: "CQC overall rating: Outstanding. The spotlight links to the official provider inspection record." },
+];
+
+async function publishCuratedOpportunities(now = new Date()) {
+  const checkedAt = now.toISOString();
+  const prepared = CURATED_OPPORTUNITIES.map((item) => {
+    const expired = item.event_end_at && new Date(item.event_end_at) < now;
+    return { salary_min: null, salary_max: null, currency: null, sponsorship_status: "not_stated", visa_sponsorship: false, verification_status: "verified", verified: true, featured: false, status: expired ? "archived" : "published", import_status: expired ? "closed" : "active", published_at: checkedAt, imported_at: checkedAt, last_checked_at: checkedAt, updated_at: checkedAt, ...item };
+  });
+  const keys = [...new Set(prepared.flatMap((item) => Object.keys(item)))];
+  const rows = prepared.map((item) => Object.fromEntries(keys.map((key) => [key, item[key] ?? null])));
+  await rest("btv_jobs?on_conflict=canonical_url", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: rows });
+  for (const spotlight of CQC_SPOTLIGHTS) {
+    const existing = await rest(`btv_opportunity_employers?select=id&name=eq.${encodeURIComponent(spotlight.name)}&country_code=eq.uk&limit=1`);
+    if (!existing?.[0]) continue;
+    const employerId = existing[0].id;
+    await rest(`btv_opportunity_employers?id=eq.${employerId}`, { method: "PATCH", body: { verified: true, featured: true, spotlight_status: "approved", source_url: spotlight.url, source_employer_id: spotlight.providerId, description: spotlight.detail, last_checked_at: checkedAt, updated_at: checkedAt } });
+    await rest(`btv_jobs?source_name=eq.NHS%20Jobs&status=eq.published&employer=eq.${encodeURIComponent(spotlight.name)}`, { method: "PATCH", body: { employer_id: employerId, updated_at: checkedAt } });
+  }
+  return { opportunities: rows.filter((row) => row.status === "published").length, spotlights: CQC_SPOTLIGHTS.length };
+}
+
 async function recheckNhsVacancy(req, caller) {
   if (caller.kind !== "admin") return { status: 403, body: { error: "Admin access is required." } };
   const requestBody = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
@@ -136,6 +197,7 @@ module.exports = async function handler(req, res) {
       const result = await recheckNhsVacancy(req, caller);
       return json(res, result.status, result.body);
     }
+    if (requestBody.action === "curate") return json(res, 200, { ok: true, ...(await publishCuratedOpportunities()) });
     const staleBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     await rest(`btv_opportunity_import_runs?run_scope=eq.daily&status=eq.running&started_at=lt.${encodeURIComponent(staleBefore)}`, { method: "PATCH", body: { status: "failed", completed_at: new Date().toISOString(), error_summary: "Stale run released automatically." } });
     let orchestration;
@@ -148,8 +210,9 @@ module.exports = async function handler(req, res) {
     }
     const sources = await rest("btv_approved_sources?select=*&order=name.asc");
     const result = await runSources({ sources: sources || [], store: createStore(orchestration.id), now: new Date() });
+    const curated = await publishCuratedOpportunities(new Date());
     await rest(`btv_opportunity_import_runs?id=eq.${orchestration.id}`, { method: "PATCH", body: { completed_at: new Date().toISOString(), status: result.failed ? "partial" : "success", records_found: result.found, records_created: result.created, records_updated: result.updated, records_archived: result.archived, duplicates_skipped: result.duplicates, records_nursing: result.nursing, records_midwifery: result.midwifery, confirmed_sponsorship_count: result.confirmedSponsorship, error_summary: result.errors.length ? JSON.stringify(result.errors).slice(0, 500) : null } });
-    return json(res, 200, { ok: true, ...result });
+    return json(res, 200, { ok: true, ...result, curated });
   } catch (error) {
     console.error("Opportunity import failed", error);
     return json(res, error.status || 500, { error: error.message || "Opportunity import failed." });

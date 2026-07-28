@@ -1,10 +1,10 @@
 const { createHash } = require("node:crypto");
 
-const LIMITS = Object.freeze({ maxRecords: 300, maxPages: 3, pageSize: 100, timeoutMs: 10000, retries: 2, maxRuntimeMs: 50000 });
-const REJECTED_ROLES = /\b(doctor|physician|dentist|pharmacist|radiographer|physiotherapist|administrator|receptionist|care assistant|healthcare assistant|nursing associate)\b/i;
+const LIMITS = Object.freeze({ maxRecords: 1000, maxPages: 10, pageSize: 100, timeoutMs: 10000, retries: 2, maxRuntimeMs: 50000 });
 const NURSE_WORDS = /\b(nurse|nursing|rn|registered nurse|clinical nurse|health visitor)\b/i;
 const MIDWIFE_WORDS = /\b(midwife|midwifery|maternity nurse)\b/i;
-const CONFIRMED_SPONSORSHIP = /\b(visa sponsorship (?:is )?available|skilled worker sponsorship (?:is )?available|certificate of sponsorship (?:is )?available|sponsorship (?:is )?provided|employer will sponsor (?:an )?eligible applicant|international applicants? (?:are )?accepted with sponsorship)\b/i;
+const NEGATIVE_SPONSORSHIP = /\b(?:we\s+)?(?:are\s+)?(?:currently\s+)?(?:unable to|cannot|can't|do not|don't|does not|doesn't|will not|won't)\s+(?:offer|provide|support)\s+(?:an?\s+)?(?:certificate of sponsorship|visa sponsorship|sponsorships?|sponsored visa|visas?)\b/i;
+const CONFIRMED_SPONSORSHIP = /\b(visa sponsorship (?:is )?available|skilled worker sponsorship (?:is )?available|certificate of sponsorship (?:is )?(?:available|provided)|sponsorship opportunities? (?:are )?available|sponsorship (?:is )?provided|(?:we|employer) (?:can|will) (?:offer|provide) sponsorship|employer will sponsor (?:an )?eligible applicant|international applicants? (?:are )?accepted with sponsorship)\b/i;
 const POSSIBLE_SPONSORSHIP = /\b(sponsorship may be available|may offer sponsorship|eligible for sponsorship|sponsorship can be considered)\b/i;
 const SPECIALTIES = [
   ["theatre and recovery", /\b(theatre|scrub|recovery|anaesthetic)\b/i], ["critical care", /\b(critical care|intensive care|icu)\b/i],
@@ -76,7 +76,8 @@ function safeUrl(value, source) {
   try { url = new URL(String(value)); } catch { return null; }
   if (url.protocol !== "https:" || url.username || url.password) return null;
   const base = new URL(source.base_url);
-  const allowed = new Set([base.hostname, ...(source.configuration?.allowed_link_hosts || [])].map((x) => String(x).toLowerCase()));
+  const officialNhsHosts = source.integration_type === "nhs_jobs_xml_v1" && base.hostname.toLowerCase() === "www.jobs.nhs.uk" ? ["beta.jobs.nhs.uk"] : [];
+  const allowed = new Set([base.hostname, ...officialNhsHosts, ...(source.configuration?.allowed_link_hosts || [])].map((x) => String(x).toLowerCase()));
   if (!allowed.has(url.hostname.toLowerCase())) return null;
   url.hash = "";
   return url.href;
@@ -84,16 +85,32 @@ function safeUrl(value, source) {
 
 function professionFor(record) {
   const text = clean([record.title, record.profession, record.category, record.summary].filter(Boolean).join(" "), 1000);
-  if (REJECTED_ROLES.test(text) && !NURSE_WORDS.test(record.title || "") && !MIDWIFE_WORDS.test(record.title || "")) return null;
   const nurse = NURSE_WORDS.test(text), midwife = MIDWIFE_WORDS.test(text);
   if (nurse && midwife) return "both";
   if (midwife) return "midwife";
   if (nurse) return "nurse";
-  return null;
+  if (/\b(doctor|physician|consultant|surgeon|general practitioner|salaried gp|dentist|dental|orthodont|psychiatrist|anaesthetist)\b/i.test(text)) return "medical_dental";
+  if (/\b(physiotherap|occupational therap|radiograph|speech and language|dietitian|podiatr|orthopt|prosthet|operating department practitioner|art therap|music therap|paramedic)\b/i.test(text)) return "allied_health";
+  if (/\b(pharmac|pharmacy|pharmacy technician|dispens)\b/i.test(text)) return "pharmacy";
+  if (/\b(biomedical|clinical scientist|healthcare scientist|laboratory|lab technician|cardiac physiolog|audiolog|medical physics|genomic|microbiolog)\b/i.test(text)) return "scientific_technical";
+  if (/\b(ambulance|emergency medical technician|call handler|emergency care assistant)\b/i.test(text)) return "ambulance";
+  if (/\b(healthcare assistant|health care assistant|care assistant|support worker|therapy assistant|clinical support|maternity support|porter)\b/i.test(text)) return "healthcare_support";
+  if (/\b(administrator|administrative|reception\w*|secretar\w*|clerical|business support|finance|accountant|human resources|people partner|communications?|project manager|programme manager|data analyst|information analyst|procurement)\b/i.test(text)) return "administrative_clerical";
+  if (/\b(estates?|facilities|maintenance|electrician|engineer|housekeep|catering|domestic|security officer|fire safety)\b/i.test(text)) return "estates_facilities";
+  if (/\b(social worker|social care|care home|home manager|care manager)\b/i.test(text)) return "social_care";
+  return "other";
 }
 
 function sponsorshipFor(value, evidenceUrl = null, checkedAt = new Date().toISOString()) {
   const text = clean(value, 2000);
+  const negative = text.match(NEGATIVE_SPONSORSHIP);
+  if (negative) return {
+    sponsorship_status: "not_stated",
+    sponsorship_evidence_text: clean(negative[0], 180),
+    sponsorship_evidence_url: evidenceUrl,
+    sponsorship_checked_at: checkedAt,
+    sponsorship_detection_method: "explicitly_unavailable",
+  };
   const confirmed = text.match(CONFIRMED_SPONSORSHIP);
   const possible = text.match(POSSIBLE_SPONSORSHIP);
   const match = confirmed || possible;
@@ -236,7 +253,12 @@ async function fetchNhsJobsFeed(source, fetchImpl = fetch, now = new Date()) {
   const maxPages = Math.min(Number(source.configuration?.max_pages) || LIMITS.maxPages, LIMITS.maxPages);
   const maxRecords = Math.min(Number(source.configuration?.max_records) || LIMITS.maxRecords, LIMITS.maxRecords);
   const initialDays = Math.min(Number(source.configuration?.initial_days) || 30, 90);
-  const publishedFrom = source.last_cursor || new Date(now.getTime() - initialDays * 86400000).toISOString();
+  const cursorOverlapDays = source.last_cursor ? Math.min(Number(source.configuration?.cursor_overlap_days) || 7, 30) : 0;
+  // The official NHS Jobs endpoint validates this as a calendar date, not an
+  // ISO timestamp. Re-reading a bounded overlap prevents vacancies published
+  // around a prior cursor from being lost; canonical URL upserts keep it idempotent.
+  const cursorDate = source.last_cursor ? new Date(source.last_cursor) : new Date(now.getTime() - initialDays * 86400000);
+  const publishedFrom = new Date(cursorDate.getTime() - cursorOverlapDays * 86400000).toISOString().slice(0, 10);
   const rows = [];
   const jobReference = clean(source.configuration?.job_reference, 180);
   let totalPages = 1;
@@ -244,7 +266,8 @@ async function fetchNhsJobsFeed(source, fetchImpl = fetch, now = new Date()) {
     const url = new URL(endpoint);
     if (jobReference) url.searchParams.set("jobReference", jobReference);
     else {
-      url.searchParams.set("staffGroup", "NURSING_AND_MIDWIFERY_REGD");
+      const staffGroup = clean(source.configuration?.staff_group, 100);
+      if (staffGroup && staffGroup !== "ALL") url.searchParams.set("staffGroup", staffGroup);
       url.searchParams.set("publishedFrom", publishedFrom);
       url.searchParams.set("sort", "publicationDateAsc");
     }
@@ -273,6 +296,7 @@ async function runSources({ sources, store, fetchImpl = fetch, now = new Date() 
       else throw new Error("Source adapter is disabled until an approved feed is configured.");
       const raw = payload.rows;
       const normalized = raw.map((row) => normalizeRecord(row, source, now)).filter(Boolean);
+      if (raw.length && !normalized.length) throw new Error("Source records were returned but none passed validation; the import cursor was not advanced.");
       const unique = dedupe(normalized);
       const nursing = unique.filter((row) => row.profession === "nurse" || row.profession === "both").length;
       const midwifery = unique.filter((row) => row.profession === "midwife" || row.profession === "both").length;

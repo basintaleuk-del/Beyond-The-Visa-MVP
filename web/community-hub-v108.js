@@ -23,6 +23,13 @@
     if (s < 86400) return `${Math.floor(s/3600)}h ago`;
     return new Date(date).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:new Date(date).getFullYear()===new Date().getFullYear()?undefined:'numeric'});
   };
+  const communityIcon = name => ({
+    posts:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.7V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4Z"/><path d="M7 10h.01M12 10h.01M17 10h.01"/></svg>',
+    replies:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 17-5-5 5-5M4 12h9a7 7 0 0 1 7 7v1"/></svg>',
+    topics:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M9.5 8.8 6.7 14M14.5 8.8l2.8 5.2M8 17h8"/></svg>',
+    message:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.7V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4Z"/><path d="M7 10h.01M12 10h.01M17 10h.01"/></svg>',
+    compose:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8"/><path d="m16 3 5 5-9 9-5 1 1-5Z"/></svg>'
+  }[name]||'');
 
   // ─── Supabase data layer ──────────────────────────────────────────────────────
   async function fetchPosts() {
@@ -168,8 +175,15 @@
   function updateStats() {
     const totalPosts = document.getElementById('communityStatPosts108');
     const totalReplies = document.getElementById('communityStatReplies108');
+    const avatars = document.getElementById('communityAvatars108');
     if (totalPosts) totalPosts.textContent = cachedPosts.length;
     if (totalReplies) totalReplies.textContent = cachedPosts.reduce((n, p) => n + (p.btv_community_replies?.length || 0), 0);
+    if (avatars) {
+      const names = [...new Set(cachedPosts.flatMap(post => [post.author_name, ...(post.btv_community_replies || []).map(reply => reply.author_name)]).filter(Boolean))];
+      if (!names.length) names.push(memberName());
+      avatars.innerHTML = names.slice(0, 3).map(name => `<i title="${esc(name)}">${esc(initials(name))}</i>`).join('');
+      avatars.setAttribute('aria-label', names.slice(0, 3).join(', '));
+    }
   }
 
   // ─── full screen render (called once per navigation) ─────────────────────────
@@ -179,66 +193,49 @@
     root.className = 'screen communityHub108';
 
     root.innerHTML = `
-      <div class="communityTop108">
-        <button type="button" class="back" data-history-back aria-label="Go back">←</button>
-        <div><span>COMMUNITY HUB</span><h1>Learn, connect and move forward</h1></div>
-      </div>
-      <section class="communityHero108">
-        <div>
-          <small>NURSES &amp; MIDWIVES WORLDWIDE</small>
-          <h2>You do not have to navigate alone.</h2>
-          <p>Share encouragement, exam strategies and relocation experience in a respectful professional space.</p>
-        </div>
-        <div class="communityPeople108">
-          <div class="communityAvatars108" aria-hidden="true"><i>AM</i><i>RN</i><i>MW</i></div>
-          <div class="communityStats108">
-            <span><b id="communityStatPosts108">…</b><small>POSTS</small></span>
-            <span><b id="communityStatReplies108">…</b><small>REPLIES</small></span>
-            <span><b>${TOPICS.length - 1}</b><small>TOPICS</small></span>
+      <div class="communityDesktopGrid108">
+        <div class="communityIntroColumn108">
+          <div class="communityTop108">
+            <button type="button" class="back" data-history-back aria-label="Go back">←</button>
+            <div><span>COMMUNITY HUB</span><h1>Learn, connect and move forward</h1></div>
           </div>
+          <section class="communityHero108">
+            <div class="communityHeroCopy108"><small>NURSES &amp; MIDWIVES WORLDWIDE</small><h2>You do not have to navigate alone.</h2><p>Share encouragement, exam strategies and relocation experience in a respectful professional space.</p></div>
+            <svg class="communityArt108" viewBox="0 0 360 360" aria-hidden="true"><path d="M42 40c94 13 161 76 202 173s98 116 133 113"/><path d="M11 103c95 5 158 48 194 130s91 103 148 100"/><circle cx="249" cy="145" r="38"/><path d="M195 250c3-46 25-72 55-72s52 26 55 72"/><circle cx="163" cy="211" r="30"/><path d="M120 300c2-37 20-58 43-58s41 21 43 58"/><circle cx="285" cy="249" r="34"/><path d="M235 340c3-41 23-65 50-65s47 24 50 65"/></svg>
+            <div class="communityPeople108">
+              <div id="communityAvatars108" class="communityAvatars108" aria-label="Community members"></div>
+              <div class="communityStats108">
+                <span>${communityIcon('posts')}<b id="communityStatPosts108">…</b><small>POSTS</small></span>
+                <span>${communityIcon('replies')}<b id="communityStatReplies108">…</b><small>REPLIES</small></span>
+                <span>${communityIcon('topics')}<b>${TOPICS.length - 1}</b><small>TOPICS</small></span>
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
-      <div class="communityLayout108">
-        <aside class="communityAside108">
+        <div class="communityActivityColumn108">
           <form id="communityForm108" class="communityCard108 communityComposer108">
-            <div><h2>Share with the community</h2><p>Ask a question or post something genuinely useful.</p></div>
-            <label>TOPIC
-              <select id="communityTopic108">${TOPICS.slice(1).map(t=>`<option>${esc(t)}</option>`).join('')}</select>
-            </label>
-            <label>MESSAGE
-              <textarea id="communityText108" rows="5" maxlength="1200" required placeholder="What would you like to share?"></textarea>
-            </label>
-            <button id="communitySubmitBtn108" type="submit">Post to community</button>
+            <div class="communityComposerHead108"><span>${communityIcon('message')}</span><div><h2>Share with the community</h2><p>Ask a question or post something genuinely useful.</p></div></div>
+            <label>TOPIC<select id="communityTopic108">${TOPICS.slice(1).map(t=>`<option>${esc(t)}</option>`).join('')}</select></label>
+            <label>MESSAGE<textarea id="communityText108" rows="5" maxlength="1200" required placeholder="What would you like to share?"></textarea></label>
+            <button id="communitySubmitBtn108" type="submit">${communityIcon('compose')}<span>Post to community</span></button>
             <small class="communityPrivacy108">Do not include identifiable patient information, private employer material or sensitive personal documents.</small>
             <p id="communityFormError108" class="communityFormError108" hidden></p>
+            <p id="communityFormStatus108" class="communityFormStatus108" role="status" aria-live="polite"></p>
           </form>
-          <section class="communityCard108 communitySafety108">
-            <h2>Community standard</h2>
-            <p>Keep every contribution professional, constructive and safe.</p>
-            <ul>
-              <li>Protect confidentiality</li><li>Be respectful and inclusive</li>
-              <li>Use official sources for requirements</li><li>Never replace clinical escalation</li>
-            </ul>
+          <section class="communityMain108">
+            <div class="communityTools108"><label class="communitySearch108"><span aria-hidden="true">⌕</span><input type="search" id="communitySearchInput108" placeholder="Search conversations" aria-label="Search community conversations"></label></div>
+            <div class="communityTopicFilters108" aria-label="Filter community topics">${TOPICS.map(t=>`<button type="button" class="${t===activeTopic?'active':''}" data-topic108="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+            <div id="communityFeed108" class="communityFeed108"><div class="communityLoadingMsg108">Loading posts…</div></div>
           </section>
-        </aside>
-        <section class="communityMain108">
-          <div class="communityTools108">
-            <label class="communitySearch108">
-              <span aria-hidden="true">⌕</span>
-              <input type="search" id="communitySearchInput108" placeholder="Search conversations" aria-label="Search community conversations">
-            </label>
-          </div>
-          <div class="communityTopicFilters108" aria-label="Filter community topics">
-            ${TOPICS.map(t=>`<button type="button" class="${t===activeTopic?'active':''}" data-topic108="${esc(t)}">${esc(t)}</button>`).join('')}
-          </div>
-          <div id="communityFeed108" class="communityFeed108"><div class="communityLoadingMsg108">Loading posts…</div></div>
-        </section>
+          <section class="communityCard108 communitySafety108"><h2>Community standard</h2><p>Keep every contribution professional, constructive and safe.</p><ul><li>Protect confidentiality</li><li>Be respectful and inclusive</li><li>Use official sources for requirements</li><li>Never replace clinical escalation</li></ul></section>
+        </div>
       </div>`;
 
     // ── post submit — no render() call, only feed refresh ──
     const form    = root.querySelector('#communityForm108');
     const feedEl  = root.querySelector('#communityFeed108');
     const errEl   = root.querySelector('#communityFormError108');
+    const statusEl = root.querySelector('#communityFormStatus108');
     const submitBtn = root.querySelector('#communitySubmitBtn108');
 
     form.addEventListener('submit', async e => {
@@ -248,8 +245,9 @@
       const topic = root.querySelector('#communityTopic108').value;
       if (!body) return;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Posting…';
+      submitBtn.innerHTML = '<span class="communitySubmitSpinner108" aria-hidden="true"></span><span>Posting…</span>';
       errEl.hidden = true;
+      statusEl.textContent = '';
       try {
         await submitPost(topic, body);
         root.querySelector('#communityText108').value = '';
@@ -260,12 +258,13 @@
         // reset active filter
         root.querySelectorAll('[data-topic108]').forEach(b => b.classList.toggle('active', b.dataset.topic108 === 'All'));
         renderFeed(feedEl);
+        statusEl.textContent = 'Your post was shared successfully.';
       } catch (err) {
         errEl.textContent = err.message;
         errEl.hidden = false;
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Post to community';
+        submitBtn.innerHTML = `${communityIcon('compose')}<span>Post to community</span>`;
       }
     });
 

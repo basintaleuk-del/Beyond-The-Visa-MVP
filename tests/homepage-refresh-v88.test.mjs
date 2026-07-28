@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=113/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=143/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=159/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=159/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -23,6 +23,14 @@ test('secondary scripts do not replace or repeatedly mutate the homepage', async
   assert.doesNotMatch(release, /jobsShortcut|MutationObserver|setTimeout\s*\(\s*wire/);
   assert.doesNotMatch(platform, /window\.renderDashboardInsights\s*=|setTimeout\s*\(\s*(?:render|window\.renderDashboardInsights)/);
   assert.match(await read('web/index.html'), /btv:home-rendered/);
+});
+
+test('Quick actions keep photographic tiles at desktop and mobile widths', async () => {
+  const css = await read('web/dashboard-premium-v73.css');
+  assert.match(css, /\.quickGrid73\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.quickActionMedia73\{display:block/);
+  assert.doesNotMatch(css, /\.quickActionMedia73\{display:none/);
+  assert.match(css, /@media\(max-width:640px\)[\s\S]*?\.quickGrid73\{grid-template-columns:1fr\}/);
 });
 
 test('service worker never serves a cached obsolete HTML shell', async () => {

@@ -54,3 +54,19 @@ test('mobile styles remain single-column without forced horizontal hiding',async
   assert.match(css,/grid-template-columns:1fr/);
   assert.doesNotMatch(css,/width:\s*100vw|overflow-x:\s*hidden/);
 });
+
+test('professional hub uses the premium illustration and live section progress',async()=>{
+  const [feature,css,index,menu,inbox]=await Promise.all([
+    read('web/qualifications-registration-v139.js'),read('web/qualifications-registration-v139.css'),read('web/index.html'),read('web/profile-menu-v82.js'),read('web/manager-inbox-v26.js')
+  ]);
+  assert.match(feature,/qualifications-registration-hero\.jpg/);
+  assert.match(feature,/function sectionProgress/);
+  assert.match(feature,/--qr-progress:/);
+  for(const label of ['Complete','In progress','Not started'])assert.match(feature,new RegExp(label));
+  assert.match(css,/prefers-reduced-motion:reduce/);
+  assert.match(css,/qrProgress139/);
+  assert.match(index,/premium-surfaces-v163\.css\?v=163/);
+  assert.match(menu,/Help & support/);
+  assert.match(menu,/openScreen\?\.\('contact'\)/);
+  assert.match(inbox,/from\('manager_requests'\)\.insert/);
+});
