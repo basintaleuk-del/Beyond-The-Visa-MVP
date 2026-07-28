@@ -29,7 +29,8 @@ test('journey totals include only active required non-archived destination steps
 
 test('profile onboarding writes the authoritative and compatibility fields together',()=>{
   assert.match(page,/destination_country:profile\.destination,destination:profile\.destination/);
-  assert.match(page,/await window\.BTVDestinationJourney\.hydrate\(session\.user\)/);
+  assert.match(page,/authDeadline\(window\.BTVDestinationJourney\.hydrate\(session\.user\)/);
+  assert.match(page,/setVisible\(document\.getElementById\('appShell'\),true\)[\s\S]*await destinationHydration/);
 });
 
 test('database uniqueness and RPC validation prevent duplicate or cross-country progress',()=>{
