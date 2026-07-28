@@ -49,5 +49,5 @@
   document.addEventListener('click',event=>{const prompt=event.target.closest('#assistant [data-q]');if(!prompt)return;event.preventDefault();event.stopImmediatePropagation();ask(prompt.dataset.q)},true);
 
   function refresh(){statusCard();document.querySelectorAll('#ziburConnection').forEach(x=>x.remove());const note=$('#contact .notice');if(note&&note.dataset.inboxV26!=='yes'){note.dataset.inboxV26='yes';note.textContent='Your message is sent securely to the Beyond The Visa support inbox.'}const feedback=$('#feedback .notice');if(feedback&&feedback.dataset.inboxV26!=='yes'){feedback.dataset.inboxV26='yes';feedback.textContent='Your feedback is sent securely to the Beyond The Visa support inbox.'}}
-  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',refresh):refresh();setTimeout(refresh,500);setTimeout(refresh,1500);new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true})
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',refresh):refresh();setTimeout(refresh,500);window.addEventListener('btv:app-content-ready',refresh);window.addEventListener('btv:home-rendered',refresh)
 })();

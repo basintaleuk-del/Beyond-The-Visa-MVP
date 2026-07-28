@@ -65,7 +65,7 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/global-jobs-v168.css"),html=read("web/index.html");
   for(const text of ["Job reference","Job overview","Main duties","About the employer","Person specification","Essential criteria","Desirable criteria","Professional registration requirements","Visa and sponsorship details","Last verified"])assert.match(ui,new RegExp(text));
   assert.match(ui,/Apply on employer website/);assert.match(ui,/Sponsorship not stated/);assert.doesNotMatch(ui,/visa_sponsorship.*relocation_support_available/);assert.doesNotMatch(ui,/Trac Jobs|trac\.jobs/i);
-  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=170/);
+  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=173/);
 });
 
 test("Jobs keeps its original page title and changes destination without leaving the screen",()=>{

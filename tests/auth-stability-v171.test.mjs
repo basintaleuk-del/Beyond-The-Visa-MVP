@@ -58,5 +58,22 @@ test('visible authentication controls remain above full-page application overlay
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v172/);
+  assert.match(worker,/beyond-the-visa-assets-v173/);
+});
+
+test('global feature installers do not poll or observe every page mutation',()=>{
+  const jobs=fs.readFileSync(path.join(root,'web/global-jobs-v168.js'),'utf8');
+  const usaJobs=fs.readFileSync(path.join(root,'web/usa-jobs-v155.js'),'utf8');
+  const edge=fs.readFileSync(path.join(root,'web/edge-functions-v22.js'),'utf8');
+  const inbox=fs.readFileSync(path.join(root,'web/manager-inbox-v26.js'),'utf8');
+  const mockAccess=fs.readFileSync(path.join(root,'web/mock-access-v72.js'),'utf8');
+  assert.doesNotMatch(jobs,/new MutationObserver\(\(\)=>dashboard\(\)\)/);
+  assert.doesNotMatch(jobs,/new MutationObserver\(\(\)=>restorePreviousJobsHeader\(\)\)/);
+  assert.match(jobs,/dashboardLoading/);
+  assert.match(jobs,/btv:app-content-ready/);
+  assert.doesNotMatch(usaJobs,/new MutationObserver[\s\S]*updateEntry\(\)[\s\S]*dashboardRecommendations\(\)/);
+  assert.doesNotMatch(edge,/setInterval\(entry,5000\)/);
+  assert.doesNotMatch(edge,/new MutationObserver\(entry\)/);
+  assert.doesNotMatch(inbox,/new MutationObserver\(refresh\)/);
+  assert.match(mockAccess,/if\(b\.dataset\.mockLabelV72===tier\)return/);
 });

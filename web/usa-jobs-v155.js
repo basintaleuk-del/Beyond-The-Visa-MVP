@@ -155,7 +155,9 @@
   document.addEventListener("click", (event) => { const target = event.target.closest("[data-open]"); if (!target) return; setTimeout(async () => { if (await destination() !== "us") return; if (target.dataset.open === "jobs") renderJobs(); if (target.dataset.open === "opportunities") renderOpportunity(); }, 40); });
   window.addEventListener("btv:destination-changed", async () => { state.destination = null; state.dashboardLoaded = false; await destination(true); updateEntry(); });
   window.addEventListener("popstate", () => { if (!location.pathname.startsWith("/jobs/usa/")) { const element = document.querySelector("[data-usa-job-detail]"); if (element?.open) element.close(); } });
-  new MutationObserver(() => { if (state.destination === "us") { updateEntry(); dashboardRecommendations(); } }).observe(document.documentElement, { childList: true, subtree: true });
+  const refreshUsEntry = () => { if (state.destination === "us") { updateEntry(); dashboardRecommendations(); } };
+  window.addEventListener("btv:app-content-ready", refreshUsEntry);
+  window.addEventListener("btv:home-rendered", refreshUsEntry);
   setTimeout(async () => {
     if (await destination() !== "us") {
       if (location.pathname.startsWith("/jobs/usa")) location.replace("/jobs");
