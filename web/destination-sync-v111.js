@@ -3,7 +3,7 @@
   if (window.__btvDestinationJourney121) return;
   window.__btvDestinationJourney121 = true;
 
-  const valid = new Set(["uk", "us", "ca", "au", "nz", "ie"]);
+  const valid = new Set(["uk", "us", "ca", "au", "nz", "ie", "ae", "sa"]);
   const guestKey = "btv_destination_country";
   const names = {
     uk: "United Kingdom",
@@ -12,6 +12,8 @@
     au: "Australia",
     nz: "New Zealand",
     ie: "Ireland",
+    ae: "United Arab Emirates",
+    sa: "Saudi Arabia",
   };
   const legacyStepCodes = {
     uk: [
@@ -73,6 +75,8 @@
       "us_immigration",
       "us_arrival",
     ],
+    ae: [],
+    sa: [],
   };
   const model = {
     userId: null,
