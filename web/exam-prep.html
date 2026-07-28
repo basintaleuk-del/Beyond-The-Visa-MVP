@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#103f43">
+  <title>Exam Prep | Beyond The Visa</title>
+  <meta name="description" content="Original nursing exam preparation questions, mock exams and progress tracking.">
+  <link rel="stylesheet" href="exam-prep-v167.css?v=167">
+</head>
+<body>
+  <a class="skipLink" href="#main">Skip to main content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span aria-hidden="true">B</span><strong>Beyond The Visa<small>Exam Prep</small></strong></a>
+    <nav aria-label="Exam preparation"><button data-route="landing" aria-current="page">Prepare</button><button data-route="progress">My progress</button></nav>
+    <button id="themeToggle" class="iconButton" aria-label="Toggle dark mode">◐</button>
+  </header>
+
+  <main id="main">
+    <section id="loadingView" class="loading" aria-live="polite"><span class="spinner" aria-hidden="true"></span><h1>Opening Exam Prep…</h1></section>
+
+    <section id="landingView" class="view" hidden>
+      <section class="hero">
+        <div><span class="eyebrow">ORIGINAL NURSING PRACTICE</span><h1>Prepare with confidence</h1><p>Build your knowledge with original nursing practice questions, detailed explanations and personalised progress tracking.</p><div class="heroActions"><button id="heroStart" class="primary">Start practising</button><button data-route="progress" class="secondary">View my progress</button></div></div>
+        <div class="heroVisual" aria-hidden="true"><span>✓</span><i></i><i></i><i></i><b>Clinical judgement</b></div>
+      </section>
+
+      <p class="legalNotice"><strong>Independent educational content.</strong> These are independent practice questions created for educational purposes. They are not official examination questions and are not affiliated with or endorsed by Pearson VUE or any examination provider.</p>
+
+      <div class="sectionHeading"><div><span class="eyebrow">CHOOSE YOUR PATH</span><h2>Available examinations</h2></div><p>Only examinations with active, reviewed questions appear here.</p></div>
+      <div id="examGrid" class="examGrid" aria-live="polite"></div>
+
+      <div class="dashboardGrid">
+        <article class="dailyCard"><span class="eyebrow">TODAY'S PRACTICE</span><h2>Daily set of 10</h2><p>A balanced mix of new questions and topics that need more attention.</p><div class="streaks"><span><b id="dailyStreak">0</b>current streak</span><span><b id="bestStreak">0</b>best streak</span></div><button id="dailyStart" class="primary">Start daily practice</button></article>
+        <article class="performanceCard"><span class="eyebrow">PERFORMANCE</span><h2>Your learning snapshot</h2><dl><div><dt>Overall accuracy</dt><dd id="overallAccuracy">0%</dd></div><div><dt>Questions completed</dt><dd id="questionsCompleted">0</dd></div><div><dt>Recent mock</dt><dd id="recentMock">—</dd></div><div><dt>Review due</dt><dd id="reviewDue">0</dd></div></dl></article>
+      </div>
+
+      <section id="continueCard" class="continueCard" hidden><div><span class="eyebrow">CONTINUE STUDYING</span><h2 id="continueTitle">Resume your session</h2><p id="continueMeta"></p></div><button id="continueSession" class="primary">Continue</button></section>
+    </section>
+
+    <section id="setupView" class="view setup" hidden>
+      <button class="textBack" data-route="landing">← Back</button><span class="eyebrow">BUILD A SESSION</span><h1 id="setupExamName">Choose how to practise</h1>
+      <form id="sessionForm">
+        <fieldset><legend>Practice mode</legend><div class="modeGrid">
+          <label><input type="radio" name="mode" value="quick" checked><span><b>Quick Practice</b><small>10 questions with optional feedback</small></span></label>
+          <label><input type="radio" name="mode" value="topic"><span><b>Topic Practice</b><small>Choose topics, count and difficulty</small></span></label>
+          <label><input type="radio" name="mode" value="mock"><span><b>Timed Mock Exam</b><small>Feedback after final submission</small></span></label>
+          <label><input type="radio" name="mode" value="adaptive"><span><b>Adaptive Practice</b><small>Prioritises weaker and unseen topics</small></span></label>
+          <label><input type="radio" name="mode" value="mistakes"><span><b>Review Mistakes</b><small>Questions answered incorrectly before</small></span></label>
+          <label><input type="radio" name="mode" value="saved"><span><b>Saved Questions</b><small>Your bookmarked questions</small></span></label>
+        </div></fieldset>
+        <div class="settingsGrid"><label>Question count<select id="questionCount"><option>10</option><option>20</option><option>30</option><option>50</option></select></label><label>Difficulty<select id="difficulty"><option value="">Mixed difficulty</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label><label class="feedbackToggle"><input id="immediateFeedback" type="checkbox" checked> Immediate feedback in practice</label></div>
+        <fieldset><legend>Topics</legend><p class="fieldHint">Leave every topic unchecked for a balanced mix.</p><div id="topicChoices" class="topicChoices"></div></fieldset>
+        <p id="setupMessage" class="formMessage" role="alert"></p><button class="primary wide" type="submit">Start session</button>
+      </form>
+    </section>
+
+    <section id="sessionView" class="view sessionView" hidden>
+      <header class="sessionHeader"><button id="exitSession" class="textBack">Exit</button><div><span id="sessionExam">Exam Prep</span><b id="sessionCounter">Question 1 of 10</b></div><time id="sessionTimer" hidden>00:00</time></header>
+      <div class="progressTrack" aria-hidden="true"><span id="sessionProgress"></span></div>
+      <div class="sessionLayout">
+        <article id="questionCard" class="questionCard" aria-live="polite"></article>
+        <aside id="navigator" class="navigator" aria-label="Question navigator"><h2>Questions</h2><div id="navigatorButtons"></div><p><span class="dot answered"></span>Answered <span class="dot flagged"></span>Flagged</p></aside>
+      </div>
+      <div class="stickyActions"><button id="previousQuestion" class="secondary">Previous</button><button id="flagQuestion" class="secondary">Flag for review</button><button id="saveQuestion" class="secondary">Save question</button><button id="submitAnswer" class="primary">Submit answer</button><button id="nextQuestion" class="primary" hidden>Next question</button></div>
+    </section>
+
+    <section id="resultsView" class="view results" hidden><button class="textBack" data-route="landing">← Exam Prep</button><div id="resultsContent"></div></section>
+
+    <section id="progressView" class="view progressView" hidden><button class="textBack" data-route="landing">← Exam Prep</button><span class="eyebrow">YOUR PROGRESS</span><h1>Build consistency, topic by topic</h1><div id="progressCards" class="progressCards"></div><section class="chartCard"><h2>Activity and accuracy</h2><div id="accuracyChart" class="accessibleChart" role="img" aria-label="Your exam preparation accuracy"></div></section><section class="historyCard"><h2>Recent sessions</h2><div id="sessionHistory"></div></section></section>
+  </main>
+
+  <dialog id="exitDialog"><form method="dialog"><h2>Leave this session?</h2><p>Your answers are saved. You can continue an unfinished session from the Exam Prep landing page.</p><div><button value="cancel" class="secondary">Keep studying</button><button id="confirmExit" value="default" class="danger">Save and exit</button></div></form></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><script src="exam-prep-v167.js?v=167"></script>
+</body>
+</html>
