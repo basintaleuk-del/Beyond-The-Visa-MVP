@@ -6,6 +6,7 @@ import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'..');
 const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
 const worker=fs.readFileSync(path.join(root,'web/sw.js'),'utf8');
+const appContent=fs.readFileSync(path.join(root,'web/app-content-v171.js'),'utf8');
 
 test('Supabase auth callbacks return before profile queries begin',()=>{
   assert.match(html,/onAuthStateChange\(\(event,session\)=>\{/);
@@ -37,4 +38,11 @@ test('navigation retries before showing a self-recovering offline screen',()=>{
   assert.match(worker,/setTimeout\(retry,3000\)/);
   assert.match(worker,/addEventListener\('online',retry\)/);
   assert.match(worker,/Cache-Control':'no-store/);
+});
+
+test('the login document no longer parses the megabyte application block inline',()=>{
+  assert.ok(Buffer.byteLength(html)<350_000);
+  assert.ok(Buffer.byteLength(appContent)>1_000_000);
+  assert.match(html,/app-content-v171\.js\?v=171/);
+  assert.match(appContent,/const legalUpdated='24 July 2026'/);
 });
