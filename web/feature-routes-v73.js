@@ -12,7 +12,7 @@
   {id:'costs',title:'Cost Planner',description:'Plan fees and relocation expenses.',icon:'coin',category:'career',target:{screen:'costs'}},
   {id:'documents',title:'My Documents',description:'Private certificates, passport, visa and CV storage.',icon:'library',category:'account',target:{action:'documents'}},
   {id:'ielts',title:'IELTS Academic',description:'Reading, writing, listening and speaking preparation.',icon:'language',category:'study',target:{url:'ielts.html'}},
-  {id:'cbt',title:'CBT',description:'Nursing CBT practice and full mock exams.',icon:'clipboard',category:'study',target:{url:'cbt.html'}},
+  {id:'cbt',title:'CBT',description:'Nursing CBT practice and full mock exams.',icon:'clipboard',category:'study',target:{url:'exam-prep.html'}},
   {id:'nclex',title:'NCLEX',description:'Clinical practice and adaptive preparation.',icon:'pulse',category:'study',target:{url:'nclex.html'}},
   {id:'osce',title:'OSCE',description:'Stations, marking criteria and practical guidance.',icon:'stethoscope',category:'study',target:{url:'osce.html'}},
   {id:'adult-nursing',title:'Adult Nursing',description:'Core nursing knowledge and clinical topics.',icon:'heart',category:'study',target:{url:'adult-nursing.html'}},

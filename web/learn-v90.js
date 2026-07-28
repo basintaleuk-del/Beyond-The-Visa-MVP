@@ -7,7 +7,7 @@
     {id:'explore',label:'Explore learning',icon:'EX',copy:'Discover Beyond The Visa through published guides, articles, videos and your complete platform guide.',hub:'discover',meta:'Platform guide & curated resources'},
     {id:'intro-video',label:'Introductory video',icon:'&#9654;',copy:'Watch the latest introduction to Beyond The Visa and the tools available across your journey.',video:'welcome-video-v82.mp4',meta:'Start here · Latest video'},
     {id:'books',label:'Book library',icon:'▤',copy:'Books matched to your pathway',library:'books',meta:'Published reading'},
-    {id:'cbt',label:'CBT',icon:'CBT',copy:'Question bank, explanations and timed mock exams.',url:'cbt.html',meta:'Practice and mocks'},
+    {id:'cbt',label:'CBT',icon:'CBT',copy:'Question bank, explanations and timed mock exams.',url:'exam-prep.html',meta:'Practice and mocks'},
     {id:'nclex',label:'NCLEX-RN',icon:'RN',copy:'Clinical questions and adaptive exam preparation.',url:'nclex.html',meta:'Clinical readiness'},
     {id:'osce',label:'OSCE',icon:'OS',copy:'Station-focused practice, marking criteria and guidance.',url:'osce.html',meta:'Practical skills'},
     {id:'ielts',label:'IELTS Academic',icon:'A',copy:'Reading, writing, listening and speaking preparation.',url:'ielts.html',meta:'Language preparation'},
