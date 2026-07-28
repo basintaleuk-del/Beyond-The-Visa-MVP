@@ -13,13 +13,18 @@ test('signed-in learners can read every usable CBT question while quarantined du
 });
 
 test('CBT practice loads the complete usable bank and labels its review state', async () => {
-  const [client,page]=await Promise.all([read('web/cbt.js'),read('web/cbt.html')]);
-  assert.match(client,/neq\('quality_status','rejected'\)/);
-  assert.match(client,/neq\('review_status','duplicate_quarantined'\)/);
+  const [client,page,secure]=await Promise.all([read('web/cbt.js'),read('web/cbt.html'),read('supabase/migrations/202607282230_secure_cbt_practice_v169.sql')]);
+  assert.match(client,/btv_cbt_practice_catalog/);
+  assert.match(client,/btv_cbt_next_practice_question/);
+  assert.match(client,/btv_submit_cbt_practice_answer/);
   assert.match(client,/Awaiting clinical review/);
   assert.match(client,/REVIEWED PRACTICE QUESTION/);
-  assert.match(client,/practiceBags/);
-  assert.match(client,/function nextFromPool/);
   assert.match(page,/id="bankStatus"/);
   assert.match(page,/official NMC preparation materials/);
+  assert.match(page,/cbt\.js\?v=169/);
+  assert.match(secure,/drop policy if exists "Authenticated users read usable CBT questions"/);
+  assert.match(secure,/drop policy if exists "Users insert own CBT attempts"/);
+  assert.match(secure,/v_question\.correct_option/);
+  assert.doesNotMatch(client,/from\('cbt_questions'\)\.select\('\*'\)/);
+  assert.doesNotMatch(client,/option===current\.correct_option/);
 });
