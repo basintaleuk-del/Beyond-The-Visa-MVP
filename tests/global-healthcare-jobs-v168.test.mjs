@@ -65,15 +65,15 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/global-jobs-v168.css"),html=read("web/index.html");
   for(const text of ["Job reference","Job overview","Main duties","About the employer","Person specification","Essential criteria","Desirable criteria","Professional registration requirements","Visa and sponsorship details","Last verified"])assert.match(ui,new RegExp(text));
   assert.match(ui,/Apply on employer website/);assert.match(ui,/Sponsorship not stated/);assert.doesNotMatch(ui,/visa_sponsorship.*relocation_support_available/);assert.doesNotMatch(ui,/Trac Jobs|trac\.jobs/i);
-  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=175/);
+  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.doesNotMatch(html,/global-jobs-v168\.js/);
 });
 
 test("Jobs keeps its original page title, hero layout and account destination",()=>{
-  const ui=read("web/global-jobs-v168.js"),html=read("web/index.html");
+  const ui=read("web/jobs-centre-v148.js"),html=read("web/index.html");
   assert.match(html,/PREMIUM CAREER TOOLS[\s\S]*Job search/);
-  assert.match(ui,/globalJobsHero168/);assert.match(ui,/destinationBanner\(state\.destination\)/);
-  assert.doesNotMatch(ui,/Change destination|openDestinationPicker|BTVDestination\?\.set|restorePreviousJobsHeader|globalJobsContext169|stopImmediatePropagation/);
-  assert.match(html,/jobs-navigation-v169\.css\?v=170/);
+  assert.match(ui,/nhsJobsHero148/);assert.match(ui,/Find your next role across the NHS/);assert.match(ui,/UPDATED DIRECTLY FROM NHS JOBS/);
+  assert.match(html,/jobs-centre-v148\.js\?v=158/);assert.match(html,/jobs-centre-v148\.css\?v=158/);
+  assert.doesNotMatch(html,/global-jobs-v168|jobs-navigation-v169/);
 });
 
 test("every destination exposes a current official vacancy search without inventing listings",()=>{
