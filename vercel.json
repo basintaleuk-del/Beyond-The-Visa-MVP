@@ -20,8 +20,7 @@
     { "source": "/clinical-learning/:slug", "destination": "/adult-nursing.html" }
   ],
   "crons": [
-    { "path": "/api/opportunity-import", "schedule": "15 3 * * *" },
-    { "path": "/api/usa-jobs-import", "schedule": "30 4 * * *" }
+    { "path": "/api/global-jobs-import", "schedule": "15 3 * * *" }
   ],
   "headers": [
     {
