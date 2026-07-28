@@ -1,8 +1,10 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { build } from 'esbuild';
 
 const root = process.cwd();
+const require = createRequire(import.meta.url);
 const source = join(root, 'web');
 const output = join(root, 'www');
 const excluded = new Set(['CNAME', '.nojekyll']);
@@ -19,7 +21,13 @@ await cp(source, output, {
 
 await build({
   absWorkingDir: root,
-  entryPoints: ['./src/mobile-native.ts'],
+  nodePaths: [join(root, 'node_modules')],
+  stdin: {
+    contents: await readFile(join(root, 'src', 'mobile-native.ts'), 'utf8'),
+    resolveDir: root,
+    sourcefile: 'src/mobile-native.ts',
+    loader: 'ts',
+  },
   outfile: join(output, 'mobile-native.js'),
   bundle: true,
   minify: true,
@@ -27,6 +35,12 @@ await build({
   target: ['es2022'],
   format: 'esm',
   platform: 'browser',
+  plugins: [{
+    name: 'workspace-capacitor-resolver',
+    setup(buildContext) {
+      buildContext.onResolve({ filter: /^@capacitor\// }, (args) => ({ path: require.resolve(args.path) }));
+    },
+  }],
 });
 await cp(join(root, 'src', 'mobile-native.css'), join(output, 'mobile-native.css'));
 
