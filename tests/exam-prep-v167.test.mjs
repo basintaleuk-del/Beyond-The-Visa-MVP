@@ -88,7 +88,8 @@ test('responsive design covers narrow phones, dark mode and reduced motion',()=>
  assert.match(css,/overflow-x:hidden/);
 });
 
-test('Exam Prep is a primary feature without replacing existing routes',()=>{
+test('CBT opens the upgraded Exam Prep experience while other routes stay intact',()=>{
  assert.match(routes,/id:'exam-prep'.*category:'main'.*exam-prep\.html/);
+ assert.match(routes,/id:'cbt'.*target:\{url:'exam-prep\.html'\}/);
  for(const id of ['dashboard','study','jobs','assistant','mentors'])assert.match(routes,new RegExp(`id:'${id}'`));
 });
