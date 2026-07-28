@@ -75,7 +75,7 @@ test('all eight live statistic tiles open current filtered NHS job results',asyn
   assert.match(feature,/\.eq\("status", "published"\)\.is\("expired_at", null\)\.eq\("source_name", "NHS Jobs"\)/);
   assert.match(feature,/state\.summaryRows = data \|\| \[\]/);assert.match(feature,/return showDetail\(row\)/);
   assert.match(css,/\.opportunitySummary138>button/);assert.match(css,/\.opportunitySummaryDialog138/);assert.match(css,/\.opportunitySummaryResults138/);
-  assert.match(config,/\/api\/opportunity-import/);assert.match(config,/15 3 \* \* \*/);
+  assert.match(config,/\/api\/global-jobs-import/);assert.match(config,/15 3 \* \* \*/);
 });
 
 test('statistic tiles use the premium arrow-free presentation and reduced-motion-safe count animation',async()=>{

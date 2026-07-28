@@ -95,7 +95,7 @@ test("cron and admin import remain server protected", async () => {
   assert.match(api, /if \(!caller\) return json\(res, 401/); assert.match(api, /already running/);
   assert.match(api, /requestBody\.action === "recheck"/); assert.match(admin, /data-recheck-vacancy/);
   assert.match(admin, /NHS JOBS FEED/); assert.match(admin, /records_nursing/); assert.match(admin, /Review employer spotlight candidates/);
-  assert.ok(JSON.parse(config).crons.some((cron) => cron.path === "/api/opportunity-import" && cron.schedule === "15 3 * * *"));
+  assert.ok(JSON.parse(config).crons.some((cron) => cron.path === "/api/global-jobs-import" && cron.schedule === "15 3 * * *"));
 });
 
 function mockStore(records) {
