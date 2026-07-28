@@ -65,16 +65,15 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/global-jobs-v168.css"),html=read("web/index.html");
   for(const text of ["Job reference","Job overview","Main duties","About the employer","Person specification","Essential criteria","Desirable criteria","Professional registration requirements","Visa and sponsorship details","Last verified"])assert.match(ui,new RegExp(text));
   assert.match(ui,/Apply on employer website/);assert.match(ui,/Sponsorship not stated/);assert.doesNotMatch(ui,/visa_sponsorship.*relocation_support_available/);assert.doesNotMatch(ui,/Trac Jobs|trac\.jobs/i);
-  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=173/);
+  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=175/);
 });
 
-test("Jobs keeps its original page title and changes destination without leaving the screen",()=>{
-  const ui=read("web/global-jobs-v168.js"),css=read("web/jobs-navigation-v169.css"),html=read("web/index.html");
+test("Jobs keeps its original page title, hero layout and account destination",()=>{
+  const ui=read("web/global-jobs-v168.js"),html=read("web/index.html");
   assert.match(html,/PREMIUM CAREER TOOLS[\s\S]*Job search/);
-  assert.match(ui,/Change destination/);assert.match(ui,/openDestinationPicker/);assert.match(ui,/BTVDestination\?\.set/);
-  assert.match(ui,/restorePreviousJobsHeader/);assert.match(ui,/globalJobsContext169/);assert.match(ui,/stopImmediatePropagation/);
-  for(const name of ["United Kingdom","United States","Australia","New Zealand","Canada","Ireland","United Arab Emirates","Saudi Arabia"])assert.match(ui,new RegExp(name));
-  assert.match(css,/@media \(max-width: 430px\)/);assert.match(css,/body\.dark/);assert.match(html,/jobs-navigation-v169\.css\?v=170/);
+  assert.match(ui,/globalJobsHero168/);assert.match(ui,/destinationBanner\(state\.destination\)/);
+  assert.doesNotMatch(ui,/Change destination|openDestinationPicker|BTVDestination\?\.set|restorePreviousJobsHeader|globalJobsContext169|stopImmediatePropagation/);
+  assert.match(html,/jobs-navigation-v169\.css\?v=170/);
 });
 
 test("every destination exposes a current official vacancy search without inventing listings",()=>{
@@ -92,8 +91,10 @@ test("app navigation survives authentication and never backs into the login scre
   assert.match(auth,/location\.pathname\}\$\{location\.search\}/);assert.match(html,/redirectTo=location\.origin\+location\.pathname\+location\.search/);assert.match(html,/buildOnboarding\(\);authTab\(true\)/);
 });
 
-test("destination changes refresh jobs, dashboard and Zibur context",()=>{
-  const ui=read("web/global-jobs-v168.js");assert.match(ui,/btv:destination-changed/);assert.match(ui,/globalJobsDashboard168/);assert.match(ui,/BTV_JOB_CONTEXT/);assert.match(ui,/Recommend only active verified database jobs for this destination/);assert.match(ui,/window\.ziburContext=wrapped/);
+test("destination changes refresh an open Jobs page without injecting jobs into Home",()=>{
+  const ui=read("web/global-jobs-v168.js");assert.match(ui,/btv:destination-changed/);assert.match(ui,/BTV_JOB_CONTEXT/);assert.match(ui,/Recommend only active verified database jobs for this destination/);assert.match(ui,/window\.ziburContext=wrapped/);
+  assert.doesNotMatch(ui,/globalJobsDashboard168|data-dashboard-job|btv:home-rendered|btv:session-restored|btv:app-content-ready/);
+  assert.match(ui,/if\(id==="jobs"\)setTimeout\(render,0\)/);assert.doesNotMatch(ui,/if\(id==="home"\)/);
 });
 
 test("admin area exposes sources, reports, retries and review controls",()=>{

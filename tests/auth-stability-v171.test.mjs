@@ -70,8 +70,7 @@ test('global feature installers do not poll or observe every page mutation',()=>
   const mockAccess=fs.readFileSync(path.join(root,'web/mock-access-v72.js'),'utf8');
   assert.doesNotMatch(jobs,/new MutationObserver\(\(\)=>dashboard\(\)\)/);
   assert.doesNotMatch(jobs,/new MutationObserver\(\(\)=>restorePreviousJobsHeader\(\)\)/);
-  assert.match(jobs,/dashboardLoading/);
-  assert.match(jobs,/btv:app-content-ready/);
+  assert.doesNotMatch(jobs,/dashboardLoading|globalJobsDashboard168|btv:app-content-ready/);
   assert.doesNotMatch(usaJobs,/new MutationObserver[\s\S]*updateEntry\(\)[\s\S]*dashboardRecommendations\(\)/);
   assert.doesNotMatch(edge,/setInterval\(entry,5000\)/);
   assert.doesNotMatch(edge,/new MutationObserver\(entry\)/);
