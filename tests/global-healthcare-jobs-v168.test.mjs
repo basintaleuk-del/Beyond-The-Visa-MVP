@@ -65,7 +65,7 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/global-jobs-v168.css"),html=read("web/index.html");
   for(const text of ["Job reference","Job overview","Main duties","About the employer","Person specification","Essential criteria","Desirable criteria","Professional registration requirements","Visa and sponsorship details","Last verified"])assert.match(ui,new RegExp(text));
   assert.match(ui,/Apply on employer website/);assert.match(ui,/Sponsorship not stated/);assert.doesNotMatch(ui,/visa_sponsorship.*relocation_support_available/);assert.doesNotMatch(ui,/Trac Jobs|trac\.jobs/i);
-  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=169/);
+  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=170/);
 });
 
 test("Jobs keeps its original page title and changes destination without leaving the screen",()=>{
@@ -74,7 +74,15 @@ test("Jobs keeps its original page title and changes destination without leaving
   assert.match(ui,/Change destination/);assert.match(ui,/openDestinationPicker/);assert.match(ui,/BTVDestination\?\.set/);
   assert.match(ui,/restorePreviousJobsHeader/);assert.match(ui,/globalJobsContext169/);assert.match(ui,/stopImmediatePropagation/);
   for(const name of ["United Kingdom","United States","Australia","New Zealand","Canada","Ireland","United Arab Emirates","Saudi Arabia"])assert.match(ui,new RegExp(name));
-  assert.match(css,/@media \(max-width: 430px\)/);assert.match(css,/body\.dark/);assert.match(html,/jobs-navigation-v169\.css\?v=169/);
+  assert.match(css,/@media \(max-width: 430px\)/);assert.match(css,/body\.dark/);assert.match(html,/jobs-navigation-v169\.css\?v=170/);
+});
+
+test("every destination exposes a current official vacancy search without inventing listings",()=>{
+  const ui=read("web/global-jobs-v168.js"),css=read("web/jobs-navigation-v169.css");
+  for(const code of ["GB","US","AU","NZ","CA","IE","AE","SA"])assert.match(ui,new RegExp(`${code}:\\{name:`));
+  for(const source of ["NHS Jobs","USAJOBS Nurse","NSW Health Careers","Health New Zealand Careers","Canada Job Bank","HSE Job Search","Emirates Health Services Careers","Saudi Ministry of Health Careers"])assert.match(ui,new RegExp(source));
+  assert.match(ui,/CURRENT OFFICIAL VACANCIES/);assert.match(ui,/target="_blank" rel="noopener noreferrer"/);assert.match(ui,/No imported matches yet/);assert.doesNotMatch(ui,/fake|sample vacancies/i);
+  assert.match(css,/globalOfficialJobs170/);assert.match(css,/@media \(max-width: 360px\)/);assert.match(css,/body\.dark \.globalOfficialJobs170/);
 });
 
 test("app navigation survives authentication and never backs into the login screen",()=>{
