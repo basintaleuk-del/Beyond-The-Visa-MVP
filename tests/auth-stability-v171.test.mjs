@@ -8,6 +8,7 @@ const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
 const worker=fs.readFileSync(path.join(root,'web/sw.js'),'utf8');
 const appContent=fs.readFileSync(path.join(root,'web/app-content-v171.js'),'utf8');
 const authStyles=fs.readFileSync(path.join(root,'web/auth-redesign-v69.css'),'utf8');
+const supabaseClient=fs.readFileSync(path.join(root,'web/supabase-client.js'),'utf8');
 
 test('Supabase auth callbacks return before profile queries begin',()=>{
   assert.match(html,/onAuthStateChange\(\(event,session\)=>\{/);
@@ -83,4 +84,34 @@ test('learning experience observer does not rebuild its own mock panels',()=>{
   assert.match(experience,/if\(!p\|\|p\.querySelector\('\.mockAccess85'\)\)return/);
   assert.doesNotMatch(experience,/if\(box\)box\.remove\(\)/);
   assert.match(html,/experience-v86\.js\?v=174/);
+});
+
+test('automatic login is single-flight and does not duplicate auth infrastructure',()=>{
+  assert.equal((supabaseClient.match(/createClient\(/g)||[]).length,1);
+  assert.equal((html.match(/\.auth\.getSession\(\)/g)||[]).length,1);
+  assert.equal((html.match(/\.auth\.onAuthStateChange\(/g)||[]).length,1);
+  assert.match(html,/if\(authSubscription\)return/);
+  assert.match(html,/authSubscription=subscription/);
+  assert.match(html,/pagehide'[\s\S]{0,100}authSubscription\?\.unsubscribe\(\)/);
+  assert.match(html,/if\(activeAuthUserId===userId&&\(!app\?\.hidden\|\|onboarding\?\.hidden===false\)\)return/);
+  assert.match(html,/if\(authTransition\)return authTransition/);
+  assert.match(html,/authTransition=\(async\(\)=>\{/);
+  assert.match(html,/\.finally\(\(\)=>\{authTransition=null\}\)/);
+});
+
+test('restoring a session does not automatically invoke Zibur or open realtime channels',()=>{
+  assert.match(html,/form\.onsubmit=e=>[\s\S]*askSmartZibur\(q\)/);
+  assert.doesNotMatch(html,/resumeAuthenticatedSession[\s\S]{0,800}askSmartZibur\(/);
+  assert.doesNotMatch(html,/\.channel\(|\.subscribe\(/);
+});
+
+test('session restoration performs one profile hydration without redirecting the homepage',()=>{
+  const start=html.indexOf('async function cacheSignedInUser');
+  const end=html.indexOf("document.getElementById('signupForm')",start);
+  const restoration=html.slice(start,end);
+  assert.equal((restoration.match(/from\('profiles'\)/g)||[]).length,1);
+  assert.equal((restoration.match(/showApp\(\)/g)||[]).length,1);
+  assert.doesNotMatch(restoration,/router\.(?:push|replace|refresh)|location\.(?:assign|replace)|window\.location/);
+  assert.match(html,/SIGNED_OUT'[\s\S]{0,80}showAuth\(\)/);
+  assert.match(html,/signInWithPassword[\s\S]{0,500}resumeAuthenticatedSession\(data\.session\)/);
 });
