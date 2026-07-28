@@ -5,6 +5,7 @@ import path from 'node:path';
 
 const root=path.resolve(import.meta.dirname,'..');
 const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+const worker=fs.readFileSync(path.join(root,'web/sw.js'),'utf8');
 
 test('Supabase auth callbacks return before profile queries begin',()=>{
   assert.match(html,/onAuthStateChange\(\(event,session\)=>\{/);
@@ -28,4 +29,12 @@ test('profile and destination hydration cannot block an authenticated user',()=>
 test('switching accounts cannot reuse another users cached profile',()=>{
   assert.match(html,/if\(!sameUser\)localStorage\.removeItem\('btv-profile'\)/);
   assert.match(html,/activeAuthUserId=null/);
+});
+
+test('navigation retries before showing a self-recovering offline screen',()=>{
+  assert.match(worker,/async function networkDocument/);
+  assert.match(worker,/cache:'reload'/);
+  assert.match(worker,/setTimeout\(retry,3000\)/);
+  assert.match(worker,/addEventListener\('online',retry\)/);
+  assert.match(worker,/Cache-Control':'no-store/);
 });
