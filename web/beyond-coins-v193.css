@@ -1,0 +1,65 @@
+/* Beyond Coins v193: one reliable scroll surface from header to final ledger row. */
+html body #btvCoins178.btvCoins178[open] > .coinApp178 {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  grid-template-rows: 86px auto auto auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+html body #btvCoins178.btvCoins178[open] > .coinApp178 > .coinBody178 {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  align-self: start !important;
+}
+
+#btvCoins178 .coinOverview178,
+#btvCoins178 .coinPage178,
+#btvCoins178 .coinHistory178,
+#btvCoins178 .coinCardGrid178,
+#btvCoins178 .coinChallengeList178 {
+  min-width: 0;
+  overflow: visible;
+}
+
+#btvCoins178 .coinGrid178 > *,
+#btvCoins178 .coinFeatured178 > *,
+#btvCoins178 .coinHistory178 article > *,
+#btvCoins178 .coinCardGrid178 article > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#btvCoins178 .coinHistory178 b,
+#btvCoins178 .coinHistory178 small,
+#btvCoins178 .coinCardGrid178 h2,
+#btvCoins178 .coinChallengeList178 h2 {
+  white-space: normal;
+  word-break: normal;
+}
+
+#btvCoins178 .coinBody178::after {
+  content: '';
+  display: block;
+  height: max(28px, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 720px) {
+  html body #btvCoins178.btvCoins178[open] > .coinApp178 {
+    grid-template-rows: 70px auto auto auto !important;
+    scrollbar-gutter: auto;
+  }
+
+  #btvCoins178 .coinTabs178 {
+    position: sticky;
+    top: 70px;
+  }
+
+  #btvCoins178 .coinBody178 {
+    padding-bottom: calc(58px + env(safe-area-inset-bottom)) !important;
+  }
+}
