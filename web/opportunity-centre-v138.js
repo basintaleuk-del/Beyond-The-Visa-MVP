@@ -31,6 +31,7 @@
     may_be_available: "Sponsorship may be available",
     not_stated: "Sponsorship not stated",
   };
+  const ACTIVE_OPPORTUNITY_STATUSES = ["published", "closing_soon"];
   const state = {
     rows: [],
     sponsorshipRows: [],
@@ -209,7 +210,7 @@
   }
 
   async function countRows(configure) {
-    let query = db().from("btv_jobs").select("id", { count: "exact", head: true }).eq("status", "published").is("expired_at", null);
+    let query = db().from("btv_jobs").select("id", { count: "exact", head: true }).in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null);
     query = configure(query);
     const { count, error } = await query;
     if (error) throw error;
@@ -235,10 +236,10 @@
       const from = state.page * 24;
       const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
       const [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await Promise.all([
-        db().from("btv_jobs").select("*", { count: "exact" }).eq("status", "published").is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
-        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).in("sponsorship_status", ["confirmed", "may_be_available"]).order("sponsorship_status", { ascending: true }).order("published_at", { ascending: false }).limit(12),
-        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("opportunity_type", "scholarship").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(6),
-        db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("opportunity_type", "event").eq("verified", true).gte("event_end_at", new Date().toISOString()).order("event_start_at", { ascending: true }).limit(6),
+        db().from("btv_jobs").select("*", { count: "exact" }).in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
+        db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).in("sponsorship_status", ["confirmed", "may_be_available"]).order("sponsorship_status", { ascending: true }).order("published_at", { ascending: false }).limit(12),
+        db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("opportunity_type", "scholarship").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(6),
+        db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("opportunity_type", "event").eq("verified", true).gte("event_end_at", new Date().toISOString()).order("event_start_at", { ascending: true }).limit(6),
         db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(),
         db().from("btv_saved_jobs").select("job_id").eq("user_id", user.id),
         db().from("btv_opportunity_dismissals").select("opportunity_id").eq("user_id", user.id),
@@ -256,7 +257,7 @@
       state.sponsorshipRows = sponsorshipFeed.data || [];
       state.fundingRows = fundingFeed.data || [];
       state.eventRows = eventFeed.data || [];
-      state.lastUpdated = state.rows.filter((row) => row.source_name === "NHS Jobs").map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
+      state.lastUpdated = [...state.rows, ...state.sponsorshipRows].filter((row) => row.source_name === "NHS Jobs").map((row) => row.last_checked_at).filter(Boolean).sort().at(-1) || null;
       state.total = feed.count || 0;
       state.profile = profile.data || {};
       state.saved = new Set((saved.data || []).map((row) => row.job_id));
@@ -545,7 +546,7 @@
     dialog.innerHTML = `<section class="opportunitySummaryModal138"><header><span class="opportunitySummaryModalIcon138">${opportunityIcon(icon)}</span><div><small>UPDATED DAILY FROM NHS JOBS</small><h2>${esc(title)}</h2><p>${esc(description)}</p></div><button type="button" data-summary-close aria-label="Close ${esc(title)}">&times;</button></header><div class="opportunitySummaryLoading138" role="status"><span></span><b>Loading current vacancies&hellip;</b></div></section>`;
     dialog.showModal();
     try {
-      let query = db().from("btv_jobs").select("*").eq("status", "published").is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(48);
+      let query = db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(48);
       if (filterKey === "new-today") query = query.gte("published_at", `${today()}T00:00:00Z`);
       if (filterKey === "nursing") query = query.in("profession", ["nurse", "both"]);
       if (filterKey === "midwifery") query = query.in("profession", ["midwife", "both"]);

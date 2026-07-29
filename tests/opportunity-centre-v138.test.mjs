@@ -72,7 +72,7 @@ test('all eight live statistic tiles open current filtered NHS job results',asyn
   const [feature,css,config]=await Promise.all([read('web/opportunity-centre-v138.js'),read('web/opportunity-centre-v138.css'),read('vercel.json')]);
   for(const key of ['new-today','nursing','midwifery','sponsorship-confirmed','sponsorship-possible','closing-week','recommended','employers'])assert.match(feature,new RegExp(`"${key}"`));
   assert.match(feature,/data-summary-filter/);assert.match(feature,/function showSummaryJobs/);assert.match(feature,/data-opportunity-summary-dialog/);
-  assert.match(feature,/\.eq\("status", "published"\)\.is\("expired_at", null\)\.eq\("source_name", "NHS Jobs"\)/);
+  assert.match(feature,/\.in\("status", ACTIVE_OPPORTUNITY_STATUSES\)\.is\("expired_at", null\)\.eq\("source_name", "NHS Jobs"\)/);
   assert.match(feature,/state\.summaryRows = data \|\| \[\]/);assert.match(feature,/return showDetail\(row\)/);
   assert.match(css,/\.opportunitySummary138>button/);assert.match(css,/\.opportunitySummaryDialog138/);assert.match(css,/\.opportunitySummaryResults138/);
   assert.match(config,/\/api\/global-jobs-import/);assert.match(config,/15 3 \* \* \*/);

@@ -14,15 +14,29 @@ test("all four Jobs heading tiles are selectable controls with useful actions",a
   const [ui,css]=await Promise.all([read("web/jobs-centre-v148.js"),read("web/jobs-centre-v148.css")]);
   for(const kind of ["vacancies","families","employers","sponsorship"])assert.match(ui,new RegExp(`heroStat\\("${kind}"`));
   assert.match(ui,/Show all live vacancies/);assert.match(ui,/Choose a staff family/);assert.match(ui,/Filter by employer/);assert.match(ui,/Show jobs where sponsorship is mentioned/);
-  assert.match(ui,/querySelectorAll\("\[data-jobs-stat\]"\)/);assert.match(ui,/focusFilter\("profession"\)/);assert.match(ui,/focusFilter\("employer"\)/);assert.match(ui,/aria-pressed/);
+  assert.match(ui,/querySelectorAll\("\[data-jobs-stat\]"\)/);assert.match(ui,/openStatDialog\(button\.dataset\.jobsStat\)/);assert.match(ui,/data-nhs-jobs-stat-dialog/);assert.match(ui,/aria-haspopup="dialog"/);
+  assert.match(ui,/data-stat-filter="profession"/);assert.match(ui,/data-stat-filter="employer"/);assert.match(ui,/data-stat-job/);
   assert.equal((ui.match(/\bwire\(\);/g)||[]).length,1,"render must wire each tile exactly once");
-  assert.match(css,/\.nhsJobsHeroStat148:hover,\.nhsJobsHeroStat148:focus-visible/);
+  assert.match(css,/\.nhsJobsHeroStat148:hover,\.nhsJobsHeroStat148:focus-visible/);assert.match(css,/\.nhsJobsStatDialog176/);
 });
 
 test("long job names wrap inside cards and the detail header",async()=>{
   const css=await read("web/jobs-centre-v148.css");
   assert.match(css,/\.nhsJob148 h3,.nhsJob148 h3 a,.nhsJobDetail150 h1[\s\S]*overflow-wrap:anywhere/);
+  assert.match(css,/word-break:break-word/);
   assert.match(css,/\.nhsJob148\{overflow:hidden/);
+});
+
+test("NHS Apply links go directly to the original application page",async()=>{
+  const ui=await read("web/jobs-centre-v148.js");
+  assert.match(ui,/applicationUrl=/);assert.match(ui,/target="_blank" rel="noopener noreferrer">Apply<\/a>/);
+  assert.doesNotMatch(ui,/Apply on Beyond The Visa/);assert.doesNotMatch(ui,/BTVJobApplication\?\.open/);
+});
+
+test("desktop Jobs hero art is also used on phone layouts",async()=>{
+  const css=await read("web/jobs-centre-v148.css");
+  assert.match(css,/content:url\("assets\/jobs\/nhs-jobs-hero\.webp"\)/);
+  assert.match(css,/@media\(max-width:600px\)[\s\S]*nhsJobsHeroMedia148/);
 });
 
 test("on-site application form posts only authenticated applicant fields",async()=>{

@@ -37,7 +37,8 @@ function invoke(handler, req, method = "GET") {
     let code = 200, settled = false;
     const finish = (payload) => { if (settled) return; settled = true; let body = payload; try { if (typeof payload === "string") body = JSON.parse(payload); } catch {} resolve({ status: code, body }); };
     const response = { status(value) { code = value; return this; }, setHeader() { return this; }, send: finish, json: finish };
-    Promise.resolve(handler({ ...req, method, query: {}, body: {} }, response)).then(() => { if (!settled) finish({}); }).catch(reject);
+    const delegatedRequest = { ...req, method, headers: req.headers || {}, query: {}, body: {} };
+    Promise.resolve(handler(delegatedRequest, response)).then(() => { if (!settled) finish({}); }).catch(reject);
   });
 }
 
