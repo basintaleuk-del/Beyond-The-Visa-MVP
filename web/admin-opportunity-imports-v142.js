@@ -29,14 +29,18 @@
       editButton.insertAdjacentHTML("afterend", `<button data-recheck-vacancy="${editButton.dataset.editOpportunity}">Recheck source</button>`);
       article.querySelector("[data-recheck-vacancy]").addEventListener("click", async (event) => { event.currentTarget.disabled = true; event.currentTarget.textContent = "Rechecking…"; const { data } = await window.btvSupabase.auth.getSession(); const response = await fetch("/api/opportunity-import", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}`, "content-type": "application/json" }, body: JSON.stringify({ action: "recheck", job_id: event.currentTarget.dataset.recheckVacancy }) }); const result = await response.json(); if (!response.ok) alert(result.error || "Recheck failed"); location.reload(); });
     });
-    if (root.querySelector('[data-admin-view="imports"]')) return;
+    /* The base Opportunity Centre creates the shell before it renders its tabs.
+       Do not query or mutate that empty shell: this observer would otherwise
+       trigger itself continuously and exhaust every admin data request. */
+    const tabs = root.querySelector(".opAdminTabs138");
+    if (!tabs || root.querySelector('[data-admin-view="imports"]')) return;
     const [sourceResult, runResult] = await Promise.all([
       window.btvSupabase.from("btv_approved_sources").select("*").order("name"),
       window.btvSupabase.from("btv_opportunity_import_runs").select("*,btv_approved_sources(name)").order("started_at", { ascending: false }).limit(30),
     ]);
     if (sourceResult.error || runResult.error) return;
     const sources = sourceResult.data || [], runs = runResult.data || [];
-    root.querySelector(".opAdminTabs138")?.insertAdjacentHTML("beforeend", '<button data-admin-view="imports">Daily imports</button>');
+    tabs.insertAdjacentHTML("beforeend", '<button data-admin-view="imports">Daily imports</button>');
     root.insertAdjacentHTML("beforeend", `<section data-admin-pane="imports" hidden><div class="opAdminImportHead138"><div><span>AUTOMATION</span><h3>Daily import · 03:15 UTC</h3><p>Only approved structured feeds can be enabled. Disabled sources are never fetched.</p></div><button data-run-import>Run now</button></div><h3>Approved-source register</h3><div class="opAdminRows138">${sources.map((item) => { const canEnable = item.permission_status === "approved" && item.integration_type === "json_feed_v1"; return `<article><div><span>${esc(item.source_type)} · permission ${esc(item.permission_status)}</span><h3>${esc(item.name)}</h3><p>${esc(item.integration_type)} · ${item.last_successful_run_at ? `last success ${new Date(item.last_successful_run_at).toLocaleString("en-GB")}` : "never imported"}${item.last_error ? ` · ${esc(item.last_error)}` : ""}</p></div><button data-source-toggle="${item.id}" data-enabled="${item.enabled}" ${!item.enabled && !canEnable ? "disabled" : ""}>${item.enabled ? "Disable" : "Enable"}</button></article>`; }).join("") || "<p>No sources registered.</p>"}</div><h3>Recent runs</h3><div class="opAdminRows138">${runs.map((item) => `<article><div><span>${esc(item.status)} · ${esc(item.triggered_by)}</span><h3>${esc(item.btv_approved_sources?.name || "Daily orchestration")}</h3><p>${new Date(item.started_at).toLocaleString("en-GB")} · found ${item.records_found} · created ${item.records_created} · updated ${item.records_updated} · archived ${item.records_archived}${item.error_summary ? ` · ${esc(item.error_summary)}` : ""}</p></div></article>`).join("") || "<p>No import runs yet.</p>"}</div></section>`);
     const nhsSource = sources.find((item) => item.name === "NHS Jobs");
     const nhsRun = runs.find((item) => item.source_id === nhsSource?.id && item.status !== "running");
