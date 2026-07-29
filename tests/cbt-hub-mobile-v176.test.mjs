@@ -38,3 +38,10 @@ test('mobile layout has accessible tap targets, wrapping and a lightweight nurse
   assert.match(css, /overflow:hidden/);
   assert.ok(image.size < 100_000, `hero image should stay below 100 KB, received ${image.size}`);
 });
+
+test('premium CBT hero fades rather than blurs the nurse image', async () => {
+  const [html, css] = await Promise.all([read('web/exam-prep.html'), read('web/exam-prep-v167.css')]);
+  assert.match(html, /class="heroProof"/);
+  assert.match(css, /\.heroMedia img\{[^}]*filter:none;opacity:\.5/);
+  assert.doesNotMatch(css, /\.heroMedia img\{[^}]*filter:blur/);
+});

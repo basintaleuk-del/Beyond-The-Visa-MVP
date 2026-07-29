@@ -57,3 +57,12 @@ test("admin tools and checkout use the current production contract", async () =>
   assert.match(checkout, /coin_amount: coins/);
   assert.doesNotMatch(checkout, /coin_total: coins/);
 });
+
+test("wallet ledger permits canonical paid exam charges and refunds", async () => {
+  const sql = await read("supabase/migrations/20260729203945_restore_exam_wallet_transaction_types.sql");
+  assert.match(sql, /'exam_charge'/);
+  assert.match(sql, /'exam_refund'/);
+  for (const existing of ["challenge_reward", "streak_reward", "golden_question_monthly_prize"]) {
+    assert.match(sql, new RegExp(`'${existing}'`));
+  }
+});
