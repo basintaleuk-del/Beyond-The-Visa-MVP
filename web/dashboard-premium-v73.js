@@ -875,6 +875,7 @@
   }
 
   async function openCoinsCentre() {
+    if (window.BTVBeyondCoins178?.open) return window.BTVBeyondCoins178.open();
     const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
     let dialog = document.getElementById("coinsCentreDialog73");
     if (!dialog) {
@@ -2011,6 +2012,11 @@
             <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg(
       "arrowRight"
     )}</em></article>
+          </section>
+
+          <section class="coinWidget178" data-coins-widget178 aria-label="Beyond Coins wallet">
+            <div><span>BEYOND COINS</span><strong>${Number(state.wallet?.balance || 0).toLocaleString("en-GB")} BC</strong><small>Loading rewards and level…</small></div>
+            <button type="button" data-open-wallet178>View wallet</button>
           </section>
 
           <section class="journeyPanel73" aria-labelledby="journey-title73">

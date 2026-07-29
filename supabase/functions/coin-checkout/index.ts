@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
       provider_reference: reference,
       amount_minor: Number(pack.price_minor),
       currency: String(pack.currency),
-      coin_total: coins,
+      coin_amount: coins,
       status: 'pending'
     });
 
