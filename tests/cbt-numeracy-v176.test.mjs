@@ -43,3 +43,15 @@ test('clinical visuals are compact deterministic diagrams, not answer-bearing as
   for (const type of ['syringe', 'medicine_cup', 'iv_bag', 'fluid_chart']) assert.match(js, new RegExp(type));
   assert.match(css, /max-height:190px/);
 });
+
+test('Numeracy hero uses responsive optimised nurse art without changing session controls', async () => {
+  const [html, css] = await Promise.all([read('web/numeracy.html'), read('web/numeracy-hero-v183.css')]);
+  assert.match(html, /Professional Indian nurse holding a tablet/);
+  assert.match(html, /numeracy-nurse-hero-640\.webp 640w/);
+  assert.match(html, /numeracy-nurse-hero-1600\.webp 1600w/);
+  assert.match(html, /width="1600" height="764"/);
+  assert.match(html, /fetchpriority="high"/);
+  assert.match(html, /Train today\. Perform confidently\./);
+  assert.match(css, /\.numHeroMedia/);
+  assert.match(css, /linear-gradient\(90deg/);
+});
