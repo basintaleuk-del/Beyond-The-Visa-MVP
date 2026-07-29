@@ -919,7 +919,139 @@
     renderBuyGrid(dialog.querySelector("#coinsBuyGrid73"), data.packages);
   }
 
+  async function openMentorMarketplace() {
+    let dialog = document.getElementById("mentorMarketplaceDialog177");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "mentorMarketplaceDialog177";
+      dialog.className = "mentorMarketplaceDialog177";
+      document.body.append(dialog);
+    }
+
+    const close = () => dialog.close();
+    dialog.innerHTML = `<article class="mentorMarketplace177">
+      <header class="mentorHero177">
+        <div class="mentorHeroTop177"><span>MENTOR MARKETPLACE</span><button type="button" data-mentor-close aria-label="Close mentor marketplace">&times;</button></div>
+        <div class="mentorHeroCopy177">
+          <div><p class="mentorEyebrow177">LEARN FROM EXPERIENCE</p><h2>Guidance from people who have done it.</h2><p>Meet approved healthcare professionals who understand registration, relocation and building a career in a new country.</p></div>
+          <div class="mentorHeroProof177" aria-label="Marketplace standards"><div><b>Approved</b><small>professional profiles</small></div><div><b>1-to-1</b><small>focused guidance</small></div><div><b>Safe</b><small>on-platform support</small></div></div>
+        </div>
+      </header>
+      <div class="mentorToolbar177">
+        <label><span class="mentorSearchIcon177">${iconSvg("search")}</span><input type="search" data-mentor-search placeholder="Search specialty, language or support" aria-label="Search mentors"></label>
+        <div class="mentorFilters177" role="group" aria-label="Filter mentors">
+          <button type="button" class="active" data-mentor-filter="all">All mentors</button>
+          <button type="button" data-mentor-filter="registration">Registration</button>
+          <button type="button" data-mentor-filter="exam">Exam preparation</button>
+          <button type="button" data-mentor-filter="career">Career & interviews</button>
+        </div>
+      </div>
+      <div class="mentorBody177">
+        <main class="mentorResults177">
+          <div class="mentorResultsHead177"><div><p>APPROVED MENTORS</p><h3>Find your right fit</h3></div><span data-mentor-count>Checking availability...</span></div>
+          <div class="mentorGrid177" data-mentor-results><div class="mentorLoading177"><i></i><p>Loading approved mentors...</p></div></div>
+        </main>
+        <aside class="mentorGuide177">
+          <section><p>HOW IT WORKS</p><ol><li><i>1</i><span><b>Choose your mentor</b><small>Match experience to your destination and goals.</small></span></li><li><i>2</i><span><b>Pick a focused topic</b><small>Prepare the one outcome you want from your session.</small></span></li><li><i>3</i><span><b>Meet securely</b><small>Keep communication and support on Beyond The Visa.</small></span></li></ol></section>
+          <section class="mentorTopics177"><p>POPULAR SUPPORT</p><div><span>Registration pathways</span><span>CBT & NCLEX planning</span><span>Interview confidence</span><span>First months abroad</span></div></section>
+          <section class="mentorSafety177"><span aria-hidden="true">&#10003;</span><div><b>Your safety matters</b><small>Never share private contact or payment details. Sessions and support stay protected on the platform.</small></div></section>
+          <button type="button" class="mentorMatch177" data-mentor-match>Help me find a mentor</button>
+        </aside>
+      </div>
+    </article>`;
+
+    dialog.querySelector("[data-mentor-close]")?.addEventListener("click", close);
+    dialog.querySelector("[data-mentor-match]")?.addEventListener("click", () => {
+      close();
+      go("feedback");
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) close();
+    }, { once: true });
+    if (!dialog.open) dialog.showModal();
+
+    const results = dialog.querySelector("[data-mentor-results]");
+    const count = dialog.querySelector("[data-mentor-count]");
+    let mentors = [];
+    try {
+      const response = await db()
+        .from("btv_mentors")
+        .select("id,biography,experience_years,specialty,languages,areas_of_support,coin_price,rating,review_count")
+        .eq("status", "approved")
+        .order("rating", { ascending: false });
+      if (response.error) throw response.error;
+      mentors = response.data || [];
+    } catch (error) {
+      console.warn("Mentor marketplace unavailable", error);
+    }
+
+    const initialsForMentor = (mentor, index) =>
+      String(mentor.specialty || `Mentor ${index + 1}`)
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase();
+    const card = (mentor, index) => {
+      const support = Array.isArray(mentor.areas_of_support) ? mentor.areas_of_support : [];
+      const languages = Array.isArray(mentor.languages) ? mentor.languages : [];
+      const title = mentor.specialty || "Healthcare career mentor";
+      return `<article class="mentorCard177" data-mentor-card data-search="${esc(`${title} ${support.join(" ")} ${languages.join(" ")}`.toLowerCase())}">
+        <div class="mentorCardTop177"><span class="mentorAvatar177">${esc(initialsForMentor(mentor, index))}</span><span class="mentorVerified177">&#10003; Approved</span></div>
+        <div class="mentorCardTitle177"><h4>${esc(title)}</h4><span>${Number(mentor.experience_years || 0)}+ years experience</span></div>
+        <div class="mentorRating177"><b>${Number(mentor.rating || 0) > 0 ? `&#9733; ${Number(mentor.rating).toFixed(1)}` : "New mentor"}</b><small>${Number(mentor.review_count || 0)} reviews</small></div>
+        <p class="mentorBio177">${esc(mentor.biography || "Practical guidance for your healthcare registration and international career journey.")}</p>
+        <div class="mentorTags177">${support.slice(0, 3).map((item) => `<span>${esc(item)}</span>`).join("") || "<span>Career guidance</span><span>Pathway planning</span>"}</div>
+        <div class="mentorCardFoot177"><div><small>SESSION FROM</small><b>${Number(mentor.coin_price || 0)} BC</b></div><button type="button" data-mentor-profile aria-expanded="false">View profile</button></div>
+        <div class="mentorProfile177" hidden><p><b>Languages</b><span>${esc(languages.join(", ") || "English")}</span></p><p><b>Best for</b><span>${esc(support.join(", ") || "Registration, career and relocation planning")}</span></p></div>
+      </article>`;
+    };
+
+    const renderMentors = () => {
+      const query = String(dialog.querySelector("[data-mentor-search]")?.value || "").trim().toLowerCase();
+      const active = dialog.querySelector("[data-mentor-filter].active")?.dataset.mentorFilter || "all";
+      const category = {
+        registration: ["registration", "pathway", "visa", "relocation", "licensure"],
+        exam: ["exam", "cbt", "nclex", "osce", "ielts"],
+        career: ["career", "interview", "application", "employment", "job"],
+      }[active] || [];
+      const filtered = mentors.filter((mentor) => {
+        const haystack = `${mentor.specialty || ""} ${(mentor.areas_of_support || []).join(" ")} ${(mentor.languages || []).join(" ")} ${mentor.biography || ""}`.toLowerCase();
+        return (!query || haystack.includes(query)) && (!category.length || category.some((term) => haystack.includes(term)));
+      });
+      count.textContent = `${filtered.length} ${filtered.length === 1 ? "mentor" : "mentors"} available`;
+      results.innerHTML = filtered.length
+        ? filtered.map(card).join("")
+        : `<section class="mentorEmpty177"><span aria-hidden="true">&#9671;</span><h4>${mentors.length ? "No mentors match those filters" : "New mentor profiles are being reviewed"}</h4><p>${mentors.length ? "Try another support area or clear your search." : "We are carefully approving experienced professionals before they appear here. Tell us what support you need and we will keep you informed."}</p><button type="button" data-mentor-empty-action>${mentors.length ? "Show all mentors" : "Join the early access list"}</button></section>`;
+      results.querySelector("[data-mentor-empty-action]")?.addEventListener("click", () => {
+        if (mentors.length) {
+          dialog.querySelector("[data-mentor-search]").value = "";
+          dialog.querySelectorAll("[data-mentor-filter]").forEach((button) => button.classList.toggle("active", button.dataset.mentorFilter === "all"));
+          renderMentors();
+        } else {
+          close();
+          go("feedback");
+        }
+      });
+      results.querySelectorAll("[data-mentor-profile]").forEach((button) => button.addEventListener("click", () => {
+        const profile = button.closest("[data-mentor-card]")?.querySelector(".mentorProfile177");
+        if (!profile) return;
+        profile.hidden = !profile.hidden;
+        button.setAttribute("aria-expanded", String(!profile.hidden));
+        button.textContent = profile.hidden ? "View profile" : "Hide profile";
+      }));
+    };
+
+    dialog.querySelector("[data-mentor-search]")?.addEventListener("input", renderMentors);
+    dialog.querySelectorAll("[data-mentor-filter]").forEach((button) => button.addEventListener("click", () => {
+      dialog.querySelectorAll("[data-mentor-filter]").forEach((item) => item.classList.toggle("active", item === button));
+      renderMentors();
+    }));
+    renderMentors();
+  }
+
   function openStandalonePanel(type) {
+    if (type === "mentors") return openMentorMarketplace();
     const panels = {
       mentors: {
         icon: "🧑‍⚕️",
