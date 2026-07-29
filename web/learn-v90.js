@@ -11,7 +11,7 @@
     {id:'nclex',label:'NCLEX-RN',icon:'RN',copy:'Clinical questions and adaptive exam preparation.',url:'nclex.html',meta:'Clinical readiness'},
     {id:'osce',label:'OSCE',icon:'OS',copy:'Station-focused practice, marking criteria and guidance.',url:'osce.html',meta:'Practical skills'},
     {id:'ielts',label:'IELTS Academic',icon:'A',copy:'Reading, writing, listening and speaking preparation.',url:'ielts.html',meta:'Language preparation'},
-    {id:'calculations',label:'CBT Numeracy',icon:'%',copy:'Practise safe medication and dosage calculations with interactive questions.',route:'calculations',meta:'Interactive practice'},
+    {id:'calculations',label:'CBT Numeracy',icon:'%',copy:'Practise safe medication and dosage calculations in the dedicated Numeracy Studio.',url:'numeracy.html',meta:'3,000 original calculations'},
     {id:'adult-nursing',label:'Clinical learning',icon:'CL',copy:'Core adult nursing topics and clinical resources.',url:'adult-nursing.html',meta:'Reference library'},
     {id:'analytics',label:'Learning progress',icon:'UP',copy:'Review recorded practice, results and study activity.',route:'analytics',meta:'Your activity'},
   ];

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#082e32">
+  <meta name="robots" content="noindex,nofollow">
+  <title>CBT Numeracy Studio | Beyond The Visa</title>
+  <meta name="description" content="Premium CBT numeracy and clinical calculation practice with timed simulations, daily questions and a built-in calculator.">
+  <link rel="icon" href="site-logo.png">
+  <link rel="stylesheet" href="numeracy-v176.css?v=176">
+</head>
+<body>
+  <header class="numTopbar">
+    <a class="numBack" href="index.html?screen=learn" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</a>
+    <a class="numBrand" href="index.html"><img src="site-logo.png" alt=""><span>Beyond The Visa</span></a>
+    <div class="numBalance" id="coinBalance"><span>◆</span> — BC</div>
+  </header>
+
+  <main id="numeracyApp" class="numApp" aria-live="polite">
+    <section id="numLoading" class="numLoading"><div class="numSpinner"></div><h1>Preparing your calculation studio</h1><p>Securing your session and question bank…</p></section>
+
+    <section id="numHub" hidden>
+      <div class="numHero">
+        <div class="numHeroCopy"><span class="numEyebrow">CBT NUMERACY STUDIO</span><h1>Precision under pressure.</h1><p>Build reliable calculation habits with original, exam-standard clinical scenarios, focused feedback and timed simulations.</p><div class="numTrust"><span>3,000 original questions</span><span>Private answer checking</span><span>Blueprint-aligned mix</span></div></div>
+        <div class="numDial" aria-hidden="true"><div><strong id="bankCount">3,000</strong><span>calculations</span></div></div>
+      </div>
+
+      <div class="numSectionHead"><div><span>CHOOSE YOUR SESSION</span><h2>Train today. Perform calmly.</h2></div><p>The daily studio is free. Timed simulations use real Beyond Coins and deduct once when a secure attempt starts.</p></div>
+      <div class="numPlans">
+        <article class="numPlan numDaily"><div class="numPlanIcon">10</div><span class="numKicker">DAILY PRACTICE</span><h3>Ten focused calculations</h3><p>A fresh random question on every step, with immediate worked feedback.</p><ul><li>10 questions free each UTC day</li><li>Untimed and self-paced</li><li>Clinical calculator included</li></ul><button class="numPrimary" data-start-free>Start free practice <span>→</span></button></article>
+        <article class="numPlan"><div class="numPlanIcon">15</div><span class="numKicker">NUMERACY SPRINT</span><h3>30 questions · 15 minutes</h3><p>A fast, focused simulation for accuracy at examination pace.</p><ul><li>Randomised 30-question set</li><li>Server-timed attempt</li><li>Score and full review</li></ul><button class="numPrimary numCoin" data-start-paid="numeracy_short">Start for 50 BC <span>◆</span></button></article>
+        <article class="numPlan numFeatured"><div class="numBest">FULL SIMULATION</div><div class="numPlanIcon">30</div><span class="numKicker">NUMERACY SIMULATION</span><h3>60 questions · 30 minutes</h3><p>A deeper calculation session across the complete public blueprint.</p><ul><li>Randomised 60-question set</li><li>Server-timed attempt</li><li>Score and full review</li></ul><button class="numPrimary numCoin" data-start-paid="numeracy_full">Start for 100 BC <span>◆</span></button></article>
+      </div>
+
+      <section class="numBlueprint"><div><span class="numEyebrow">CALCULATION COVERAGE</span><h2>A balanced clinical question bank</h2><p>Original independent practice across dose measurement, metric units, oral medicines, injections, IV infusions and fluid balance.</p></div><div class="numBlueprintGrid"><span>Correct dose</span><span>Metric units</span><span>Oral medicines</span><span>Injections</span><span>IV infusions</span><span>Fluid balance</span></div></section>
+      <p class="numDisclaimer">Independent educational practice modelled on the public NMC Test of Competence numeracy blueprint. These are not official NMC or Pearson VUE questions and do not replace local medicines policy or clinical supervision.</p>
+    </section>
+
+    <section id="numPractice" class="numWorkspace" hidden>
+      <div class="numWorkspaceTop"><button class="numTextButton" data-exit>← Exit session</button><div class="numMode" id="sessionMode">DAILY PRACTICE</div><div class="numClock" id="sessionClock">Untimed</div></div>
+      <div class="numProgress"><i id="progressBar"></i></div>
+      <div class="numQuestionLayout">
+        <article class="numQuestionCard">
+          <div class="numQuestionMeta"><span id="questionNumber">QUESTION 1</span><span id="questionCategory">ORAL MEDICINES</span></div>
+          <h1 id="questionText">Loading question…</h1>
+          <div id="visualHost" class="numVisual" hidden><canvas id="clinicalVisual" width="640" height="210" role="img"></canvas></div>
+          <section class="numCalculator" aria-label="Calculator">
+            <div class="numCalcHead"><div><span>BUILT-IN CALCULATOR</span><small>Available below every question</small></div><button type="button" data-calc-clear>Clear</button></div>
+            <output id="calcDisplay">0</output>
+            <div class="numCalcKeys" id="calcKeys"><button>7</button><button>8</button><button>9</button><button>÷</button><button>4</button><button>5</button><button>6</button><button>×</button><button>1</button><button>2</button><button>3</button><button>−</button><button>0</button><button>.</button><button data-calc-equals>=</button><button>+</button></div>
+          </section>
+          <form id="answerForm" class="numAnswer"><label for="answerInput">Your answer</label><div><input id="answerInput" type="number" step="any" inputmode="decimal" autocomplete="off" required><span id="answerUnit"></span><button class="numPrimary" type="submit" id="checkAnswer">Check answer</button></div></form>
+          <div id="feedback" class="numFeedback" hidden></div>
+          <div class="numQuestionActions"><button class="numSecondary" id="previousQuestion" type="button" hidden>Previous</button><button class="numPrimary" id="nextQuestion" type="button" hidden>Next question <span>→</span></button></div>
+        </article>
+        <aside class="numSide"><span>SESSION PROGRESS</span><strong id="sideProgress">1 / 10</strong><p id="sideMessage">Answer carefully. Your response will stay on screen until you choose Next.</p><div class="numSafety"><b>Calculation safety</b><p>Check the unit, estimate the expected range, calculate, then review the final answer.</p></div></aside>
+      </div>
+    </section>
+
+    <section id="numResult" class="numResult" hidden><span class="numEyebrow">SESSION COMPLETE</span><div class="numResultScore"><strong id="resultScore">0%</strong></div><h1 id="resultTitle">Calculation session complete</h1><p id="resultCopy"></p><div class="numResultActions"><button class="numPrimary" data-return-hub>Return to Numeracy Studio</button><a class="numSecondary" href="index.html?screen=learn">Back to Learn</a></div></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="coin-exam-service-v87.js?v=87"></script>
+  <script src="numeracy-v176.js?v=176"></script>
+</body>
+</html>

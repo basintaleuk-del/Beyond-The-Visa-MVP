@@ -16,7 +16,7 @@
   {id:'nclex',title:'NCLEX',description:'Clinical practice and adaptive preparation.',icon:'pulse',category:'study',target:{url:'nclex.html'}},
   {id:'osce',title:'OSCE',description:'Stations, marking criteria and practical guidance.',icon:'stethoscope',category:'study',target:{url:'osce.html'}},
   {id:'adult-nursing',title:'Adult Nursing',description:'Core nursing knowledge and clinical topics.',icon:'heart',category:'study',target:{url:'adult-nursing.html'}},
-  {id:'calculations',title:'CBT Numeracy',description:'Practise medication calculations safely.',icon:'calculator',category:'study',target:{screen:'learn',action:'calculations'}},
+  {id:'calculations',title:'CBT Numeracy',description:'Practise medication calculations safely.',icon:'calculator',category:'study',target:{url:'numeracy.html'}},
   {id:'interview',title:'Interview Preparation',description:'Prepare strong answers and book support.',icon:'messages',category:'career',target:{screen:'coaching'}},
   {id:'mentors',title:'Mentor Marketplace',description:'Find experienced professional support.',icon:'mentor',category:'career',target:{hub:'mentors'}},
   {id:'stories',title:'Success Stories',description:'Learn from nurses who completed the journey.',icon:'star',category:'career',target:{hub:'stories'}},
