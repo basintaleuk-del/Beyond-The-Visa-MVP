@@ -6,29 +6,32 @@
   <meta name="theme-color" content="#103f43">
   <title>Exam Prep | Beyond The Visa</title>
   <meta name="description" content="Original nursing exam preparation questions, mock exams and progress tracking.">
-  <link rel="stylesheet" href="exam-prep-v167.css?v=175">
+  <link rel="stylesheet" href="exam-prep-v167.css?v=176">
   <link rel="stylesheet" href="beyond-coins-v72.css?v=72">
 </head>
 <body>
   <a class="skipLink" href="#main">Skip to main content</a>
   <header class="topbar">
-    <div class="brandCluster"><button id="backToLearn" class="backButton" type="button" aria-label="Back to Learn">&#8592; <span>Learn</span></button><a class="brand" href="index.html"><span aria-hidden="true">B</span><strong>Beyond The Visa<small>CBT Learning Hub</small></strong></a></div>
-    <nav aria-label="Exam preparation"><button data-route="landing" aria-current="page">Prepare</button><button data-route="progress">My progress</button></nav>
+    <div class="brandCluster"><a class="brand" href="index.html"><span aria-hidden="true">B</span><strong>Beyond The Visa<small>CBT Learning Hub</small></strong></a></div>
     <button id="themeToggle" class="iconButton" aria-label="Toggle dark mode">◐</button>
   </header>
 
   <main id="main">
+    <div class="pageControls" id="pageControls">
+      <button id="pageBack" class="pageBack" type="button"><span aria-hidden="true">&#8592;</span> Back</button>
+      <nav class="pageTabs" aria-label="CBT Learning Hub sections"><button data-route="landing" aria-current="page"><span class="tabIcon" aria-hidden="true">&#10003;</span> Prepare</button><button data-route="progress" aria-current="false"><span class="tabIcon" aria-hidden="true">&#8599;</span> My progress</button></nav>
+    </div>
     <section id="loadingView" class="loading" aria-live="polite"><span class="spinner" aria-hidden="true"></span><h1>Opening Exam Prep…</h1></section>
 
     <section id="landingView" class="view" hidden>
       <section class="hero">
-        <div><span class="eyebrow">YOUR CBT LEARNING HUB</span><h1>Prepare with confidence</h1><p>Move from focused practice to timed mock exams in one seamless learning space, with clear explanations and personalised progress.</p><div class="heroActions"><button id="heroStart" class="primary">Start practising</button><button data-route="progress" class="secondary">View my progress</button></div></div>
-        <div class="heroVisual" aria-hidden="true"><span>✓</span><i></i><i></i><i></i><b>Clinical judgement</b></div>
+        <div class="heroContent"><span class="eyebrow">YOUR CBT LEARNING HUB</span><h1>Prepare with confidence</h1><p>Move from focused practice to timed mock exams in one seamless learning space, with clear explanations and personalised progress.</p><div class="heroActions"><button id="heroStart" class="primary"><span aria-hidden="true">&#9654;</span> Start practising</button><button id="heroMocks" class="secondary"><span aria-hidden="true">&#9638;</span> Mock exams</button><button data-route="progress" class="secondary"><span aria-hidden="true">&#8599;</span> View my progress</button></div></div>
+        <figure class="heroMedia"><img src="cbt-learning-hero-v176.webp" alt="Professional African female nurse in green scrubs holding a tablet"></figure>
       </section>
 
-      <p class="legalNotice"><strong>Independent educational content.</strong> These are independent practice questions created for educational purposes. They are not official examination questions and are not affiliated with or endorsed by Pearson VUE or any examination provider.</p>
+      <section class="legalNotice" aria-labelledby="educationNoticeTitle"><div class="noticeIcon" aria-hidden="true">&#127891;</div><div><h2 id="educationNoticeTitle">Independent educational content</h2><p>These are independent practice questions created for educational purposes. They are not official examination questions and are not affiliated with or endorsed by Pearson VUE or any examination provider.</p></div></section>
 
-      <section class="bankOverview" aria-label="CBT question bank"><div><span class="eyebrow">COMPLETE PRACTICE BANK</span><h2>One hub. Every available question.</h2><p>Practise reviewed and awaiting-review questions without leaving this interface. Review status is always visible, while free-practice and mock-access rules remain unchanged.</p></div><div id="bankStatus" class="bankStatus" role="status" aria-live="polite"><b>Loading question bank...</b></div><button id="bankStart" class="secondary" type="button">Open practice</button></section>
+      <section class="bankOverview" aria-label="CBT question bank"><div class="bankCopy"><span class="eyebrow">COMPLETE PRACTICE BANK</span><h2>One hub. Every available question.</h2><p>Practise reviewed and awaiting-review questions without leaving this interface. Review status is always visible, while free-practice and mock-access rules remain unchanged.</p><div id="bankStatus" class="bankMetrics" role="status" aria-live="polite"><article><b id="bankQuestions">&mdash;</b><span>Questions ready</span></article><article><b id="bankAccuracy">&mdash;</b><span>Average accuracy</span></article><article><b id="bankMocks">&mdash;</b><span>Mock exams</span></article></div></div><div class="bankArt" aria-hidden="true"><span>&#9745;</span><i></i><i></i><i></i></div><button id="bankStart" class="bankArrow" type="button" aria-label="Open the complete CBT practice bank">&#8594;</button></section>
 
       <div class="sectionHeading"><div><span class="eyebrow">CHOOSE YOUR PATH</span><h2>Available examinations</h2></div><p>Only examinations with active, reviewed questions appear here.</p></div>
       <div id="examGrid" class="examGrid" aria-live="polite"></div>
@@ -78,11 +81,12 @@
 
     <section id="resultsView" class="view results" hidden><button class="textBack" data-route="landing">← Exam Prep</button><div id="resultsContent"></div></section>
 
-    <section id="progressView" class="view progressView" hidden><button class="textBack" data-route="landing">← Exam Prep</button><span class="eyebrow">YOUR PROGRESS</span><h1>Build consistency, topic by topic</h1><div id="progressCards" class="progressCards"></div><section class="chartCard"><h2>Activity and accuracy</h2><div id="accuracyChart" class="accessibleChart" role="img" aria-label="Your exam preparation accuracy"></div></section><section class="historyCard"><h2>Recent sessions</h2><div id="sessionHistory"></div></section></section>
+    <section id="progressView" class="view progressView" hidden><span class="eyebrow">YOUR PROGRESS</span><h1>Build consistency, topic by topic</h1><div id="progressCards" class="progressCards"></div><section class="chartCard"><h2>Activity and accuracy</h2><div id="accuracyChart" class="accessibleChart" role="img" aria-label="Your exam preparation accuracy"></div></section><section class="historyCard"><h2>Recent sessions</h2><div id="sessionHistory"></div></section></section>
   </main>
 
   <dialog id="exitDialog"><form method="dialog"><h2>Leave this session?</h2><p>Your answers are saved. You can continue an unfinished session from the Exam Prep landing page.</p><div><button value="cancel" class="secondary">Keep studying</button><button id="confirmExit" value="default" class="danger">Save and exit</button></div></form></dialog>
+  <dialog id="mockChooser" class="mockChooser"><form method="dialog"><button class="mockClose" value="cancel" aria-label="Close mock exam options">&#10005;</button><span class="eyebrow">SECURE MOCK EXAMS</span><h2>Choose your CBT simulation</h2><p>Select an exam before payment. Beyond Coins are deducted securely once, immediately before the timed questions open.</p><div class="mockChoices"><button type="button" data-mock-tier="short"><span><b>Focused mock</b><small>30 questions &middot; 15 minutes</small></span><strong>50 <i>BC</i></strong></button><button type="button" data-mock-tier="full"><span><b>Full simulation</b><small>60 questions &middot; 30 minutes</small></span><strong>100 <i>BC</i></strong></button></div><small class="mockTerms">An active attempt is resumed without a second charge. Answers are scored securely after submission or when time expires.</small></form></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><script src="coin-exam-service-v87.js?v=87"></script><script src="exam-prep-v167.js?v=175"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-client.js"></script><script src="coin-exam-service-v87.js?v=87"></script><script src="exam-prep-v167.js?v=176"></script>
 </body>
 </html>

@@ -20,7 +20,13 @@ test('the upgraded layout embeds the secure CBT bank and removes the legacy hand
   ]);
   assert.match(html,/Prepare with confidence/);
   assert.match(html,/id="bankView"/);
-  assert.match(html,/id="backToLearn"/);
+  assert.match(html,/id="pageBack"/);
+  const topbar=html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0]||'';
+  assert.doesNotMatch(topbar,/id="pageBack"/);
+  assert.match(html,/class="pageTabs"[\s\S]*Prepare[\s\S]*My progress/);
+  assert.match(html,/id="heroStart"[\s\S]*id="heroMocks"[\s\S]*data-route="progress"/);
+  assert.match(html,/cbt-learning-hero-v176\.webp/);
+  assert.match(client,/history\.length>1\?history\.back\(\)/);
   assert.match(client,/btv_cbt_next_practice_question/);
   assert.match(client,/btv_submit_cbt_practice_answer/);
   assert.match(client,/startPaidMock/);
