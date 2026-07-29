@@ -76,6 +76,29 @@ module.exports=async function handler(req,res){
         const payload={user_id:user.id,country_code:country.code,profession:plainText(body.profession,100)||null,specialties:Array.isArray(body.specialties)?body.specialties.map((x)=>plainText(x,100)).filter(Boolean).slice(0,20):[],locations:Array.isArray(body.locations)?body.locations.map((x)=>plainText(x,120)).filter(Boolean).slice(0,20):[],sponsorship_preference:body.sponsorship_preference==="confirmed"?"confirmed":"any",employment_types:Array.isArray(body.employment_types)?body.employment_types.map((x)=>plainText(x,100)).filter(Boolean).slice(0,20):[],frequency:body.frequency==="weekly"?"weekly":"daily",is_active:body.is_active!==false,updated_at:new Date().toISOString()};
         const rows=await rest("btv_job_alerts",{method:"POST",prefer:"return=representation",body:payload});return reply(res,200,{alert:rows?.[0]});
       }
+      if(action==="submit_application"){
+        const jobId=String(body.job_id||"");
+        if(!/^[0-9a-f-]{36}$/i.test(jobId))return reply(res,400,{error:"Valid job ID required."});
+        const jobs=await rest(`btv_jobs?select=id,country_code,employer_name,employer,title,application_url,application_kind,status,expired_at,closing_at&id=eq.${encodeURIComponent(jobId)}&limit=1`),job=jobs?.[0];
+        const closing=closeDate(job||{});
+        if(!job||!allowedStatuses.has(job.status)||job.expired_at||closing&&new Date(closing)<new Date())return reply(res,404,{error:"This vacancy is no longer active."});
+        if(country&&job.country_code&&job.country_code!==country.code)return reply(res,409,{error:"This vacancy does not match your selected destination."});
+        const applicantName=plainText(body.applicant_name,200),applicantEmail=plainText(body.applicant_email,320).toLowerCase(),supportingStatement=plainText(body.supporting_statement,8000);
+        if(applicantName.length<2)return reply(res,400,{error:"Enter your full name."});
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(applicantEmail))return reply(res,400,{error:"Enter a valid email address."});
+        if(supportingStatement.length<40)return reply(res,400,{error:"Add a supporting statement of at least 40 characters."});
+        if(body.consent_confirmed!==true)return reply(res,400,{error:"Confirm that Beyond The Visa may store this application."});
+        const external=job.application_kind!=="internal",now=new Date().toISOString(),sourceUrl=safeExternalUrl(job.application_url);
+        const payload={user_id:user.id,job_id:job.id,country_code:job.country_code,employer:job.employer_name||job.employer,role:job.title,
+          status:external?"external_submission_required":"submitted",applicant_name:applicantName,applicant_email:applicantEmail,
+          applicant_phone:plainText(body.applicant_phone,80)||null,current_country:plainText(body.current_country,120)||null,
+          professional_title:plainText(body.professional_title,160)||null,professional_registration:plainText(body.professional_registration,300)||null,
+          work_authorisation:plainText(body.work_authorisation,300)||null,sponsorship_required:body.sponsorship_required===true,
+          experience_summary:plainText(body.experience_summary,3000)||null,supporting_statement:supportingStatement,consent_confirmed:true,
+          submitted_at:now,applied_at:external?null:now,employer_submission_required:external,source_application_url:sourceUrl,updated_at:now};
+        await rest("btv_job_applications?on_conflict=user_id,job_id",{method:"POST",prefer:"resolution=merge-duplicates,return=minimal",body:payload});
+        return reply(res,200,{status:payload.status,employer_submission_required:external,application_url:sourceUrl,message:external?"Your application workspace is saved. Complete the employer's official form to be considered for this vacancy.":"Your application has been submitted on Beyond The Visa."});
+      }
       if(action==="track_application"){
         if(!/^[0-9a-f-]{36}$/i.test(String(body.job_id||"")))return reply(res,400,{error:"Valid job ID required."});
         const jobs=await rest(`btv_jobs?select=id,country_code,employer_name,employer,title,application_url&id=eq.${encodeURIComponent(body.job_id)}&limit=1`),job=jobs?.[0];

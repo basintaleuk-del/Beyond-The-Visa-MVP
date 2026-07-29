@@ -4,7 +4,7 @@
   window.__btvJourneyGuidance133=true;
 
   const db=()=>window.btvSupabase;
-  const countries={uk:'United Kingdom',us:'United States',au:'Australia',ca:'Canada',nz:'New Zealand',ie:'Ireland'};
+  const countries={uk:'United Kingdom',us:'United States',au:'Australia',ca:'Canada',nz:'New Zealand',ie:'Ireland',ae:'United Arab Emirates',sa:'Saudi Arabia'};
   const statuses={
     not_started:'Not started',in_progress:'In progress',waiting_for_documents:'Waiting for documents',submitted:'Submitted',
     awaiting_decision:'Awaiting decision',action_required:'Action required',completed:'Completed',not_applicable:'Not applicable'

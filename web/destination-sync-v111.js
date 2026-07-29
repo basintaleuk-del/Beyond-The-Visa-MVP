@@ -75,8 +75,26 @@
       "us_immigration",
       "us_arrival",
     ],
-    ae: [],
-    sa: [],
+    ae: [
+      "ae_authority",
+      "ae_pqr",
+      "ae_verification",
+      "ae_assessment",
+      "ae_eligibility",
+      "ae_employment",
+      "ae_work_residence",
+      "ae_arrival",
+    ],
+    sa: [
+      "sa_mumaris",
+      "sa_classification",
+      "sa_verification",
+      "sa_assessment",
+      "sa_employment",
+      "sa_work_residence",
+      "sa_registration",
+      "sa_arrival",
+    ],
   };
   const model = {
     userId: null,
