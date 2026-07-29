@@ -1,0 +1,23 @@
+/* Beyond Coins desktop canvas v191 — prevent generic app-shell width caps. */
+html body #btvCoins178.btvCoins178[open] > .coinApp178 {
+  width: 100vw !important;
+  min-width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+html body #btvCoins178.btvCoins178[open] > .coinApp178 > .coinBody178 {
+  width: 100% !important;
+  max-width: 1600px !important;
+  margin-inline: auto !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 620px) {
+  html body #btvCoins178.btvCoins178[open] > .coinApp178 {
+    min-width: 0 !important;
+  }
+}
