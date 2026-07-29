@@ -14,14 +14,19 @@ test('every standard CBT entry point opens the upgraded Exam Prep layout',async(
   assert.match(page,/location\.replace\(`exam-prep\.html/);
 });
 
-test('the upgraded layout keeps the working CBT bank available as a fallback',async()=>{
+test('the upgraded layout embeds the secure CBT bank and removes the legacy handoff',async()=>{
   const [html,client,legacy]=await Promise.all([
     read('web/exam-prep.html'),read('web/exam-prep-v167.js'),read('web/cbt.html')
   ]);
   assert.match(html,/Prepare with confidence/);
-  assert.match(html,/BTVExamPrepFallbackUrl='cbt\.html\?legacy=1'/);
-  assert.match(client,/Open CBT practice bank/);
-  assert.match(client,/function openFallback/);
-  assert.match(legacy,/!p\.has\('legacy'\)&&!p\.has\('attempt'\)/);
-  assert.match(legacy,/cbt\.js\?v=169/);
+  assert.match(html,/id="bankView"/);
+  assert.match(html,/id="backToLearn"/);
+  assert.match(client,/btv_cbt_next_practice_question/);
+  assert.match(client,/btv_submit_cbt_practice_answer/);
+  assert.match(client,/startPaidMock/);
+  assert.match(client,/BTVExam\.resumeExam/);
+  assert.match(client,/BTVExam\.submitExam/);
+  assert.doesNotMatch(client,/openFallback|BTVExamPrepFallbackUrl/);
+  assert.match(legacy,/location\.replace\(`exam-prep\.html/);
+  assert.doesNotMatch(legacy,/cbt\.js|legacy/);
 });
