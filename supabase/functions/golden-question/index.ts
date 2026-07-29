@@ -667,6 +667,13 @@ async function discussion(db: any, user: any, body: any) {
         Error("Do not include patient-identifiable information."),
         { status: 400 }
       );
+    const { data: moderation, error: moderationError } = await db.rpc(
+      "btv_enforce_contact_sharing",
+      { p_surface: "public_comment", p_content: text, p_user: user.id }
+    );
+    if (moderationError) throw moderationError;
+    if (moderation?.allowed === false)
+      throw Object.assign(Error(moderation.message), { status: 400 });
     const { data, error } = await db
       .from("golden_question_comments")
       .insert({ daily_question_id: daily, user_id: user.id, body: text })

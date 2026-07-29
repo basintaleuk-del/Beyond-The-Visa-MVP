@@ -5,6 +5,7 @@ import path from 'node:path';
 
 const root=path.resolve(import.meta.dirname,'..');
 const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+const platformConfig=fs.readFileSync(path.join(root,'web/platform-config.js'),'utf8');
 const worker=fs.readFileSync(path.join(root,'web/sw.js'),'utf8');
 const appContent=fs.readFileSync(path.join(root,'web/app-content-v171.js'),'utf8');
 const authStyles=fs.readFileSync(path.join(root,'web/auth-redesign-v69.css'),'utf8');
@@ -14,6 +15,18 @@ test('Supabase auth callbacks return before profile queries begin',()=>{
   assert.match(html,/onAuthStateChange\(\(event,session\)=>\{/);
   assert.match(html,/onAuthStateChange[\s\S]*setTimeout\(\(\)=>\{/);
   assert.doesNotMatch(html,/onAuthStateChange\(async/);
+});
+
+test('the application installs exactly one global Supabase auth listener',()=>{
+  const loadedAuthSources=html+platformConfig;
+  assert.equal((loadedAuthSources.match(/\.auth\.onAuthStateChange\(/g)||[]).length,1);
+  assert.doesNotMatch(platformConfig,/\.auth\.onAuthStateChange\(/);
+  assert.match(html,/BTVCheckAccountStatus\?\.\(session\.user\)/);
+});
+
+test('the deferred app content loader supplies non-visual legacy brand targets when needed',()=>{
+  assert.match(html,/legacyBrandTargets\.hidden=true/);
+  assert.match(html,/legacyBrandTargets\?\.remove\(\)/);
 });
 
 test('password login and initial session lookup have bounded recovery',()=>{
