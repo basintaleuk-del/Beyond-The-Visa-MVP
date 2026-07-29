@@ -30,3 +30,5 @@ test('20 admin refund is a separate idempotent credit ledger entry',()=>{has(/cr
 test('shared service exposes all required wallet exam and payment methods',()=>{for(const name of ['getWallet','getWalletTransactions','getExamProduct','getActiveAttempt','startPaidExam','resumeExam','submitExam','createPayment','verifyPayment','getPaymentStatus'])assert.match(client,new RegExp(name))});
 test('admin manages products packages attempts and refunds',()=>{for(const x of ['Exam products','Coin packages','Attempts & refunds','btv_admin_refund_exam'])assert.match(admin,new RegExp(x))});
 test('paid exam function is invoked through authenticated edge layer',()=>{assert.match(start,/btv_start_paid_exam/);assert.match(start,/Authorization/)});
+test('shared client preserves Edge Function error payloads',()=>{assert.match(client,/error\.context\?\.clone\?\.\(\)\.json/);assert.match(client,/payload\?\.code/)});
+test('standalone exam pages route coin purchases to the wallet',()=>{assert.match(client,/index\.html\?screen=wallet/);assert.match(client,/btv-pending-coin-resource/)});
