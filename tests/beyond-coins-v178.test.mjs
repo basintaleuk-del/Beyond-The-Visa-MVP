@@ -36,12 +36,16 @@ test("premium wallet uses snapshot and atomic RPCs instead of direct balance wri
 
 test("wallet is responsive, dark-mode aware and reduced-motion safe", async () => {
   const css = await read("web/beyond-coins-v178.css");
-  assert.match(css, /@media\(max-width:520px\)/);
+  assert.match(css, /@media\s*\(max-width:\s*(?:470|520)px\)/);
   assert.match(css, /body\.dark/);
-  assert.match(css, /prefers-reduced-motion:reduce/);
+  assert.match(css, /prefers-reduced-motion:\s*reduce/);
+  assert.match(css, /grid-template-columns:\s*248px minmax\(0,\s*1fr\)/);
+  assert.match(css, /@media\s*\(max-width:\s*760px\)/);
+  const js = await read("web/beyond-coins-v178.js");
+  assert.match(js, /coinNavIntro178/);
   const html = await read("web/index.html");
-  assert.match(html, /beyond-coins-v178\.css\?v=178/);
-  assert.match(html, /beyond-coins-v178\.js\?v=178/);
+  assert.match(html, /beyond-coins-v178\.css\?v=179/);
+  assert.match(html, /beyond-coins-v178\.js\?v=179/);
 });
 
 test("admin tools and checkout use the current production contract", async () => {

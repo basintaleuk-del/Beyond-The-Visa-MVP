@@ -37,11 +37,11 @@
 
   function render(dialog,data,active="overview"){
     const wallet=data.wallet||{}, progress=data.progress||{}, pct=levelProgress(data), action=nextAction(data), featured=(data.rewards||[]).find(x=>x.featured)||(data.rewards||[])[0];
-    const tabs=["overview","earn","rewards","challenges","history","buy","how"], labels={overview:"Overview",earn:"Earn",rewards:"Rewards",challenges:"Challenges",history:"History",buy:"Buy",how:"How it works"};
+    const tabs=["overview","earn","rewards","challenges","history","buy","how"], labels={overview:"Overview",earn:"Earn coins",rewards:"Rewards",challenges:"Challenges",history:"Transactions",buy:"Buy coins",how:"How it works"}, tabIcons={overview:"⌂",earn:"↗",rewards:"◇",challenges:"◎",history:"≡",buy:"＋",how:"?"};
     dialog.innerHTML=`<main class="coinApp178">
       <header class="coinTop178"><div class="coinBrand178"><span class="coinMark178">B</span><div><small>BEYOND THE VISA</small><b>Beyond Coins</b></div></div><div class="coinTopActions178"><span class="coinLevelPill178">${esc(data.level?.badge||"Explorer")}</span><button data-refresh aria-label="Refresh wallet">↻</button><button data-close aria-label="Close wallet">×</button></div></header>
       ${(data.campaigns||[]).map(c=>`<aside class="coinCampaign178"><b>${esc(c.name)}</b><span>${esc(c.banner_message||`${Number(c.multiplier||1)}× eligible rewards until ${date(c.ends_at)}`)}</span></aside>`).join("")}
-      <nav class="coinTabs178" aria-label="Wallet sections">${tabs.map(tab=>`<button data-tab="${tab}" class="${tab===active?"active":""}">${labels[tab]}</button>`).join("")}</nav>
+      <nav class="coinTabs178" aria-label="Wallet sections"><div class="coinNavIntro178"><small>MY WALLET</small><b>Coins Centre</b><p>Manage your balance, progress and rewards.</p></div>${tabs.map(tab=>`<button data-tab="${tab}" class="${tab===active?"active":""}"><i aria-hidden="true">${tabIcons[tab]}</i><span>${labels[tab]}</span></button>`).join("")}<div class="coinNavTrust178"><span>✓</span><p><b>Secure ledger</b><small>Every transaction is verified and recorded.</small></p></div></nav>
       <div class="coinBody178">${panel(active,data,{wallet,progress,pct,action,featured})}</div>
     </main>`;
     wire(dialog,data,active);
