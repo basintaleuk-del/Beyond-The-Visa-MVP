@@ -876,6 +876,8 @@
 
   async function openCoinsCentre() {
     if (window.BTVBeyondCoins178?.open) return window.BTVBeyondCoins178.open();
+    const premiumWalletButton = document.querySelector("[data-coins-widget178] button");
+    if (premiumWalletButton) return premiumWalletButton.click();
     const balance = Number(state.wallet?.balance || 0).toLocaleString("en-GB");
     let dialog = document.getElementById("coinsCentreDialog73");
     if (!dialog) {
