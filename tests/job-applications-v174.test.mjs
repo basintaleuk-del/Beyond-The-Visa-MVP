@@ -10,6 +10,15 @@ test("every NHS job tile is pointer and keyboard selectable without hijacking co
   assert.match(css,/\.nhsJob148:hover,\.nhsJob148:focus-visible/);assert.match(css,/cursor:pointer/);
 });
 
+test("all four Jobs heading tiles are selectable controls with useful actions",async()=>{
+  const [ui,css]=await Promise.all([read("web/jobs-centre-v148.js"),read("web/jobs-centre-v148.css")]);
+  for(const kind of ["vacancies","families","employers","sponsorship"])assert.match(ui,new RegExp(`heroStat\\("${kind}"`));
+  assert.match(ui,/Show all live vacancies/);assert.match(ui,/Choose a staff family/);assert.match(ui,/Filter by employer/);assert.match(ui,/Show jobs where sponsorship is mentioned/);
+  assert.match(ui,/querySelectorAll\("\[data-jobs-stat\]"\)/);assert.match(ui,/focusFilter\("profession"\)/);assert.match(ui,/focusFilter\("employer"\)/);assert.match(ui,/aria-pressed/);
+  assert.equal((ui.match(/\bwire\(\);/g)||[]).length,1,"render must wire each tile exactly once");
+  assert.match(css,/\.nhsJobsHeroStat148:hover,\.nhsJobsHeroStat148:focus-visible/);
+});
+
 test("long job names wrap inside cards and the detail header",async()=>{
   const css=await read("web/jobs-centre-v148.css");
   assert.match(css,/\.nhsJob148 h3,.nhsJob148 h3 a,.nhsJobDetail150 h1[\s\S]*overflow-wrap:anywhere/);
