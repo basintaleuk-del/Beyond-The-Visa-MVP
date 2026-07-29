@@ -1,0 +1,7 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+const root=new URL("../",import.meta.url);const read=path=>readFile(new URL(path,root),"utf8");
+test("wallet dialog is isolated and switches before overlap",async()=>{const css=await read("web/beyond-coins-v184.css");assert.match(css,/#btvCoins178\.btvCoins178\[open\]/);assert.match(css,/overflow:hidden!important/);assert.match(css,/@media\(max-width:940px\)/);assert.match(css,/overflow-x:hidden/);assert.match(css,/@media\(max-width:360px\)/)});
+test("admin centre is unified around existing controls",async()=>{const js=await read("web/admin-coins-centre-v184.js"),css=await read("web/admin-coins-centre-v184.css");for(const text of ["Canonical transaction record","Server-authorised operations","Role-based administrator rights","Audit and reconciliation tools"])assert.match(js,new RegExp(text));assert.match(js,/coins-loyalty/);assert.match(css,/data-tab="coins-loyalty"/)});
+test("v184 assets are loaded after their canonical layers",async()=>{const index=await read("web/index.html"),admin=await read("web/admin.html");assert.ok(index.indexOf("beyond-coins-v178.css")<index.indexOf("beyond-coins-v184.css"));assert.match(admin,/admin-coins-centre-v184\.js\?v=184/);assert.match(admin,/admin-coins-centre-v184\.css\?v=184/)});
