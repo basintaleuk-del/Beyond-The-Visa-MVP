@@ -1,0 +1,279 @@
+/* Mentor Marketplace and dashboard menu artwork refinement — v194 */
+
+/* Let Tower Bridge emerge from the navigation instead of reading as a footer tile. */
+.sidebarLondon73 {
+  position: relative;
+  flex: 0 0 190px;
+  margin-top: -30px;
+  overflow: hidden;
+  border: 0;
+  background: #0c1c16;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+.sidebarLondon73::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("sidebar-london-bridge-v101.png") 58% center / cover no-repeat;
+  filter: saturate(.82) contrast(1.04) brightness(.72);
+  transform: scale(1.035);
+  opacity: .9;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.15) 13%, #000 43%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.15) 13%, #000 43%, #000 100%);
+}
+
+.sidebarLondon73::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #0c1c16 0%, rgba(12,28,22,.9) 18%, rgba(12,28,22,.2) 55%, rgba(8,21,16,.76) 100%),
+    linear-gradient(90deg, rgba(12,28,22,.42), transparent 55%, rgba(12,28,22,.2));
+}
+
+/* A full-height marketplace workspace, while retaining the existing dialog contract. */
+.mentorMarketplaceDialog177 {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #123a32;
+}
+
+.mentorMarketplaceDialog177::backdrop {
+  background: rgba(3, 24, 22, .78);
+  backdrop-filter: blur(10px);
+}
+
+.mentorMarketplace177 {
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+  background: #f3f7f4;
+  box-shadow: none;
+  scrollbar-gutter: stable;
+}
+
+.mentorHero177 {
+  min-height: 330px;
+  padding: 28px clamp(24px, 5vw, 78px) 44px;
+  background:
+    linear-gradient(90deg, rgba(4,42,39,.99) 0%, rgba(4,49,44,.96) 42%, rgba(4,48,42,.6) 66%, rgba(4,44,39,.16) 100%),
+    url("mentor-marketplace-v86.png") right center / cover no-repeat;
+  isolation: isolate;
+}
+
+.mentorHero177::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 80px;
+  z-index: -1;
+  background: linear-gradient(180deg, transparent, rgba(3,39,35,.26));
+}
+
+.mentorHero177::after {
+  right: clamp(50px, 11vw, 190px);
+  bottom: -160px;
+  width: 410px;
+  height: 410px;
+  border-color: rgba(236, 202, 103, .2);
+  box-shadow: 0 0 0 48px rgba(255,255,255,.035), 0 0 0 96px rgba(255,255,255,.02);
+}
+
+.mentorHeroTop177,
+.mentorHeroCopy177,
+.mentorToolbar177,
+.mentorBody177 {
+  width: min(100%, 1540px);
+  margin-inline: auto;
+}
+
+.mentorHeroTop177 > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(239, 208, 120, .34);
+  border-radius: 999px;
+  background: rgba(4, 29, 28, .38);
+  color: #f2d27c;
+}
+
+.mentorHeroTop177 button {
+  width: 46px;
+  height: 46px;
+  border-color: rgba(255,255,255,.32);
+  background: rgba(4,30,28,.46);
+  backdrop-filter: blur(8px);
+}
+
+.mentorHeroTop177 button:focus-visible,
+.mentorFilters177 button:focus-visible,
+.mentorCardFoot177 button:focus-visible,
+.mentorMatch177:focus-visible,
+.mentorToolbar177 input:focus-visible {
+  outline: 3px solid #f0ce70;
+  outline-offset: 3px;
+}
+
+.mentorHeroCopy177 {
+  grid-template-columns: minmax(0, 1.45fr) minmax(370px, .72fr);
+  gap: clamp(34px, 6vw, 100px);
+  margin-top: 58px;
+}
+
+.mentorHeroCopy177 h2 {
+  max-width: 760px;
+  margin: 10px 0 16px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(43px, 5vw, 74px);
+  font-weight: 700;
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.mentorHeroCopy177 > div > p:last-child {
+  max-width: 690px;
+  color: #d8ebe5;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.7;
+}
+
+.mentorHeroProof177 {
+  border-color: rgba(255,255,255,.21);
+  border-radius: 20px;
+  background: rgba(3,30,28,.52);
+  box-shadow: 0 18px 44px rgba(1,22,20,.2);
+  backdrop-filter: blur(10px);
+}
+
+.mentorHeroProof177 div {
+  min-width: 0;
+  padding: 20px 17px;
+  background: rgba(5,44,40,.48);
+}
+
+.mentorHeroProof177 b { font-size: 20px; }
+.mentorHeroProof177 small { color: #c6ded7; font-size: 11px; }
+
+.mentorToolbar177 {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  box-sizing: border-box;
+  padding: 18px clamp(24px, 4vw, 58px);
+  border: 1px solid #d9e7e0;
+  border-top: 0;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 14px 35px rgba(15, 51, 39, .08);
+}
+
+.mentorToolbar177 label { min-width: 0; max-width: 520px; }
+.mentorToolbar177 input { box-sizing: border-box; height: 50px; border-radius: 15px; background: #f7faf8; }
+.mentorFilters177 button { min-height: 44px; padding-inline: 17px; }
+
+.mentorBody177 {
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: clamp(24px, 3vw, 42px);
+  padding: 42px clamp(24px, 4vw, 58px) 70px;
+}
+
+.mentorResultsHead177 { margin-bottom: 24px; }
+.mentorResultsHead177 h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(29px, 3vw, 40px);
+}
+
+.mentorGrid177 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+
+.mentorCard177 {
+  border-color: #d4e3dc;
+  border-radius: 24px;
+  padding: 21px;
+  box-shadow: 0 12px 30px rgba(18,61,50,.07);
+}
+
+.mentorCard177:hover {
+  border-color: #c5a64a;
+  box-shadow: 0 22px 50px rgba(13,58,47,.13);
+}
+
+.mentorAvatar177 { width: 56px; height: 56px; border-radius: 18px; }
+.mentorVerified177 { border: 1px solid #cfe9dc; }
+.mentorCardTitle177 h4 { font-size: 19px; line-height: 1.25; }
+.mentorBio177 { min-height: 64px; font-size: 12.5px; }
+.mentorCardFoot177 button { min-height: 44px; padding: 0 15px; }
+
+.mentorGuide177 {
+  position: sticky;
+  top: 110px;
+  align-self: start;
+}
+
+.mentorGuide177 > section {
+  border-radius: 22px;
+  padding: 21px;
+  box-shadow: 0 10px 28px rgba(18,61,50,.05);
+}
+
+.mentorMatch177 { min-height: 50px; border-radius: 15px; }
+
+@media (max-width: 1280px) {
+  .mentorGrid177 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 960px) {
+  .mentorHero177 { min-height: 390px; background-position: 68% center; }
+  .mentorHeroCopy177 { grid-template-columns: 1fr; gap: 26px; margin-top: 42px; }
+  .mentorHeroCopy177 > div { max-width: 700px; }
+  .mentorHeroProof177 { max-width: 600px; }
+  .mentorBody177 { grid-template-columns: 1fr; }
+  .mentorGuide177 { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .mentorMarketplaceDialog177 { width: 100vw; height: 100dvh; margin: 0; }
+  .mentorMarketplace177 { height: 100dvh; min-height: 100dvh; border-radius: 0; }
+  .mentorHero177 {
+    min-height: 440px;
+    padding: 20px 18px 30px;
+    background:
+      linear-gradient(180deg, rgba(4,42,39,.98) 0%, rgba(4,47,42,.93) 55%, rgba(4,46,40,.72) 100%),
+      url("mentor-marketplace-v86.png") 70% center / cover no-repeat;
+  }
+  .mentorHeroCopy177 { gap: 24px; margin-top: 38px; }
+  .mentorHeroCopy177 h2 { max-width: 560px; font-size: clamp(38px, 12vw, 54px); }
+  .mentorHeroProof177 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .mentorHeroProof177 div { padding: 15px 9px; }
+  .mentorHeroProof177 b { font-size: 16px; }
+  .mentorHeroProof177 small { font-size: 9px; }
+  .mentorToolbar177 { padding: 14px; border-radius: 0 0 18px 18px; }
+  .mentorFilters177 { width: 100%; padding-bottom: 3px; }
+  .mentorBody177 { padding: 29px 15px 50px; }
+  .mentorGrid177, .mentorGuide177 { grid-template-columns: 1fr; }
+  .mentorGuide177 .mentorSafety177, .mentorGuide177 .mentorMatch177 { grid-column: auto; }
+}
+
+@media (max-width: 420px) {
+  .mentorHero177 { min-height: 440px; }
+  .mentorHeroCopy177 h2 { font-size: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mentorCard177 { transition: none; }
+}

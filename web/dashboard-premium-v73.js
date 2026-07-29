@@ -936,7 +936,7 @@
       <header class="mentorHero177">
         <div class="mentorHeroTop177"><span>MENTOR MARKETPLACE</span><button type="button" data-mentor-close aria-label="Close mentor marketplace">&times;</button></div>
         <div class="mentorHeroCopy177">
-          <div><p class="mentorEyebrow177">LEARN FROM EXPERIENCE</p><h2>Guidance from people who have done it.</h2><p>Meet approved healthcare professionals who understand registration, relocation and building a career in a new country.</p></div>
+          <div><p class="mentorEyebrow177">THE PRIVATE MENTOR NETWORK</p><h2>Experience that moves your career forward.</h2><p>Connect with approved healthcare professionals who understand registration, relocation and the decisions that shape an international career.</p></div>
           <div class="mentorHeroProof177" aria-label="Marketplace standards"><div><b>Approved</b><small>professional profiles</small></div><div><b>1-to-1</b><small>focused guidance</small></div><div><b>Safe</b><small>on-platform support</small></div></div>
         </div>
       </header>
