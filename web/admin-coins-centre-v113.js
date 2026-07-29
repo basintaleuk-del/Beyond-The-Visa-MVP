@@ -1,4 +1,4 @@
-(()=>{'use strict';if(window.__btvAdminCoins113)return;window.__btvAdminCoins113=true;
+(()=>{'use strict';if(window.__btvAdminCoins188)return;window.__btvAdminCoins188=true;
 const db=()=>window.btvSupabase,esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=(n,c='GBP')=>new Intl.NumberFormat('en-GB',{style:'currency',currency:c}).format(Number(n||0)/100),date=v=>v?new Date(v).toLocaleString('en-GB'):'—';
 const permissionNames=['view_coin_dashboard','view_wallets','view_transactions','issue_coins','deduct_coins','refund_transactions','reverse_transactions','manage_wallet_status','manage_products_and_prices','manage_coin_packages','manage_reward_rules','manage_platform_currency_settings','manage_daily_free_questions','export_financial_data','view_audit_logs','perform_bulk_adjustments'];
 let state={view:'dashboard',days:30,walletQuery:'',walletStatus:'all',ledgerQuery:'',ledgerType:'all',data:{},permissions:{},loaded:false};
