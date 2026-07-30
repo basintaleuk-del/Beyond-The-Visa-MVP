@@ -1081,6 +1081,10 @@
   }
 
   function openStandalonePanel(type) {
+    if (type === "stories") {
+      if (window.BTVSuccessStories?.open) return window.BTVSuccessStories.open();
+      return window.BTVPlatform?.open?.("stories");
+    }
     if (type === "mentors") return openMentorMarketplace();
     const panels = {
       mentors: {
@@ -1276,7 +1280,10 @@
     }
     if (id === "wallet") return openCoinsCentre();
     if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
-    if (id === "stories") return openStandalonePanel("stories");
+    if (id === "stories") {
+      if (window.BTVSuccessStories?.open) return window.BTVSuccessStories.open();
+      return window.BTVPlatform?.open?.("stories");
+    }
     if (id === "help-support") return window.BTVHelpSupport?.open?.();
     if (id === "legal" || id === "feedback") return window.openScreen?.(id);
     if (id === "admin")

@@ -6,6 +6,7 @@ const read=path=>fs.readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 const index=read('web/index.html');
 const admin=read('web/admin.html');
 const platform=read('web/platform-upgrade-v72.js');
+const dashboard=read('web/dashboard-premium-v73.js');
 const client=read('web/success-stories-v198.js');
 const clientCss=read('web/success-stories-v198.css');
 const adminJs=read('web/admin-success-stories-v198.js');
@@ -19,6 +20,9 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(index,/success-stories-v198\.css\?v=208/);
   assert.match(index,/success-stories-v198\.js\?v=208/);
   assert.match(index,/platform-upgrade-v72\.js\?v=211/);
+  assert.match(index,/dashboard-premium-v73\.js\?v=214/);
+  assert.match(dashboard,/if \(type === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
+  assert.match(dashboard,/if \(id === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
 });
 
 test('every authenticated member receives a complete moderated submission flow',()=>{
