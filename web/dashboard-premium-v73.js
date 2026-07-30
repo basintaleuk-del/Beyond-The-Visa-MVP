@@ -91,6 +91,36 @@
     }
   }
 
+  function localProfileExtra() {
+    try {
+      return JSON.parse(localStorage.getItem("btv-profile-extra") || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function profilePhoto() {
+    const stored =
+      localProfileExtra().photo ||
+      localProfile().photo ||
+      "";
+    if (stored) return String(stored);
+    const current =
+      document.querySelector("#headerProfile img")?.getAttribute("src") ||
+      document.getElementById("pfPhoto")?.getAttribute("src") ||
+      "";
+    return String(current).startsWith("data:image/svg+xml") ? "" : String(current);
+  }
+
+  function avatarMarkup(name, className) {
+    const photo = profilePhoto();
+    return photo
+      ? `<span class="${className}"><img data-btv-profile-photo src="${esc(
+          photo
+        )}" alt=""></span>`
+      : `<span class="${className}">${esc(initials(name))}</span>`;
+  }
+
   function destinationInfo() {
     const profile = localProfile();
     const synced = window.destinationSync?.snapshot?.() || null;
@@ -1332,6 +1362,7 @@
         label: "Account",
         links: [
           ["Profile", "profile"],
+          ["Inbox", "inbox"],
           ["Qualifications & Registration", "qualifications-registration"],
           ["My Documents", "documents"],
           ["Notifications", "notifications"],
@@ -1370,7 +1401,6 @@
         label: "Community and Support",
         links: [
           ["Mentors", "mentors"],
-          ["Inbox", "inbox"],
           ["Success stories", "stories"],
           ["Community", "community"],
           ["Help and support", "help-support"],
@@ -1525,15 +1555,17 @@
         "ACCOUNT",
         [
           ["Profile", "profile"],
+          ["Inbox", "inbox"],
           ["Qualifications & Registration", "qualifications-registration"],
           ["Beyond Coins", "wallet"],
           ["Settings", "profile"],
         ],
       ],
     ];
-    o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73"><span class="avatar">${esc(
-      initials(name)
-    )}</span><span><b>${esc(name)}</b><small>${esc(
+    o.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Navigation menu"><div class="drawerHead73"><b>Beyond The Visa</b><button class="icon73 ghost73" data-close aria-label="Close navigation">×</button></div><div class="drawerUser73">${avatarMarkup(
+      name,
+      "avatar"
+    )}<span><b>${esc(name)}</b><small>${esc(
       userPathway(state.u)
     )}</small></span></div>${nav
       .map(
@@ -1609,9 +1641,10 @@
       document.body.append(backdrop);
     }
     const name = safeName(state.u);
-    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73"><span class="avatar">${esc(
-      initials(name)
-    )}</span><span><b>${esc(name)}</b><small>${esc(
+    backdrop.innerHTML = `<aside class="drawer73" role="dialog" aria-modal="true" aria-label="Account and navigation menu"><div class="drawerHead73"><b>Menu</b><button class="icon73 ghost73" data-close aria-label="Close navigation">&times;</button></div><div class="drawerUser73">${avatarMarkup(
+      name,
+      "avatar"
+    )}<span><b>${esc(name)}</b><small>${esc(
       userPathway(state.u)
     )}</small></span></div><div class="drawerMenu73">${menuMarkup(
       "drawer-menu73"
@@ -1999,7 +2032,7 @@
         <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(
           name
         )}">
-          <span class="avatar73">${esc(initials(name))}</span>
+          ${avatarMarkup(name, "avatar73")}
           <span><b>${esc(name)}</b><small>View profile</small></span>
           <span class="profileArrow73">${iconSvg("arrowRight")}</span>
         </button>
@@ -2223,6 +2256,7 @@
   window.addEventListener("btv:wallet-changed", queueRender);
   window.addEventListener("btv:destination-changed", queueRender);
   window.addEventListener("btv:auth-ready", queueRender);
+  window.addEventListener("btv:profile-photo-updated", queueRender);
   window.addEventListener("focus", queueRender);
   document.addEventListener("DOMContentLoaded", queueRender);
 

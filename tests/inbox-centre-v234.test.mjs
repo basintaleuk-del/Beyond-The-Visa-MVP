@@ -11,13 +11,33 @@ const css = read("web/inbox-centre-v234.css");
 const migration = read("supabase/migrations/20260730220000_member_inbox_v234.sql");
 
 test("the member-facing Bookings menu is replaced by the Inbox without deleting booking services", () => {
+  const accountGroup = dashboard.slice(dashboard.indexOf('id: "account"'), dashboard.indexOf('id: "learn"'));
+  const supportGroup = dashboard.slice(dashboard.indexOf('id: "support"'), dashboard.indexOf("function menuMarkup"));
+  const profileAccount = profile.slice(profile.indexOf("YOUR ACCOUNT"), profile.indexOf("MEMBER CENTRE"));
+  const profileMember = profile.slice(profile.indexOf("MEMBER CENTRE"), profile.indexOf("HELP & MANAGEMENT"));
   assert.match(dashboard, /\["Inbox", "inbox"\]/);
+  assert.match(accountGroup, /\["Profile", "profile"\],[\s\S]*\["Inbox", "inbox"\]/);
+  assert.doesNotMatch(supportGroup, /\["Inbox", "inbox"\]/);
   assert.doesNotMatch(dashboard, /\["Bookings", "bookings"\]/);
   assert.match(profile, /item\("inbox", "Inbox", "Mentor, job and account messages"\)/);
+  assert.match(profileAccount, /item\("profile"[\s\S]*item\("inbox"[\s\S]*item\("membership"/);
+  assert.doesNotMatch(profileMember, /item\("inbox"/);
   assert.doesNotMatch(profile, /item\("bookings"/);
   assert.match(index, /bookings-centre-v224\.js\?v=224/);
   assert.match(index, /inbox-centre-v234\.js\?v=234/);
   assert.match(index, /inbox-centre-v234\.css\?v=239/);
+});
+
+test("saved profile photos replace initials across account navigation", () => {
+  const storage = read("web/storage-v21.js");
+  assert.match(dashboard, /function profilePhoto\(\)/);
+  assert.match(dashboard, /function avatarMarkup\(name, className\)/);
+  assert.match(dashboard, /data-btv-profile-photo/);
+  assert.match(dashboard, /btv:profile-photo-updated/);
+  assert.match(storage, /querySelectorAll\('\[data-btv-profile-photo\],\.btvMemberMenuHead82 img'\)/);
+  assert.match(storage, /new CustomEvent\('btv:profile-photo-updated'/);
+  assert.match(index, /profile-menu-v82\.js\?v=87/);
+  assert.match(index, /storage-v21\.js\?v=102/);
 });
 
 test("the inbox uses real owner-protected Supabase threads and messages", () => {

@@ -64,8 +64,8 @@
     const admin = await isAdmin();
     menu.innerHTML = `<div class="btvMemberMenuPanel82" role="dialog" aria-modal="true" aria-label="Account menu">
       <div class="btvMemberMenuHead82"><img src="${profile.photo || profileButton?.querySelector("img")?.src || ""}" alt=""><div><b>${profile.preferred || account.name || "Your account"}</b><small>${account.email || "Member centre"}</small></div><button class="btvMemberMenuClose82" aria-label="Close account menu">×</button></div>
-      <div class="btvMemberMenuGroup82"><span>YOUR ACCOUNT</span>${item("profile", "Profile", "Personal details and photo")}${item("membership", "Membership", "Plan and Premium access")}${item("preferences", "Preferences", "Notifications and app settings")}${item("legal", "Privacy & legal", "Terms, cookies and your data")}</div>
-      <div class="btvMemberMenuGroup82"><span>MEMBER CENTRE</span>${item("articles", "Articles", "Guidance and published updates")}${item("videos", "Videos", "Watch learning resources")}${item("inbox", "Inbox", "Mentor, job and account messages")}</div>
+      <div class="btvMemberMenuGroup82"><span>YOUR ACCOUNT</span>${item("profile", "Profile", "Personal details and photo")}${item("inbox", "Inbox", "Mentor, job and account messages")}${item("membership", "Membership", "Plan and Premium access")}${item("preferences", "Preferences", "Notifications and app settings")}${item("legal", "Privacy & legal", "Terms, cookies and your data")}</div>
+      <div class="btvMemberMenuGroup82"><span>MEMBER CENTRE</span>${item("articles", "Articles", "Guidance and published updates")}${item("videos", "Videos", "Watch learning resources")}</div>
       <div class="btvMemberMenuGroup82"><span>HELP & MANAGEMENT</span>${item("contact", "Help & support", "Ask for help or contact the support team")}${item("feedback", "Feedback", "Send feedback or report a problem")}${admin ? item("admin", "Admin portal", "Manage users, content and services", true) : ""}</div>
     </div>`;
     menu.hidden = false;

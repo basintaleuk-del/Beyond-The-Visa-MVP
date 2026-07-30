@@ -217,6 +217,7 @@ html,body{max-width:100%;overflow-x:clip}
   font-weight:800;
   flex:none;
 }
+.avatar73 img,.drawerUser73 .avatar img{display:block;width:100%;height:100%;border-radius:inherit;object-fit:cover}
 .profileCard73 b,.profileCard73 small{display:block}
 .profileCard73 b{font-size:13px;color:#fff}
 .profileCard73 small{
