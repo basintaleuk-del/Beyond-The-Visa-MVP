@@ -253,6 +253,7 @@
         progress: [],
         steps: [],
         activity: [],
+        streak: null,
       };
       return state;
     }
@@ -331,7 +332,15 @@
         progress: progress.data || [],
         steps: steps.data || [],
         activity: activity.data || [],
+        streak: null,
       };
+      try {
+        const streakSummary = await db().rpc("btv_learning_streak_summary");
+        if (streakSummary.error) throw streakSummary.error;
+        platform.streak = streakSummary.data || null;
+      } catch (e) {
+        console.warn("v73 streak standings fallback", e);
+      }
     } catch (e) {
       console.warn("v73 data fallback", e);
       platform = {
@@ -344,6 +353,7 @@
         progress: [],
         steps: [],
         activity: [],
+        streak: null,
       };
     }
     state = { u, ...platform };
@@ -1303,6 +1313,167 @@
     if (!dialog.open) dialog.showModal();
   }
 
+  function streakDayLabel(value) {
+    return Number(value) === 1 ? "day" : "days";
+  }
+
+  function streakDateLabel(value) {
+    const parsed = value ? new Date(`${value}T12:00:00Z`) : null;
+    if (!parsed || Number.isNaN(parsed.getTime())) return "";
+    return parsed.toLocaleDateString(undefined, {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+  }
+
+  function streakSummaryMarkup(summary) {
+    const current = Number(summary?.current_streak || 0);
+    const longest = Number(summary?.longest_streak || 0);
+    const rank = Number(summary?.rank_position || 0);
+    const learners = Number(summary?.ranked_learners || 0);
+    const percentile = Number(summary?.percentile || 0);
+    const today = Number(summary?.today_questions || 0);
+    const active30 = Number(summary?.active_days_30 || 0);
+    const calendar = Array.isArray(summary?.calendar) ? summary.calendar : [];
+    const leaders = Array.isArray(summary?.leaderboard)
+      ? summary.leaderboard
+      : [];
+    const rankCopy =
+      rank && learners
+        ? `<strong>#${rank}</strong><span>of ${learners.toLocaleString(
+            "en-GB"
+          )} active learners</span>`
+        : "<strong>New</strong><span>Answer a question to enter the standings</span>";
+    const percentileCopy = percentile
+      ? `<span class="streakPercentile245">Top ${Math.max(
+          1,
+          101 - percentile
+        )}% this season</span>`
+      : "";
+    const calendarMarkup = calendar
+      .map((day) => {
+        const date = streakDateLabel(day.date);
+        const weekday = day.date
+          ? new Date(`${day.date}T12:00:00Z`).toLocaleDateString(undefined, {
+              weekday: "narrow",
+              timeZone: "UTC",
+            })
+          : "";
+        const questions = Number(day.questions || 0);
+        return `<div class="streakDay245 ${
+          day.active ? "active" : ""
+        }" title="${esc(date)}: ${questions} questions"><span>${esc(
+          weekday
+        )}</span><i aria-hidden="true"></i><small>${questions}</small></div>`;
+      })
+      .join("");
+    const leaderboardMarkup = leaders.length
+      ? leaders
+          .map(
+            (learner) => `<li class="${
+              learner.is_you ? "isYou" : ""
+            }"><span class="streakPosition245">${Number(
+              learner.position || 0
+            )}</span><b>${esc(learner.label || "Learner")}</b><em>${Number(
+              learner.current_streak || 0
+            )} ${streakDayLabel(learner.current_streak)}</em></li>`
+          )
+          .join("")
+      : `<li class="streakEmpty245"><b>Your standings begin with one answered question.</b><span>Free practice and mock answers both count.</span></li>`;
+
+    return `<div class="streakHero245">
+      <div class="streakHeroCopy245"><span>YOUR LEARNING MOMENTUM</span><h2>${current}</h2><p>consecutive answer ${streakDayLabel(
+      current
+    )}</p><small>${
+      today
+        ? `${today.toLocaleString("en-GB")} question${
+            today === 1 ? "" : "s"
+          } answered today`
+        : "Answer one free or mock question today to activate the day"
+    }</small></div>
+      <div class="streakRank245">${rankCopy}${percentileCopy}</div>
+    </div>
+    <div class="streakMetrics245">
+      <article><small>PERSONAL BEST</small><b>${longest} ${streakDayLabel(
+      longest
+    )}</b><span>Longest consecutive run</span></article>
+      <article><small>LAST 30 DAYS</small><b>${active30} active</b><span>${Number(
+      summary?.questions_30 || 0
+    ).toLocaleString("en-GB")} questions answered</span></article>
+      <article><small>ALL ANSWERS</small><b>${Number(
+        summary?.questions_total || 0
+      ).toLocaleString("en-GB")}</b><span>${Number(
+      summary?.free_questions_total || 0
+    ).toLocaleString("en-GB")} free · ${Number(
+      summary?.mock_questions_total || 0
+    ).toLocaleString("en-GB")} mock</span></article>
+    </div>
+    <section class="streakCalendarSection245"><div><span>14-DAY ACTIVITY</span><p>Every marked day contains at least one answered question.</p></div><div class="streakCalendar245" aria-label="Question activity over the last 14 days">${calendarMarkup}</div></section>
+    <section class="streakStandings245"><div class="streakStandingsHead245"><div><span>LEARNER STANDINGS</span><h3>Your position, privately ranked</h3></div><small>Names are anonymised</small></div><ol>${leaderboardMarkup}</ol></section>
+    <aside class="streakRule245"><b>How your streak works</b><span>Answer at least one free-practice or mock question in a UTC calendar day. Accuracy does not affect the streak, and only verified platform answers count.</span></aside>`;
+  }
+
+  async function openStudyStreak() {
+    let dialog = document.getElementById("studyStreakDialog245");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "studyStreakDialog245";
+      dialog.className = "studyStreakDialog245";
+      document.body.appendChild(dialog);
+    }
+    const renderDialog = (summary, pending = false) => {
+      dialog.innerHTML = `<article class="studyStreakPanel245">
+        <header><div class="streakMark245" aria-hidden="true">🔥</div><div><span>BEYOND THE VISA</span><b>Study streak</b></div><button type="button" data-streak-close aria-label="Close study streak">&times;</button></header>
+        <main>${
+          pending
+            ? '<div class="streakLoading245"><i></i><b>Preparing your verified streak…</b><span>Matching your free and mock question activity.</span></div>'
+            : streakSummaryMarkup(summary)
+        }</main>
+        ${
+          pending
+            ? ""
+            : '<footer><button type="button" data-streak-study>Answer today’s question</button><button type="button" data-streak-close>Close</button></footer>'
+        }
+      </article>`;
+      dialog
+        .querySelectorAll("[data-streak-close]")
+        .forEach((button) => (button.onclick = () => dialog.close()));
+      dialog
+        .querySelector("[data-streak-study]")
+        ?.addEventListener("click", () => {
+          dialog.close();
+          go("study");
+        });
+    };
+    renderDialog(state.streak, !state.streak);
+    dialog.onclick = (event) => {
+      if (event.target === dialog) dialog.close();
+    };
+    if (!dialog.open) dialog.showModal();
+    if (!state.streak && db()?.rpc) {
+      try {
+        const response = await db().rpc("btv_learning_streak_summary");
+        if (response.error) throw response.error;
+        state.streak = response.data || {};
+        renderDialog(state.streak);
+      } catch (error) {
+        console.warn("v73 streak panel unavailable", error);
+        renderDialog({
+          current_streak: Number(state.game?.current_streak || 0),
+          longest_streak: Number(state.game?.longest_streak || 0),
+        });
+        dialog
+          .querySelector(".streakHero245")
+          ?.insertAdjacentHTML(
+            "afterend",
+            '<p class="streakSync245">Live standings are synchronising. Your verified answer history remains safely recorded.</p>'
+          );
+      }
+    }
+  }
+
   function go(id) {
     if (id === "immigration-news") return window.BTVImmigrationNews?.open?.(destinationInfo().key);
     if (id === "dashboard") {
@@ -1908,6 +2079,19 @@
   }
 
   function wire(root) {
+    root.querySelectorAll("[data-streak-open]").forEach((x) => {
+      x.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openStudyStreak();
+      };
+      x.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openStudyStreak();
+        }
+      };
+    });
     root.querySelectorAll("[data-go]").forEach((x) => {
       x.onclick = (e) => {
         e.preventDefault();
@@ -1966,7 +2150,9 @@
     const exam = examStats();
     const destination = destinationInfo();
     const savedJobs = Number(state.saved?.length || 0);
-    const streak = Number(state.game?.current_streak || 0);
+    const streak = Number(
+      state.streak?.current_streak ?? state.game?.current_streak ?? 0
+    );
     const journeySteps = journeyItems();
     const currentJourneyStep =
       journeySteps.find((step) => step.current) ||
@@ -2129,9 +2315,13 @@
             <article class="statCard73" data-go="saved-jobs"><small>🔖 Saved jobs</small><b>${savedJobs}</b><span>Career opportunities</span><em>View saved jobs ${iconSvg(
       "arrowRight"
     )}</em></article>
-            <article class="statCard73" data-go="analytics"><small>🔥 Study streak</small><b>${streak}</b><span>days active</span><em>View learning progress ${iconSvg(
-      "arrowRight"
-    )}</em></article>
+            <article class="statCard73 streakStat245" data-streak-open role="button" tabindex="0" aria-label="Open study streak and learner standings"><small>🔥 Study streak</small><b>${streak}</b><span>consecutive answer ${streakDayLabel(
+      streak
+    )}</span><em>${
+      state.streak?.rank_position
+        ? `Rank #${Number(state.streak.rank_position)}`
+        : "View streak standings"
+    } ${iconSvg("arrowRight")}</em></article>
           </section>
 
           <section class="coinWidget178" data-coins-widget178 aria-label="Beyond Coins wallet">
