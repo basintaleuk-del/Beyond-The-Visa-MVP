@@ -56,17 +56,25 @@
     </section>
     <section id="mockView" class="view">
       <div id="mockIntro" class="panel"><h2>Timed NCLEX-style sample mock</h2><p>Choose a 15- or 30-minute mock from the available sample-question bank. Items may not have been clinically reviewed and are not official NCLEX questions.</p><label>Time limit<select id="mockMinutes"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label><button id="startMock" class="primary">Choose sample mock</button></div>
-      <div id="mockExam" hidden><div class="examTop"><b id="mockProgress"></b><time id="timer">30:00</time></div><div id="mockCard" class="questionCard"></div></div>
-      <div id="mockResult" class="panel center" hidden></div>
     </section>
     <section id="historyView" class="view"><div class="panel"><h2>Your NCLEX results</h2><div id="historyList"></div></div></section>
     <p class="disclaimer"><b>Sample questions:</b> unofficial educational practice only. Items may not have been clinically reviewed and do not replace official NCLEX materials, professional training, local policy or clinical judgement. This module is not affiliated with or endorsed by NCSBN.</p>
   </section>
 </main>
+<dialog id="nclexMockStudio" class="nclexMockStudio" aria-labelledby="nclexMockStudioTitle">
+  <section class="nclexMockStudioPanel">
+    <header class="nclexMockStudioHeader">
+      <div><span>SECURE NCLEX-RN MOCK</span><h2 id="nclexMockStudioTitle">Your timed assessment</h2></div>
+      <p>Stay focused. Your timer is running.</p>
+    </header>
+    <div id="mockExam" hidden><div class="examTop"><b id="mockProgress"></b><time id="timer">30:00</time></div><div id="mockCard" class="questionCard"></div></div>
+    <div id="mockResult" class="panel center" hidden></div>
+  </section>
+</dialog>
 <div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
-<link rel="stylesheet" href="beyond-coins-v72.css?v=182"><link rel="stylesheet" href="beyond-coins-v112.css?v=118"><link rel="stylesheet" href="beyond-coins-v113.css?v=113"><script src="beyond-coins-v72.js?v=72"></script><script src="coin-exam-service-v87.js?v=182"></script><script src="beyond-coins-v112.js?v=226"></script><script src="nclex.js?v=118"></script><script src="mock-access-v72.js?v=225"></script>
+<link rel="stylesheet" href="beyond-coins-v72.css?v=182"><link rel="stylesheet" href="beyond-coins-v112.css?v=118"><link rel="stylesheet" href="beyond-coins-v113.css?v=113"><script src="beyond-coins-v72.js?v=72"></script><script src="coin-exam-service-v87.js?v=182"></script><script src="beyond-coins-v112.js?v=226"></script><script src="nclex.js?v=227"></script><script src="mock-access-v72.js?v=225"></script>
 <script src="question-tools-v79.js?v=79"></script>
 <script src="back-navigation-v108.js?v=108"></script>
 </body>

@@ -48,3 +48,13 @@ test('hub actions preserve existing practice routes and responsive behaviour',()
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
   assert.match(css,/min-height:46px/);
 })
+
+test('NCLEX timed mocks open in a focused modal studio instead of beneath the hub heading',()=>{
+  const nclexCss=read('web/nclex.css');
+  assert.match(nclex,/dialog id="nclexMockStudio"/);
+  assert.match(nclexController,/function openMockStudio/);
+  assert.match(nclexController,/openMockStudio\(\);renderMock\(\);/);
+  assert.match(nclexController,/addEventListener\('cancel'/);
+  assert.match(nclexCss,/\.nclexMockStudio::backdrop/);
+  assert.match(nclexCss,/max-height:calc\(100dvh - 32px\)/);
+});
