@@ -12,6 +12,8 @@ const ieltsController=read('web/ielts-centre-v103.js');
 const osce=read('web/osce.html');
 const osceController=read('web/learning-centres-v103.js');
 const css=read('web/learning-hubs-v197.css');
+const learn=read('web/learn-v90.js');
+const learnCss=read('web/learn-v90.css');
 
 test('NCLEX IELTS and OSCE load the shared premium learning hub design',()=>{
   for(const page of [nclex,ielts,osce]) assert.match(page,/learning-hubs-v197\.css\?v=197/);
@@ -57,4 +59,15 @@ test('NCLEX timed mocks open in a focused modal studio instead of beneath the hu
   assert.match(nclexController,/addEventListener\('cancel'/);
   assert.match(nclexCss,/\.nclexMockStudio::backdrop/);
   assert.match(nclexCss,/max-height:calc\(100dvh - 32px\)/);
+});
+
+test('NCLEX has a native mobile launch and bounded account recovery',()=>{
+  assert.match(learn,/href="nclex\.html" data-nclex-launch/);
+  assert.match(learn,/profile\.destination_country\|\|profile\.destination/);
+  assert.match(learn,/sessionStorage\.setItem\('btv-learn-module','nclex'\)/);
+  assert.match(learnCss,/\.learnV90Card>\.learnV90Launch/);
+  assert.match(nclexController,/function sessionWithTimeout/);
+  assert.match(nclexController,/setTimeout\(\(\)=>reject\(Error\('The secure account connection took too long\.'\)\),10000\)/);
+  assert.match(nclexController,/data-nclex-retry/);
+  assert.match(nclexController,/location\.replace\('index\.html\?screen=learn'\)/);
 });

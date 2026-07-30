@@ -15,7 +15,7 @@
 .learnV90Card small{color:#7a9185;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
 .learnV90Card h2{margin:6px 0 5px;font-size:21px}
 .learnV90Card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-.learnV90Card>button{width:100%;margin-top:auto;border:0;border-top:1px solid var(--line);background:transparent;color:#247853;padding:14px 0 0;display:flex;align-items:center;justify-content:space-between;font-weight:800;cursor:pointer;text-align:left}
+.learnV90Card>button,.learnV90Card>.learnV90Launch{width:100%;margin-top:auto;border:0;border-top:1px solid var(--line);background:transparent;color:#247853;padding:14px 0 0;display:flex;align-items:center;justify-content:space-between;font-weight:800;cursor:pointer;text-align:left;text-decoration:none}
 .learnV90VideoBlock{margin-top:28px;border-radius:24px;border:1px solid var(--line);background:var(--card);padding:22px;box-shadow:0 12px 32px rgba(18,50,35,.07)}
 .learnV90VideoBlock:focus{outline:none}.learnV90VideoBlock:focus-visible{outline:3px solid rgba(47,143,103,.28);outline-offset:3px}
 .learnV90ToolBlock{margin-top:28px;border-radius:24px;border:1px solid var(--line);background:var(--card);padding:22px;box-shadow:0 12px 32px rgba(18,50,35,.07)}
@@ -23,9 +23,9 @@
 .welcomeVideo82{margin:0!important;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(240px,.7fr);gap:22px;align-items:center;background:#10291f!important;border:0!important;border-radius:19px!important;padding:18px!important;color:#fff}
 .welcomeVideo82 video{width:100%;max-height:520px;aspect-ratio:16/9;object-fit:cover;border-radius:14px;background:#07130e}
 .welcomeVideo82 h2{font-size:26px;margin:0 0 8px;color:#fff}.welcomeVideo82 p{color:#cfe0d5;line-height:1.55}.welcomeVideo82 .videoPrivacy82{color:#9db5a6;line-height:1.45}.welcomeVideo82 a{display:inline-flex;margin-top:14px;border-radius:11px;background:#d5b24f;color:#2d260f;padding:11px 14px;text-decoration:none;font-weight:800}
-.learnV90Page button:focus-visible,.welcomeVideo82 a:focus-visible{outline:3px solid #d5b24f;outline-offset:3px}
+.learnV90Page button:focus-visible,.learnV90Page .learnV90Launch:focus-visible,.welcomeVideo82 a:focus-visible{outline:3px solid #d5b24f;outline-offset:3px}
 body.dark .learnV90Card small,body.dark .learnBookGridV103 small{color:var(--muted)}
-body.dark .learnV90Card>button,body.dark .learnLibraryPanelV103 header small,body.dark .learnBookGridV103 b{color:var(--teal)}
+body.dark .learnV90Card>button,body.dark .learnV90Card>.learnV90Launch,body.dark .learnLibraryPanelV103 header small,body.dark .learnBookGridV103 b{color:var(--teal)}
 @media(max-width:980px){.learnV90Grid{grid-template-columns:repeat(2,minmax(0,1fr))}.welcomeVideo82{grid-template-columns:1fr}}
 @media(max-width:560px){.learnV90Page{width:calc(100% - 16px);margin-top:8px!important}.learnV90Header{display:grid;grid-template-columns:42px minmax(0,1fr);padding:22px 18px;border-radius:20px}.learnV90Header span{font-size:9px;letter-spacing:.1em}.learnV90Header h1{font-size:clamp(29px,10vw,40px)}.learnV90Grid{grid-template-columns:1fr}.learnV90Card{min-height:210px}.learnV90Intro{align-items:flex-start;flex-direction:column}.learnV90VideoBlock{padding:14px}.welcomeVideo82{padding:11px!important}.welcomeVideo82 h2{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.learnV90Card{transition:none}}

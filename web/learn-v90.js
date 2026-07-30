@@ -26,7 +26,14 @@
   };
   function destination(){
     let key='uk';
-    try{key=JSON.parse(localStorage.getItem('btv-v1')||'{}').country||key}catch{}
+    try{
+      const synced=window.destinationSync?.snapshot?.()||{};
+      const profile=JSON.parse(localStorage.getItem('btv-profile')||'{}');
+      const legacy=JSON.parse(localStorage.getItem('btv-v1')||'{}');
+      const raw=synced.country||profile.destination_country||profile.destination||legacy.country||key;
+      const aliases={'united kingdom':'uk',uk:'uk','united states':'us','united states of america':'us',usa:'us',us:'us',canada:'ca',ca:'ca',australia:'au',au:'au','new zealand':'nz',nz:'nz',ireland:'ie',ie:'ie','united arab emirates':'ae',uae:'ae',ae:'ae','saudi arabia':'sa',sa:'sa'};
+      key=aliases[String(raw).trim().toLowerCase()]||key;
+    }catch{}
     return {...(destinations[key]||destinations.uk),key};
   }
 
@@ -104,11 +111,12 @@
         <div class="learnV90HeroCopy"><span>LEARNING CENTRE · ${selected.flag} ${selected.name.toUpperCase()}</span><h1>Build your confidence</h1><p>${selected.intro}</p></div>
       </header>
       <section class="learnV90Intro" aria-labelledby="learn-modules-title"><div><span>YOUR LEARNING</span><h2 id="learn-modules-title">Choose where to continue</h2></div><button type="button" data-learning-progress>View progress</button></section>
-      <div class="learnV90Grid">${modules.map(x=>`<article class="learnV90Card"><span class="learnV90Icon" aria-hidden="true">${x.icon}</span><div><small>${x.meta}</small><h2>${x.label}</h2><p>${x.copy}</p></div><button type="button" data-module="${x.id}">Open ${x.label}<span aria-hidden="true">&#8594;</span></button></article>`).join('')}</div>
+      <div class="learnV90Grid">${modules.map(x=>`<article class="learnV90Card"><span class="learnV90Icon" aria-hidden="true">${x.icon}</span><div><small>${x.meta}</small><h2>${x.label}</h2><p>${x.copy}</p></div>${x.id==='nclex'?`<a class="learnV90Launch" href="nclex.html" data-nclex-launch>Open ${x.label}<span aria-hidden="true">&#8594;</span></a>`:`<button type="button" data-module="${x.id}">Open ${x.label}<span aria-hidden="true">&#8594;</span></button>`}</article>`).join('')}</div>
     `;
     root.querySelector('[data-learn-home]').onclick=()=>window.BTVFeatures?.open('dashboard')||window.openScreen?.('home');
     root.querySelector('[data-learning-progress]').onclick=()=>window.BTVFeatures?.open('analytics');
     root.querySelectorAll('[data-module]').forEach(btn=>btn.onclick=()=>go(modules.find(x=>x.id===btn.dataset.module)));
+    root.querySelector('[data-nclex-launch]')?.addEventListener('click',()=>{sessionStorage.setItem('btv-return-screen','learn');sessionStorage.setItem('btv-learn-module','nclex')});
   }
 
   function showCalculator(){
