@@ -115,7 +115,9 @@ test("USA route provides filters, internal details and original-source apply", (
   assert.match(ui, /\/api\/usa-jobs/);
   assert.match(ui, /Apply on original site/);
   assert.match(ui, /Sponsorship status not confirmed/);
-  assert.match(html, /usa-jobs-v155\.js\?v=173/);
+  assert.match(html, /usa-jobs-v155\.js\?v=240/);
+  assert.match(ui, /LIVE OFFICIAL VACANCIES/);
+  assert.match(ui, /https:\/\/nurse\.usajobs\.gov\/search\/results\//);
   assert.match(routes, /"\/jobs\/usa\/:id"/);
 });
 
