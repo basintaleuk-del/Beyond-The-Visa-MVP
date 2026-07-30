@@ -72,7 +72,7 @@ test('visible authentication controls remain above full-page application overlay
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v173/);
+  assert.match(worker,/beyond-the-visa-assets-v250/);
 });
 
 test('global feature installers do not poll or observe every page mutation',()=>{

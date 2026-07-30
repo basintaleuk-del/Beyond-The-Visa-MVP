@@ -25,7 +25,7 @@
     if (name === "inbox") return window.BTVInboxCentre?.open?.() || window.BTVPlatform?.open?.("notifications");
     if (name === "videos") return window.BTVFeatures?.open?.("study");
     if (name === "articles") return window.BTVFeatures?.open?.("resources");
-    if (name === "preferences") return window.openScreen?.("profile");
+    if (name === "preferences") return window.BTVNotifications?.open?.("preferences") || window.openScreen?.("profile");
   }
   function action(name) {
     close();

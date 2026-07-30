@@ -21,7 +21,8 @@
   ],
   "crons": [
     { "path": "/api/global-jobs-import", "schedule": "15 3 * * *" },
-    { "path": "/api/immigration-news", "schedule": "45 4 * * *" }
+    { "path": "/api/immigration-news", "schedule": "45 4 * * *" },
+    { "path": "/api/notification-scheduler", "schedule": "*/15 * * * *" }
   ],
   "headers": [
     {

@@ -2,7 +2,8 @@
 window.BTV_SUPABASE_URL='https://wuvgktmzkzrdvbpqfmek.supabase.co';
 window.BTV_VAPID_PUBLIC_KEY='';
 const vapidMeta=document.createElement('meta');vapidMeta.name='btv-vapid-key';vapidMeta.content=window.BTV_VAPID_PUBLIC_KEY;document.head.append(vapidMeta);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=173',{updateViaCache:'none'}).then(reg=>reg.update()).catch(console.warn);
+fetch('/api/push-config',{credentials:'same-origin'}).then(response=>response.ok?response.json():null).then(config=>{if(config?.vapidPublicKey){window.BTV_VAPID_PUBLIC_KEY=config.vapidPublicKey;vapidMeta.content=config.vapidPublicKey}}).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=250',{updateViaCache:'none'}).then(reg=>{reg.update();if(reg.waiting)reg.waiting.postMessage({type:'BTV_SKIP_WAITING'})}).catch(console.warn);
 let accountStatusPromise=null;
 let accountStatusUserId=null;
 window.BTVCheckAccountStatus=user=>{
