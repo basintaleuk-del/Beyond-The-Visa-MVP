@@ -50,7 +50,7 @@ test("listing API derives country from the authenticated profile",()=>{
 });
 
 test("one protected daily orchestrator owns imports, retries and locking",()=>{
-  const api=read("api/global-jobs-import.js"),config=JSON.parse(read("vercel.json"));assert.deepEqual(config.crons,[{path:"/api/global-jobs-import",schedule:"15 3 * * *"}]);
+  const api=read("api/global-jobs-import.js"),config=JSON.parse(read("vercel.json"));assert.ok(config.crons.some(cron=>cron.path==="/api/global-jobs-import"&&cron.schedule==="15 3 * * *"));assert.equal(config.crons.filter(cron=>cron.path==="/api/global-jobs-import").length,1);
   assert.match(api,/authorization === `Bearer \$\{cronSecret\}`/);assert.match(api,/run_scope:"global_daily"/);assert.match(api,/already running/);assert.match(api,/withRetry/);assert.match(api,/NHS Jobs/);assert.match(api,/USAJOBS/);
   assert.match(api,/status: "expired"/);assert.match(api,/SOURCE_STALE/);assert.match(api,/DAILY_IMPORT_FAILED/);assert.match(api,/records_created/);assert.match(api,/records_unchanged/);
 });

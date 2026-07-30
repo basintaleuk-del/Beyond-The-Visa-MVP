@@ -113,6 +113,9 @@
         canada: "ca",
         "new zealand": "nz",
         ireland: "ie",
+        "united arab emirates": "ae",
+        uae: "ae",
+        "saudi arabia": "sa",
       }[name.toLowerCase()] || "uk";
     const meta = {
       uk: { flag: "🇬🇧", exam: "cbt" },
@@ -121,6 +124,8 @@
       ca: { flag: "🇨🇦", exam: "nclex" },
       nz: { flag: "🇳🇿", exam: "registration" },
       ie: { flag: "🇮🇪", exam: "cbt" },
+      ae: { flag: "🇦🇪", exam: "registration" },
+      sa: { flag: "🇸🇦", exam: "registration" },
     }[key];
     const exam = { ie: "registration" }[key] || meta.exam;
     return {
@@ -1259,6 +1264,7 @@
   }
 
   function go(id) {
+    if (id === "immigration-news") return window.BTVImmigrationNews?.open?.(destinationInfo().key);
     if (id === "dashboard") {
       if (carouselSlides.length > 1)
         carouselIndex = Math.floor(Math.random() * carouselSlides.length);
@@ -1344,6 +1350,7 @@
           ["Saved jobs", "saved-jobs"],
           ["Interview preparation", "interview"],
           ["Visa Hub", "resources"],
+          ["Immigration news", "immigration-news"],
         ],
       },
       {
@@ -1722,6 +1729,21 @@
         if (!pausedByUser && !carousel.matches(":hover")) move(1, false);
       }, 8000);
     renderSlide();
+  }
+
+  async function setupImmigrationNewsTile(root) {
+    const tile=root.querySelector("[data-immigration-news-tile]");
+    if(!tile)return;
+    const destination=destinationInfo();
+    tile.innerHTML=`<div class="carouselCopy73"><span>IMMIGRATION NEWS · ${esc(destination.name.toUpperCase())}</span><h3>Loading today’s pathway headlines…</h3><p>Checking current immigration, visa and work-permit reporting.</p></div>`;
+    try{
+      const response=await fetch(`/api/immigration-news?country=${encodeURIComponent(destination.key)}&limit=1`),data=await response.json(),item=data.items?.[0];
+      if(!response.ok||!item)throw Error(data.error||"No current headline");
+      tile.innerHTML=`<div class="carouselCopy73"><span>IMMIGRATION NEWS · ${esc(destination.name.toUpperCase())}</span><h3>${esc(item.title)}</h3><p>${esc(item.summary||"Open Immigration News for the latest pathway reporting.")}</p><small>${esc(item.publisher||"Current report")}</small></div><button type="button" data-go="immigration-news">View immigration news ${iconSvg("arrowRight")}</button>`;
+    }catch{
+      tile.innerHTML=`<div class="carouselCopy73"><span>IMMIGRATION NEWS · ${esc(destination.name.toUpperCase())}</span><h3>Your daily pathway news centre</h3><p>Review current immigration, visa and work-permit reporting for every supported destination.</p></div><button type="button" data-go="immigration-news">Open news centre ${iconSvg("arrowRight")}</button>`;
+    }
+    wire(tile);
   }
 
   function notificationMarkup() {
@@ -2135,10 +2157,8 @@
               )
               .join("")}</div>
           </section>
-          <section class="dashboardCarousel73" data-dashboard-carousel tabindex="0" aria-label="Motivation and platform news carousel">
-            <div class="carouselStage73" data-carousel-stage></div>
-            <div class="carouselFooter73"><div class="carouselDots73" data-carousel-dots></div><div class="carouselControls73"><button type="button" data-carousel-prev aria-label="Previous slide">&#8592;</button><button type="button" data-carousel-next aria-label="Next slide">&#8594;</button></div></div>
-            <p class="sr" aria-live="polite" aria-atomic="true" data-carousel-status></p>
+          <section class="dashboardCarousel73" data-immigration-news-tile aria-label="Latest immigration news">
+            <div class="carouselCopy73"><span>IMMIGRATION NEWS</span><h3>Loading today’s pathway headlines…</h3><p>Checking current immigration, visa and work-permit reporting.</p></div>
           </section>
         </div>
       </div>
@@ -2150,7 +2170,7 @@
     setupMenuGroups(root);
     wire(root);
     setupNotifications(root);
-    setupCarousel(root);
+    setupImmigrationNewsTile(root);
     const welcomeAdvice = root.querySelector("[data-home-advice]");
     welcomeAdvice?.addEventListener("click", showHomeAdvice);
     welcomeAdvice?.addEventListener("keydown", (event) => {

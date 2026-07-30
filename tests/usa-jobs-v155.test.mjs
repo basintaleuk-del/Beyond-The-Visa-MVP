@@ -97,7 +97,8 @@ test("USA importer is independent of the NHS opportunity importer", () => {
 
 test("USA and UK imports are orchestrated by one daily schedule", () => {
   const config = JSON.parse(read("vercel.json"));
-  assert.deepEqual(config.crons, [{ path: "/api/global-jobs-import", schedule: "15 3 * * *" }]);
+  assert.ok(config.crons.some(cron=>cron.path==="/api/global-jobs-import"&&cron.schedule==="15 3 * * *"));
+  assert.equal(config.crons.filter(cron=>cron.path==="/api/global-jobs-import").length,1);
 });
 
 test("USA alerts are generated only for USA destination profiles", () => {
