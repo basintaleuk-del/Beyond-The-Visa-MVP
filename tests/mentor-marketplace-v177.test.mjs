@@ -4,12 +4,21 @@ import { readFile } from "node:fs/promises";
 
 const js = await readFile(new URL("../web/dashboard-premium-v73.js", import.meta.url), "utf8");
 const css = await readFile(new URL("../web/dashboard-premium-v73.css", import.meta.url), "utf8");
+const routes = await readFile(new URL("../web/feature-routes-v73.js", import.meta.url), "utf8");
+const platform = await readFile(new URL("../web/platform-upgrade-v72.js", import.meta.url), "utf8");
 
 test("Mentors opens the redesigned marketplace without replacing other standalone panels", () => {
   assert.match(js, /if \(type === "mentors"\) return openMentorMarketplace\(\)/);
   assert.match(js, /mentorMarketplaceDialog177/);
   assert.match(js, /id === "mentors" \|\| id === "bookings"/);
   assert.match(js, /id === "stories"/);
+});
+
+test("every mentor entry opens the exported full-screen marketplace", () => {
+  assert.match(js, /window\.BTVMentorMarketplace = \{ open: openMentorMarketplace \}/);
+  assert.match(routes, /action:'mentor-marketplace'/);
+  assert.match(routes, /BTVMentorMarketplace\?\.open/);
+  assert.match(platform, /BTVMentorMarketplace\?\.open/);
 });
 
 test("marketplace loads approved mentors and keeps safe fallback guidance", () => {

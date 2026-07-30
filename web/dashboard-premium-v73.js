@@ -2156,6 +2156,7 @@
   }
 
   window.renderDashboardInsights = queueRender;
+  window.BTVMentorMarketplace = { open: openMentorMarketplace };
   queueRender();
   setTimeout(queueRender, 700);
 })();
