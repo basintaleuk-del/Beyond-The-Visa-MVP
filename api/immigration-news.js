@@ -12,7 +12,7 @@ const feeds={
  ae:["https://news.google.com/rss/search?q=UAE%20immigration%20residence%20work%20visa&hl=en&gl=AE&ceid=AE:en"],
  sa:["https://news.google.com/rss/search?q=Saudi%20Arabia%20immigration%20residence%20work%20visa&hl=en&gl=SA&ceid=SA:en"]
 };
-const text=value=>String(value||"").replace(/<!\[CDATA\[|\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g," ").trim();
+const text=value=>String(value||"").replace(/<!\[CDATA\[|\]\]>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&nbsp;|&#160;/g," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
 const tag=(block,name)=>text(block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${name}>`,"i"))?.[1]);
 const link=block=>text(block.match(/<link[^>]+href=["']([^"']+)/i)?.[1]||block.match(/<link>([\s\S]*?)<\/link>/i)?.[1]);
 function parse(xml,country){
