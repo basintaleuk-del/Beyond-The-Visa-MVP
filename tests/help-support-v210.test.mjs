@@ -11,8 +11,8 @@ const profile = read("web/profile-menu-v82.js");
 const migration = read("supabase/migrations/20260730143000_help_support_centre.sql");
 
 test("Help Centre assets are loaded and primary entry points use the new route", () => {
-  assert.match(index, /help-support-v210\.css\?v=210/);
-  assert.match(index, /help-support-v210\.js\?v=210/);
+  assert.match(index, /help-support-v210\.css\?v=218/);
+  assert.match(index, /help-support-v210\.js\?v=218/);
   assert.match(dashboard, /\["Help and support", "help-support"\]/);
   assert.match(profile, /BTVHelpSupport\?\.open/);
 });
@@ -51,6 +51,8 @@ test("all visible Help Centre controls have interaction bindings", () => {
 });
 
 test("responsive and accessible UI includes mobile layout, focus and tap targets", () => {
+  assert.match(style, /\.helpSupport210 \.helpMain210\{display:block;width:100%;max-width:none;margin:0/);
+  assert.match(style, /\.helpSupport210 \.helpQuickLinks210\{position:static;inset:auto;z-index:auto;display:block;width:auto;transform:none/);
   assert.match(style, /@media\(max-width:680px\)/);
   assert.match(style, /@media\(max-width:360px\)/);
   assert.match(style, /min-height:44px/);
