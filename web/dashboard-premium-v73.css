@@ -521,6 +521,20 @@ html,body{max-width:100%;overflow-x:clip}
   border-radius:50%;
   background:#d9b75a;
 }
+.destinationFlagBadge73{
+  width:50px;
+  height:50px;
+  justify-content:center;
+  padding:0;
+  border-color:rgba(255,255,255,.42);
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  font-size:29px;
+  letter-spacing:0;
+  box-shadow:0 8px 24px rgba(1,29,30,.2);
+  backdrop-filter:blur(10px);
+}
+.destinationFlagBadge73 img{display:block;width:34px;height:25px;border-radius:4px;object-fit:cover;box-shadow:0 2px 7px rgba(0,0,0,.24)}
 
 .statsRow73{
   display:grid;
@@ -1121,7 +1135,8 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .welcomePathway73{font-size:17px}
   .readinessCopy73 b{font-size:14px}
   .readinessCopy73 small{font-size:11px}
-  .premiumBadge73{right:12px;top:12px;height:26px;padding:0 10px;font-size:10px}
+  .premiumBadge73{right:12px;top:12px}
+  .destinationFlagBadge73{width:44px;height:44px;padding:0;font-size:25px}
   .statsRow73{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .statCard73{min-height:146px;padding:14px}
   .statCard73 small,.statCard73 span,.statCard73 em{font-size:12px}

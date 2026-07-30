@@ -11,10 +11,27 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=177/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=230/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=178/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=231/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
+});
+
+test('homepage replaces plan text with the selected destination flag', async () => {
+  const [html, dashboard, css] = await Promise.all([
+    read('web/index.html'),
+    read('web/dashboard-premium-v73.js'),
+    read('web/dashboard-premium-v73.css'),
+  ]);
+  assert.doesNotMatch(dashboard, /PREMIUM PLAN/);
+  assert.doesNotMatch(html, /\$\{esc\(plan\)\} PLAN/);
+  assert.match(dashboard, /destinationFlagBadge73/);
+  assert.match(dashboard, /destination\.flagCode/);
+  assert.match(dashboard, /flagcdn\.com\/w80/);
+  assert.match(dashboard, /Selected destination:/);
+  assert.match(html, /class="planBadge destinationFlagBadge"/);
+  assert.match(html, /flagCode/);
+  assert.match(css, /\.destinationFlagBadge73/);
 });
 
 test('secondary scripts do not replace or repeatedly mutate the homepage', async () => {

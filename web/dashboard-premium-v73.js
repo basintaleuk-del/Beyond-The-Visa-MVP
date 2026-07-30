@@ -132,6 +132,7 @@
       key,
       name: selected?.name || name,
       flag: selected?.flag || meta.flag,
+      flagCode: key === "uk" ? "gb" : key,
       exam,
     };
   }
@@ -2055,7 +2056,11 @@
                 </div>
               </div>
             </div>
-            <span class="premiumBadge73"><i></i> PREMIUM PLAN</span>
+            <span class="premiumBadge73 destinationFlagBadge73" aria-label="Selected destination: ${esc(
+              destination.name
+            )}" title="${esc(destination.name)}"><img src="https://flagcdn.com/w80/${esc(
+              destination.flagCode
+            )}.png" width="40" height="30" alt="" aria-hidden="true"></span>
           </section>
 
           <section class="statsRow73">

@@ -20,7 +20,7 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(index,/success-stories-v198\.css\?v=223/);
   assert.match(index,/success-stories-v198\.js\?v=208/);
   assert.match(index,/platform-upgrade-v72\.js\?v=211/);
-  assert.match(index,/dashboard-premium-v73\.js\?v=230/);
+  assert.match(index,/dashboard-premium-v73\.js\?v=231/);
   assert.match(dashboard,/if \(type === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
   assert.match(dashboard,/if \(id === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
 });
