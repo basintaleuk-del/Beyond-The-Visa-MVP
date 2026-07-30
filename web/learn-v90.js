@@ -90,11 +90,17 @@
   }
 
   function showIntroVideo(item){
-    buildLearning();
-    const grid=document.querySelector('.learnV90Grid');if(!grid)return;
-    const block=document.createElement('section');block.className='learnV90VideoBlock';block.tabIndex=-1;block.setAttribute('aria-labelledby','introductory-video-title');
-    block.innerHTML=`<div class="learnV90SectionHead"><span>START HERE</span><h2 id="introductory-video-title">Introductory video</h2><p>Get familiar with Beyond The Visa before continuing your learning journey.</p></div><article class="welcomeVideo82"><video controls playsinline preload="metadata" aria-label="Beyond The Visa introductory video"><source src="${esc(item.video)}?v=121" type="video/mp4">Your browser cannot play this video.</video><div class="welcomeVideoCopy82"><h2>Welcome to Beyond The Visa</h2><p>A practical introduction to your international career journey and the tools available throughout the site.</p><small class="videoPrivacy82">The video never autoplays. Use the controls to pause, mute, resize or replay.</small><a href="${esc(item.video)}?v=121">Open video</a></div></article>`;
-    grid.after(block);block.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});block.focus({preventScroll:true});
+    let dialog=document.getElementById('learnIntroVideoDialogV90');
+    if(!dialog){dialog=document.createElement('dialog');dialog.id='learnIntroVideoDialogV90';dialog.className='learnV90VideoDialog';document.body.append(dialog)}
+    const returnFocus=document.activeElement;
+    dialog.innerHTML=`<article class="learnV90VideoModal" aria-labelledby="introductory-video-title" aria-describedby="introductory-video-description"><header><div class="learnV90VideoBrand"><span aria-hidden="true">B</span><div><small>BEYOND THE VISA</small><b>Learning orientation</b></div></div><button type="button" data-video-close aria-label="Close introductory video">&times;</button></header><div class="learnV90VideoStage"><div class="learnV90VideoFrame"><video controls playsinline preload="metadata" poster="assets/learn/learning-centre-hero.webp" aria-label="Beyond The Visa introductory video"><source src="${esc(item.video)}?v=121" type="video/mp4">Your browser cannot play this video.</video><span><i aria-hidden="true"></i> PLATFORM INTRODUCTION</span></div><aside><span>START HERE</span><h2 id="introductory-video-title">Your journey, brought into focus.</h2><p id="introductory-video-description">See how Beyond The Visa brings your learning, international pathway, career tools and personal progress together in one connected platform.</p><ul><li><i aria-hidden="true">01</i><span><b>Find your direction</b><small>Understand where every tool fits in your journey.</small></span></li><li><i aria-hidden="true">02</i><span><b>Learn with purpose</b><small>Move from preparation to confident next steps.</small></span></li><li><i aria-hidden="true">03</i><span><b>Stay in control</b><small>Use saved progress to keep your priorities clear.</small></span></li></ul><div class="learnV90VideoTrust"><b>Private viewing</b><span>The video never autoplays. You control playback, sound and full-screen viewing.</span></div></aside></div><footer><p><span aria-hidden="true">✓</span> Watch at your pace. Your place on the Learning Centre remains unchanged.</p><button type="button" data-video-done>Continue learning <span aria-hidden="true">&rarr;</span></button></footer></article>`;
+    const close=()=>dialog.close();
+    dialog.querySelector('[data-video-close]').onclick=close;
+    dialog.querySelector('[data-video-done]').onclick=close;
+    dialog.onclick=event=>{if(event.target===dialog)close()};
+    dialog.onclose=()=>{dialog.querySelector('video')?.pause();if(returnFocus?.isConnected)returnFocus.focus()};
+    dialog.showModal();
+    dialog.querySelector('[data-video-close]').focus();
   }
 
   function buildLearning(){
