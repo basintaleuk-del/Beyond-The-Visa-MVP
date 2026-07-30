@@ -10,17 +10,30 @@ const index=read('web/index.html');
 const privacy=read('web/privacy-policy.html');
 
 test('professional Zibur loads after the established application experience',()=>{
-  assert.match(index,/zibur-professional-v199\.css\?v=199/);
-  assert.match(index,/zibur-professional-v199\.js\?v=199/);
+  assert.match(index,/zibur-professional-v199\.css\?v=206/);
+  assert.match(index,/zibur-professional-v199\.js\?v=206/);
   assert.ok(index.indexOf('legal-centre-v196.js')<index.indexOf('zibur-professional-v199.js'));
 });
 
 test('server uses current reasoning models with resilient fallback',()=>{
+  assert.match(edge,/gemini-3\.6-flash/);
   assert.match(edge,/gemini-3\.5-flash/);
   assert.match(edge,/gemini-2\.5-pro/);
   assert.match(edge,/thinkingLevel:'high'/);
   assert.match(edge,/thinkingBudget:-1/);
   assert.match(edge,/GEMINI_MODEL/);
+  assert.match(edge,/new Set\(\[configured/);
+  assert.match(edge,/lastStatus===401/);
+  assert.match(edge,/CURRENT DATE/);
+});
+
+test('client retries transient failures and never disguises canned text as an AI answer',()=>{
+  assert.match(client,/async function invokeZibur/);
+  assert.match(client,/attempt<2/);
+  assert.match(client,/failureDetails/);
+  assert.match(client,/quality!==['"]limited['"]/);
+  assert.match(client,/I won’t replace your question with a generic answer/);
+  assert.doesNotMatch(client,/BTVZiburFallback\?\.answer/);
 });
 
 test('current regulatory questions can use grounded supporting sources',()=>{

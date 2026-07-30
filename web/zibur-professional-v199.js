@@ -30,18 +30,35 @@ function sources(items){if(!Array.isArray(items)||!items.length)return'';const s
 function renderHistory(){const stream=document.querySelector('[data-zibur-stream]');if(!stream)return;stream.innerHTML='';const recent=history.slice(-12);if(!recent.length){const name=firstName();message('assistant',`${name?`Hello ${name}. `:''}I’m Zibur, your professional healthcare career and relocation assistant. I can use your saved journey to help you prioritise registration, learning, applications, interviews and relocation planning.\n\nWhat would you like to accomplish today?`);return}recent.forEach(entry=>message(entry.role==='assistant'?'assistant':'user',entry.content))}
 function setStatus(value,state='ready'){const node=document.querySelector('[data-zibur-status]');if(!node)return;node.textContent=value;node.dataset.state=state}
 function resize(textarea){textarea.style.height='auto';textarea.style.height=`${Math.min(180,Math.max(52,textarea.scrollHeight))}px`}
+const pause=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
+async function failureDetails(result){
+  if(result?.data?.error)return result.data;
+  try{if(result?.error?.context?.json)return await result.error.context.json()}catch{}
+  return{error:clean(result?.error?.message)||'The secure reasoning service did not respond.',code:'PROVIDER_UNAVAILABLE',retryable:true}
+}
+async function invokeZibur(payload){
+  let last;
+  for(let attempt=0;attempt<2;attempt++){
+    const timeout=new Promise((_,reject)=>setTimeout(()=>reject(Error('Zibur took too long to respond. Please try again.')),52000));
+    last=await Promise.race([window.btvSupabase.functions.invoke('zibur-gemini',{body:payload}),timeout]);
+    if(!last?.error)return last;
+    const details=await failureDetails(last);
+    if(!details.retryable||details.code==='RATE_LIMITED'||attempt===1)throw Object.assign(Error(details.error),details);
+    await pause(650);
+  }
+  return last
+}
 async function ask(question){
   if(sending||!question)return;sending=true;const form=document.getElementById('chatForm'),input=document.getElementById('question'),button=form?.querySelector('[type="submit"]');
-  message('user',question);const requestHistory=history.slice(-16);history.push({role:'user',content:question});save();
+  message('user',question);const requestHistory=history.filter(entry=>entry.quality!=='limited').slice(-16);history.push({role:'user',content:question});save();
   const waiting=message('assistant','',{thinking:true});if(input){input.disabled=true;input.value='';resize(input)}if(button)button.disabled=true;setStatus('Analysing your question…','working');
-  let answer='',sourceList=[];
+  let answer='',sourceList=[],quality='professional';
   try{
     if(!window.btvSupabase?.functions?.invoke)throw Error('The secure assistant service is unavailable.');
-    const timeout=new Promise((_,reject)=>setTimeout(()=>reject(Error('Zibur took too long to respond. Please try again.')),55000));
-    const result=await Promise.race([window.btvSupabase.functions.invoke('zibur-gemini',{body:{question,history:requestHistory,context:context()}}),timeout]);
-    if(result.error)throw result.error;answer=clean(result.data?.answer);sourceList=result.data?.sources||[];if(!answer)throw Error('Zibur did not return an answer.');setStatus(result.data?.grounded?'Answer prepared with current supporting sources':'Answer prepared from your journey context','ready');
-  }catch(error){console.warn('Zibur professional request failed',error);answer=window.BTVZiburFallback?.answer(question,context())||'I cannot reach the secure assistant service just now. Your saved journey is unchanged; please try again shortly.';setStatus('Secure AI unavailable · showing limited guidance','limited')}
-  waiting?.remove();message('assistant',answer,{sources:sourceList});history.push({role:'assistant',content:answer});save();sending=false;if(input){input.disabled=false;input.focus()}if(button)button.disabled=false;
+    const result=await invokeZibur({question,history:requestHistory,context:context()});
+    answer=clean(result.data?.answer);sourceList=result.data?.sources||[];if(!answer)throw Error('Zibur did not return an answer.');setStatus(result.data?.grounded?'Answer prepared with current supporting sources':'Answer prepared from your journey context','ready');
+  }catch(error){console.warn('Zibur professional request failed',error);quality='limited';answer=`I couldn’t reach Zibur’s reasoning service, so I won’t replace your question with a generic answer. ${clean(error?.message)||'Please try again in a moment.'}\n\nYour saved journey has not been changed.`;setStatus('Reasoning service unavailable · retry your question','limited')}
+  waiting?.remove();message('assistant',answer,{sources:sourceList,limited:quality==='limited'});history.push({role:'assistant',content:answer,quality});save();sending=false;if(input){input.disabled=false;input.focus()}if(button)button.disabled=false;
 }
 function install(){
   const root=document.getElementById('assistant');if(!root)return;root.classList.add('ziburPro199');const summary=accountSummary();
