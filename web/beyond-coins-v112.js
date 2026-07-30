@@ -3,6 +3,7 @@ const db=()=>window.btvSupabase,esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&'
 const keyFor=code=>{const k='btv-purchase-key:'+code;let v=sessionStorage.getItem(k);if(!v){v=crypto.randomUUID();sessionStorage.setItem(k,v)}return v};
 async function product(code){const r=await db().from('btv_coin_products').select('*').eq('code',code).eq('is_active',true).single();if(r.error)throw Error('This product is currently unavailable.');return r.data}
 async function wallet(){const u=(await db().auth.getUser()).data.user;if(!u)throw Error('Please sign in to view your Beyond Coins wallet.');let r=await db().from('btv_wallets').select('*').eq('user_id',u.id).maybeSingle();if(r.error)throw r.error;if(!r.data){await db().rpc('btv_bootstrap_user',{p_user:u.id});r=await db().from('btv_wallets').select('*').eq('user_id',u.id).single()}return r.data}
+async function acceptSampleTerms(){const {data:{session}}=await db().auth.getSession();if(!session?.access_token)throw Error('Please sign in to continue.');const response=await fetch('/api/accept-sample-terms',{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`}}),body=await response.json().catch(()=>null);if(!response.ok||!body?.success)throw Error(body?.error||'Your acknowledgement could not be recorded. No coins were deducted.');return body}
 function modal(html){let d=document.getElementById('coinsDialog112');if(!d){d=document.createElement('dialog');d.id='coinsDialog112';d.className='coinsDialog112';document.body.append(d)}d.innerHTML=`<div class="coinsPanel112">${html}</div>`;d.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>d.close());d.showModal();return d}
 async function chooseMock(exam,onApproved){
  const prefix=String(exam||'').toLowerCase().replace(/_(short|full)$/,'');
@@ -27,7 +28,7 @@ async function start(code,onApproved){
   buy.onclick=async()=>{try{
    if(!d.querySelector('[data-sample-accept]')?.checked){alert('Please read and accept the Sample Question Terms before purchasing this mock.');return}
    buy.disabled=true;buy.textContent='Purchasing securely…';
-   const accepted=await db().rpc('btv_accept_sample_mock_terms');if(accepted.error||!accepted.data?.success)throw Error(accepted.data?.message||accepted.error?.message||'Your acknowledgement could not be recorded. No coins were deducted.');
+   let accepted=await db().rpc('btv_accept_sample_mock_terms');if(accepted.error?.message?.includes('row-level security policy'))accepted={data:await acceptSampleTerms()};if(accepted.error||!accepted.data?.success)throw Error(accepted.data?.message||accepted.error?.message||'Your acknowledgement could not be recorded. No coins were deducted.');
    const r=await db().rpc('btv_purchase_resource',{p_product_code:code,p_idempotency_key:keyFor(code)});if(r.error)throw r.error;
    const x=r.data;if(!x?.success){if(x?.code==='INSUFFICIENT_BALANCE'){localStorage.setItem('btv-pending-coin-resource',code);d.close();window.BTVPlatform?.open('wallet');return}throw Error(x?.message||'Your purchase could not be completed. No coins were deducted.')}
    window.dispatchEvent(new CustomEvent('btv:wallet-changed'));
