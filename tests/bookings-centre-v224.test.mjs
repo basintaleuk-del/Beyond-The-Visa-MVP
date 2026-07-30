@@ -10,7 +10,7 @@ const dashboard=read('web/dashboard-premium-v73.js');
 const menu=read('web/profile-menu-v82.js');
 
 test('bookings centre is loaded and replaces both static booking entry points',()=>{
-  assert.match(index,/bookings-centre-v224\.css\?v=224/);
+  assert.match(index,/bookings-centre-v224\.css\?v=225/);
   assert.match(index,/bookings-centre-v224\.js\?v=224/);
   assert.match(dashboard,/BTVBookingsCentre\?\.open/);
   assert.match(menu,/BTVBookingsCentre\?\.open/);
@@ -43,4 +43,11 @@ test('premium layout is responsive and accessible',()=>{
   assert.match(client,/aria-pressed/);
   assert.match(client,/aria-label="Refresh bookings"/);
   assert.match(css,/min-height:48px/);
+});
+
+test('desktop booking centre cannot inherit a narrow mobile canvas',()=>{
+  assert.match(css,/@media\(min-width:981px\)/);
+  assert.match(css,/#bookingsCentre224\.bookingsCentre224\{[^}]*width:100vw!important/);
+  assert.match(css,/#bookingsCentre224 \.bookingsMain224\{[^}]*width:min\(1720px,calc\(100vw - 72px\)\)!important/);
+  assert.match(css,/#bookingsCentre224 \.bookingsHero224\{[^}]*grid-template-columns:minmax\(0,1\.65fr\) minmax\(340px,\.72fr\)!important/);
 });

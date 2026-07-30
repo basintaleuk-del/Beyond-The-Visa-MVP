@@ -71,6 +71,7 @@
     if (command === 'sessions') {
       dialog.close();
       if (window.BTVPlatform?.open) window.BTVPlatform.open('mentors');
+      else if (window.BTVBookingsCentre?.open) window.BTVBookingsCentre.open();
       else window.BTVFeatures?.open?.('bookings');
     }
   }
