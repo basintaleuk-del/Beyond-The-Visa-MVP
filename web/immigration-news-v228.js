@@ -91,6 +91,31 @@
     }
   }
 
+  function articleSummary(item, publisher) {
+    const raw = String(item.summary || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;|&#160;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;|&#34;/gi, '"')
+      .replace(/&#39;|&apos;/gi, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    const title = String(item.title || "").replace(/\s+/g, " ").trim();
+    const publisherSuffix = new RegExp(`\\s+${String(publisher).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+    const cleaned = raw.replace(publisherSuffix, "").trim();
+    const comparable = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (cleaned.length > title.length + 24 && comparable(cleaned) !== comparable(title)) {
+      return {
+        text: cleaned.slice(0, 1800),
+        notice: "This source-led summary uses the description supplied in the publisher feed.",
+      };
+    }
+    return {
+      text: `${publisher} identifies this as a report about “${title}”. Its feed did not supply a fuller article synopsis, so Beyond The Visa has not invented or inferred details that are not present in the source.`,
+      notice: "Open the original report for the publisher’s complete facts, context and any later corrections.",
+    };
+  }
+
   function openArticle(dialog, index, trigger) {
     const item = dialog._allNewsItems?.[index];
     const modal = dialog.querySelector("[data-news-article-modal]");
@@ -99,6 +124,7 @@
     const publisher = item.publisher || names[item.country_code] || "Immigration news";
     const articleUrl = safeArticleUrl(item.canonical_url);
     if (!articleUrl) return;
+    const summary = articleSummary(item, publisher);
     modal.innerHTML = `
       <button type="button" class="newsArticleBackdrop228" data-news-article-close aria-label="Close article"></button>
       <article class="newsArticlePanel228" role="document" aria-labelledby="newsArticleTitle228" tabindex="-1">
@@ -107,13 +133,22 @@
           <div><small>${esc(publisher)} &middot; ${date(item.published_at)}</small><h2 id="newsArticleTitle228">${esc(item.title)}</h2></div>
           <button type="button" data-news-article-close aria-label="Close article">&times;</button>
         </header>
-        <div class="newsArticleFrame228">
-          <div class="newsArticleLoading228"><i></i><span>Loading the complete publisher page&hellip;</span></div>
-          <iframe src="${esc(articleUrl)}" title="Full article: ${esc(item.title)}" loading="eager" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" data-news-article-frame></iframe>
+        <div class="newsArticleReader228">
+          <section>
+            <small>ARTICLE SUMMARY</small>
+            <h3>What this report covers</h3>
+            <p>${esc(summary.text)}</p>
+          </section>
+          <aside aria-label="Article source details">
+            <div><small>DESTINATION</small><b>${esc(names[item.country_code] || names[country()] || "International")}</b></div>
+            <div><small>PUBLISHER</small><b>${esc(publisher)}</b></div>
+            <div><small>PUBLISHED</small><b>${date(item.published_at)}</b></div>
+          </aside>
+          <div class="newsArticleNotice228"><span aria-hidden="true">&#10003;</span><p><b>Transparent, source-led reading</b>${esc(summary.notice)}</p></div>
         </div>
         <footer class="newsArticleFooter228">
-          <div><small>VIEWING THE ORIGINAL PUBLISHER PAGE</small><b>${esc(publisher)}</b><span>If the publisher blocks embedded viewing, open it directly.</span></div>
-          <a href="${esc(articleUrl)}" target="_blank" rel="noopener noreferrer">Open original article &nearr;</a>
+          <div><small>CONTINUE AT THE ORIGINAL SOURCE</small><b>${esc(publisher)}</b><span>The full report opens securely outside this reader.</span></div>
+          <a href="${esc(articleUrl)}" target="_blank" rel="noopener noreferrer">Read original article &nearr;</a>
         </footer>
       </article>`;
     modal.hidden = false;
@@ -123,8 +158,6 @@
     modal.onkeydown = (event) => {
       if (event.key === "Escape") closeArticle(dialog);
     };
-    const frame = modal.querySelector("[data-news-article-frame]");
-    frame.addEventListener("load", () => frame.closest(".newsArticleFrame228")?.classList.add("loaded"), { once: true });
     modal.querySelector(".newsArticlePanel228")?.focus?.();
   }
 
