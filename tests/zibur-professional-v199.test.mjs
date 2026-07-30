@@ -10,8 +10,8 @@ const index=read('web/index.html');
 const privacy=read('web/privacy-policy.html');
 
 test('professional Zibur loads after the established application experience',()=>{
-  assert.match(index,/zibur-professional-v199\.css\?v=206/);
-  assert.match(index,/zibur-professional-v199\.js\?v=206/);
+  assert.match(index,/zibur-professional-v199\.css\?v=207/);
+  assert.match(index,/zibur-professional-v199\.js\?v=207/);
   assert.ok(index.indexOf('legal-centre-v196.js')<index.indexOf('zibur-professional-v199.js'));
 });
 
@@ -34,6 +34,9 @@ test('client retries transient failures and never disguises canned text as an AI
   assert.match(client,/quality!==['"]limited['"]/);
   assert.match(client,/I won’t replace your question with a generic answer/);
   assert.doesNotMatch(client,/BTVZiburFallback\?\.answer/);
+  assert.match(client,/id="ziburChatForm199" data-zibur-form/);
+  assert.match(client,/id="ziburQuestion199" data-zibur-question/);
+  assert.doesNotMatch(client,/getElementById\(['"]chatForm['"]\)/);
 });
 
 test('current regulatory questions can use grounded supporting sources',()=>{
