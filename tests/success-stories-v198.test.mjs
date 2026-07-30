@@ -17,7 +17,7 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(platform,/window\.BTVSuccessStories\?\.render/);
   assert.match(platform,/storiesHub198/);
   assert.ok(index.indexOf('success-stories-v198.js')<index.indexOf('platform-upgrade-v72.js'));
-  assert.match(index,/success-stories-v198\.css\?v=222/);
+  assert.match(index,/success-stories-v198\.css\?v=223/);
   assert.match(index,/success-stories-v198\.js\?v=208/);
   assert.match(index,/platform-upgrade-v72\.js\?v=211/);
   assert.match(index,/dashboard-premium-v73\.js\?v=214/);
@@ -84,6 +84,8 @@ test('compact success story hero uses an optimised half-faded nurse image',()=>{
   assert.match(clientCss,/grid-template-columns:minmax\(0,720px\) minmax\(210px,240px\)/);
   assert.match(clientCss,/min-height:0/);
   assert.match(clientCss,/font-size:clamp\(46px,4vw,58px\)/);
+  assert.match(clientCss,/@media\(max-width:560px\)\{\.successStoriesPage208 \.storyHero198\{gap:18px;padding:24px 20px\}/);
+  assert.match(clientCss,/font-size:34px;line-height:1\.02/);
   assert.ok(fs.statSync('web/assets/success-stories/success-stories-nurse-1600.webp').size<100000);
   assert.ok(fs.statSync('web/assets/success-stories/success-stories-nurse-768.webp').size<50000);
 });
