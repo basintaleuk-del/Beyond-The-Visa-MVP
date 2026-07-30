@@ -70,3 +70,11 @@ test('professional hub uses the premium illustration and live section progress',
   assert.match(menu,/BTVHelpSupport\?\.open/);
   assert.match(inbox,/from\('manager_requests'\)\.insert/);
 });
+
+test('qualification back is an explicit home return, not a stale screen-history replay',async()=>{
+  const [feature,back]=await Promise.all([read('web/qualifications-registration-v139.js'),read('web/back-navigation-v108.js')]);
+  assert.match(feature,/data-history-home/);
+  assert.match(back,/function home\(\)\{[^}]*stack\.length=0/);
+  assert.match(back,/closest\('\[data-history-home\]'\)/);
+  assert.match(back,/window\.BTVGoHome=home/);
+});
