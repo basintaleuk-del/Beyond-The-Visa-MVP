@@ -1,0 +1,155 @@
+/* Beyond Coins private transaction centre v249.
+   Presentation only: canonical wallet RPC, checkout and ledger logic remain in v178.js. */
+#btvCoins178{
+  --coin249-ink:#082f30;
+  --coin249-deep:#063b3a;
+  --coin249-jade:#0b655b;
+  --coin249-gold:#e3be58;
+  --coin249-line:#d6e3dc;
+  --coin249-muted:#687d7a;
+}
+html body #btvCoins178.btvCoins178[open]{
+  width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  overflow:hidden!important;background:#eef3ef!important;
+}
+html body #btvCoins178.btvCoins178[open]::backdrop{background:rgba(2,28,28,.72)}
+html body #btvCoins178.btvCoins178[open]>.coinApp178{
+  width:100vw!important;max-width:none!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:88px auto auto minmax(0,1fr)!important;
+  overflow:hidden!important;background:radial-gradient(circle at 94% 4%,rgba(74,157,132,.16),transparent 34rem),linear-gradient(135deg,#f8faf7 0%,#eaf1ec 100%)!important;color:var(--coin249-ink);
+}
+#btvCoins178 .coinTop178{
+  height:88px!important;padding:0 clamp(22px,4.6vw,86px)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  border-bottom:1px solid rgba(8,67,62,.1)!important;background:rgba(255,254,250,.96)!important;box-shadow:0 12px 35px rgba(5,46,43,.055)!important;backdrop-filter:blur(18px);
+}
+#btvCoins178 .coinBrand178{display:flex!important;align-items:center!important;gap:15px!important}
+#btvCoins178 .coinMark178{
+  width:54px!important;height:54px!important;flex:0 0 54px!important;display:grid!important;place-items:center!important;
+  border:1px solid rgba(255,255,255,.16)!important;border-radius:17px!important;background:linear-gradient(145deg,#0d5651,#063536)!important;
+  color:var(--coin249-gold)!important;font-family:Georgia,serif!important;font-size:29px!important;
+  box-shadow:0 10px 24px rgba(6,53,51,.18),inset 0 1px rgba(255,255,255,.14)!important;
+}
+#btvCoins178 .coinBrand178 small{display:block!important;margin-bottom:3px!important;color:#1a7167!important;font-size:9px!important;letter-spacing:.28em!important}
+#btvCoins178 .coinBrand178 b{display:block!important;color:#082f30!important;font:700 27px/1 Georgia,serif!important;letter-spacing:-.035em!important}
+#btvCoins178 .coinTopActions178{display:flex!important;align-items:center!important;gap:10px!important}
+#btvCoins178 .coinLive249{
+  min-height:38px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;border:1px solid #cce4d8;border-radius:999px;
+  background:#edf7f1;color:#0b655b;font-size:12px;font-weight:800;letter-spacing:.02em;
+}
+#btvCoins178 .coinLive249 i{width:8px;height:8px;border-radius:50%;background:#22a36a;box-shadow:0 0 0 4px rgba(34,163,106,.13)}
+#btvCoins178 .coinLevelPill178{min-height:38px!important;padding:0 15px!important;display:inline-flex!important;align-items:center!important;border:1px solid #eadcae!important;border-radius:999px!important;background:#fff9e8!important;color:#6a5211!important;font-size:12px!important;font-weight:800!important}
+#btvCoins178 .coinTopActions178>button{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;border:1px solid #d5e1db!important;border-radius:14px!important;background:#fff!important;color:#0a4743!important;font-size:23px!important;box-shadow:none!important}
+
+#btvCoins178 .coinCampaign178{padding:10px clamp(22px,4.6vw,86px)!important;background:linear-gradient(90deg,#fff5d7,#fdfaf0 48%,#e6f4ed)!important}
+#btvCoins178 .coinTabs178{
+  box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:72px!important;padding:10px clamp(22px,4.6vw,86px) 0!important;
+  display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important;position:relative!important;top:auto!important;z-index:4!important;
+  overflow:visible!important;background:linear-gradient(112deg,#052f31 0%,#074a47 58%,#0b6258 100%)!important;box-shadow:0 16px 35px rgba(5,47,46,.14)!important;
+}
+#btvCoins178 .coinNavIntro178,#btvCoins178 .coinNavTrust178{display:none!important}
+#btvCoins178 .coinTabs178>button{
+  box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:56px!important;margin:0!important;padding:9px 7px 12px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;border:1px solid transparent!important;border-radius:14px 14px 0 0!important;
+  background:transparent!important;color:#bed7d1!important;font-weight:800!important;white-space:normal!important;
+}
+#btvCoins178 .coinTabs178>button i{width:27px!important;height:27px!important;flex:0 0 27px!important;display:grid!important;place-items:center!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:9px!important;font-style:normal!important}
+#btvCoins178 .coinTabs178>button span{min-width:0!important;overflow-wrap:anywhere!important;line-height:1.15!important}
+#btvCoins178 .coinTabs178>button:hover{background:rgba(255,255,255,.07)!important;color:#fff!important}
+#btvCoins178 .coinTabs178>button.active{border-color:#e0e9e3!important;background:linear-gradient(180deg,#fffefa,#f3f6f2)!important;color:#083e3b!important;box-shadow:inset 0 -4px var(--coin249-gold),0 -8px 22px rgba(0,0,0,.1)!important}
+
+html body #btvCoins178.btvCoins178[open]>.coinApp178>.coinBody178{
+  box-sizing:border-box!important;width:100%!important;max-width:1760px!important;min-width:0!important;height:100%!important;margin:0 auto!important;
+  padding:clamp(28px,3vw,50px) clamp(22px,4.6vw,86px) 90px!important;overflow-x:hidden!important;overflow-y:auto!important;scrollbar-gutter:stable;
+}
+#btvCoins178 .coinOverview178{display:grid!important;gap:20px!important}
+#btvCoins178 .coinHero178{
+  box-sizing:border-box!important;min-height:320px!important;padding:clamp(30px,4vw,68px)!important;
+  display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr)!important;align-items:center!important;gap:clamp(28px,5vw,90px)!important;
+  border:1px solid rgba(232,199,100,.28)!important;border-radius:30px!important;overflow:hidden!important;
+  background:radial-gradient(circle at 92% 115%,rgba(70,181,151,.34),transparent 27rem),linear-gradient(125deg,#042c2e 0%,#07504c 60%,#0d6b5f 100%)!important;
+  box-shadow:0 26px 65px rgba(5,46,44,.18),inset 0 1px rgba(255,255,255,.12)!important;
+}
+#btvCoins178 .coinHero178:before{opacity:.3!important;filter:saturate(.9) contrast(1.05)!important}
+#btvCoins178 .coinHero178>div{position:relative;z-index:1}
+#btvCoins178 .coinHero178>div:first-child>small{color:#f0cd6b!important;font-size:11px!important;letter-spacing:.25em!important}
+#btvCoins178 .coinHero178 strong{display:block!important;margin:8px 0!important;color:#fff!important;font:700 clamp(60px,6vw,98px)/.95 Georgia,serif!important;letter-spacing:-.055em!important;white-space:normal!important}
+#btvCoins178 .coinHero178 p{max-width:570px!important;color:#d8e8e3!important;font-size:16px!important}
+#btvCoins178 .coinHeroStats178{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:22px!important;padding:10px!important;background:rgba(2,36,36,.32)!important;backdrop-filter:blur(14px)}
+#btvCoins178 .coinHeroStats178 span{min-height:64px!important;padding:12px 15px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:rgba(255,255,255,.045)!important}
+#btvCoins178 .coinHeroStats178 span:last-child{border-bottom:0!important}
+#btvCoins178 .coinHeroStats178 small{color:#b8d4cd!important}
+#btvCoins178 .coinHeroStats178 b{color:#fff!important;font-size:20px!important}
+
+#btvCoins178 .coinTrustRail249{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:hidden;border:1px solid var(--coin249-line);border-radius:20px;background:rgba(255,255,255,.8);box-shadow:0 12px 32px rgba(8,49,44,.055)}
+#btvCoins178 .coinTrustRail249 article{min-width:0;padding:18px 22px;display:flex;align-items:center;gap:13px;border-right:1px solid var(--coin249-line)}
+#btvCoins178 .coinTrustRail249 article:last-child{border-right:0}
+#btvCoins178 .coinTrustRail249 i{width:37px;height:37px;flex:0 0 37px;display:grid;place-items:center;border-radius:12px;background:#e5f3ec;color:#0a685d;font-style:normal;font-weight:900}
+#btvCoins178 .coinTrustRail249 div{min-width:0;display:grid;gap:3px}
+#btvCoins178 .coinTrustRail249 b{font-size:13px;color:#103d3b}
+#btvCoins178 .coinTrustRail249 span{font-size:12px;color:var(--coin249-muted);line-height:1.35}
+
+#btvCoins178 .coinMetrics178{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
+#btvCoins178 .coinMetrics178 article,#btvCoins178 .coinGrid178 article,#btvCoins178 .coinFeatured178,#btvCoins178 .coinRecent178,#btvCoins178 .coinPurchases178,#btvCoins178 .coinCardGrid178 article,#btvCoins178 .coinChallengeList178 article,#btvCoins178 .coinHowGrid178 article,#btvCoins178 .coinReferral178,#btvCoins178 .coinSafety178{border:1px solid var(--coin249-line)!important;background:rgba(255,255,255,.9)!important;box-shadow:0 14px 38px rgba(8,49,44,.06)!important}
+#btvCoins178 .coinMetrics178 article{min-height:112px!important;padding:24px!important;border-radius:19px!important}
+#btvCoins178 .coinMetrics178 small{color:#627b77!important;font-size:10px!important;letter-spacing:.18em!important}
+#btvCoins178 .coinMetrics178 b{color:#0a3d3a!important;font:700 27px/1.1 Georgia,serif!important}
+#btvCoins178 .coinGrid178{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+#btvCoins178 .coinGrid178 article{min-height:238px!important;padding:clamp(25px,3vw,42px)!important;border-radius:24px!important}
+#btvCoins178 .coinGrid178 h2{font:700 clamp(28px,3vw,44px)/1.05 Georgia,serif!important;color:#0a3836!important}
+#btvCoins178 .coinFeatured178,#btvCoins178 .coinRecent178{border-radius:24px!important}
+#btvCoins178 .coinRecent178{padding:clamp(24px,3vw,38px)!important}
+#btvCoins178 .coinRecent178>div:first-child{padding-bottom:16px!important;border-bottom:1px solid var(--coin249-line)!important}
+#btvCoins178 .coinRecent178 h2{font:700 28px/1.1 Georgia,serif!important}
+#btvCoins178 .coinHistory178 article{min-height:70px!important;padding:13px 4px!important;border-bottom:1px solid #e3ebe6!important}
+#btvCoins178 .coinHistory178 article>i{width:40px!important;height:40px!important;border-radius:12px!important}
+#btvCoins178 .coinHistory178 article>strong{font-size:16px!important}
+
+#btvCoins178 .coinPage178{max-width:none!important}
+#btvCoins178 .coinPageHead178{max-width:900px!important;margin-bottom:28px!important}
+#btvCoins178 .coinPageHead178>span{color:#0d7266!important;letter-spacing:.22em!important}
+#btvCoins178 .coinPageHead178 h1{font:700 clamp(40px,4.4vw,68px)/.98 Georgia,serif!important;letter-spacing:-.045em!important;color:#093634!important}
+#btvCoins178 .coinPageHead178 p{max-width:760px!important;color:var(--coin249-muted)!important;font-size:16px!important}
+#btvCoins178 .coinCardGrid178{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+#btvCoins178 .coinCardGrid178 article{min-width:0!important;border-radius:22px!important}
+#btvCoins178 button:focus-visible{outline:3px solid #efc856!important;outline-offset:3px!important}
+
+@media(max-width:1100px){
+  #btvCoins178 .coinTabs178{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #btvCoins178 .coinHero178{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr)!important}
+  #btvCoins178 .coinCardGrid178{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:720px){
+  html body #btvCoins178.btvCoins178[open]>.coinApp178{grid-template-rows:68px auto auto minmax(0,1fr)!important}
+  #btvCoins178 .coinTop178{height:68px!important;padding:0 13px!important}
+  #btvCoins178 .coinMark178{width:43px!important;height:43px!important;flex-basis:43px!important;border-radius:13px!important;font-size:23px!important}
+  #btvCoins178 .coinBrand178{gap:10px!important}
+  #btvCoins178 .coinBrand178 b{font-size:20px!important}
+  #btvCoins178 .coinBrand178 small{font-size:7px!important}
+  #btvCoins178 .coinLive249,#btvCoins178 .coinLevelPill178{display:none!important}
+  #btvCoins178 .coinTopActions178{gap:6px!important}
+  #btvCoins178 .coinTopActions178>button{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;border-radius:13px!important}
+  #btvCoins178 .coinCampaign178{padding:8px 13px!important}
+  #btvCoins178 .coinTabs178{min-height:57px!important;padding:7px 9px 0!important;display:flex!important;gap:5px!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;scroll-snap-type:x proximity}
+  #btvCoins178 .coinTabs178::-webkit-scrollbar{display:none}
+  #btvCoins178 .coinTabs178>button{width:auto!important;min-width:max-content!important;min-height:50px!important;flex:0 0 auto!important;padding:10px 14px 11px!important;border-radius:11px 11px 0 0!important;scroll-snap-align:start}
+  #btvCoins178 .coinTabs178>button i{display:none!important}
+  html body #btvCoins178.btvCoins178[open]>.coinApp178>.coinBody178{padding:18px 13px 64px!important}
+  #btvCoins178 .coinHero178{min-height:0!important;padding:28px 22px!important;grid-template-columns:1fr!important;gap:24px!important;border-radius:22px!important}
+  #btvCoins178 .coinHero178 strong{font-size:clamp(48px,15vw,68px)!important}
+  #btvCoins178 .coinHeroStats178{grid-template-columns:1fr!important}
+  #btvCoins178 .coinTrustRail249{grid-template-columns:1fr;border-radius:18px}
+  #btvCoins178 .coinTrustRail249 article{padding:15px 17px;border-right:0;border-bottom:1px solid var(--coin249-line)}
+  #btvCoins178 .coinTrustRail249 article:last-child{border-bottom:0}
+  #btvCoins178 .coinMetrics178,#btvCoins178 .coinGrid178,#btvCoins178 .coinCardGrid178{grid-template-columns:1fr!important}
+  #btvCoins178 .coinMetrics178{gap:10px!important}
+  #btvCoins178 .coinMetrics178 article{min-height:94px!important}
+  #btvCoins178 .coinGrid178 article{min-height:0!important}
+  #btvCoins178 .coinPageHead178 h1{font-size:clamp(36px,12vw,52px)!important}
+}
+@media(max-width:380px){
+  #btvCoins178 .coinBrand178 small{display:none!important}
+  #btvCoins178 .coinBrand178 b{font-size:18px!important}
+  #btvCoins178 .coinHero178 strong{font-size:46px!important}
+}
+@media(prefers-reduced-motion:reduce){#btvCoins178 *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

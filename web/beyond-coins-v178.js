@@ -1,6 +1,6 @@
 (()=>{
   "use strict";
-  const VERSION="178";
+  const VERSION="249";
   const cache={data:null,at:0,promise:null};
   const esc=value=>String(value??"").replace(/[&<>'"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
   const coins=value=>`${Number(value||0).toLocaleString("en-GB")} BC`;
@@ -39,7 +39,7 @@
     const wallet=data.wallet||{}, progress=data.progress||{}, pct=levelProgress(data), action=nextAction(data), featured=(data.rewards||[]).find(x=>x.featured)||(data.rewards||[])[0];
     const tabs=["overview","earn","rewards","challenges","history","buy","how"], labels={overview:"Overview",earn:"Earn coins",rewards:"Rewards",challenges:"Challenges",history:"Transactions",buy:"Buy coins",how:"How it works"}, tabIcons={overview:"⌂",earn:"↗",rewards:"◇",challenges:"◎",history:"≡",buy:"＋",how:"?"};
     dialog.innerHTML=`<main class="coinApp178">
-      <header class="coinTop178"><div class="coinBrand178"><span class="coinMark178">B</span><div><small>BEYOND THE VISA</small><b>Beyond Coins</b></div></div><div class="coinTopActions178"><span class="coinLevelPill178">${esc(data.level?.badge||"Explorer")}</span><button data-refresh aria-label="Refresh wallet">↻</button><button data-close aria-label="Close wallet">×</button></div></header>
+      <header class="coinTop178"><div class="coinBrand178"><span class="coinMark178">B</span><div><small>BEYOND THE VISA</small><b>Beyond Coins</b></div></div><div class="coinTopActions178"><span class="coinLive249"><i aria-hidden="true"></i>Ledger online</span><span class="coinLevelPill178">${esc(data.level?.badge||"Explorer")}</span><button data-refresh aria-label="Refresh wallet">↻</button><button data-close aria-label="Close wallet">×</button></div></header>
       ${(data.campaigns||[]).map(c=>`<aside class="coinCampaign178"><b>${esc(c.name)}</b><span>${esc(c.banner_message||`${Number(c.multiplier||1)}× eligible rewards until ${date(c.ends_at)}`)}</span></aside>`).join("")}
       <nav class="coinTabs178" aria-label="Wallet sections"><div class="coinNavIntro178"><small>MY WALLET</small><b>Coins Centre</b><p>Manage your balance, progress and rewards.</p></div>${tabs.map(tab=>`<button data-tab="${tab}" class="${tab===active?"active":""}"><i aria-hidden="true">${tabIcons[tab]}</i><span>${labels[tab]}</span></button>`).join("")}<div class="coinNavTrust178"><span>✓</span><p><b>Secure ledger</b><small>Every transaction is verified and recorded.</small></p></div></nav>
       <div class="coinBody178">${panel(active,data,{wallet,progress,pct,action,featured})}</div>
@@ -51,6 +51,7 @@
     const {wallet,progress,pct,action,featured}=ctx;
     if(active==="overview")return `<section class="coinOverview178">
       <div class="coinHero178"><div><small>AVAILABLE BALANCE</small><strong>${coins(wallet.balance)}</strong><p>Ready to use across eligible Beyond The Visa resources.</p></div><div class="coinHeroStats178"><span><small>Pending</small><b>${coins(wallet.pending_balance)}</b></span><span><small>Earned today</small><b>${coins(data.earned_today)}</b></span><span><small>Expiring in 30 days</small><b>${coins(data.expiring_soon)}</b></span></div></div>
+      <section class="coinTrustRail249" aria-label="Wallet safeguards"><article><i aria-hidden="true">✓</i><div><b>Verified ledger</b><span>Every balance movement is recorded.</span></div></article><article><i aria-hidden="true">◎</i><div><b>Owner protected</b><span>Only authorised activity can use your coins.</span></div></article><article><i aria-hidden="true">↻</i><div><b>Atomic checkout</b><span>Each purchase completes once or not at all.</span></div></article></section>
       <div class="coinMetrics178"><article><small>LIFETIME EARNED</small><b>${coins(wallet.lifetime_earned)}</b></article><article><small>LIFETIME SPENT</small><b>${coins(wallet.lifetime_spent)}</b></article><article><small>CURRENT STREAK</small><b>${Number(progress.current_streak||0)} days</b></article></div>
       <div class="coinGrid178"><article class="coinLevel178"><span>YOUR LEVEL</span><h2>${esc(data.level?.name||"Explorer")}</h2><p>${data.next_level?`${coins(Number(data.next_level.minimum_lifetime_earned)-Number(wallet.lifetime_earned))} to ${esc(data.next_level.name)}`:"Highest level reached"}</p><div role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><small>${pct}% progress</small></article>
       <article class="coinNext178"><span>BEST NEXT ACTION</span><h2>${esc(action?.title||"Keep building your journey")}</h2><p>${esc(action?.description||"Explore the latest challenges and rewards.")}</p>${action?`<button data-claim="${esc(action.code)}">Check & claim ${coins(action.coin_reward)}</button>`:`<button data-tab="challenges">View challenges</button>`}</article></div>

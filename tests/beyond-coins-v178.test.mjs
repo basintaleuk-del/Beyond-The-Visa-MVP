@@ -45,7 +45,7 @@ test("wallet is responsive, dark-mode aware and reduced-motion safe", async () =
   assert.match(js, /coinNavIntro178/);
   const html = await read("web/index.html");
   assert.match(html, /beyond-coins-v178\.css\?v=179/);
-  assert.match(html, /beyond-coins-v178\.js\?v=179/);
+  assert.match(html, /beyond-coins-v178\.js\?v=249/);
 });
 
 test("admin tools and checkout use the current production contract", async () => {
