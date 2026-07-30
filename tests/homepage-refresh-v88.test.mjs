@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=178/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=234/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=235/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=235/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -32,6 +32,35 @@ test('homepage replaces plan text with the selected destination flag', async () 
   assert.match(html, /class="planBadge destinationFlagBadge"/);
   assert.match(html, /flagCode/);
   assert.match(css, /\.destinationFlagBadge73/);
+
+  const start = dashboard.indexOf('function destinationInfo()');
+  const end = dashboard.indexOf('function safeName', start);
+  const destinationSource = dashboard.slice(start, end);
+  assert.ok(destinationSource.indexOf('profile.destination_country') < destinationSource.indexOf('selected?.name'));
+  for (const [key, name] of [
+    ['uk', 'United Kingdom'],
+    ['us', 'United States'],
+    ['au', 'Australia'],
+    ['ca', 'Canada'],
+    ['nz', 'New Zealand'],
+    ['ie', 'Ireland'],
+    ['ae', 'United Arab Emirates'],
+    ['sa', 'Saudi Arabia'],
+  ]) {
+    assert.match(destinationSource, new RegExp(`${key}: \\{ name: "${name}"`));
+  }
+});
+
+test('homepage sidebar uses a compact advert placement instead of London artwork', async () => {
+  const [dashboard, css] = await Promise.all([
+    read('web/dashboard-premium-v73.js'),
+    read('web/dashboard-premium-v73.css'),
+  ]);
+  assert.match(dashboard, /data-home-ad-slot="sidebar"/);
+  assert.match(dashboard, /data-go="help-support">Place an advert/);
+  assert.match(css, /\.sidebarAdvert73\{/);
+  assert.doesNotMatch(dashboard, /sidebarLondon73/);
+  assert.doesNotMatch(css, /sidebar-london-bridge-v101\.png|sidebarLondon73/);
 });
 
 test('secondary scripts do not replace or repeatedly mutate the homepage', async () => {

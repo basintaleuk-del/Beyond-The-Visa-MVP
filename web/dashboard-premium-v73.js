@@ -92,14 +92,18 @@
   }
 
   function destinationInfo() {
+    const profile = localProfile();
+    const synced = window.destinationSync?.snapshot?.() || null;
     const selected =
       typeof window.country === "function" ? window.country() : null;
     const raw =
-      selected?.name ||
-      localProfile().destination ||
+      synced?.country ||
+      profile.destination_country ||
+      profile.destination ||
+      state.u?.user_metadata?.destination_country ||
       state.u?.user_metadata?.destination ||
+      selected?.name ||
       "United Kingdom";
-    const name = String(raw).trim();
     const key =
       {
         "united kingdom": "uk",
@@ -110,30 +114,35 @@
         usa: "us",
         us: "us",
         australia: "au",
+        au: "au",
         canada: "ca",
+        ca: "ca",
         "new zealand": "nz",
+        nz: "nz",
         ireland: "ie",
+        ie: "ie",
         "united arab emirates": "ae",
         uae: "ae",
+        ae: "ae",
         "saudi arabia": "sa",
-      }[name.toLowerCase()] || "uk";
+        sa: "sa",
+      }[String(raw).trim().toLowerCase()] || "uk";
     const meta = {
-      uk: { flag: "🇬🇧", exam: "cbt" },
-      us: { flag: "🇺🇸", exam: "nclex" },
-      au: { flag: "🇦🇺", exam: "registration" },
-      ca: { flag: "🇨🇦", exam: "nclex" },
-      nz: { flag: "🇳🇿", exam: "registration" },
-      ie: { flag: "🇮🇪", exam: "cbt" },
-      ae: { flag: "🇦🇪", exam: "registration" },
-      sa: { flag: "🇸🇦", exam: "registration" },
+      uk: { name: "United Kingdom", flag: "🇬🇧", exam: "cbt" },
+      us: { name: "United States", flag: "🇺🇸", exam: "nclex" },
+      au: { name: "Australia", flag: "🇦🇺", exam: "registration" },
+      ca: { name: "Canada", flag: "🇨🇦", exam: "nclex" },
+      nz: { name: "New Zealand", flag: "🇳🇿", exam: "registration" },
+      ie: { name: "Ireland", flag: "🇮🇪", exam: "registration" },
+      ae: { name: "United Arab Emirates", flag: "🇦🇪", exam: "registration" },
+      sa: { name: "Saudi Arabia", flag: "🇸🇦", exam: "registration" },
     }[key];
-    const exam = { ie: "registration" }[key] || meta.exam;
     return {
       key,
-      name: selected?.name || name,
-      flag: selected?.flag || meta.flag,
+      name: meta.name,
+      flag: meta.flag,
       flagCode: key === "uk" ? "gb" : key,
-      exam,
+      exam: meta.exam,
     };
   }
 
@@ -2001,7 +2010,13 @@
             "sidebar-menu73"
           )}</nav>
         </div>
-        <div class="sidebarLondon73" aria-hidden="true"></div>
+        <section class="sidebarAdvert73" data-home-ad-slot="sidebar" aria-label="Advertisement">
+          <div class="sidebarAdvertTop73"><span>ADVERTISEMENT</span><i>AD</i></div>
+          <div class="sidebarAdvertCopy73"><b>Your campaign here</b><small>Reach globally mobile healthcare professionals.</small></div>
+          <button type="button" data-go="help-support">Place an advert ${iconSvg(
+            "arrowRight"
+          )}</button>
+        </section>
       </aside>
       <div class="mainArea73">
         <header class="mainHeader73">
