@@ -36,7 +36,7 @@ test("saved profile photos replace initials across account navigation", () => {
   assert.match(dashboard, /btv:profile-photo-updated/);
   assert.match(storage, /querySelectorAll\('\[data-btv-profile-photo\],\.btvMemberMenuHead82 img'\)/);
   assert.match(storage, /new CustomEvent\('btv:profile-photo-updated'/);
-  assert.match(index, /profile-menu-v82\.js\?v=87/);
+  assert.match(index, /profile-menu-v82\.js\?v=88/);
   assert.match(index, /storage-v21\.js\?v=102/);
 });
 
