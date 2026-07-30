@@ -9,6 +9,7 @@ const platform=read('web/platform-upgrade-v72.js');
 const dashboard=read('web/dashboard-premium-v73.js');
 const client=read('web/success-stories-v198.js');
 const clientCss=read('web/success-stories-v198.css');
+const premiumCss=read('web/success-stories-v248.css');
 const adminJs=read('web/admin-success-stories-v198.js');
 const adminCss=read('web/admin-success-stories-v198.css');
 const migration=read('supabase/migrations/20260730080000_success_stories_v198.sql');
@@ -18,11 +19,23 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(platform,/storiesHub198/);
   assert.ok(index.indexOf('success-stories-v198.js')<index.indexOf('platform-upgrade-v72.js'));
   assert.match(index,/success-stories-v198\.css\?v=223/);
-  assert.match(index,/success-stories-v198\.js\?v=208/);
+  assert.match(index,/success-stories-v198\.js\?v=248/);
+  assert.match(index,/success-stories-v248\.css\?v=248/);
   assert.match(index,/platform-upgrade-v72\.js\?v=211/);
   assert.match(index,/dashboard-premium-v73\.js\?v=245/);
   assert.match(dashboard,/if \(type === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
   assert.match(dashboard,/if \(id === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
+});
+
+test('v248 isolates the premium archive from conflicting global and legacy layouts',()=>{
+  assert.match(premiumCss,/#successStoriesPage208,\s*#successStoriesPage208 \*\{box-sizing:border-box\}/);
+  assert.match(premiumCss,/width:min\(100%,1680px\)!important/);
+  assert.match(premiumCss,/grid-template-columns:minmax\(0,760px\) minmax\(230px,300px\)!important/);
+  assert.match(premiumCss,/\.storySignals248/);
+  assert.match(premiumCss,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
+  assert.match(premiumCss,/@media\(max-width:1050px\)/);
+  assert.match(premiumCss,/@media\(max-width:820px\)/);
+  assert.match(premiumCss,/@media\(max-width:560px\)/);
 });
 
 test('every authenticated member receives a complete moderated submission flow',()=>{
