@@ -976,17 +976,8 @@
     const results = dialog.querySelector("[data-mentor-results]");
     const count = dialog.querySelector("[data-mentor-count]");
     let mentors = [];
-    try {
-      const response = await db()
-        .from("btv_mentors")
-        .select("id,biography,experience_years,specialty,languages,areas_of_support,coin_price,rating,review_count")
-        .eq("status", "approved")
-        .order("rating", { ascending: false });
-      if (response.error) throw response.error;
-      mentors = response.data || [];
-    } catch (error) {
-      console.warn("Mentor marketplace unavailable", error);
-    }
+    let mentorLoadFailed = false;
+    let mentorRequest = 0;
 
     const initialsForMentor = (mentor, index) =>
       String(mentor.specialty || `Mentor ${index + 1}`)
@@ -999,7 +990,7 @@
       const support = Array.isArray(mentor.areas_of_support) ? mentor.areas_of_support : [];
       const languages = Array.isArray(mentor.languages) ? mentor.languages : [];
       const title = mentor.specialty || "Healthcare career mentor";
-      return `<article class="mentorCard177" data-mentor-card data-search="${esc(`${title} ${support.join(" ")} ${languages.join(" ")}`.toLowerCase())}">
+      return `<article class="mentorCard177" data-mentor-card data-search="${esc(`${title} ${support.join(" ")} ${languages.join(" ")} ${mentor.biography || ""}`.toLowerCase())}">
         <div class="mentorCardTop177"><span class="mentorAvatar177">${esc(initialsForMentor(mentor, index))}</span><span class="mentorVerified177">&#10003; Approved</span></div>
         <div class="mentorCardTitle177"><h4>${esc(title)}</h4><span>${Number(mentor.experience_years || 0)}+ years experience</span></div>
         <div class="mentorRating177"><b>${Number(mentor.rating || 0) > 0 ? `&#9733; ${Number(mentor.rating).toFixed(1)}` : "New mentor"}</b><small>${Number(mentor.review_count || 0)} reviews</small></div>
@@ -1025,12 +1016,14 @@
       count.textContent = `${filtered.length} ${filtered.length === 1 ? "mentor" : "mentors"} available`;
       results.innerHTML = filtered.length
         ? filtered.map(card).join("")
-        : `<section class="mentorEmpty177"><span aria-hidden="true">&#9671;</span><h4>${mentors.length ? "No mentors match those filters" : "New mentor profiles are being reviewed"}</h4><p>${mentors.length ? "Try another support area or clear your search." : "We are carefully approving experienced professionals before they appear here. Tell us what support you need and we will keep you informed."}</p><button type="button" data-mentor-empty-action>${mentors.length ? "Show all mentors" : "Join the early access list"}</button></section>`;
+        : `<section class="mentorEmpty177"><span aria-hidden="true">&#9671;</span><h4>${mentorLoadFailed ? "Mentors could not be loaded" : active === "all" ? "New mentor profiles are being reviewed" : `${{ registration: "Registration", exam: "Exam preparation", career: "Career and interview" }[active]} mentors are being reviewed`}</h4><p>${mentorLoadFailed ? "Please try again. No profile or booking information was changed." : active === "all" ? "We are carefully approving experienced professionals before they appear here. Tell us what support you need and we will keep you informed." : "No approved mentor currently matches this support area. Choose another category or check again soon."}</p><button type="button" data-mentor-empty-action>${mentorLoadFailed ? "Try again" : active === "all" ? "Join the early access list" : "Show all mentors"}</button></section>`;
       results.querySelector("[data-mentor-empty-action]")?.addEventListener("click", () => {
-        if (mentors.length) {
+        if (mentorLoadFailed) {
+          loadFilteredMentors();
+        } else if (active !== "all" || mentors.length) {
           dialog.querySelector("[data-mentor-search]").value = "";
           dialog.querySelectorAll("[data-mentor-filter]").forEach((button) => button.classList.toggle("active", button.dataset.mentorFilter === "all"));
-          renderMentors();
+          loadFilteredMentors();
         } else {
           close();
           go("feedback");
@@ -1045,12 +1038,46 @@
       }));
     };
 
-    dialog.querySelector("[data-mentor-search]")?.addEventListener("input", renderMentors);
+    const loadFilteredMentors = async () => {
+      const request = ++mentorRequest;
+      const query = String(dialog.querySelector("[data-mentor-search]")?.value || "").trim().slice(0, 120);
+      const category = dialog.querySelector("[data-mentor-filter].active")?.dataset.mentorFilter || "all";
+      results.setAttribute("aria-busy", "true");
+      count.textContent = "Updating approved mentors...";
+      let response;
+      try {
+        response = await db().rpc("btv_list_approved_mentors", { p_category: category, p_search: query || null });
+        if (response.error) {
+          response = await db().from("btv_mentors")
+            .select("id,biography,experience_years,specialty,languages,areas_of_support,coin_price,rating,review_count")
+            .eq("status", "approved")
+            .order("rating", { ascending: false });
+        }
+        if (response.error) throw response.error;
+        if (request !== mentorRequest) return;
+        mentors = response.data || [];
+        mentorLoadFailed = false;
+      } catch (error) {
+        if (request !== mentorRequest) return;
+        mentors = [];
+        mentorLoadFailed = true;
+        console.warn("Mentor marketplace unavailable", error);
+      } finally {
+        if (request === mentorRequest) results.removeAttribute("aria-busy");
+      }
+      renderMentors();
+    };
+
+    let mentorSearchTimer;
+    dialog.querySelector("[data-mentor-search]")?.addEventListener("input", () => {
+      clearTimeout(mentorSearchTimer);
+      mentorSearchTimer = setTimeout(loadFilteredMentors, 220);
+    });
     dialog.querySelectorAll("[data-mentor-filter]").forEach((button) => button.addEventListener("click", () => {
       dialog.querySelectorAll("[data-mentor-filter]").forEach((item) => item.classList.toggle("active", item === button));
-      renderMentors();
+      loadFilteredMentors();
     }));
-    renderMentors();
+    await loadFilteredMentors();
   }
 
   function openStandalonePanel(type) {

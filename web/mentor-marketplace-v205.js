@@ -85,7 +85,11 @@
         if (command) { event.preventDefault(); runCommand(dialog, command.dataset.mentorCommand205); return; }
         const filter = event.target.closest('[data-mentor-filter]');
         if (filter) {
-          dialog.querySelectorAll('[data-mentor-filter]').forEach(button => button.classList.toggle('active', button === filter));
+          dialog.querySelectorAll('[data-mentor-filter]').forEach(button => {
+            const active = button === filter;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
+          });
           queueMicrotask(() => filterVisibleCards(dialog));
           return;
         }
