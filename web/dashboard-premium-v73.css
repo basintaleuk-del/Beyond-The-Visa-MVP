@@ -1240,11 +1240,22 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
     linear-gradient(125deg,#073f3d 0%,#0b5e57 60%,#15796b 100%);
   box-shadow:0 18px 42px rgba(8,61,57,.16)
 }
+.streakHero245:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(90deg,#073f3d 0%,rgba(7,63,61,.94) 31%,rgba(7,63,61,.48) 67%,rgba(7,63,61,.2) 100%),
+    image-set(
+      url("assets/streak/study-streak-nurse-v247-960.webp") 1x,
+      url("assets/streak/study-streak-nurse-v247.webp") 2x
+    );
+  background-repeat:no-repeat;background-size:cover;background-position:center;
+  transform:scale(1.01)
+}
 .streakHero245:after{
   content:"";position:absolute;right:-75px;bottom:-130px;width:340px;height:340px;
-  border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.03)
+  z-index:1;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.03)
 }
-.streakHeroCopy245,.streakRank245{position:relative;z-index:1}
+.streakHeroCopy245,.streakRank245{position:relative;z-index:2}
 .streakHeroCopy245>span,.streakCalendarSection245>div>span,.streakStandingsHead245 span{
   display:block;font-size:11px;font-weight:900;letter-spacing:.16em;color:#e9c75d
 }
@@ -1323,13 +1334,18 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
     gap:16px;padding:22px 26px;align-content:stretch
   }
   .streakHero245{
-    grid-area:hero;min-height:250px;margin:0;padding:34px 38px;
-    grid-template-columns:minmax(0,1fr) minmax(260px,34%)
+    grid-area:hero;min-height:300px;margin:0;padding:34px 42% 34px 38px;
+    display:block
   }
+  .streakHero245:before{background-position:center}
   .streakHeroCopy245 h2{font-size:clamp(88px,8vw,132px)}
   .streakHeroCopy245 p{font-size:20px}
-  .streakRank245{min-height:178px}
-  .streakRank245 strong{font-size:64px}
+  .streakRank245{
+    position:absolute;right:26px;bottom:24px;width:min(300px,34%);min-height:126px;padding:18px 20px;
+    background:rgba(3,54,51,.72);border-color:rgba(255,255,255,.32)
+  }
+  .streakRank245 strong{font-size:48px}
+  .streakPercentile245{margin-top:10px}
   .streakMetrics245{grid-area:metrics;margin:0;gap:16px}
   .streakMetrics245 article{min-height:136px;padding:22px}
   .streakMetrics245 b{font-size:27px}
@@ -1367,6 +1383,7 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .studyStreakPanel245>header{min-height:72px;padding:12px 15px}
   .studyStreakPanel245>main{padding:14px}
   .streakHero245{min-height:270px;padding:24px;grid-template-columns:1fr}
+  .streakHero245:before{background-position:64% center;opacity:.5}
   .streakHeroCopy245 h2{font-size:76px}
   .streakRank245{min-height:112px;padding:18px}
   .streakRank245 strong{font-size:42px}

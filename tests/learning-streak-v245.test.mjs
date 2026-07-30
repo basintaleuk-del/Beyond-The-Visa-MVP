@@ -17,6 +17,15 @@ const styles = fs.readFileSync(
   new URL("../web/dashboard-premium-v73.css", import.meta.url),
   "utf8"
 );
+const desktopImage = fs.statSync(
+  new URL("../web/assets/streak/study-streak-nurse-v247.webp", import.meta.url)
+);
+const compactImage = fs.statSync(
+  new URL(
+    "../web/assets/streak/study-streak-nurse-v247-960.webp",
+    import.meta.url
+  )
+);
 
 test("streak data is private, server-owned and counted once per UTC day", () => {
   assert.match(migration, /create table if not exists public\.btv_learning_activity_days/i);
@@ -76,6 +85,11 @@ test("study streak opens its own accessible standings experience", () => {
   assert.match(styles, /max-width:none!important;margin:0!important/);
   assert.match(styles, /@media\(min-width:1100px\)/);
   assert.match(styles, /grid-template-areas:\s*"hero standings"\s*"metrics standings"\s*"calendar rule"/);
+  assert.match(styles, /study-streak-nurse-v247-960\.webp/);
+  assert.match(styles, /study-streak-nurse-v247\.webp/);
+  assert.match(styles, /\.streakHero245:before\{[\s\S]*?opacity:\.5/);
+  assert.ok(desktopImage.size > 25_000 && desktopImage.size < 100_000);
+  assert.ok(compactImage.size > 10_000 && compactImage.size < desktopImage.size);
   assert.match(styles, /@media\(max-width:720px\)/);
   assert.match(styles, /\.streakStat245:focus-visible/);
 });
