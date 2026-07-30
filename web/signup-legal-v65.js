@@ -3,7 +3,7 @@
   if (window.__btvSignupLegalV65) return;
   window.__btvSignupLegalV65 = true;
 
-  const VERSION = '2026-07-15';
+  const VERSION = '2026-07-30';
   const draftKey = 'btv-combined-legal-consent-v69';
   const $ = selector => document.querySelector(selector);
   let acceptedAt = null;
@@ -35,7 +35,7 @@
     if (status) {
       status.textContent = acceptedAt
         ? `Agreement recorded for this sign-up on ${new Date(acceptedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}.`
-        : 'One agreement records your acceptance of all three policies.';
+        : 'Terms acceptance and Privacy Policy acknowledgement are recorded for this account.';
       status.classList.toggle('accepted', Boolean(acceptedAt));
     }
   }
@@ -47,7 +47,7 @@
 
     label.classList.add('combinedLegalConsent');
     const copy = label.querySelector('span');
-    if (copy) copy.innerHTML = `I agree to the <a href="terms-and-conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a>, <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="cookie-policy.html" target="_blank" rel="noopener">Cookie Policy</a>.`;
+    if (copy) copy.innerHTML = `I agree to the <a href="terms-and-conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> and acknowledge that I have read the <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>. I understand that <a href="cookie-policy.html" target="_blank" rel="noopener">necessary storage</a> is used to provide my account and requested features.`;
 
     if (!$('#combinedLegalStatus')) {
       label.insertAdjacentHTML('afterend', '<small id="combinedLegalStatus" class="combinedLegalStatus" aria-live="polite"></small>');

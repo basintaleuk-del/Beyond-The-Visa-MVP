@@ -1,4 +1,4 @@
-const legalUpdated='24 July 2026';
+const legalUpdated='30 July 2026';
 const privacyPolicy=`
 <h2>Privacy Policy</h2><p><b>Last updated: ${legalUpdated}</b></p>
 <p>Beyond The Visa (“the App”, “we”, “us”) helps internationally relocating nurses and midwives organise professional registration, learning, relocation and career preparation. This notice explains the information used by the current web preview and the additional processing that applies when optional online services are connected.</p>

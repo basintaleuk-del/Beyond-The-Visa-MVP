@@ -64,7 +64,7 @@ test('the login document no longer parses the megabyte application block inline'
   assert.match(html,/event\?\.detail\?\.state==='app'/);
   assert.doesNotMatch(html,/setTimeout\(load,5000\)/);
   assert.match(html,/script\.async=true/);
-  assert.match(appContent,/const legalUpdated='24 July 2026'/);
+  assert.match(appContent,/const legalUpdated='30 July 2026'/);
 });
 
 test('visible authentication controls remain above full-page application overlays',()=>{
