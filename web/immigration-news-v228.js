@@ -82,27 +82,38 @@
     dialog._articleTrigger = null;
   }
 
+  function safeArticleUrl(value) {
+    try {
+      const url = new URL(value, location.href);
+      return url.protocol === "https:" ? url.href : "";
+    } catch {
+      return "";
+    }
+  }
+
   function openArticle(dialog, index, trigger) {
     const item = dialog._allNewsItems?.[index];
     const modal = dialog.querySelector("[data-news-article-modal]");
     if (!item || !modal) return;
     dialog._articleTrigger = trigger;
     const publisher = item.publisher || names[item.country_code] || "Immigration news";
+    const articleUrl = safeArticleUrl(item.canonical_url);
+    if (!articleUrl) return;
     modal.innerHTML = `
       <button type="button" class="newsArticleBackdrop228" data-news-article-close aria-label="Close article"></button>
       <article class="newsArticlePanel228" role="document" aria-labelledby="newsArticleTitle228" tabindex="-1">
-        <header class="newsArticleHeader228">
+        <header class="newsArticleBrowserBar228">
           <img src="assets/news/newsroom-header-v232.webp" width="1600" height="800" alt="Healthcare professionals reviewing international migration news">
-          <button type="button" data-news-article-close aria-label="Close article">&times;</button>
           <div><small>${esc(publisher)} &middot; ${date(item.published_at)}</small><h2 id="newsArticleTitle228">${esc(item.title)}</h2></div>
+          <button type="button" data-news-article-close aria-label="Close article">&times;</button>
         </header>
-        <div class="newsArticleBody228">
-          <p>${esc(item.summary || "The publisher has not supplied an article extract in its news feed. Use the original article link below to read the full report.")}</p>
-          <aside><b>About this report</b><span>This preview contains the complete text supplied through the publisher's news feed. Immigration rules can change quickly, so confirm decisions with the responsible official authority.</span></aside>
+        <div class="newsArticleFrame228">
+          <div class="newsArticleLoading228"><i></i><span>Loading the complete publisher page&hellip;</span></div>
+          <iframe src="${esc(articleUrl)}" title="Full article: ${esc(item.title)}" loading="eager" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" data-news-article-frame></iframe>
         </div>
         <footer class="newsArticleFooter228">
-          <div><small>CONTINUE WITH THE PUBLISHER</small><b>${esc(publisher)}</b></div>
-          <a href="${esc(item.canonical_url)}" target="_blank" rel="noopener noreferrer">Read original article &nearr;</a>
+          <div><small>VIEWING THE ORIGINAL PUBLISHER PAGE</small><b>${esc(publisher)}</b><span>If the publisher blocks embedded viewing, open it directly.</span></div>
+          <a href="${esc(articleUrl)}" target="_blank" rel="noopener noreferrer">Open original article &nearr;</a>
         </footer>
       </article>`;
     modal.hidden = false;
@@ -112,6 +123,8 @@
     modal.onkeydown = (event) => {
       if (event.key === "Escape") closeArticle(dialog);
     };
+    const frame = modal.querySelector("[data-news-article-frame]");
+    frame.addEventListener("load", () => frame.closest(".newsArticleFrame228")?.classList.add("loaded"), { once: true });
     modal.querySelector(".newsArticlePanel228")?.focus?.();
   }
 
