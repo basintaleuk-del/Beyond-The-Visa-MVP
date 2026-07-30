@@ -1279,7 +1279,11 @@
       );
     }
     if (id === "wallet") return openCoinsCentre();
-    if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
+    if (id === "mentors" || id === "bookings") {
+      if (id === "bookings")
+        return window.BTVBookingsCentre?.open?.() || openStandalonePanel(id);
+      return openStandalonePanel(id);
+    }
     if (id === "stories") {
       if (window.BTVSuccessStories?.open) return window.BTVSuccessStories.open();
       return window.BTVPlatform?.open?.("stories");
