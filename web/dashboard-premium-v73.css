@@ -1204,12 +1204,12 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
 .streakStat245{cursor:pointer}
 .streakStat245:focus-visible{outline:3px solid #e0b94e;outline-offset:3px}
 .studyStreakDialog245{
-  width:min(980px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);
+  width:min(1540px,calc(100vw - 28px));max-width:none;height:calc(100dvh - 28px);max-height:none;
   margin:auto;padding:0;border:0;border-radius:30px;background:#f6f7f1;color:#092f2d;
   box-shadow:0 36px 100px rgba(1,35,33,.3);overflow:hidden
 }
 .studyStreakDialog245::backdrop{background:rgba(2,25,24,.72);backdrop-filter:blur(10px)}
-.studyStreakPanel245{display:flex;max-height:calc(100dvh - 32px);flex-direction:column}
+.studyStreakPanel245{display:flex;height:100%;max-height:none;flex-direction:column}
 .studyStreakPanel245>header{
   min-height:82px;padding:16px 24px;display:flex;align-items:center;gap:13px;
   color:#fff;background:#073f3d;border-bottom:1px solid rgba(255,255,255,.12)
@@ -1228,7 +1228,10 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   width:48px;height:48px;display:grid!important;place-items:center;border-radius:16px;
   background:linear-gradient(145deg,#fff4c7,#e4bd50);font-size:24px;box-shadow:0 9px 20px rgba(0,0,0,.16)
 }
-.studyStreakPanel245>main{padding:24px;overflow:auto}
+.studyStreakPanel245>main{
+  width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box;
+  padding:24px;overflow:auto;flex:1;min-height:0
+}
 .streakHero245{
   min-height:230px;padding:32px;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:center;
   color:#fff;border-radius:25px;overflow:hidden;position:relative;
@@ -1301,9 +1304,66 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
 .streakLoading245 i{width:46px;height:46px;border:4px solid #d8e7e1;border-top-color:#0b665c;border-radius:50%;animation:streakSpin245 .8s linear infinite}
 .streakLoading245 b{font:700 24px Georgia,serif}.streakLoading245 span{color:#677c78}
 @keyframes streakSpin245{to{transform:rotate(360deg)}}
+@media(min-width:1100px){
+  .studyStreakPanel245>header{
+    min-height:88px;padding:17px 30px;
+    background:
+      linear-gradient(90deg,rgba(232,199,101,.08),transparent 38%),
+      #073f3d
+  }
+  .studyStreakPanel245>header b{font-size:29px}
+  .studyStreakPanel245>main{
+    display:grid;
+    grid-template-columns:minmax(0,1.6fr) minmax(370px,.72fr);
+    grid-template-areas:
+      "hero standings"
+      "metrics standings"
+      "calendar rule";
+    grid-template-rows:auto auto minmax(150px,1fr);
+    gap:16px;padding:22px 26px;align-content:stretch
+  }
+  .streakHero245{
+    grid-area:hero;min-height:250px;margin:0;padding:34px 38px;
+    grid-template-columns:minmax(0,1fr) minmax(260px,34%)
+  }
+  .streakHeroCopy245 h2{font-size:clamp(88px,8vw,132px)}
+  .streakHeroCopy245 p{font-size:20px}
+  .streakRank245{min-height:178px}
+  .streakRank245 strong{font-size:64px}
+  .streakMetrics245{grid-area:metrics;margin:0;gap:16px}
+  .streakMetrics245 article{min-height:136px;padding:22px}
+  .streakMetrics245 b{font-size:27px}
+  .streakCalendarSection245{
+    grid-area:calendar;margin:0;min-height:150px;padding:22px 24px;
+    grid-template-columns:minmax(180px,240px) 1fr
+  }
+  .streakCalendar245{gap:8px}
+  .streakStandings245{
+    grid-area:standings;margin:0;min-height:0;padding:26px;
+    display:flex;flex-direction:column;
+    background:
+      linear-gradient(180deg,rgba(231,242,235,.7),rgba(255,255,255,0) 180px),
+      #fff
+  }
+  .streakStandingsHead245{margin-bottom:18px}
+  .streakStandingsHead245 h3{font-size:28px}
+  .streakStandings245 ol{gap:10px;overflow:auto;padding-right:2px}
+  .streakStandings245 li{min-height:58px;padding:10px 14px}
+  .streakPosition245{width:34px;height:34px;border-radius:11px}
+  .streakRule245{
+    grid-area:rule;margin:0;padding:20px 21px;align-content:center;
+    border:1px solid #ead38b;border-left:5px solid #ddb844;
+    background:linear-gradient(135deg,#fff9e2,#fffdf5)
+  }
+  .streakRule245 b{font:700 19px/1.15 Georgia,serif}
+  .streakRule245 span{font-size:13px}
+  .streakSync245{grid-column:1/-1;margin:0}
+  .studyStreakPanel245>footer{min-height:72px;padding:12px 30px}
+  .studyStreakPanel245>footer button{min-height:48px;padding-inline:24px}
+}
 @media(max-width:720px){
-  .studyStreakDialog245{width:100%;max-height:100dvh;border-radius:0}
-  .studyStreakPanel245{max-height:100dvh}
+  .studyStreakDialog245{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+  .studyStreakPanel245{height:100dvh;max-height:100dvh}
   .studyStreakPanel245>header{min-height:72px;padding:12px 15px}
   .studyStreakPanel245>main{padding:14px}
   .streakHero245{min-height:270px;padding:24px;grid-template-columns:1fr}

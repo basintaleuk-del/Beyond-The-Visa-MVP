@@ -72,6 +72,10 @@ test("study streak opens its own accessible standings experience", () => {
     /data-go="analytics"><small>[^<]*Study streak/
   );
   assert.match(styles, /\.studyStreakDialog245/);
+  assert.match(styles, /width:min\(1540px,calc\(100vw - 28px\)\)/);
+  assert.match(styles, /max-width:none!important;margin:0!important/);
+  assert.match(styles, /@media\(min-width:1100px\)/);
+  assert.match(styles, /grid-template-areas:\s*"hero standings"\s*"metrics standings"\s*"calendar rule"/);
   assert.match(styles, /@media\(max-width:720px\)/);
   assert.match(styles, /\.streakStat245:focus-visible/);
 });
