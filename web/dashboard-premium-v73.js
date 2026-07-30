@@ -1250,6 +1250,7 @@
     if (id === "wallet") return openCoinsCentre();
     if (id === "mentors" || id === "bookings") return openStandalonePanel(id);
     if (id === "stories") return openStandalonePanel("stories");
+    if (id === "help-support") return window.BTVHelpSupport?.open?.();
     if (id === "legal" || id === "feedback") return window.openScreen?.(id);
     if (id === "admin")
       return state.isAdmin ? location.assign("admin.html") : undefined;
@@ -1315,7 +1316,7 @@
           ["Bookings", "bookings"],
           ["Success stories", "stories"],
           ["Community", "community"],
-          ["Help and support", "feedback"],
+          ["Help and support", "help-support"],
           ["Ask Zibur", "assistant"],
         ],
       },

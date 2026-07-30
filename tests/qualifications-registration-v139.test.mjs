@@ -67,6 +67,6 @@ test('professional hub uses the premium illustration and live section progress',
   assert.match(css,/qrProgress139/);
   assert.match(index,/premium-surfaces-v163\.css\?v=163/);
   assert.match(menu,/Help & support/);
-  assert.match(menu,/openScreen\?\.\('contact'\)/);
+  assert.match(menu,/BTVHelpSupport\?\.open/);
   assert.match(inbox,/from\('manager_requests'\)\.insert/);
 });
