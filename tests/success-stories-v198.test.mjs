@@ -17,7 +17,7 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(platform,/window\.BTVSuccessStories\?\.render/);
   assert.match(platform,/storiesHub198/);
   assert.ok(index.indexOf('success-stories-v198.js')<index.indexOf('platform-upgrade-v72.js'));
-  assert.match(index,/success-stories-v198\.css\?v=208/);
+  assert.match(index,/success-stories-v198\.css\?v=220/);
   assert.match(index,/success-stories-v198\.js\?v=208/);
   assert.match(index,/platform-upgrade-v72\.js\?v=211/);
   assert.match(index,/dashboard-premium-v73\.js\?v=214/);
@@ -68,4 +68,11 @@ test('premium client and admin layouts are responsive and accessible',()=>{
   assert.match(adminCss,/@media\(max-width:720px\)/);
   assert.match(adminCss,/\.storyAdminMetrics198/);
   assert.match(adminJs,/aria-label="Close"/);
+});
+
+test('success story archive escapes the global narrow main shell on desktop',()=>{
+  assert.match(clientCss,/\.successStoriesPage208 \.storiesCentre198\{[^}]*max-width:none!important/);
+  assert.match(clientCss,/\.successStoriesPage208 \.storiesCentre198\{[^}]*padding:0!important/);
+  assert.match(clientCss,/@media\(min-width:821px\)/);
+  assert.match(clientCss,/grid-template-columns:repeat\(3,minmax\(260px,1fr\)\)/);
 });
