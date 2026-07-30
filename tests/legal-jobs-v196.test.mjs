@@ -22,8 +22,8 @@ test('job titles remain inside NHS and USA cards and detail headers',()=>{
 })
 
 test('legal centre records terms, privacy acknowledgement and necessary storage separately',()=>{
-  assert.match(html,/legal-centre-v196\.js\?v=196/);
-  assert.match(html,/legal-centre-v196\.css\?v=196/);
+  assert.match(html,/legal-centre-v196\.js\?v=203/);
+  assert.match(html,/legal-centre-v196\.css\?v=203/);
   assert.match(legal,/terms_status:\s*'accepted'/);
   assert.match(legal,/privacy_status:\s*'acknowledged'/);
   assert.match(legal,/cookie_status:\s*'necessary_only'/);
@@ -42,4 +42,12 @@ test('legal centre is responsive, accessible and stops its bootstrap observer',(
   assert.match(legalCss,/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
   assert.match(legalCss,/:focus-visible/);
   assert.ok(fs.existsSync(path.join(root,'web/cookie-policy.html')));
+})
+
+test('legal centre stays inside the app and contains long privacy copy',()=>{
+  assert.match(legal,/backButton\.dataset\.historyBack\s*=\s*'1'/);
+  assert.doesNotMatch(legal,/history\.back\(\)/);
+  assert.match(legalCss,/\.legalDocumentHead196>div/);
+  assert.match(legalCss,/\.legalCopy196 p[^\{]*\{max-width:100%;overflow-wrap:anywhere\}/);
+  assert.match(legalCss,/\.legalShell196>main>\.policyBody[^\{]*\{overflow:hidden\}/);
 })
