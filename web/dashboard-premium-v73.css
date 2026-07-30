@@ -888,6 +888,7 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
 .drawerMenu73{margin-top:12px}.drawerMenu73 .menuGroup73{border-color:rgba(220,233,227,.12)}
 .drawerMenu73 .menuSectionTitle73{color:#c8dfd4;font-size:12px}
 .drawerMenu73 .menuLink73{color:#bed2c6}.drawerMenu73 .menuLink73:hover{background:rgba(255,255,255,.07);color:#fff}
+.drawerAdvert73{display:none}
 .drawerMenu73 .menuAdmin73{background:rgba(213,178,79,.1);border-color:rgba(213,178,79,.35)}.drawerMenu73 .menuAdmin73>p{color:#e2c66f}.drawerMenu73 .adminLink73{color:#f1daa0}
 .drawerGroup73{margin-top:14px}
 .drawerGroup73 strong{
@@ -1128,6 +1129,8 @@ body:has(#home.dashboard73-active) .ziburFloatPanel{right:18px}
   .mainHeader73 h1{font-size:22px}
   .searchWrap73{width:210px}
   .mobileMenuBtn73{display:grid}
+  .drawerAdvert73{display:block;margin:14px 0 max(8px,env(safe-area-inset-bottom));min-height:112px;padding:14px}
+  .drawerAdvert73>button{min-height:44px;width:100%;justify-content:space-between}
   .dashboardContent73{padding:10px 10px 20px;gap:10px}
   .welcomeCard73{min-height:220px;border-radius:20px}
   .welcomeInner73{max-width:100%;padding:16px 16px 18px}

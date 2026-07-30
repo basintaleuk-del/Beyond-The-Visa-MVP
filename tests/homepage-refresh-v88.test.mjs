@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=235/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=235/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=243/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=243/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -59,6 +59,11 @@ test('homepage sidebar uses a compact advert placement instead of London artwork
   assert.match(dashboard, /data-home-ad-slot="sidebar"/);
   assert.match(dashboard, /data-go="help-support">Place an advert/);
   assert.match(css, /\.sidebarAdvert73\{/);
+  assert.match(dashboard, /data-home-ad-slot="mobile-menu"/);
+  assert.match(dashboard, /drawerMenu73[\s\S]*drawerAdvert73/);
+  assert.match(css, /\.drawerAdvert73\{display:none\}/);
+  assert.match(css, /@media\(max-width:1090px\)[\s\S]*\.drawerAdvert73\{display:block/);
+  assert.match(css, /\.drawerAdvert73>button\{min-height:44px/);
   assert.doesNotMatch(dashboard, /sidebarLondon73/);
   assert.doesNotMatch(css, /sidebar-london-bridge-v101\.png|sidebarLondon73/);
 });

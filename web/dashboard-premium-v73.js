@@ -1615,7 +1615,9 @@
       userPathway(state.u)
     )}</small></span></div><div class="drawerMenu73">${menuMarkup(
       "drawer-menu73"
-    )}</div></aside>`;
+    )}</div><section class="sidebarAdvert73 drawerAdvert73" data-home-ad-slot="mobile-menu" aria-label="Advertisement"><div class="sidebarAdvertTop73"><span>ADVERTISEMENT</span><i>AD</i></div><div class="sidebarAdvertCopy73"><b>Your campaign here</b><small>Reach globally mobile healthcare professionals.</small></div><button type="button" data-go="help-support">Place an advert ${iconSvg(
+      "arrowRight"
+    )}</button></section></aside>`;
     backdrop.hidden = false;
     requestAnimationFrame(() => backdrop.classList.add("open"));
     document.body.style.overflow = "hidden";
