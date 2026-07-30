@@ -22,8 +22,14 @@ test('mentor governance preserves audited profile actions without wallet mutatio
 
 test('mentor admin release is loaded and responsive',()=>{
   assert.match(html,/admin-mentor-centre-v195\.css\?v=195/);
-  assert.match(html,/admin-phase7\.js\?v=195/);
+  assert.match(html,/admin-phase7\.js\?v=202/);
   assert.match(css,/@media\(max-width:700px\)/);
   assert.match(css,/min-height:44px/);
   assert.match(css,/prefers-reduced-motion/);
+});
+
+test('mentor navigation repairs handlers removed by later admin renders',()=>{
+  assert.match(js,/button\.onclick=\(\)=>activate\(id,label,load\)/);
+  assert.match(js,/button\.dataset\.phase7Wired='true'/);
+  assert.doesNotMatch(js,/!nav\|\|!main\|\|\$\(`\[data-tab=/);
 });
