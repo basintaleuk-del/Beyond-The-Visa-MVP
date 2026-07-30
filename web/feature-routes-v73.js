@@ -19,7 +19,7 @@
   {id:'calculations',title:'CBT Numeracy',description:'Practise medication calculations safely.',icon:'calculator',category:'study',target:{url:'numeracy.html'}},
   {id:'interview',title:'Interview Preparation',description:'Prepare strong answers and book support.',icon:'messages',category:'career',target:{screen:'coaching'}},
   {id:'mentors',title:'Mentor Marketplace',description:'Find experienced professional support.',icon:'mentor',category:'career',target:{action:'mentor-marketplace'}},
-  {id:'stories',title:'Success Stories',description:'Learn from nurses who completed the journey.',icon:'star',category:'career',target:{hub:'stories'}},
+  {id:'stories',title:'Success Stories',description:'Learn from nurses who completed the journey.',icon:'star',category:'career',target:{action:'success-stories'}},
   {id:'wallet',title:'Beyond Coins',description:'Balance, purchases, refunds and transactions.',icon:'coin',category:'account',target:{hub:'wallet'}},
   {id:'analytics',title:'Analytics',description:'Results, readiness and learning statistics.',icon:'chart',category:'account',target:{hub:'analytics'}},
   {id:'notifications',title:'Notifications',description:'Updates and recommended actions.',icon:'bell',category:'account',target:{hub:'notifications'}},
@@ -28,6 +28,6 @@
   {id:'study-plan',title:'Study Plan',description:'Review today’s learning plan.',icon:'calendar',category:'account',target:{screen:'learn',action:'study-plan'}}
  ];
  const by=id=>features.find(x=>x.id===id);
- function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='mentor-marketplace'){if(window.BTVMentorMarketplace?.open){window.BTVMentorMarketplace.open();return true}window.BTVPlatform?.open('mentors');return true}if(t.action==='profile'){window.openScreen?.('profile');return true}if(t.action==='documents'){document.querySelector('[data-storage-open]')?.click();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
+ function open(id){const f=by(id);if(!f)return false;const t=f.target;if(t.url){location.href=t.url;return true}if(t.hub){window.BTVPlatform?.open(t.hub);return true}if(t.action==='success-stories'){window.BTVSuccessStories?.open?.();return true}if(t.action==='mentor-marketplace'){if(window.BTVMentorMarketplace?.open){window.BTVMentorMarketplace.open();return true}window.BTVPlatform?.open('mentors');return true}if(t.action==='profile'){window.openScreen?.('profile');return true}if(t.action==='documents'){document.querySelector('[data-storage-open]')?.click();return true}if(t.screen){window.openScreen?.(t.screen);if(t.screen==='jobs')window.renderJobs?.();setTimeout(()=>window.dispatchEvent(new CustomEvent('btv:feature-action',{detail:{action:t.action,id}})),50);return true}return false}
  window.BTVFeatures={all:features,by,open};
 })();
