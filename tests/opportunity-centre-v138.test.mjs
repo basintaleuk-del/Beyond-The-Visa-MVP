@@ -18,7 +18,7 @@ test('Opportunity Centre is available from the Career and Journey side menu',asy
   const [dashboard,page]=await Promise.all([read('web/dashboard-premium-v73.js'),read('web/index.html')]);
   assert.match(dashboard,/\["Opportunities", "opportunities"\]/);
   assert.match(dashboard,/if \(id === "opportunities"\) return window\.openScreen\?\.\("opportunities"\)/);
-  assert.match(page,/dashboard-premium-v73\.js\?v=229/);
+  assert.match(page,/dashboard-premium-v73\.js\?v=230/);
 });
 
 test('semantic routes preserve old links and the relocation estimator',async()=>{

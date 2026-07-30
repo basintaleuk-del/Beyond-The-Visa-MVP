@@ -1735,13 +1735,13 @@
     const tile=root.querySelector("[data-immigration-news-tile]");
     if(!tile)return;
     const destination=destinationInfo();
-    tile.innerHTML=`<div class="newsFlashHeader228"><span>NEWS FLASH · ${esc(destination.name.toUpperCase())}</span><button type="button" data-go="immigration-news">All immigration news ${iconSvg("arrowRight")}</button></div><div class="newsFlashGrid228" aria-busy="true"><button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>Loading today's pathway headlines...</h3></button></div>`;
+    tile.innerHTML=`<div class="newsFlashHeader228"><span>NEWS FLASH · ${esc(destination.name.toUpperCase())}</span></div><div class="newsFlashGrid228" aria-busy="true"><button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>Loading today's pathway headlines...</h3></button></div>`;
     try{
       const response=await fetch(`/api/immigration-news?country=${encodeURIComponent(destination.key)}&limit=4`),data=await response.json(),items=data.items?.slice(0,4)||[];
       if(!response.ok||!items.length)throw Error(data.error||"No current headline");
-      tile.innerHTML=`<div class="newsFlashHeader228"><span>NEWS FLASH · ${esc(destination.name.toUpperCase())}</span><button type="button" data-go="immigration-news">All immigration news ${iconSvg("arrowRight")}</button></div><div class="newsFlashGrid228">${items.map(item=>`<button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>${esc(item.title)}</h3></button>`).join("")}</div>`;
+      tile.innerHTML=`<div class="newsFlashHeader228"><span>NEWS FLASH · ${esc(destination.name.toUpperCase())}</span></div><div class="newsFlashGrid228">${items.map(item=>`<button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>${esc(item.title)}</h3></button>`).join("")}</div>`;
     }catch{
-      tile.innerHTML=`<div class="newsFlashHeader228"><span>IMMIGRATION NEWS</span><button type="button" data-go="immigration-news">Open news centre ${iconSvg("arrowRight")}</button></div><div class="newsFlashGrid228"><button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>Open your daily immigration news centre</h3></button></div>`;
+      tile.innerHTML=`<div class="newsFlashHeader228"><span>IMMIGRATION NEWS</span></div><div class="newsFlashGrid228"><button type="button" class="newsFlashTile228" data-go="immigration-news"><h3>Open your daily immigration news centre</h3></button></div>`;
     }
     wire(tile);
   }
