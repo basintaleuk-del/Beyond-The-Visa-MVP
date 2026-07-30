@@ -36,6 +36,31 @@
     while (body.firstChild) source.append(body.firstChild);
     const headings = [...source.querySelectorAll('h3')];
     headings.forEach((heading, index) => { if (!heading.id) heading.id = `legal-${type}-${index + 1}`; });
+    if (type === 'privacy') {
+      const primaryHeadings = headings.slice(0, 10);
+      const guide = primaryHeadings.map((heading, index) => {
+        const title = heading.textContent.replace(/^\s*\d+\.\s*/, '');
+        return `<a href="#${escapeHtml(heading.id)}"><i>${String(index + 1).padStart(2, '0')}</i><span>${escapeHtml(title)}</span><em>Open section <b>â†’</b></em></a>`;
+      }).join('');
+      const lead = document.createElement('div');
+      lead.className = 'legalPrivacyLead212';
+      while (source.firstChild && source.firstChild !== headings[0]) lead.append(source.firstChild);
+      const reader = document.createElement('div');
+      reader.className = 'legalPrivacyReader212';
+      headings.forEach((heading, index) => {
+        const chapter = document.createElement('section');
+        chapter.className = 'legalPrivacyChapter212';
+        chapter.dataset.chapter = String(index + 1).padStart(2, '0');
+        chapter.append(heading);
+        while (source.firstChild && !source.firstChild.matches?.('h3')) chapter.append(source.firstChild);
+        reader.append(chapter);
+      });
+      body.innerHTML = `${policyIntro(type)}<section class="legalPolicyMap212" aria-labelledby="legalPrivacyGuide212"><header><div><span>PRIVACY GUIDE</span><h3 id="legalPrivacyGuide212">Explore the policy</h3></div><p>Ten clear sections. Select any subject to move directly to the information you need.</p></header><nav aria-label="Privacy Policy sections">${guide}</nav></section><div data-privacy-lead></div><div data-privacy-reader></div><footer class="legalDocumentFooter212"><span>Need help with your information?</span><b>Privacy support is available through Contact Us.</b><button type="button" data-privacy-contact>Open privacy support â†’</button></footer>`;
+      body.querySelector('[data-privacy-lead]').append(lead);
+      body.querySelector('[data-privacy-reader]').append(reader);
+      body.querySelector('[data-privacy-contact]').addEventListener('click', () => window.openScreen?.('contact'));
+      return;
+    }
     const toc = headings.map(heading => `<a href="#${escapeHtml(heading.id)}">${escapeHtml(heading.textContent)}</a>`).join('');
     body.innerHTML = `${policyIntro(type)}<div class="legalDocumentLayout196"><aside><b>In this policy</b><nav>${toc || '<span>Policy overview</span>'}</nav><div><span>Full documents</span><a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy ↗</a><a href="terms-and-conditions.html" target="_blank" rel="noopener">Terms & Conditions ↗</a><a href="cookie-policy.html" target="_blank" rel="noopener">Cookie Policy ↗</a></div></aside><div data-legal-copy></div></div>`;
     body.querySelector('[data-legal-copy]').append(source);

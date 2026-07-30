@@ -22,8 +22,8 @@ test('job titles remain inside NHS and USA cards and detail headers',()=>{
 })
 
 test('legal centre records terms, privacy acknowledgement and necessary storage separately',()=>{
-  assert.match(html,/legal-centre-v196\.js\?v=203/);
-  assert.match(html,/legal-centre-v196\.css\?v=203/);
+  assert.match(html,/legal-centre-v196\.js\?v=212/);
+  assert.match(html,/legal-centre-v196\.css\?v=212/);
   assert.match(legal,/terms_status:\s*'accepted'/);
   assert.match(legal,/privacy_status:\s*'acknowledged'/);
   assert.match(legal,/cookie_status:\s*'necessary_only'/);
@@ -50,4 +50,13 @@ test('legal centre stays inside the app and contains long privacy copy',()=>{
   assert.match(legalCss,/\.legalDocumentHead196>div/);
   assert.match(legalCss,/\.legalCopy196 p[^\{]*\{max-width:100%;overflow-wrap:anywhere\}/);
   assert.match(legalCss,/\.legalShell196>main>\.policyBody[^\{]*\{overflow:hidden\}/);
+})
+
+test('privacy policy has a premium ten-section guide and structured reading cards',()=>{
+  assert.match(legal,/primaryHeadings\s*=\s*headings\.slice\(0,\s*10\)/);
+  assert.match(legal,/class="legalPolicyMap212"/);
+  assert.match(legal,/className\s*=\s*'legalPrivacyChapter212'/);
+  assert.match(legal,/aria-label="Privacy Policy sections"/);
+  assert.match(legalCss,/\.legalPolicyMap212 nav\{[^}]*grid-template-columns:repeat\(5/);
+  assert.match(legalCss,/@media\(max-width:640px\)/);
 })
