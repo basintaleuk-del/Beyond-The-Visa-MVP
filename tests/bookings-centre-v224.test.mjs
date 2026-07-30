@@ -9,11 +9,11 @@ const css=read('web/bookings-centre-v224.css');
 const dashboard=read('web/dashboard-premium-v73.js');
 const menu=read('web/profile-menu-v82.js');
 
-test('bookings centre is loaded and replaces both static booking entry points',()=>{
+test('bookings centre stays loaded for service flows while the member menu opens Inbox',()=>{
   assert.match(index,/bookings-centre-v224\.css\?v=225/);
   assert.match(index,/bookings-centre-v224\.js\?v=224/);
   assert.match(dashboard,/BTVBookingsCentre\?\.open/);
-  assert.match(menu,/BTVBookingsCentre\?\.open/);
+  assert.match(menu,/BTVInboxCentre\?\.open/);
 });
 
 test('member ledger reads real owner-scoped Supabase records',()=>{

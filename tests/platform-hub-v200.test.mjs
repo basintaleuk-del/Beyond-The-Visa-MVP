@@ -59,10 +59,10 @@ test('phone view exposes one accessible working sections menu',()=>{
 });
 
 test('account and header menus no longer target retired member-centre panes',()=>{
-  assert.match(profileMenu,/open\?\.\('notifications'\)/);
-  assert.match(profileMenu,/open\?\.\('mentors'\)/);
-  assert.match(profileMenu,/open\?\.\('study'\)/);
-  assert.match(profileMenu,/open\?\.\('resources'\)/);
+  assert.match(profileMenu,/BTVInboxCentre\?\.open/);
+  assert.doesNotMatch(profileMenu,/open\?\.\(['"]mentors['"]\)/);
+  assert.match(profileMenu,/open\?\.\(["']study["']\)/);
+  assert.match(profileMenu,/open\?\.\(["']resources["']\)/);
   assert.doesNotMatch(profileMenu,/data-btv-pane/);
   assert.doesNotMatch(headerMenu,/data-btv-pane/);
 });

@@ -1286,6 +1286,8 @@
       );
     }
     if (id === "wallet") return openCoinsCentre();
+    if (id === "inbox" || id === "notifications")
+      return window.BTVInboxCentre?.open?.() || F()?.open("notifications");
     if (id === "mentors" || id === "bookings") {
       if (id === "bookings")
         return window.BTVBookingsCentre?.open?.() || openStandalonePanel(id);
@@ -1359,7 +1361,7 @@
         label: "Community and Support",
         links: [
           ["Mentors", "mentors"],
-          ["Bookings", "bookings"],
+          ["Inbox", "inbox"],
           ["Success stories", "stories"],
           ["Community", "community"],
           ["Help and support", "help-support"],
