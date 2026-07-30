@@ -17,7 +17,7 @@ test("the member-facing Bookings menu is replaced by the Inbox without deleting 
   assert.doesNotMatch(profile, /item\("bookings"/);
   assert.match(index, /bookings-centre-v224\.js\?v=224/);
   assert.match(index, /inbox-centre-v234\.js\?v=234/);
-  assert.match(index, /inbox-centre-v234\.css\?v=234/);
+  assert.match(index, /inbox-centre-v234\.css\?v=239/);
 });
 
 test("the inbox uses real owner-protected Supabase threads and messages", () => {
@@ -50,7 +50,11 @@ test("member replies are server-controlled and pass contact-sharing enforcement"
 
 test("the inbox is a responsive desktop workspace and mobile conversation flow", () => {
   assert.match(css, /grid-template-columns:minmax\(250px,310px\) minmax\(340px,430px\) minmax\(430px,1fr\)/);
+  assert.match(css, /\.inboxRail234 nav\{position:static;inset:auto;width:auto;transform:none/);
   assert.match(css, /@media\(max-width:520px\)/);
+  assert.match(css, /\.inboxRail234 nav\{position:fixed;inset:auto 0 0;width:100%;transform:none/);
+  assert.match(css, /grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.inboxFolder234\{min-width:0;width:100%;height:46px/);
   assert.match(css, /\.showConversation \.inboxReader234\{display:flex/);
   assert.match(client, /aria-label="Inbox folders"/);
   assert.match(client, /aria-label="Search messages"/);
