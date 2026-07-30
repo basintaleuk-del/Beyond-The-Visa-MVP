@@ -18,7 +18,7 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.ok(index.indexOf('success-stories-v198.js')<index.indexOf('platform-upgrade-v72.js'));
   assert.match(index,/success-stories-v198\.css\?v=208/);
   assert.match(index,/success-stories-v198\.js\?v=208/);
-  assert.match(index,/platform-upgrade-v72\.js\?v=208/);
+  assert.match(index,/platform-upgrade-v72\.js\?v=211/);
 });
 
 test('every authenticated member receives a complete moderated submission flow',()=>{
