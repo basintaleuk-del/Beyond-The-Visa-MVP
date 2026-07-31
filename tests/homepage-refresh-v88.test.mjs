@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
 
@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=263/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=263/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=264/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=264/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -83,11 +83,29 @@ test('campaign placements contain the four compact social destinations', async (
   assert.match(dashboard, /@beyond_the_visa/);
   assert.match(dashboard, /@beyondthevisa_official/);
   assert.match(dashboard, /\+44 7723 126429/);
+  assert.match(dashboard, /aria-label="Message Beyond the Visa on WhatsApp"/);
+  assert.equal((dashboard.match(/class="socialArrow264"/g) || []).length, 4);
   assert.match(css, /\.sidebarSocialStrip262\{position:static;inset:auto;z-index:auto;width:auto;display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.match(dashboard, /<div class="sidebarSocialStrip262" role="navigation"/);
   assert.doesNotMatch(dashboard, /<nav class="sidebarSocialStrip262"/);
   assert.match(css, /\.sidebarSocialStrip262>a:focus-visible/);
-  assert.match(css, /min-height:48px/);
+  assert.match(css, /min-height:66px/);
+  assert.match(css, /connect-global-nurses-480\.webp/);
+  assert.match(css, /connect-global-nurses-960\.webp/);
+  assert.match(css, /background-position:center right/);
+  assert.match(css, /\.drawerConnect262\{[^}]*background-position:66% center/);
+  assert.match(css, /\.drawerConnect262 \.sidebarSocialStrip262\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
+  assert.match(css, /@media\(max-width:340px\)\{\.drawerConnect262 \.sidebarSocialStrip262\{grid-template-columns:1fr\}/);
+  assert.doesNotMatch(css, /\.sidebarSocialStrip262 small\{[^}]*text-overflow:ellipsis/);
+});
+
+test('connect tile artwork is compressed for responsive delivery', async () => {
+  const [small, large] = await Promise.all([
+    stat(new URL('../web/assets/social/connect-global-nurses-480.webp', import.meta.url)),
+    stat(new URL('../web/assets/social/connect-global-nurses-960.webp', import.meta.url)),
+  ]);
+  assert.ok(small.size < 25000, `480px artwork is ${small.size} bytes`);
+  assert.ok(large.size < 60000, `960px artwork is ${large.size} bytes`);
 });
 
 test('secondary scripts do not replace or repeatedly mutate the homepage', async () => {
