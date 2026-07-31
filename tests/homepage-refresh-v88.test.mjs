@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=264/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=264/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=265/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=265/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -89,7 +89,8 @@ test('campaign placements contain the four compact social destinations', async (
   assert.match(dashboard, /<div class="sidebarSocialStrip262" role="navigation"/);
   assert.doesNotMatch(dashboard, /<nav class="sidebarSocialStrip262"/);
   assert.match(css, /\.sidebarSocialStrip262>a:focus-visible/);
-  assert.match(css, /min-height:66px/);
+  assert.match(css, /\.sidebarConnect262\{[^}]*min-height:156px/);
+  assert.match(css, /min-height:54px/);
   assert.match(css, /connect-global-nurses-480\.webp/);
   assert.match(css, /connect-global-nurses-960\.webp/);
   assert.match(css, /background-position:center right/);
