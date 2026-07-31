@@ -17,6 +17,8 @@ test("live providers cover every non-UK destination without changing UK", () => 
   assert.match(importer, /USAJOBS/);
   assert.match(importer, /liveInternationalSources/);
   assert.match(importer, /fetchLiveSource/);
+  assert.match(importer, /btv_approved_sources\?on_conflict=name/);
+  assert.match(importer, /official_public_listing/);
   const jobsApi = read("api/jobs.js");
   assert.match(jobsApi, /warmInternationalJobs/);
   assert.match(jobsApi, /internationalSources\.some/);

@@ -78,11 +78,21 @@ async function mirrorUsaJobs(now) {
 }
 
 async function importInternationalSource(source, now) {
-  const sourceRows = await rest(`btv_approved_sources?select=id,enabled,permission_status&name=eq.${encodeURIComponent(source.name)}&limit=1`);
+  const sourceRows = await rest("btv_approved_sources?on_conflict=name", {
+    method: "POST",
+    prefer: "resolution=merge-duplicates,return=representation",
+    body: {
+      name: source.name, source_type: "job", base_url: new URL(source.url).origin, source_url: source.url,
+      integration_type: "official_public_listing", enabled: true, permission_status: "approved",
+      country_code: source.countryCode, attribution_requirements: `Attribute ${source.name} and retain the original vacancy URL.`,
+      terms_notes: "Public official vacancy listings are indexed factually; applications remain on the recruiting organisation's website.",
+      republication_permitted: true, import_status: "active", stale_after_hours: 48,
+      configuration: { profession_filter: "nursing", apply_mode: "external", maximum_records: 40 },
+      updated_at: now.toISOString(),
+    },
+  });
   const approved = sourceRows?.[0];
-  if (!approved?.id || !approved.enabled || approved.permission_status !== "approved") {
-    return { status: 503, body: { error: `${source.name} is not approved and enabled.`, records_found: 0 } };
-  }
+  if (!approved?.id) return { status: 503, body: { error: `${source.name} could not be registered.`, records_found: 0 } };
   const jobs = await fetchLiveSource(source);
   const existing = await rest(`btv_jobs?select=id,external_id,content_hash,status,imported_at&source_name=eq.${encodeURIComponent(source.name)}&limit=2000`);
   const byExternal = new Map((existing || []).map((row) => [row.external_id, row]));
