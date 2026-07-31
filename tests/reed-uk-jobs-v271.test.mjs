@@ -18,8 +18,14 @@ test("Reed records use the existing UK jobs contract",()=>{
 test("Reed uses Basic authentication with the API key as username and an empty password",async()=>{
   let captured;
   const result=await core.testConnection({apiKey:"private-reed-key",fetchImpl:async(url,options)=>{captured={url:new URL(String(url)),authorization:options.headers.Authorization};return{ok:true,status:200,json:async()=>({totalResults:20,results:[fixture]})};}});
-  assert.equal(captured.url.origin+captured.url.pathname,"https://www.reed.co.uk/api/1.0/search");assert.equal(captured.url.searchParams.get("keywords"),"Registered Nurse");assert.equal(captured.url.searchParams.get("locationName"),"United Kingdom");assert.equal(captured.url.searchParams.get("resultsToTake"),"10");
+  assert.equal(captured.url.origin+captured.url.pathname,"https://www.reed.co.uk/api/1.0/search");assert.equal(captured.url.searchParams.get("keywords"),"Registered Nurse");assert.equal(captured.url.searchParams.has("locationName"),false);assert.equal(captured.url.searchParams.get("resultsToTake"),"5");
   assert.equal(Buffer.from(captured.authorization.slice(6),"base64").toString(),"private-reed-key:");assert.equal(result.authentication_succeeded,true);assert.equal(JSON.stringify(result).includes("private-reed-key"),false);
+});
+
+test("Reed trims the environment value before constructing Basic authentication",()=>{
+  const header=core.basicAuthorization("  private-reed-key\r\n");
+  assert.equal(Buffer.from(header.slice(6),"base64").toString(),"private-reed-key:");
+  assert.equal(header.startsWith("Basic "),true);assert.equal(header.includes("Bearer"),false);
 });
 
 test("Reed connection handles missing credentials, rejection, timeout and empty results",async()=>{

@@ -10,8 +10,9 @@ const TERMS = Object.freeze([
 const LIMITS = Object.freeze({ resultsToTake: 20, sampleSize: 10, timeoutMs: 12000, retries: 3 });
 const SUITABLE_TITLE = /\b(?:registered nurse|staff nurse|theatre nurse|icu nurse|intensive care nurse|mental health nurse|psychiatric nurse|practice nurse|care home nurse|nursing home nurse|healthcare assistant|health care assistant|hca)\b/i;
 
-function credentialError(apiKey) { return apiKey ? "" : "REED_API_KEY is required."; }
-function basicAuthorization(apiKey) { return `Basic ${Buffer.from(`${apiKey}:`, "utf8").toString("base64")}`; }
+function normalizedApiKey(apiKey) { return String(apiKey || "").trim(); }
+function credentialError(apiKey) { return normalizedApiKey(apiKey) ? "" : "REED_API_KEY is required."; }
+function basicAuthorization(apiKey) { return `Basic ${Buffer.from(`${normalizedApiKey(apiKey)}:`, "utf8").toString("base64")}`; }
 function safeReedUrl(value) {
   try {
     const url = new URL(String(value || ""));
@@ -55,8 +56,8 @@ function normalizeItem(summary, details = {}, now = new Date()) {
   row.content_hash = fingerprint(row); return row;
 }
 
-function searchUrl({ keyword, resultsToTake = LIMITS.resultsToTake }) {
-  const url = new URL(SEARCH_ENDPOINT); url.searchParams.set("keywords", keyword); url.searchParams.set("locationName", "United Kingdom");
+function searchUrl({ keyword, resultsToTake = LIMITS.resultsToTake, includeLocation = true }) {
+  const url = new URL(SEARCH_ENDPOINT); url.searchParams.set("keywords", keyword); if (includeLocation) url.searchParams.set("locationName", "United Kingdom");
   url.searchParams.set("resultsToTake", String(resultsToTake)); return url;
 }
 async function requestJson(url, { apiKey, fetchImpl = fetch }) {
@@ -76,7 +77,7 @@ async function requestJson(url, { apiKey, fetchImpl = fetch }) {
 async function testConnection({ apiKey, fetchImpl = fetch }) {
   const configurationError = credentialError(apiKey); if (configurationError) return { authentication_succeeded:false,http_status:null,jobs_found:0,sample_titles:[],error:configurationError };
   try {
-    const response = await fetchImpl(searchUrl({ keyword:"Registered Nurse",resultsToTake:10 }), { headers:{ Accept:"application/json",Authorization:basicAuthorization(apiKey) },signal:AbortSignal.timeout(LIMITS.timeoutMs) });
+    const response = await fetchImpl(searchUrl({ keyword:"Registered Nurse",resultsToTake:5,includeLocation:false }), { headers:{ Accept:"application/json",Authorization:basicAuthorization(apiKey) },signal:AbortSignal.timeout(LIMITS.timeoutMs) });
     let payload={}; try { payload=await response.json(); } catch {}
     const results=Array.isArray(payload.results)?payload.results:[];
     return { authentication_succeeded:response.ok,http_status:response.status,jobs_found:Number(payload.totalResults||results.length||0),results_returned:results.length,sample_titles:results.slice(0,3).map((item)=>clean(item.jobTitle,240)).filter(Boolean),...(response.ok?{}:{error:response.status===401||response.status===403?"Reed rejected the configured credential.":`Reed returned HTTP ${response.status}.`}) };
@@ -91,4 +92,4 @@ async function fetchReedJobs({ apiKey, sample = false, fetchImpl = fetch, now = 
   return { rawCount:summaries.size,records,duplicates:candidates.length-records.length,searchesRun,detailsFetched:candidates.length };
 }
 
-module.exports={ SEARCH_ENDPOINT,DETAILS_ENDPOINT,TERMS,LIMITS,credentialError,basicAuthorization,safeReedUrl,normalizeItem,testConnection,fetchReedJobs };
+module.exports={ SEARCH_ENDPOINT,DETAILS_ENDPOINT,TERMS,LIMITS,normalizedApiKey,credentialError,basicAuthorization,safeReedUrl,normalizeItem,testConnection,fetchReedJobs };
