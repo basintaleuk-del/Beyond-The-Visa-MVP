@@ -9,6 +9,9 @@
     us: "United States",
     ca: "Canada",
     nz: "New Zealand",
+    ie: "Ireland",
+    ae: "United Arab Emirates",
+    sa: "Saudi Arabia",
   };
   const COUNTRY_ALIASES = Object.fromEntries(
     Object.entries(COUNTRY_NAMES).flatMap(([code, name]) => [
@@ -42,6 +45,7 @@
     saved: new Set(),
     dismissed: new Set(),
     profile: null,
+    destination: null,
     counts: {},
     total: 0,
     page: 0,
@@ -223,6 +227,43 @@
     return count || 0;
   }
 
+  async function destinationJobs(profile) {
+    const session = await db().auth.getSession();
+    const token = session?.data?.session?.access_token || "";
+    const response = await fetch("/api/jobs?sort=recent&limit=100", { headers: { Authorization: `Bearer ${token}` } });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "Destination opportunities could not be loaded.");
+    const destination = payload.destination;
+    const rows = (payload.jobs || []).map((row) => ({
+      ...row,
+      opportunity_type: "job",
+      employer: row.employer_name || row.employer,
+      country: String(row.country_code || destination?.code || "").toLowerCase(),
+      country_name: row.country_name || destination?.name,
+      closing_at: row.closing_at || row.closing_date,
+      canonical_url: row.source_url,
+      verified: Boolean(row.verified || row.last_verified_at || row.source_name),
+    }));
+    state.profile = profile;
+    state.destination = destination;
+    state.rows = rows;
+    state.sponsorshipRows = rows.filter((row) => ["confirmed", "may_be_available"].includes(row.sponsorship_status));
+    state.fundingRows = [];
+    state.eventRows = [];
+    state.summaryRows = [];
+    state.saved = new Set(rows.filter((row) => row.is_saved).map((row) => row.id));
+    state.dismissed = new Set();
+    state.total = payload.total ?? rows.length;
+    state.lastUpdated = rows.map((row) => row.last_verified_at || row.last_checked_at || row.published_at).filter(Boolean).sort().at(-1) || null;
+    state.counts = {
+      recent: Number(payload.recently_added || 0),
+      sponsors: rows.filter((row) => row.sponsorship_status === "confirmed").length,
+      closingWeek: rows.filter((row) => row.closing_at && new Date(row.closing_at).getTime() <= Date.now() + 7 * 86400000).length,
+    };
+    state.loaded = true;
+    renderDestinationOpportunities(destination);
+  }
+
   async function load(reset = true) {
     if (state.loading || !db()) return;
     state.loading = true;
@@ -232,6 +273,14 @@
       const { data: auth } = await db().auth.getUser();
       const user = auth?.user;
       if (!user) throw new Error("Sign in to view personalised opportunities.");
+      const profileResult = await db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle();
+      if (profileResult.error) throw profileResult.error;
+      const selectedDestination = codeFor(profileResult.data?.destination_country || profileResult.data?.destination);
+      if (selectedDestination && selectedDestination !== "uk") {
+        if (selectedDestination !== "us") await destinationJobs(profileResult.data || {});
+        return;
+      }
+      state.destination = null;
       if (reset) { state.page = 0; state.rows = []; }
       const from = state.page * 24;
       const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
@@ -240,7 +289,7 @@
         db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).in("sponsorship_status", ["confirmed", "may_be_available"]).order("sponsorship_status", { ascending: true }).order("published_at", { ascending: false }).limit(12),
         db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("opportunity_type", "scholarship").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(6),
         db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("opportunity_type", "event").eq("verified", true).gte("event_end_at", new Date().toISOString()).order("event_start_at", { ascending: true }).limit(6),
-        db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(),
+        Promise.resolve(profileResult),
         db().from("btv_saved_jobs").select("job_id").eq("user_id", user.id),
         db().from("btv_opportunity_dismissals").select("opportunity_id").eq("user_id", user.id),
         db().from("btv_opportunity_employers").select("*").eq("verified", true).eq("source_name", "NHS Jobs").gt("active_job_count", 0).order("featured", { ascending: false }).order("active_job_count", { ascending: false }).limit(20),
@@ -350,8 +399,26 @@
     addNhsFilterControls($("[data-opportunity-filters]"), state.filters);
   }
 
-  function intro() {
-    return `<section class="opportunityIntro138 opportunityHero138" aria-labelledby="opportunityHeroTitle138"><div class="opportunityHeroCopy138"><div class="opportunityHeroEyebrow138"><button class="back" data-open="home" aria-label="Back to home">←</button><span>NEXT STEP</span></div><h1 id="opportunityHeroTitle138">Opportunity <em>Centre</em></h1><p>Jobs, sponsorship, registration updates, partnerships and events selected for your journey.</p></div><div class="opportunityHeroVisual138" aria-hidden="true"><img class="opportunityHeroArt138" src="assets/opportunities/opportunity-centre-hero-v165.webp" alt="" decoding="async" fetchpriority="high"></div></section>`;
+  function renderDestinationOpportunities(destination) {
+    const body = $("[data-opportunity-body]");
+    if (!body || !destination) return;
+    const rows = filteredRows();
+    const name = destination.name || COUNTRY_NAMES[codeFor(destination.code)] || "your destination";
+    const recommended = [...state.rows].sort((a, b) => score(b) - score(a) || String(b.published_at || "").localeCompare(String(a.published_at || ""))).slice(0, 6);
+    body.innerHTML = `${intro(name)}
+      <section class="opportunitySummary138" aria-label="${esc(name)} opportunity summary">
+        <button type="button" data-open-linked-jobs><span class="opportunitySummaryIcon138">${opportunityIcon("briefcase")}</span><span class="opportunitySummaryCopy138"><b>${Number(state.total || 0)}</b><span>Live ${esc(name)} jobs</span></span></button>
+        <button type="button" data-open-linked-jobs><span class="opportunitySummaryIcon138">${opportunityIcon("calendar")}</span><span class="opportunitySummaryCopy138"><b>${Number(state.counts.recent || 0)}</b><span>Added this week</span></span></button>
+        <button type="button" data-open-linked-jobs><span class="opportunitySummaryIcon138">${opportunityIcon("shield")}</span><span class="opportunitySummaryCopy138"><b>${Number(state.counts.sponsors || 0)}</b><span>Sponsorship confirmed</span></span></button>
+        <button type="button" data-open-linked-jobs><span class="opportunitySummaryIcon138">${opportunityIcon("target")}</span><span class="opportunitySummaryCopy138"><b>${Number(state.counts.closingWeek || 0)}</b><span>Closing this week</span></span></button>
+      </section>
+      <section class="opportunityIntro138 opportunitySource138"><span class="opportunitySourceIcon138">${opportunityIcon("verified")}</span><div><p class="opportunityFreshness138"><b>Linked to your ${esc(name)} Jobs feed.</b><small>These are the same destination-matched vacancies shown in Jobs, refreshed from authorised sources. Applying continues on the original employer page.</small></p></div><button type="button" class="opportunityMore138" data-open-linked-jobs>View all ${esc(name)} jobs</button></section>
+      <section class="opportunitySection138" data-recommended-section><div class="opportunityHeading138"><div><span>PERSONALISED FOR ${esc(name).toUpperCase()}</span><h2>Recommended opportunities</h2></div></div>${recommended.length ? `<div class="opportunityGrid138">${recommended.map((row) => card(row, reason(row))).join("")}</div>` : empty(`No ${name} vacancies are available yet. The live feed will refresh automatically.`)}</section>
+      <section class="opportunitySection138" data-opportunity-discover><div class="opportunityToolbar138"><label><span class="sr">Search ${esc(name)} opportunities</span><input data-opportunity-search type="search" value="${esc(state.filters.search)}" placeholder="Search roles, employers and locations"></label><button type="button" data-open-linked-jobs>Advanced job filters</button></div><div class="opportunityHeading138"><div><span>${esc(name).toUpperCase()} OPPORTUNITIES</span><h2>${rows.length} matching result${rows.length === 1 ? "" : "s"}</h2></div></div>${rows.length ? `<div class="opportunityGrid138">${rows.map((row) => card(row)).join("")}</div>` : empty(`No ${name} opportunities match this search.`)}</section>`;
+  }
+
+  function intro(destinationName = "") {
+    return `<section class="opportunityIntro138 opportunityHero138" aria-labelledby="opportunityHeroTitle138"><div class="opportunityHeroCopy138"><div class="opportunityHeroEyebrow138"><button class="back" data-open="home" aria-label="Back to home">←</button><span>NEXT STEP${destinationName ? ` · ${esc(destinationName).toUpperCase()}` : ""}</span></div><h1 id="opportunityHeroTitle138">Opportunity <em>Centre</em></h1><p>${destinationName ? `Live healthcare roles and career opportunities matched to your selected ${esc(destinationName)} pathway.` : "Jobs, sponsorship, registration updates, partnerships and events selected for your journey."}</p></div><div class="opportunityHeroVisual138" aria-hidden="true"><img class="opportunityHeroArt138" src="assets/opportunities/opportunity-centre-hero-v165.webp" alt="" decoding="async" fetchpriority="high"></div></section>`;
   }
   function nhsSourceNote() {
     const stale = state.lastUpdated && Date.now() - new Date(state.lastUpdated).getTime() > 48 * 60 * 60 * 1000;
@@ -463,7 +530,7 @@
     if (event.target.matches("[data-opportunity-search]")) {
       state.filters.search = event.target.value;
       clearTimeout(handleInput.timer);
-      handleInput.timer = setTimeout(render, 180);
+      handleInput.timer = setTimeout(() => state.destination ? renderDestinationOpportunities(state.destination) : render(), 180);
     }
   }
 
@@ -472,6 +539,7 @@
     if (!button) return;
     if (button.dataset.open) return showScreen(button.dataset.open);
     if (button.matches("[data-opportunity-retry]")) return load();
+    if (button.matches("[data-open-linked-jobs]")) return window.openScreen?.("jobs");
     if (button.matches("[data-summary-filter]")) return showSummaryJobs(button.dataset.summaryFilter);
     if (button.matches("[data-summary-close]")) return $("[data-opportunity-summary-dialog]")?.close();
     if (button.matches("[data-open-filters]")) return $("[data-opportunity-filters]")?.showModal();
@@ -603,4 +671,5 @@
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", install, { once: true }) : install();
   new MutationObserver(upgradeEntryPoints).observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener("btv:session-restored", () => { if ($("#opportunities.active")) load(); });
+  window.addEventListener("btv:destination-changed", () => { state.loaded = false; state.destination = null; state.rows = []; state.total = 0; if ($("#opportunities.active")) load(); });
 })();
