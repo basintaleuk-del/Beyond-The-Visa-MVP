@@ -11,6 +11,7 @@
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/api/usa-jobs-connection-test", "destination": "/api/usa-jobs-import?mode=connection-test" },
     { "source": "/jobs/usa", "destination": "/index.html" },
     { "source": "/jobs/usa/:id", "destination": "/index.html" },
     { "source": "/jobs", "destination": "/index.html" },

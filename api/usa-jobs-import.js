@@ -1,4 +1,4 @@
-const { fetchUsaJobs } = require("./_lib/usajobs-core.cjs");
+const { fetchUsaJobs, testConnection } = require("./_lib/usajobs-core.cjs");
 
 const env = (name) => process.env[name] || "";
 const json = (res, status, body) => res.status(status).setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
@@ -75,6 +75,10 @@ module.exports = async function handler(req, res) {
   try {
     const caller = await authenticate(req);
     if (!caller) return json(res, 401, { error: "Administrator or scheduled-import authentication is required." });
+    if (String(req.query?.mode || "") === "connection-test") {
+      const result = await testConnection({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT") });
+      return json(res, 200, result);
+    }
     const now = new Date(), stale = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
     await rest(`btv_usa_job_import_runs?run_scope=eq.twice_daily&status=eq.running&started_at=lt.${encodeURIComponent(stale)}`, { method: "PATCH", body: { status: "failed", completed_at: now.toISOString(), error_summary: "Stale run released automatically." } });
     const sources = await rest("btv_usa_job_sources?select=*&name=eq.USAJOBS&limit=1");

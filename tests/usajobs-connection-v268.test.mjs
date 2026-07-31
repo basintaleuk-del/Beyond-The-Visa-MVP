@@ -10,11 +10,15 @@ const require = createRequire(import.meta.url);
 const core = require(path.join(root, "api/_lib/usajobs-core.cjs"));
 
 test("protected USAJOBS diagnostic uses only the two approved server variables", () => {
-  const endpoint = read("api/usa-jobs-connection-test.js");
+  const endpoint = read("api/usa-jobs-import.js");
+  const routes = read("vercel.json");
   assert.match(endpoint, /USAJOBS_API_KEY/);
   assert.match(endpoint, /USAJOBS_USER_AGENT/);
   assert.match(endpoint, /btv_is_admin/);
   assert.match(endpoint, /CRON_SECRET/);
+  assert.match(endpoint, /mode \|\| ""\) === "connection-test"/);
+  assert.match(routes, /"source": "\/api\/usa-jobs-connection-test"/);
+  assert.match(routes, /"destination": "\/api\/usa-jobs-import\?mode=connection-test"/);
   assert.doesNotMatch(endpoint, /NEXT_PUBLIC_USAJOBS|USAJOBS_EMAIL/);
 });
 
