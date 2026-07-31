@@ -33,3 +33,16 @@
 @media(max-width:1220px){.legalPolicyMap212 nav{grid-template-columns:repeat(2,minmax(0,1fr))}.legalPolicyMap212 nav a{min-height:96px}.legalPrivacyChapter212 ul{grid-template-columns:1fr}}
 @media(max-width:780px){.legalNavigation196 .legalTabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.legalNavigation196 .legalTabs button{min-width:0!important}}
 @media(max-width:640px){.legalPolicyMap212{border-radius:18px;padding:15px}.legalPolicyMap212>header{display:block}.legalPolicyMap212>header p{margin-top:8px!important;text-align:left}.legalPolicyMap212 nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.legalPolicyMap212 nav a{min-height:104px;padding:10px}.legalPolicyMap212 nav a span{font-size:11px}.legalPolicyMap212 nav a em{font-size:6px}.legalPrivacyChapter212{padding:64px 17px 18px}.legalPrivacyChapter212:before{top:16px;left:17px}.legalPrivacyChapter212:nth-child(-n+10):after{left:57px}.legalDocumentFooter212{align-items:stretch;flex-direction:column}.legalDocumentFooter212 button{width:100%}}
+
+/* Terms and cookie document index: isolate it from the app's fixed bottom navigation. */
+.legalDocumentLayout196{grid-template-columns:minmax(0,1fr);gap:24px}
+.legalDocumentLayout196>aside{position:static;min-width:0;border:1px solid #d5e4dd;border-radius:18px;background:linear-gradient(145deg,#f0f8f4,#fffdf8);padding:18px;box-shadow:0 10px 24px rgba(13,66,53,.055)}
+.legalDocumentLayout196>aside>b{display:block;letter-spacing:.12em}
+.legalDocumentLayout196>aside nav{position:static!important;inset:auto!important;z-index:auto!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;width:100%!important;height:auto!important;max-width:none!important;margin:12px 0 0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;transform:none!important}
+.legalDocumentLayout196>aside nav a{display:flex;min-width:0;min-height:44px;align-items:center;border:1px solid #d8e5df;border-radius:11px;background:#fff;padding:9px 11px;color:#365f55;font-weight:750;overflow-wrap:anywhere;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.legalDocumentLayout196>aside nav a:hover{border-color:#85aa9c;background:#f8fcfa;color:#145c4c;transform:translateY(-1px)}
+.legalDocumentLayout196>aside>div{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px;border-top:1px solid #d9e6e0;padding-top:14px}
+.legalDocumentLayout196>aside>div span{margin-right:auto;letter-spacing:.08em;text-transform:uppercase}
+.legalDocumentLayout196>aside>div a{border-radius:999px;background:#fff;padding:7px 10px}
+@media(max-width:1050px){.legalDocumentLayout196>aside{border:1px solid #d5e4dd;padding:18px}.legalDocumentLayout196>aside nav{grid-template-columns:repeat(2,minmax(0,1fr))}.legalDocumentLayout196>aside>div{display:flex}}
+@media(max-width:520px){.legalDocumentLayout196>aside{padding:14px}.legalDocumentLayout196>aside nav{grid-template-columns:1fr}.legalDocumentLayout196>aside>div{align-items:stretch;flex-direction:column}.legalDocumentLayout196>aside>div span{margin-right:0}.legalDocumentLayout196>aside>div a{text-align:center}}

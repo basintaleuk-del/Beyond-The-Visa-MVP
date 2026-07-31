@@ -23,7 +23,7 @@ test('job titles remain inside NHS and USA cards and detail headers',()=>{
 
 test('legal centre records terms, privacy acknowledgement and necessary storage separately',()=>{
   assert.match(html,/legal-centre-v196\.js\?v=212/);
-  assert.match(html,/legal-centre-v196\.css\?v=212/);
+  assert.match(html,/legal-centre-v196\.css\?v=256/);
   assert.match(legal,/terms_status:\s*'accepted'/);
   assert.match(legal,/privacy_status:\s*'acknowledged'/);
   assert.match(legal,/cookie_status:\s*'necessary_only'/);
@@ -59,4 +59,12 @@ test('privacy policy has a premium ten-section guide and structured reading card
   assert.match(legal,/aria-label="Privacy Policy sections"/);
   assert.match(legalCss,/\.legalPolicyMap212 nav\{[^}]*grid-template-columns:repeat\(5/);
   assert.match(legalCss,/@media\(max-width:640px\)/);
+})
+
+test('terms index is isolated from the global fixed bottom navigation',()=>{
+  assert.match(legalCss,/\.legalDocumentLayout196>aside nav\{[^}]*position:static!important/);
+  assert.match(legalCss,/\.legalDocumentLayout196>aside nav\{[^}]*inset:auto!important/);
+  assert.match(legalCss,/\.legalDocumentLayout196>aside nav\{[^}]*width:100%!important/);
+  assert.match(legalCss,/\.legalDocumentLayout196>aside nav\{[^}]*transform:none!important/);
+  assert.match(legalCss,/\.legalDocumentLayout196\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
 })
