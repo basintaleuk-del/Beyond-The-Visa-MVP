@@ -20,10 +20,13 @@ const fixture = {
     PositionLocation: [{ CityName: "Houston", CountrySubDivisionCode: "TX", CountryCode: "US" }],
     PositionRemuneration: [{ MinimumRange: "82000", MaximumRange: "128000", RateIntervalCode: "Per Year" }],
     PositionOfferingType: [{ Name: "Permanent" }],
+    PositionSchedule: [{ Name: "Full-time" }],
+    JobCategory: [{ Code: "0610", Name: "Nurse" }],
+    JobGrade: [{ Code: "VN" }],
     PublicationStartDate: "2026-07-25T00:00:00Z",
     ApplicationCloseDate: "2026-08-25T23:59:59Z",
     QualificationSummary: "Current unrestricted registered nurse licence required.",
-    UserArea: { Details: { JobSummary: "Provide critical care nursing.", MajorDuties: ["Assess patients", "Coordinate ICU care"], Requirements: "U.S. citizenship is required.", TeleworkEligible: false, Relocation: true } },
+    UserArea: { Details: { JobSummary: "Provide critical care nursing.", MajorDuties: ["Assess patients", "Coordinate ICU care"], Requirements: "U.S. citizenship is required.", WhoMayApply: [{ Name: "The public" }], TeleworkEligible: false, Relocation: true } },
   },
 };
 
@@ -38,6 +41,10 @@ test("USAJOBS records are normalized into isolated US fields", () => {
   assert.equal(row.visa_sponsorship_status, "not_applicable");
   assert.equal(row.visa_sponsorship_verified, true);
   assert.equal(row.relocation_assistance, true);
+  assert.equal(row.schedule, "Full-time");
+  assert.equal(row.grade, "VN");
+  assert.equal(row.who_may_apply, "The public");
+  assert.equal(row.raw_source_data.PositionID, "VA-26-123456");
 });
 
 test("sponsorship is never inferred from relocation assistance", () => {
@@ -61,6 +68,14 @@ test("USAJOBS connector uses credentials only as request headers", async () => {
   assert.equal(captured.headers["User-Agent"], "jobs@example.test");
   assert.equal(captured.headers.From, undefined);
   assert.equal(result.records.length, 1);
+  assert.match(captured.url, /JobCategoryCode=0610/);
+});
+
+test("USAJOBS search plan covers every requested nursing role with bounded pagination", () => {
+  const terms = core.SEARCHES.map((search) => search.keyword);
+  for (const term of ["Registered Nurse", "Nurse", "Clinical Nurse", "Staff Nurse", "Nurse Practitioner", "Nursing Assistant", "Licensed Practical Nurse", "Licensed Vocational Nurse", "Nurse Educator", "Public Health Nurse", "Operating Room Nurse", "PACU Nurse", "Critical Care Nurse", "Mental Health Nurse"]) assert.ok(terms.includes(term));
+  assert.ok(core.SEARCHES.find((search) => search.keyword === "Nurse").pages > 1);
+  assert.ok(core.LIMITS.pageBudget <= 18);
 });
 
 test("USA jobs schema and RLS enforce destination separation", () => {
@@ -80,9 +95,11 @@ test("USA list API checks the authenticated profile before querying vacancies", 
   assert.match(api, /profiles\?select=destination_country/);
   assert.match(api, /destination_country !== "us"/);
   assert.match(api, /USA_DESTINATION_REQUIRED/);
-  assert.match(api, /btv_usa_jobs\?select=\*/);
-  assert.match(api, /warmPublicUsaJobs/);
-  assert.match(api, /fetchPublicUsaNursingJobs/);
+  assert.match(api, /PUBLIC_FIELDS/);
+  assert.match(api, /limit/);
+  assert.match(api, /offset/);
+  assert.doesNotMatch(api, /raw_source_data/);
+  assert.doesNotMatch(api, /warmPublicUsaJobs|fetchPublicUsaNursingJobs/);
   assert.doesNotMatch(api, /btv_jobs\?select/);
 });
 
@@ -123,11 +140,12 @@ test("USA alerts are generated only for USA destination profiles", () => {
 
 test("USA route provides filters, internal details and original-source apply", () => {
   const ui = read("web/usa-jobs-v155.js"), html = read("web/index.html"), routes = read("vercel.json");
-  for (const filter of ["state", "city", "specialty", "employment_type", "salary_min", "employer", "sponsorship", "relocation", "posted_days", "remote"]) assert.match(ui, new RegExp(`name=\\"${filter}\\"`));
+  for (const filter of ["q", "state", "city", "agency", "specialty", "schedule", "salary_min", "remote", "closing_days", "eligibility"]) assert.match(ui, new RegExp(`name=\\"${filter}\\"`));
   assert.match(ui, /\/api\/usa-jobs/);
-  assert.match(ui, /Apply on original site/);
+  assert.match(ui, /View and apply on USAJOBS/);
+  assert.match(ui, /Who may apply/);
   assert.match(ui, /Sponsorship status not confirmed/);
-  assert.match(html, /usa-jobs-v155\.js\?v=240/);
+  assert.match(html, /usa-jobs-v155\.js\?v=269/);
   assert.match(ui, /LIVE OFFICIAL VACANCIES/);
   assert.match(ui, /https:\/\/nurse\.usajobs\.gov\/search\/results\//);
   assert.match(routes, /"\/jobs\/usa\/:id"/);
@@ -142,5 +160,14 @@ test("USA administration supports sources, logs, editing, featuring and sponsors
   assert.match(admin, /data-usa-sponsor/);
   assert.match(admin, /data-usa-status/);
   assert.match(admin, /data-usa-source-approve/);
-  assert.match(html, /admin-usa-jobs-v155\.js\?v=155/);
+  assert.match(admin, /data-test-usa-connection/);
+  assert.match(admin, /Sync USAJOBS now/);
+  assert.match(admin, /duration_ms/);
+  assert.match(html, /admin-usa-jobs-v155\.js\?v=269/);
+});
+
+test("production USAJOBS migration adds required official fields and indexes", () => {
+  const sql = read("supabase/migrations/20260731123000_usajobs_production_import_v269.sql");
+  for (const field of ["agency", "department", "location_display", "schedule", "grade", "requirements", "who_may_apply", "opening_date", "last_seen_at", "raw_source_data"]) assert.match(sql, new RegExp(`add column if not exists ${field}`));
+  for (const index of ["source_idx", "country_idx", "state_idx", "status_idx", "closing_idx", "external_idx"]) assert.match(sql, new RegExp(`btv_usa_jobs_${index}`));
 });

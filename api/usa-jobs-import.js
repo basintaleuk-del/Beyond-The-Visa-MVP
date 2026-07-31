@@ -79,13 +79,13 @@ module.exports = async function handler(req, res) {
       const result = await testConnection({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT") });
       return json(res, 200, result);
     }
-    const now = new Date(), stale = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
-    await rest(`btv_usa_job_import_runs?run_scope=eq.twice_daily&status=eq.running&started_at=lt.${encodeURIComponent(stale)}`, { method: "PATCH", body: { status: "failed", completed_at: now.toISOString(), error_summary: "Stale run released automatically." } });
+    const now = new Date(), startedAt = Date.now(), stale = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+    await rest(`btv_usa_job_import_runs?run_scope=eq.daily&status=eq.running&started_at=lt.${encodeURIComponent(stale)}`, { method: "PATCH", body: { status: "failed", completed_at: now.toISOString(), error_summary: "Stale run released automatically." } });
     const sources = await rest("btv_usa_job_sources?select=*&name=eq.USAJOBS&limit=1");
     const source = sources?.[0];
     if (!source?.enabled || source.permission_status !== "approved" || source.integration_type !== "usajobs_v1") return json(res, 503, { error: "The approved USAJOBS source is not enabled." });
     try {
-      const rows = await rest("btv_usa_job_import_runs", { method: "POST", prefer: "return=representation", body: { source_id: source.id, run_scope: "twice_daily", triggered_by: caller, status: "running", started_at: now.toISOString() } });
+      const rows = await rest("btv_usa_job_import_runs", { method: "POST", prefer: "return=representation", body: { source_id: source.id, run_scope: "daily", triggered_by: caller, status: "running", started_at: now.toISOString() } });
       run = rows[0];
     } catch (error) {
       if (error.status === 409) return json(res, 409, { error: "A USA jobs import is already running." });
@@ -96,8 +96,9 @@ module.exports = async function handler(req, res) {
     const expired = await expireClosed(now);
     const alerts = await rest("rpc/btv_generate_usa_job_alerts", { method: "POST", body: { p_since: new Date(now.getTime() - 13 * 60 * 60 * 1000).toISOString() } });
     await rest(`btv_usa_job_sources?id=eq.${source.id}`, { method: "PATCH", body: { last_successful_run_at: now.toISOString(), last_error: null, updated_at: now.toISOString() } });
-    await rest(`btv_usa_job_import_runs?id=eq.${run.id}`, { method: "PATCH", body: { status: "success", completed_at: new Date().toISOString(), records_found: result.rawCount, records_created: counts.created, records_updated: counts.updated, records_expired: expired, duplicates_skipped: result.duplicates + counts.duplicates } });
-    return json(res, 200, { ok: true, found: result.rawCount, imported: result.records.length, ...counts, expired, alerts_created: Number(alerts || 0) });
+    const duration = Date.now() - startedAt;
+    await rest(`btv_usa_job_import_runs?id=eq.${run.id}`, { method: "PATCH", body: { status: "success", completed_at: new Date().toISOString(), duration_ms: duration, searches_run: result.searchesRun, pages_fetched: result.pagesFetched, records_found: result.rawCount, records_created: counts.created, records_updated: counts.updated, records_expired: expired, duplicates_skipped: result.duplicates + counts.duplicates } });
+    return json(res, 200, { ok: true, found: result.rawCount, imported: result.records.length, ...counts, expired, searches_run: result.searchesRun, pages_fetched: result.pagesFetched, duration_ms: duration, alerts_created: Number(alerts || 0) });
   } catch (error) {
     if (run?.id) await rest(`btv_usa_job_import_runs?id=eq.${run.id}`, { method: "PATCH", body: { status: "failed", completed_at: new Date().toISOString(), error_summary: String(error.message || error).slice(0, 500) } }).catch(() => {});
     const sourceRows = await rest("btv_usa_job_sources?select=id&name=eq.USAJOBS&limit=1").catch(() => []);
