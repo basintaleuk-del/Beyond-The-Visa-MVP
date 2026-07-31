@@ -1,6 +1,7 @@
 const { createHash } = require("node:crypto");
 
 const LIMITS = Object.freeze({ pages: 5, resultsPerPage: 100, retries: 3, timeoutMs: 12000 });
+const USAJOBS_ENDPOINT = "https://data.usajobs.gov/api/Search";
 const NURSING_ROLE = /\b(registered nurse|clinical nurse|staff nurse|nurse practitioner|licensed practical nurse|licensed vocational nurse|nursing assistant|nurse educator|nurse manager|operating room nurse|perioperative nurse|pacu nurse|icu nurse|intensive care nurse|emergency (?:department )?nurse|mental health nurse|psychiatric nurse|public health nurse|nurse|nursing)\b/i;
 const SPONSOR_CONFIRMED = /\b(?:visa|immigration|work authorization) sponsorship (?:is )?(?:available|provided|offered)|\bwill sponsor\b/i;
 const SPONSOR_NOT_OFFERED = /\b(?:no|not eligible for|does not provide|will not provide|unable to provide) (?:visa|immigration|work authorization) sponsorship\b/i;
@@ -106,8 +107,41 @@ function dedupe(records) {
   });
 }
 
-async function requestPage({ apiKey, userAgent, email, page, resultsPerPage = LIMITS.resultsPerPage, fetchImpl = fetch }) {
-  const url = new URL("https://data.usajobs.gov/api/search");
+function credentialError(apiKey, userAgent) {
+  if (!apiKey || !userAgent) return "USAJOBS_API_KEY and USAJOBS_USER_AGENT are required.";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(userAgent)) return "USAJOBS_USER_AGENT must be the email address registered with USAJOBS.";
+  return "";
+}
+
+function requestHeaders(apiKey, userAgent) {
+  return { Accept: "application/json", Host: "data.usajobs.gov", "User-Agent": userAgent, "Authorization-Key": apiKey };
+}
+
+async function testConnection({ apiKey, userAgent, fetchImpl = fetch }) {
+  const configurationError = credentialError(apiKey, userAgent);
+  if (configurationError) return { authentication_succeeded: false, http_status: null, jobs_found: 0, sample_titles: [], error: configurationError };
+  const url = new URL(USAJOBS_ENDPOINT);
+  url.searchParams.set("Keyword", "Nurse");
+  url.searchParams.set("ResultsPerPage", "10");
+  try {
+    const response = await fetchImpl(url, { headers: requestHeaders(apiKey, userAgent), signal: AbortSignal.timeout(LIMITS.timeoutMs) });
+    let payload = {};
+    try { payload = await response.json(); } catch {}
+    const items = Array.isArray(payload?.SearchResult?.SearchResultItems) ? payload.SearchResult.SearchResultItems : [];
+    return {
+      authentication_succeeded: response.ok,
+      http_status: response.status,
+      jobs_found: Number(payload?.SearchResult?.SearchResultCountAll || items.length || 0),
+      sample_titles: items.slice(0, 3).map((item) => clean(item?.MatchedObjectDescriptor?.PositionTitle, 240)).filter(Boolean),
+      ...(response.ok ? {} : { error: response.status === 401 ? "USAJOBS rejected the configured credentials." : `USAJOBS returned HTTP ${response.status}.` }),
+    };
+  } catch (error) {
+    return { authentication_succeeded: false, http_status: null, jobs_found: 0, sample_titles: [], error: error?.name === "TimeoutError" ? "USAJOBS connection timed out." : "USAJOBS could not be reached safely." };
+  }
+}
+
+async function requestPage({ apiKey, userAgent, page, resultsPerPage = LIMITS.resultsPerPage, fetchImpl = fetch }) {
+  const url = new URL(USAJOBS_ENDPOINT);
   url.searchParams.set("Keyword", "Nurse");
   url.searchParams.set("WhoMayApply", "Public");
   url.searchParams.set("Fields", "Full");
@@ -118,7 +152,7 @@ async function requestPage({ apiKey, userAgent, email, page, resultsPerPage = LI
   let lastError;
   for (let attempt = 0; attempt < LIMITS.retries; attempt += 1) {
     try {
-      const response = await fetchImpl(url, { headers: { Accept: "application/json", Host: "data.usajobs.gov", "User-Agent": email, From: `${userAgent} <${email}>`, "Authorization-Key": apiKey }, signal: AbortSignal.timeout(LIMITS.timeoutMs) });
+      const response = await fetchImpl(url, { headers: requestHeaders(apiKey, userAgent), signal: AbortSignal.timeout(LIMITS.timeoutMs) });
       if (!response.ok) throw new Error(`USAJOBS returned HTTP ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -129,12 +163,13 @@ async function requestPage({ apiKey, userAgent, email, page, resultsPerPage = LI
   throw lastError || new Error("USAJOBS request failed.");
 }
 
-async function fetchUsaJobs({ apiKey, userAgent, email, maxPages = LIMITS.pages, fetchImpl = fetch, now = new Date() }) {
-  if (!apiKey || !userAgent || !email) throw new Error("USAJOBS_API_KEY, USAJOBS_USER_AGENT and USAJOBS_EMAIL are required.");
+async function fetchUsaJobs({ apiKey, userAgent, maxPages = LIMITS.pages, fetchImpl = fetch, now = new Date() }) {
+  const configurationError = credentialError(apiKey, userAgent);
+  if (configurationError) throw new Error(configurationError);
   const raw = [];
   let totalPages = 1;
   for (let page = 1; page <= Math.min(maxPages, totalPages, LIMITS.pages); page += 1) {
-    const payload = await requestPage({ apiKey, userAgent, email, page, fetchImpl });
+    const payload = await requestPage({ apiKey, userAgent, page, fetchImpl });
     const result = payload?.SearchResult || {};
     const items = Array.isArray(result.SearchResultItems) ? result.SearchResultItems : [];
     raw.push(...items);
@@ -145,4 +180,4 @@ async function fetchUsaJobs({ apiKey, userAgent, email, maxPages = LIMITS.pages,
   return { rawCount: raw.length, records: dedupe(normalized), duplicates: normalized.length - dedupe(normalized).length };
 }
 
-module.exports = { LIMITS, clean, safeHttps, specialtyFor, sponsorshipFor, fingerprint, normalizeUsaJobsItem, dedupe, requestPage, fetchUsaJobs };
+module.exports = { LIMITS, USAJOBS_ENDPOINT, clean, safeHttps, specialtyFor, sponsorshipFor, fingerprint, normalizeUsaJobsItem, dedupe, credentialError, requestHeaders, testConnection, requestPage, fetchUsaJobs };

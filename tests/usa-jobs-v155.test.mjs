@@ -51,15 +51,15 @@ test("sponsorship is never inferred from relocation assistance", () => {
 
 test("USAJOBS connector uses credentials only as request headers", async () => {
   let captured;
-  const result = await core.fetchUsaJobs({ apiKey: "secret-key", userAgent: "BeyondTheVisa", email: "jobs@example.test", maxPages: 1, now: new Date("2026-07-26T12:00:00Z"), fetchImpl: async (url, options) => {
+  const result = await core.fetchUsaJobs({ apiKey: "secret-key", userAgent: "jobs@example.test", maxPages: 1, now: new Date("2026-07-26T12:00:00Z"), fetchImpl: async (url, options) => {
     captured = { url: String(url), headers: options.headers };
     return { ok: true, json: async () => ({ SearchResult: { SearchResultCountAll: 1, SearchResultItems: [fixture] } }) };
   } });
-  assert.match(captured.url, /^https:\/\/data\.usajobs\.gov\/api\/search/);
+  assert.match(captured.url, /^https:\/\/data\.usajobs\.gov\/api\/Search/);
   assert.equal(captured.headers["Authorization-Key"], "secret-key");
   assert.equal(captured.headers.Host, "data.usajobs.gov");
   assert.equal(captured.headers["User-Agent"], "jobs@example.test");
-  assert.match(captured.headers.From, /BeyondTheVisa/);
+  assert.equal(captured.headers.From, undefined);
   assert.equal(result.records.length, 1);
 });
 
@@ -100,7 +100,7 @@ test("USA importer is independent of the NHS opportunity importer", () => {
   const importer = read("api/usa-jobs-import.js"), uk = read("api/opportunity-import.js");
   assert.match(importer, /USAJOBS_API_KEY/);
   assert.match(importer, /USAJOBS_USER_AGENT/);
-  assert.match(importer, /USAJOBS_EMAIL/);
+  assert.doesNotMatch(importer, /USAJOBS_EMAIL|NEXT_PUBLIC_USAJOBS/);
   assert.match(importer, /btv_usa_jobs/);
   assert.doesNotMatch(importer, /btv_jobs\?/);
   assert.match(uk, /opportunity-import-core\.cjs/);

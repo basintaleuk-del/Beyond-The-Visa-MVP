@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
       if (error.status === 409) return json(res, 409, { error: "A USA jobs import is already running." });
       throw error;
     }
-    const result = await fetchUsaJobs({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT"), email: env("USAJOBS_EMAIL"), maxPages: Number(source.configuration?.max_pages) || 5, now });
+    const result = await fetchUsaJobs({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT"), maxPages: Number(source.configuration?.max_pages) || 5, now });
     const counts = await saveRecords(result.records);
     const expired = await expireClosed(now);
     const alerts = await rest("rpc/btv_generate_usa_job_alerts", { method: "POST", body: { p_since: new Date(now.getTime() - 13 * 60 * 60 * 1000).toISOString() } });
