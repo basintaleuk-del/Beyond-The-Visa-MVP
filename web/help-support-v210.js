@@ -43,6 +43,20 @@
     }</svg>`;
   };
 
+  const socialIcon = (name) => {
+    const icons = {
+      facebook:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.7 22v-9h3l.5-3.5h-3.5V7.3c0-1 .3-1.7 1.8-1.7h1.9V2.5c-.3 0-1.5-.2-2.8-.2-2.8 0-4.7 1.7-4.7 4.8v2.4H6.8V13h3.1v9h3.8Z"/></svg>',
+      tiktok:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#25F4EE" d="M15.7 3.2c.4 2.1 1.7 3.5 3.8 4v3.2a8.2 8.2 0 0 1-3.8-1.1v6.1a6.3 6.3 0 1 1-5.4-6.2v3.3a3.1 3.1 0 1 0 2.1 2.9V3.2h3.3Z"/><path fill="#FE2C55" d="M17.2 4.7c.6.9 1.4 1.5 2.3 1.8v.7c-2.1-.5-3.4-1.9-3.8-4h.8c.1.6.4 1.1.7 1.5ZM10.3 9.2v.9a6.3 6.3 0 0 0 1.6 12.2 6.3 6.3 0 0 1-1.6-13.1Z"/><path fill="currentColor" d="M15.7 3.2h.8c.3 1.7 1.3 2.8 3 3.3v3.2a8.3 8.3 0 0 1-3-.8v6.5a6.3 6.3 0 0 1-4.6 6.1 6.3 6.3 0 0 1-1.6-12.3v3.3a3.1 3.1 0 1 0 2.1 2.9V3.2h3.3Z"/></svg>',
+      instagram:
+        '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.6" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
+      whatsapp:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.5 4.1 1.6 5.9L.2 24l6.4-1.7a11.8 11.8 0 0 0 5.5 1.4h.1c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.2-3.5-8.4Zm-8.4 18.2c-1.7 0-3.4-.5-4.9-1.3l-.4-.2-3.8 1 1-3.7-.2-.4a9.7 9.7 0 1 1 8.3 4.6Zm5.3-7.3c-.3-.1-1.7-.8-2-1-.3-.1-.5-.1-.7.2l-.9 1.1c-.2.3-.5.3-.8.1-2-.9-3.3-1.7-4.6-4-.3-.6.3-.6.9-1.9.1-.3.1-.5 0-.7L8.4 6c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.6c.1.2 2.4 3.7 5.9 5.2 2.2.9 3.1 1 4.2.8.7-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.2-.2-.5-.3-1.2-.6Z"/></svg>',
+    };
+    return icons[name] || "";
+  };
+
   const categoryMap = {
     account: {
       label: "Account & access",
@@ -189,6 +203,28 @@
           <section class="helpFaq210" aria-labelledby="helpFaqTitle210">
             <div class="helpSectionHead210"><div><p>CLEAR ANSWERS</p><h2 id="helpFaqTitle210">Frequently asked questions</h2></div><label class="helpSearch210">${icon("search")}<span class="srOnly210">Search help</span><input type="search" data-help-search placeholder="Search help articles"></label></div>
             <div class="helpFaqList210" data-help-faq></div>
+          </section>
+
+          <section class="helpSocial259" aria-labelledby="helpSocialTitle259">
+            <header class="helpSocialHead259">
+              <p>STAY CONNECTED</p>
+              <h2 id="helpSocialTitle259">Connect With Beyond the Visa</h2>
+              <span>Follow us for nursing opportunities, immigration updates, career guidance and community support.</span>
+            </header>
+            <div class="helpSocialGrid259">
+              <a class="helpSocialCard259 isFacebook259" href="https://www.facebook.com/share/1JsB8W8Wtg/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Visit Beyond the Visa on Facebook">
+                <span class="helpSocialIcon259">${socialIcon("facebook")}</span><span class="helpSocialCopy259"><small>Facebook</small><strong>Beyond the Visa</strong></span><span class="helpSocialArrow259" aria-hidden="true">&#8599;</span>
+              </a>
+              <a class="helpSocialCard259 isTiktok259" href="https://www.tiktok.com/@beyond_the_visa?_r=1&amp;_t=ZN-98V2UDlDXD4" target="_blank" rel="noopener noreferrer" aria-label="Visit Beyond the Visa on TikTok">
+                <span class="helpSocialIcon259">${socialIcon("tiktok")}</span><span class="helpSocialCopy259"><small>TikTok</small><strong>@beyond_the_visa</strong></span><span class="helpSocialArrow259" aria-hidden="true">&#8599;</span>
+              </a>
+              <a class="helpSocialCard259 isInstagram259" href="https://www.instagram.com/beyondthevisa_official?igsh=eTlraTNjdnNpdWwy&amp;utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Visit Beyond the Visa on Instagram">
+                <span class="helpSocialIcon259">${socialIcon("instagram")}</span><span class="helpSocialCopy259"><small>Instagram</small><strong>@beyondthevisa_official</strong></span><span class="helpSocialArrow259" aria-hidden="true">&#8599;</span>
+              </a>
+              <a class="helpSocialCard259 isWhatsapp259" href="https://wa.me/447723126429?text=Hello%20Beyond%20the%20Visa%2C%20I%20found%20your%20contact%20through%20your%20website%20and%20would%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener noreferrer" aria-label="Contact Beyond the Visa on WhatsApp">
+                <span class="helpSocialIcon259">${socialIcon("whatsapp")}</span><span class="helpSocialCopy259"><small>WhatsApp</small><strong>+44 7723 126429</strong></span><span class="helpSocialArrow259" aria-hidden="true">&#8599;</span>
+              </a>
+            </div>
           </section>
         </main>
         <footer class="helpFooter210"><span>Beyond The Visa Member Support</span><span>Secure requests · Clear status · Account-linked history</span></footer>

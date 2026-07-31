@@ -11,10 +11,31 @@ const profile = read("web/profile-menu-v82.js");
 const migration = read("supabase/migrations/20260730143000_help_support_centre.sql");
 
 test("Help Centre assets are loaded and primary entry points use the new route", () => {
-  assert.match(index, /help-support-v210\.css\?v=218/);
-  assert.match(index, /help-support-v210\.js\?v=218/);
+  assert.match(index, /help-support-v210\.css\?v=259/);
+  assert.match(index, /help-support-v210\.js\?v=259/);
   assert.match(dashboard, /\["Help and support", "help-support"\]/);
   assert.match(profile, /BTVHelpSupport\?\.open/);
+});
+
+test("Advertisement surface includes secure, accessible social destinations", () => {
+  assert.match(script, /Connect With Beyond the Visa/);
+  assert.match(script, /Follow us for nursing opportunities, immigration updates, career guidance and community support\./);
+  assert.match(script, /href="https:\/\/www\.facebook\.com\/share\/1JsB8W8Wtg\/\?mibextid=wwXIfr"/);
+  assert.match(script, /href="https:\/\/www\.tiktok\.com\/@beyond_the_visa\?_r=1&amp;_t=ZN-98V2UDlDXD4"/);
+  assert.match(script, /href="https:\/\/www\.instagram\.com\/beyondthevisa_official\?igsh=eTlraTNjdnNpdWwy&amp;utm_source=qr"/);
+  assert.match(script, /href="https:\/\/wa\.me\/447723126429\?text=Hello%20Beyond%20the%20Visa%2C%20I%20found%20your%20contact%20through%20your%20website%20and%20would%20like%20to%20make%20an%20enquiry\."/);
+  assert.equal((script.match(/target="_blank" rel="noopener noreferrer" aria-label=/g) || []).length, 4);
+  for (const label of ["Visit Beyond the Visa on Facebook", "Visit Beyond the Visa on TikTok", "Visit Beyond the Visa on Instagram", "Contact Beyond the Visa on WhatsApp"]) assert.match(script, new RegExp(label));
+  for (const account of ["@beyond_the_visa", "@beyondthevisa_official", "\\+44 7723 126429"]) assert.match(script, new RegExp(account));
+});
+
+test("social cards are balanced and responsive in light and dark modes", () => {
+  assert.match(style, /\.helpSocialGrid259\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(style, /@media\(max-width:980px\)\{\.helpSocialGrid259\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(style, /@media\(max-width:390px\)\{\.helpSocialGrid259\{grid-template-columns:1fr/);
+  assert.match(style, /body\.dark \.helpSocial259/);
+  assert.match(style, /\.helpSocialCard259:hover/);
+  assert.match(style, /prefers-reduced-motion:reduce/);
 });
 
 test("member actions use authenticated Supabase RPCs", () => {
