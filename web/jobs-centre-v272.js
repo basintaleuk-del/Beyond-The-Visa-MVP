@@ -1,7 +1,7 @@
 (() => {
   "use strict";
-  if (window.__btvJobsCentre148) return;
-  window.__btvJobsCentre148 = true;
+  if (window.__btvJobsCentre272) return;
+  window.__btvJobsCentre272 = true;
   const LABELS = { nurse:"Nursing",midwife:"Midwifery",both:"Nursing and midwifery",medical_dental:"Medical and dental",allied_health:"Allied health professionals",pharmacy:"Pharmacy",scientific_technical:"Healthcare science and technical",healthcare_support:"Healthcare support",administrative_clerical:"Administrative and clerical",estates_facilities:"Estates and facilities",ambulance:"Ambulance services",social_care:"Social care",other:"Other NHS professions" };
   const EMPTY_FILTERS = { search:"", profession:"", location:"", employer:"", contract:"", band:"", sponsorship:"" };
   const ACTIVE_JOB_STATUSES = ["published", "closing_soon"];

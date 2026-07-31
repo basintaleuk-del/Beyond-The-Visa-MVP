@@ -4,14 +4,14 @@ import {readFile} from "node:fs/promises";
 const read=file=>readFile(new URL(`../${file}`,import.meta.url),"utf8");
 
 test("every NHS job tile is pointer and keyboard selectable without hijacking controls",async()=>{
-  const [ui,css]=await Promise.all([read("web/jobs-centre-v148.js"),read("web/jobs-centre-v148.css")]);
+  const [ui,css]=await Promise.all([read("web/jobs-centre-v272.js"),read("web/jobs-centre-v148.css")]);
   assert.match(ui,/data-select-nhs-job/);assert.match(ui,/tabindex="0" role="link"/);
   assert.match(ui,/event\.key==="Enter"\|\|event\.key===" "/);assert.match(ui,/closest\("a,button,input,select,textarea,label"\)/);
   assert.match(css,/\.nhsJob148:hover,\.nhsJob148:focus-visible/);assert.match(css,/cursor:pointer/);
 });
 
 test("all four Jobs heading tiles are selectable controls with useful actions",async()=>{
-  const [ui,css]=await Promise.all([read("web/jobs-centre-v148.js"),read("web/jobs-centre-v148.css")]);
+  const [ui,css]=await Promise.all([read("web/jobs-centre-v272.js"),read("web/jobs-centre-v148.css")]);
   for(const kind of ["vacancies","families","employers","sponsorship"])assert.match(ui,new RegExp(`heroStat\\("${kind}"`));
   assert.match(ui,/Show all live vacancies/);assert.match(ui,/Choose a staff family/);assert.match(ui,/Filter by employer/);assert.match(ui,/Show jobs where sponsorship is mentioned/);
   assert.match(ui,/querySelectorAll\("\[data-jobs-stat\]"\)/);assert.match(ui,/openStatDialog\(button\.dataset\.jobsStat\)/);assert.match(ui,/data-nhs-jobs-stat-dialog/);assert.match(ui,/aria-haspopup="dialog"/);
@@ -28,7 +28,7 @@ test("long job names wrap inside cards and the detail header",async()=>{
 });
 
 test("NHS Apply links go directly to the original application page",async()=>{
-  const ui=await read("web/jobs-centre-v148.js");
+  const ui=await read("web/jobs-centre-v272.js");
   assert.match(ui,/applicationUrl=/);assert.match(ui,/target="_blank" rel="noopener noreferrer">Apply<\/a>/);
   assert.doesNotMatch(ui,/Apply on Beyond The Visa/);assert.doesNotMatch(ui,/BTVJobApplication\?\.open/);
 });

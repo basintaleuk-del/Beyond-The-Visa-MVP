@@ -29,7 +29,7 @@ test("UK Adzuna import reuses one source, credentials and daily provider",()=>{
 });
 
 test("UK display includes Adzuna and cross-source duplicate protection",()=>{
-  const importer=read("api/global-jobs-import.js"),ui=read("web/jobs-centre-v148.js");
+  const importer=read("api/global-jobs-import.js"),ui=read("web/jobs-centre-v272.js");
   assert.match(ui,/\["NHS Jobs","REED","ADZUNA"\]/);assert.match(ui,/Jobs by Adzuna/);assert.match(ui,/View and apply/);
   assert.match(importer,/deduplicateUkJobs/);assert.match(importer,/normalizedUrl/);assert.match(importer,/normalizedIdentity/);assert.match(importer,/"NHS Jobs":0,REED:1,ADZUNA:2/);assert.match(importer,/import_status:"duplicate"/);
 });

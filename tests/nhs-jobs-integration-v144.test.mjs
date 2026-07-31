@@ -66,10 +66,10 @@ test("Opportunity Centre attributes and links NHS Jobs securely", async () => {
 });
 
 test("Jobs centre renders direct NHS vacancies for all staff families", async () => {
-  const [ui, css, shell, migration] = await Promise.all([read("web/jobs-centre-v148.js"), read("web/jobs-centre-v148.css"), read("web/index.html"), read("supabase/migrations/20260726213000_all_nhs_professions_jobs_v148.sql")]);
+  const [ui, css, shell, migration] = await Promise.all([read("web/jobs-centre-v272.js"), read("web/jobs-centre-v148.css"), read("web/index.html"), read("supabase/migrations/20260726213000_all_nhs_professions_jobs_v148.sql")]);
   assert.match(ui, /Find your next role across the NHS/); assert.match(ui, /All professions/); assert.match(ui, /View details/); assert.match(ui, />Apply<\/a>/);
   assert.match(ui, /source_name",\["NHS Jobs","REED","ADZUNA"\]/); assert.doesNotMatch(ui, /\bTrac\b|HealthJobsUK|NursingNetUK/i);
-  assert.match(css, /nhsJobsLayout148/); assert.match(css, /nhsJobDetail150/); assert.match(shell, /job-application-v174\.js\?v=174[\s\S]*jobs-centre-v148\.js\?v=272[\s\S]*opportunity-centre-v138\.js\?v=253/);
+  assert.match(css, /nhsJobsLayout148/); assert.match(css, /nhsJobDetail150/); assert.match(shell, /job-application-v174\.js\?v=174[\s\S]*jobs-centre-v272\.js[\s\S]*opportunity-centre-v138\.js\?v=253/);
   assert.match(migration, /'medical_dental'/); assert.match(migration, /'administrative_clerical'/); assert.match(migration, /'staff_group', 'ALL'/);
 });
 
@@ -99,7 +99,7 @@ test("cron and admin import remain server protected", async () => {
 });
 
 test("daily refresh keeps active, closing-soon and sponsorship views synchronized", async () => {
-  const [jobs, opportunities, importer, config] = await Promise.all([read("web/jobs-centre-v148.js"), read("web/opportunity-centre-v138.js"), read("api/global-jobs-import.js"), read("vercel.json")]);
+  const [jobs, opportunities, importer, config] = await Promise.all([read("web/jobs-centre-v272.js"), read("web/opportunity-centre-v138.js"), read("api/global-jobs-import.js"), read("vercel.json")]);
   assert.match(jobs, /ACTIVE_JOB_STATUSES = \["published", "closing_soon"\]/);
   assert.match(opportunities, /ACTIVE_OPPORTUNITY_STATUSES = \["published", "closing_soon"\]/);
   assert.match(opportunities, /sponsorship_status", \["confirmed", "may_be_available"\]/);
