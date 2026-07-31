@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=261/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=261/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=262/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=262/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -51,19 +51,20 @@ test('homepage replaces plan text with the selected destination flag', async () 
   }
 });
 
-test('homepage sidebar uses a compact advert placement instead of London artwork', async () => {
+test('homepage replaces the advert placement with a compact social strip', async () => {
   const [dashboard, css] = await Promise.all([
     read('web/dashboard-premium-v73.js'),
     read('web/dashboard-premium-v73.css'),
   ]);
-  assert.match(dashboard, /data-home-ad-slot="sidebar"/);
-  assert.match(dashboard, /data-go="help-support">Place an advert/);
-  assert.match(css, /\.sidebarAdvert73\{/);
-  assert.match(dashboard, /data-home-ad-slot="mobile-menu"/);
-  assert.match(dashboard, /drawerMenu73[\s\S]*drawerAdvert73/);
-  assert.match(css, /\.drawerAdvert73\{display:none\}/);
-  assert.match(css, /@media\(max-width:1090px\)[\s\S]*\.drawerAdvert73\{display:block/);
-  assert.match(css, /\.drawerAdvert73>button\{min-height:44px/);
+  assert.match(dashboard, /data-home-social-slot="sidebar"/);
+  assert.match(dashboard, />Connect with us</);
+  assert.match(css, /\.sidebarConnect262\{/);
+  assert.match(dashboard, /data-home-social-slot="mobile-menu"/);
+  assert.match(dashboard, /drawerMenu73[\s\S]*drawerConnect262/);
+  assert.match(css, /\.drawerConnect262\{display:none\}/);
+  assert.match(css, /@media\(max-width:1090px\)[\s\S]*\.drawerConnect262\{display:block/);
+  assert.doesNotMatch(dashboard, /Your campaign here|Place an advert|data-home-ad-slot/);
+  assert.doesNotMatch(css, /sidebarAdvert73|drawerAdvert73/);
   assert.doesNotMatch(dashboard, /sidebarLondon73/);
   assert.doesNotMatch(css, /sidebar-london-bridge-v101\.png|sidebarLondon73/);
 });
@@ -82,9 +83,9 @@ test('campaign placements contain the four compact social destinations', async (
   assert.match(dashboard, /@beyond_the_visa/);
   assert.match(dashboard, /@beyondthevisa_official/);
   assert.match(dashboard, /\+44 7723 126429/);
-  assert.match(css, /\.sidebarSocial261\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css, /\.sidebarSocial261>a:focus-visible/);
-  assert.match(css, /min-height:46px/);
+  assert.match(css, /\.sidebarSocialStrip262\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.sidebarSocialStrip262>a:focus-visible/);
+  assert.match(css, /min-height:48px/);
 });
 
 test('secondary scripts do not replace or repeatedly mutate the homepage', async () => {
