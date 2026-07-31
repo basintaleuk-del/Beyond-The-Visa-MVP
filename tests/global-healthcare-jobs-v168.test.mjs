@@ -82,7 +82,7 @@ test("every destination exposes a current official vacancy search without invent
   const ui=read("web/global-jobs-v168.js"),css=read("web/jobs-navigation-v169.css");
   for(const code of ["GB","US","AU","NZ","CA","IE","AE","SA"])assert.match(ui,new RegExp(`${code}:\\{name:`));
   for(const source of ["NHS Jobs","USAJOBS Nurse","NSW Health Careers","Health New Zealand Careers","Canada Job Bank","HSE Job Search","Emirates Health Services Careers","Saudi Ministry of Health Careers"])assert.match(ui,new RegExp(source));
-  assert.match(ui,/CURRENT OFFICIAL VACANCIES/);assert.match(ui,/target="_blank" rel="noopener noreferrer"/);assert.match(ui,/No imported matches yet/);assert.doesNotMatch(ui,/fake|sample vacancies/i);
+  assert.match(ui,/VERIFIED ORIGINAL SOURCE/);assert.match(ui,/Current vacancies are displayed below on Beyond The Visa/);assert.match(ui,/Apply for job/);assert.match(ui,/target="_blank" rel="noopener noreferrer" data-track-apply/);assert.match(ui,/The verified vacancy feed is refreshing/);assert.doesNotMatch(ui,/>Search current vacancies/);assert.doesNotMatch(ui,/fake|sample vacancies/i);
   assert.match(css,/globalOfficialJobs170/);assert.match(css,/@media \(max-width: 360px\)/);assert.match(css,/body\.dark \.globalOfficialJobs170/);
 });
 

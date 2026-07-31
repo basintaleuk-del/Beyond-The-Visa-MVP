@@ -1,0 +1,20 @@
+.globalJobTop168 h3,
+.globalJobDetail168 h1 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.globalJobActions168 a {
+  gap: 6px;
+}
+
+.globalJobsState168 button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--brand);
+  color: #fff;
+  padding: 10px 16px;
+  font-weight: 850;
+}

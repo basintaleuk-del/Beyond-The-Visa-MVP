@@ -1,5 +1,6 @@
 const { countryForPathway, safeExternalUrl, plainText } = require("./_lib/global-jobs-core.cjs");
 const { getDevelopmentSamples } = require("./_lib/global-job-samples.cjs");
+const { SOURCES: internationalSources, fetchLiveSource } = require("./_lib/international-jobs-live.cjs");
 
 const env = (name) => process.env[name] || "";
 const reply = (res,status,body) => res.status(status).setHeader("cache-control","private, no-store").setHeader("content-type","application/json; charset=utf-8").send(JSON.stringify(body));
@@ -56,6 +57,18 @@ function sortRows(rows,sort){
 }
 async function context(userId){const rows=await rest(`profiles?select=destination_country,profession&id=eq.${encodeURIComponent(userId)}&limit=1`),profile=rows?.[0]||{};return{profile,country:countryForPathway(profile.destination_country)}}
 async function bodyFor(req){if(typeof req.body==="string")return JSON.parse(req.body||"{}");return req.body||{}}
+async function warmInternationalJobs(countryCode){
+  const source=internationalSources.find((item)=>item.countryCode===countryCode);
+  if(!source)return [];
+  try{
+    const jobs=await fetchLiveSource(source,fetch,8000);
+    if(jobs.length)await rest("btv_jobs?on_conflict=canonical_url",{method:"POST",prefer:"resolution=merge-duplicates,return=minimal",body:jobs});
+    return jobs;
+  }catch(error){
+    console.warn(`Live ${countryCode} vacancy refresh deferred:`,error.message);
+    return [];
+  }
+}
 
 module.exports=async function handler(req,res){
   if(!["GET","POST"].includes(req.method))return reply(res,405,{error:"Method not allowed"});
@@ -116,7 +129,12 @@ module.exports=async function handler(req,res){
     if(!country)return reply(res,200,{destination:null,jobs:[],total:0,code:"DESTINATION_REQUIRED",choose_destination_route:"journey"});
     const id=String(req.query.id||"");
     if(id){if(!/^[0-9a-f-]{36}$/i.test(id))return reply(res,400,{error:"Invalid job ID."});const rows=await rest(`btv_jobs?select=*&id=eq.${encodeURIComponent(id)}&country_code=eq.${country.code}&opportunity_type=eq.job&limit=1`),job=rows?.[0]||getDevelopmentSamples().find((x)=>x.id===id&&x.country_code===country.code);if(!job||!allowedStatuses.has(job.status)||job.expired_at||closeDate(job)&&new Date(closeDate(job))<new Date())return reply(res,404,{error:"This vacancy is not active for your selected pathway."});return reply(res,200,{destination:country,job:present(job,profile)});}
-    const rows=await rest(`btv_jobs?select=*&country_code=eq.${country.code}&opportunity_type=eq.job&status=in.(published,active,closing_soon)&expired_at=is.null&order=featured.desc,published_at.desc&limit=2000`),sourceRows=rows?.length?rows:getDevelopmentSamples().filter((x)=>x.country_code===country.code),presented=sourceRows.map((x)=>present(x,profile)),filtered=sortRows(filterRows(presented,req.query),String(req.query.sort||"best"));
+    let rows=await rest(`btv_jobs?select=*&country_code=eq.${country.code}&opportunity_type=eq.job&status=in.(published,active,closing_soon)&expired_at=is.null&order=featured.desc,published_at.desc&limit=2000`);
+    if(!rows?.length&&internationalSources.some((source)=>source.countryCode===country.code)){
+      await warmInternationalJobs(country.code);
+      rows=await rest(`btv_jobs?select=*&country_code=eq.${country.code}&opportunity_type=eq.job&status=in.(published,active,closing_soon)&expired_at=is.null&order=featured.desc,published_at.desc&limit=2000`);
+    }
+    const sourceRows=rows?.length?rows:getDevelopmentSamples().filter((x)=>x.country_code===country.code),presented=sourceRows.map((x)=>present(x,profile)),filtered=sortRows(filterRows(presented,req.query),String(req.query.sort||"best"));
     const limit=Math.min(100,Math.max(1,Number(req.query.limit)||24)),page=Math.max(1,Number(req.query.page)||1),start=(page-1)*limit,pageRows=filtered.slice(start,start+limit);
     const pageIds=pageRows.map((row)=>row.id),savedRows=pageIds.length?await rest(`btv_saved_jobs?select=job_id&user_id=eq.${user.id}&job_id=in.(${pageIds.join(",")})`):[],savedIds=new Set((savedRows||[]).map((row)=>row.job_id));
     return reply(res,200,{destination:country,jobs:pageRows.map((row)=>({...row,is_saved:savedIds.has(row.id)})),total:filtered.length,page,limit,recently_added:filtered.filter((x)=>new Date(x.published_at||0).getTime()>=Date.now()-7*86400000).length});

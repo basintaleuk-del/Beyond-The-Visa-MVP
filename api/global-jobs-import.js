@@ -1,6 +1,7 @@
 const nhsHandler = require("./opportunity-import.js");
 const usaHandler = require("./usa-jobs-import.js");
 const { withRetry, safeExternalUrl } = require("./_lib/global-jobs-core.cjs");
+const { SOURCES: liveInternationalSources, fetchLiveSource } = require("./_lib/international-jobs-live.cjs");
 
 const env = (name) => process.env[name] || "";
 const send = (res, status, body) => res.status(status).setHeader("cache-control", "private, no-store").setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
@@ -76,6 +77,33 @@ async function mirrorUsaJobs(now) {
   return { created, updated, unchanged, duplicates: 0 };
 }
 
+async function importInternationalSource(source, now) {
+  const sourceRows = await rest(`btv_approved_sources?select=id,enabled,permission_status&name=eq.${encodeURIComponent(source.name)}&limit=1`);
+  const approved = sourceRows?.[0];
+  if (!approved?.id || !approved.enabled || approved.permission_status !== "approved") {
+    return { status: 503, body: { error: `${source.name} is not approved and enabled.`, records_found: 0 } };
+  }
+  const jobs = await fetchLiveSource(source);
+  const existing = await rest(`btv_jobs?select=id,external_id,content_hash,status,imported_at&source_name=eq.${encodeURIComponent(source.name)}&limit=2000`);
+  const byExternal = new Map((existing || []).map((row) => [row.external_id, row]));
+  let created = 0, updated = 0, unchanged = 0;
+  const payload = jobs.map((job) => {
+    const old = byExternal.get(job.external_id);
+    if (!old) created += 1;
+    else if (old.content_hash !== job.content_hash || old.status === "expired") updated += 1;
+    else unchanged += 1;
+    return { ...job, source_id: approved.id, imported_at: old?.imported_at || now.toISOString() };
+  });
+  for (let index = 0; index < payload.length; index += 100) {
+    await rest("btv_jobs?on_conflict=canonical_url", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: payload.slice(index, index + 100) });
+  }
+  // These public endpoints can be paginated or temporarily return a partial
+  // first page. Never retire a valid listing merely because it was absent from
+  // one response; expireJobs handles authoritative closing dates separately.
+  await rest(`btv_approved_sources?id=eq.${approved.id}`, { method: "PATCH", body: { import_status: "active", last_status: "success", last_successful_run_at: now.toISOString(), updated_at: now.toISOString() } });
+  return { status: 200, body: { records_found: jobs.length, records_created: created, records_updated: updated, records_unchanged: unchanged, records_expired: 0 } };
+}
+
 async function updateFreshness(now) {
   const sources = await rest("btv_approved_sources?select=id,name,enabled,permission_status,last_successful_run_at,stale_after_hours&source_type=eq.job");
   for (const source of sources || []) {
@@ -109,6 +137,7 @@ module.exports = async function handler(req, res) {
     const providers = [
       { name:"NHS Jobs", run:()=>invoke(nhsHandler,req) },
       { name:"USAJOBS", run:()=>invoke(usaHandler,req) },
+      ...liveInternationalSources.map((source) => ({ name: source.name, run: () => importInternationalSource(source, now) })),
     ];
     const results=[];
     for (const provider of providers) {
