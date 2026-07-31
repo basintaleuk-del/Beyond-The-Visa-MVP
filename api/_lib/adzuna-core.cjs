@@ -16,7 +16,7 @@ const TERMS = Object.freeze([
   { keyword: "Mental Health Nurse", pages: 1 },
 ]);
 const LIMITS = Object.freeze({ pageBudget: 8, resultsPerPage: 50, retries: 3, timeoutMs: 12000 });
-const NURSING_TITLE = /\b(?:registered nurse|nurse practitioner|licensed practical nurse|nursing assistant|icu nurse|intensive care nurse|pacu nurse|post.?anesthesia nurse|mental health nurse|psychiatric nurse|staff nurse|clinical nurse|rn|lpn)\b/i;
+const NURSING_TITLE = /\b(?:registered(?:\s+\w+){0,3}\s+nurse|nurse practitioner|licensed practical nurse|nursing assistant|icu nurse|intensive care nurse|pacu nurse|post.?anesthesia nurse|mental health nurse|psychiatric nurse|staff nurse|clinical nurse|rn|lpn)\b/i;
 
 function credentialError(appId, appKey) { return !appId || !appKey ? "ADZUNA_APP_ID and ADZUNA_APP_KEY are required." : ""; }
 function safeAdzunaUrl(value) {

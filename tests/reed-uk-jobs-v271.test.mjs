@@ -35,9 +35,9 @@ test("Reed connection handles missing credentials, rejection, timeout and empty 
   const empty=await core.testConnection({apiKey:"key",fetchImpl:async()=>({ok:true,status:200,json:async()=>({totalResults:0,results:[]})})});assert.equal(empty.authentication_succeeded,true);assert.equal(empty.jobs_found,0);
 });
 
-test("Reed importer searches requested nursing roles and loads job details",async()=>{
+test("Reed importer searches requested nursing roles without an over-restrictive UK location filter and loads job details",async()=>{
   const searches=[],details=[];
-  const result=await core.fetchReedJobs({apiKey:"key",fetchImpl:async(url)=>{const parsed=new URL(String(url));if(parsed.pathname==="/api/1.0/search"){searches.push(parsed.searchParams.get("keywords"));return{ok:true,status:200,json:async()=>({results:[{...fixture,jobId:1000+searches.length,jobUrl:`https://www.reed.co.uk/jobs/nurse/${1000+searches.length}`} ]})};}details.push(parsed.pathname);return{ok:true,status:200,json:async()=>({...fixture,jobId:Number(parsed.pathname.split("/").at(-1)),jobUrl:`https://www.reed.co.uk/jobs/nurse/${parsed.pathname.split("/").at(-1)}`})};}});
+  const result=await core.fetchReedJobs({apiKey:"key",fetchImpl:async(url)=>{const parsed=new URL(String(url));if(parsed.pathname==="/api/1.0/search"){assert.equal(parsed.searchParams.has("locationName"),false);searches.push(parsed.searchParams.get("keywords"));return{ok:true,status:200,json:async()=>({results:[{...fixture,jobId:1000+searches.length,jobUrl:`https://www.reed.co.uk/jobs/nurse/${1000+searches.length}`} ]})};}details.push(parsed.pathname);return{ok:true,status:200,json:async()=>({...fixture,jobId:Number(parsed.pathname.split("/").at(-1)),jobUrl:`https://www.reed.co.uk/jobs/nurse/${parsed.pathname.split("/").at(-1)}`})};}});
   for(const term of ["Registered Nurse","Staff Nurse","Theatre Nurse","ICU Nurse","Mental Health Nurse","Practice Nurse","Care Home Nurse","Nursing Home Nurse","Healthcare Assistant"])assert.ok(searches.includes(term));
   assert.equal(searches.length,9);assert.equal(details.length,9);assert.equal(result.records.length,9);
 });
@@ -45,7 +45,12 @@ test("Reed importer searches requested nursing roles and loads job details",asyn
 test("Reed sample import is limited to ten Registered Nurse search results",async()=>{
   let search;
   const result=await core.fetchReedJobs({apiKey:"key",sample:true,fetchImpl:async(url)=>{const parsed=new URL(String(url));if(parsed.pathname==="/api/1.0/search"){search=parsed;return{ok:true,status:200,json:async()=>({results:[fixture]})};}return{ok:true,status:200,json:async()=>fixture};}});
-  assert.equal(search.searchParams.get("keywords"),"Registered Nurse");assert.equal(search.searchParams.get("resultsToTake"),"10");assert.equal(result.searchesRun,1);assert.equal(result.records.length,1);
+  assert.equal(search.searchParams.get("keywords"),"Registered Nurse");assert.equal(search.searchParams.get("resultsToTake"),"10");assert.equal(search.searchParams.has("locationName"),false);assert.equal(result.searchesRun,1);assert.equal(result.records.length,1);
+});
+
+test("Reed accepts common qualified registered-nurse titles",()=>{
+  const row=core.normalizeItem({...fixture,jobTitle:"Registered General Nurse"},{...fixture,jobTitle:"Registered General Nurse"},new Date("2026-07-31T12:00:00Z"));
+  assert.equal(row?.title,"Registered General Nurse");
 });
 
 test("Reed routes, database upsert and UI preserve established sources",()=>{

@@ -13,6 +13,11 @@ test("the existing Adzuna connector maps gb jobs to the UK contract",()=>{
   assert.equal(row.source_name,"ADZUNA");assert.equal(row.country,"United Kingdom");assert.equal(row.country_code,"GB");assert.equal(row.destination_country,"United Kingdom");assert.equal(row.salary_currency,"GBP");assert.equal(row.attribution_text,"Jobs by Adzuna");
 });
 
+test("the UK connector accepts common qualified registered-nurse titles",()=>{
+  const row=core.normalizeItem({...fixture,id:"gb-124",title:"Registered General Nurse"},new Date("2026-08-01T10:00:00Z"),"gb");
+  assert.equal(row?.job_title,"Registered General Nurse");
+});
+
 test("the shared connector targets the gb endpoint without exposing credentials",async()=>{
   let captured;
   const result=await core.testConnection({appId:"private-id",appKey:"private-key",countryCode:"gb",fetchImpl:async(url)=>{captured=new URL(String(url));return{ok:true,status:200,json:async()=>({count:1,results:[fixture]})};}});

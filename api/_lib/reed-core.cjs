@@ -8,7 +8,7 @@ const TERMS = Object.freeze([
   "Practice Nurse", "Care Home Nurse", "Nursing Home Nurse", "Healthcare Assistant",
 ]);
 const LIMITS = Object.freeze({ resultsToTake: 20, sampleSize: 10, timeoutMs: 12000, retries: 3 });
-const SUITABLE_TITLE = /\b(?:registered nurse|staff nurse|theatre nurse|icu nurse|intensive care nurse|mental health nurse|psychiatric nurse|practice nurse|care home nurse|nursing home nurse|healthcare assistant|health care assistant|hca)\b/i;
+const SUITABLE_TITLE = /\b(?:registered(?:\s+\w+){0,3}\s+nurse|staff nurse|theatre nurse|icu nurse|intensive care nurse|mental health nurse|psychiatric nurse|practice nurse|care home nurse|nursing home nurse|healthcare assistant|health care assistant|hca)\b/i;
 
 function normalizedApiKey(apiKey) { return String(apiKey || "").trim(); }
 function credentialError(apiKey) { return normalizedApiKey(apiKey) ? "" : "REED_API_KEY is required."; }
@@ -86,7 +86,7 @@ async function testConnection({ apiKey, fetchImpl = fetch }) {
 async function fetchReedJobs({ apiKey, sample = false, fetchImpl = fetch, now = new Date() }) {
   const configurationError=credentialError(apiKey); if(configurationError) throw new Error(configurationError);
   const terms=sample?[TERMS[0]]:TERMS, summaries=new Map(); let searchesRun=0;
-  for(const keyword of terms){ const payload=await requestJson(searchUrl({keyword,resultsToTake:sample?10:LIMITS.resultsToTake}),{apiKey,fetchImpl}); searchesRun+=1; for(const item of Array.isArray(payload.results)?payload.results:[]) if(item?.jobId!=null) summaries.set(String(item.jobId),item); }
+  for(const keyword of terms){ const payload=await requestJson(searchUrl({keyword,resultsToTake:sample?10:LIMITS.resultsToTake,includeLocation:false}),{apiKey,fetchImpl}); searchesRun+=1; for(const item of Array.isArray(payload.results)?payload.results:[]) if(item?.jobId!=null) summaries.set(String(item.jobId),item); }
   const candidates=[...summaries.values()].filter((item)=>SUITABLE_TITLE.test(clean(item.jobTitle,240))).slice(0,sample?10:180), records=[];
   for(const item of candidates){ let details={}; try { details=await requestJson(`${DETAILS_ENDPOINT}/${encodeURIComponent(item.jobId)}`,{apiKey,fetchImpl}); } catch(error){ if(error.status===404) continue; throw error; } const row=normalizeItem(item,details,now); if(row) records.push(row); }
   return { rawCount:summaries.size,records,duplicates:candidates.length-records.length,searchesRun,detailsFetched:candidates.length };
