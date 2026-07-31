@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=247/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=255/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=261/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=261/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -66,6 +66,25 @@ test('homepage sidebar uses a compact advert placement instead of London artwork
   assert.match(css, /\.drawerAdvert73>button\{min-height:44px/);
   assert.doesNotMatch(dashboard, /sidebarLondon73/);
   assert.doesNotMatch(css, /sidebar-london-bridge-v101\.png|sidebarLondon73/);
+});
+
+test('campaign placements contain the four compact social destinations', async () => {
+  const [dashboard, css] = await Promise.all([
+    read('web/dashboard-premium-v73.js'),
+    read('web/dashboard-premium-v73.css'),
+  ]);
+  assert.match(dashboard, /socialLinksMarkup\(\)/);
+  assert.match(dashboard, /href="https:\/\/www\.facebook\.com\/share\/1JsB8W8Wtg\/\?mibextid=wwXIfr"/);
+  assert.match(dashboard, /href="https:\/\/www\.tiktok\.com\/@beyond_the_visa\?_r=1&amp;_t=ZN-98V2UDlDXD4"/);
+  assert.match(dashboard, /href="https:\/\/www\.instagram\.com\/beyondthevisa_official\?igsh=eTlraTNjdnNpdWwy&amp;utm_source=qr"/);
+  assert.match(dashboard, /href="https:\/\/wa\.me\/447723126429\?text=Hello%20Beyond%20the%20Visa%2C%20I%20found%20your%20contact%20through%20your%20website%20and%20would%20like%20to%20make%20an%20enquiry\."/);
+  assert.equal((dashboard.match(/target="_blank" rel="noopener noreferrer" aria-label=/g) || []).length, 4);
+  assert.match(dashboard, /@beyond_the_visa/);
+  assert.match(dashboard, /@beyondthevisa_official/);
+  assert.match(dashboard, /\+44 7723 126429/);
+  assert.match(css, /\.sidebarSocial261\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.sidebarSocial261>a:focus-visible/);
+  assert.match(css, /min-height:46px/);
 });
 
 test('secondary scripts do not replace or repeatedly mutate the homepage', async () => {
