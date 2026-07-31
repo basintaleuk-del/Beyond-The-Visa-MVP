@@ -47,6 +47,6 @@ test("Reed routes, database upsert and UI preserve established sources",()=>{
   assert.match(importer,/REED_API_KEY/);assert.doesNotMatch(importer,/NEXT_PUBLIC_REED/);assert.match(importer,/on_conflict=source_name,external_id/);assert.match(importer,/name:"REED"/);
   assert.match(routes,/reed-jobs-connection-test/);assert.match(routes,/provider=reed/);assert.match(routes,/reed-jobs-sample/);
   assert.match(admin,/data-test-reed/);assert.match(admin,/data-sync-reed/);
-  assert.match(ui,/\["NHS Jobs","REED"\]/);assert.match(ui,/isReed\?"REED":"NHS JOBS"/);assert.match(ui,/"View and apply"/);assert.match(ui,/Source: Reed/);
+  assert.match(ui,/\["NHS Jobs","REED","ADZUNA"\]/);assert.match(ui,/isReed\?"REED":"NHS JOBS"/);assert.match(ui,/"View and apply"/);assert.match(ui,/Source: Reed/);
   assert.match(sql,/btv_jobs_source_external_id_full_uq/);assert.match(sql,/'REED','job'/);assert.doesNotMatch(sql,/update public\.btv_jobs|delete from public\.btv_jobs/);
 });

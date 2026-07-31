@@ -3,6 +3,7 @@ const usaHandler = require("./usa-jobs-import.js");
 const { withRetry, safeExternalUrl } = require("./_lib/global-jobs-core.cjs");
 const { SOURCES: liveInternationalSources, fetchLiveSource } = require("./_lib/international-jobs-live.cjs");
 const { fetchReedJobs, testConnection: testReedConnection } = require("./_lib/reed-core.cjs");
+const { fetchAdzunaJobs, testConnection: testAdzunaConnection } = require("./_lib/adzuna-core.cjs");
 
 const env = (name) => process.env[name] || "";
 const send = (res, status, body) => res.status(status).setHeader("cache-control", "private, no-store").setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
@@ -100,6 +101,45 @@ async function importReedJobs(now, { sample = false } = {}) {
   return { status:200,body:{ok:true,provider:"REED",found:result.rawCount,imported:result.records.length,created,updated,unchanged,duplicates:result.duplicates,searches_run:result.searchesRun,details_fetched:result.detailsFetched} };
 }
 
+async function importAdzunaUkJobs(now, { sample = false } = {}) {
+  const sources = await rest("btv_approved_sources?select=id,name&name=eq.ADZUNA&limit=1");
+  const source = sources?.[0];
+  if (!source?.id) return { status:503,body:{ error:"The existing ADZUNA source could not be loaded." } };
+  const result = await fetchAdzunaJobs({ appId:env("ADZUNA_APP_ID"),appKey:env("ADZUNA_APP_KEY"),countryCode:"gb",sample,now });
+  const existing = await rest("btv_jobs?select=id,external_id,content_hash,status,imported_at&source_name=eq.ADZUNA&country_code=eq.GB&limit=3000");
+  const byExternal = new Map((existing||[]).map((row)=>[row.external_id,row])); let created=0,updated=0,unchanged=0;
+  const payload=result.records.map((job)=>{ const old=byExternal.get(job.external_id); if(!old)created+=1; else if(old.content_hash!==job.content_fingerprint||old.status==="expired")updated+=1; else unchanged+=1; return {
+    external_id:job.external_id,source_id:source.id,source_name:"ADZUNA",source_type:"aggregator_api",source_url:job.source_job_url,canonical_url:job.canonical_application_url,application_url:job.canonical_application_url,
+    country:"uk",country_code:"GB",country_name:"United Kingdom",region:job.state,region_or_state:job.state,city:job.city,location:job.location_display,employer:job.employer_name,employer_name:job.employer_name,title:job.job_title,
+    profession:"nurse",specialty:job.nursing_specialty,description:job.description,requirements:job.qualifications,registration_required:job.licence_requirements,salary_min:job.salary_min,salary_max:job.salary_max,currency:"GBP",salary_currency:"GBP",salary_period:job.salary_period,
+    employment_type:job.employment_type,work_pattern:job.schedule,relocation_support_available:job.relocation_assistance,sponsorship_status:job.visa_sponsorship_status==="confirmed"?"confirmed":job.visa_sponsorship_status,visa_sponsorship:job.visa_sponsorship_status==="confirmed"&&job.visa_sponsorship_verified,sponsorship_evidence_text:job.sponsorship_evidence,
+    published_at:job.date_posted,closing_at:job.closing_date,imported_at:old?.imported_at||job.imported_at,last_checked_at:job.last_checked_at,last_verified_at:job.last_checked_at,expires_at:job.expires_at,status:"published",verification_status:job.visa_sponsorship_verified?"verified":"pending",import_status:"active",opportunity_type:"job",job_reference:job.external_id,
+    featured:false,is_featured:false,content_hash:job.content_fingerprint,raw_source_metadata:{attribution:"Jobs by Adzuna",source:"ADZUNA",country_code:"gb"},updated_at:now.toISOString(),
+  };});
+  for(let index=0;index<payload.length;index+=50) await rest("btv_jobs?on_conflict=source_name,external_id",{method:"POST",prefer:"resolution=merge-duplicates,return=minimal",body:payload.slice(index,index+50)});
+  await rest(`btv_approved_sources?id=eq.${source.id}`,{method:"PATCH",body:{last_successful_run_at:now.toISOString(),last_error:null,last_status:"success",import_status:"active",configuration:{credentials:["ADZUNA_APP_ID","ADZUNA_APP_KEY"],countries:["us","gb"],schedule:"daily",attribution:"Jobs by Adzuna"},updated_at:now.toISOString()}});
+  return {status:200,body:{ok:true,provider:"ADZUNA",country:"United Kingdom",found:result.rawCount,imported:result.records.length,created,updated,unchanged,duplicates:result.duplicates,searches_run:result.searchesRun}};
+}
+
+async function syncAdzunaCountries(req, now, { sample = false } = {}) {
+  const us = await invoke(usaHandler,req,"GET",{provider:"adzuna",...(sample?{mode:"sample-import"}:{})});
+  const gb = await importAdzunaUkJobs(now,{sample});
+  const status = us.status < 300 || gb.status < 300 ? 200 : Math.max(us.status,gb.status);
+  const sum=(key)=>Number(us.body?.[key]||0)+Number(gb.body?.[key]||0);
+  return {status,body:{ok:status<300,provider:"ADZUNA",countries:{us:us.body,gb:gb.body},found:sum("found"),imported:sum("imported"),created:sum("created"),updated:sum("updated"),unchanged:sum("unchanged"),duplicates:sum("duplicates")}};
+}
+
+function normalizedUrl(value) { try { const url=new URL(String(value||"")); return `${url.hostname.toLowerCase()}${url.pathname.replace(/\/+$/g,"").toLowerCase()}`; } catch { return ""; } }
+function normalizedIdentity(row) { const cleanPart=(value)=>String(value||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); const parts=[cleanPart(row.title),cleanPart(row.employer||row.employer_name),cleanPart(row.location)]; return parts.every((part)=>part.length>2)?parts.join("|"):""; }
+async function deduplicateUkJobs(now) {
+  const rows=await rest("btv_jobs?select=id,source_name,source_url,canonical_url,application_url,title,employer,employer_name,location,published_at&country_code=eq.GB&source_name=in.(%22NHS%20Jobs%22,REED,ADZUNA)&status=in.(published,active,closing_soon)&expired_at=is.null&limit=10000");
+  const priority={"NHS Jobs":0,REED:1,ADZUNA:2},ordered=[...(rows||[])].sort((a,b)=>(priority[a.source_name]??9)-(priority[b.source_name]??9)||new Date(b.published_at||0)-new Date(a.published_at||0));
+  const urls=new Map(),identities=new Map(),duplicates=[];
+  for(const row of ordered){ const url=normalizedUrl(row.canonical_url||row.source_url||row.application_url),identity=normalizedIdentity(row),urlOwner=url&&urls.get(url),identityOwner=identity&&identities.get(identity),owner=urlOwner||identityOwner; if(owner&&owner.source_name!==row.source_name){duplicates.push(row.id);continue;} if(url&&!urls.has(url))urls.set(url,row);if(identity&&!identities.has(identity))identities.set(identity,row); }
+  for(let index=0;index<duplicates.length;index+=100) await rest(`btv_jobs?id=in.(${duplicates.slice(index,index+100).join(",")})`,{method:"PATCH",body:{status:"archived",import_status:"duplicate",expired_at:now.toISOString(),verification_notes:"Duplicate of another current UK source listing.",updated_at:now.toISOString()}});
+  return duplicates.length;
+}
+
 async function importInternationalSource(source, now) {
   const sourceRows = await rest("btv_approved_sources?on_conflict=name", {
     method: "POST",
@@ -167,6 +207,15 @@ module.exports = async function handler(req, res) {
       if(String(req.query?.mode||"")==="connection-test") return send(res,200,await testReedConnection({apiKey:env("REED_API_KEY")}));
       const result=await importReedJobs(now,{sample:String(req.query?.mode||"")==="sample-import"}); return send(res,result.status,result.body);
     }
+    if(String(req.query?.provider||"").toLowerCase()==="adzuna" && String(req.query?.country||"").toLowerCase()==="gb") {
+      if(String(req.query?.mode||"")==="connection-test") return send(res,200,await testAdzunaConnection({appId:env("ADZUNA_APP_ID"),appKey:env("ADZUNA_APP_KEY"),countryCode:"gb"}));
+      const result=await importAdzunaUkJobs(now,{sample:String(req.query?.mode||"")==="sample-import"}); return send(res,result.status,result.body);
+    }
+    if(String(req.query?.provider||"").toLowerCase()==="adzuna") {
+      const result=await syncAdzunaCountries(req,now,{sample:String(req.query?.mode||"")==="sample-import"});
+      const duplicates=result.status<300?await deduplicateUkJobs(now):0;
+      return send(res,result.status,{...result.body,cross_source_duplicates:duplicates});
+    }
     await rest(`btv_opportunity_import_runs?run_scope=eq.global_daily&status=eq.running&started_at=lt.${encodeURIComponent(new Date(now.getTime()-3600000).toISOString())}`, { method:"PATCH", body:{ status:"failed",final_status:"Failed",completed_at:now.toISOString(),error_summary:"Stale global run released automatically." } });
     try {
       const rows = await rest("btv_opportunity_import_runs", { method:"POST",prefer:"return=representation",body:{ run_scope:"global_daily",triggered_by:caller.kind,status:"running",started_at:now.toISOString(),final_status:"Running" } }); parent=rows[0];
@@ -174,7 +223,7 @@ module.exports = async function handler(req, res) {
     const providers = [
       { name:"NHS Jobs", run:()=>invoke(nhsHandler,req) },
       { name:"USAJOBS", run:()=>invoke(usaHandler,req) },
-      { name:"ADZUNA", run:()=>invoke(usaHandler,req,"GET",{provider:"adzuna"}) },
+      { name:"ADZUNA", run:()=>syncAdzunaCountries(req,now) },
       { name:"REED", run:()=>importReedJobs(now) },
       ...liveInternationalSources.map((source) => ({ name: source.name, run: () => importInternationalSource(source, now) })),
     ];
@@ -184,7 +233,7 @@ module.exports = async function handler(req, res) {
       results.push({provider:provider.name,...result});
     }
     const usaMirror = results.some((x)=>(x.provider==="USAJOBS"||x.provider==="ADZUNA")&&x.status<300) ? await mirrorUsaJobs(now) : {created:0,updated:0,unchanged:0,duplicates:0};
-    const expired = await expireJobs(now); await updateFreshness(now);
+    const duplicates = await deduplicateUkJobs(now); const expired = await expireJobs(now); await updateFreshness(now);
     const failed=results.filter((x)=>x.status>=300);
     for(const item of failed) {
       const source=await rest(`btv_approved_sources?select=id&name=eq.${encodeURIComponent(item.provider)}&limit=1`);
@@ -196,7 +245,7 @@ module.exports = async function handler(req, res) {
     const found=results.reduce((n,x)=>n+Number(x.body?.found||x.body?.records_found||0),0);
     const status=failed.length===providers.length?"failed":failed.length?"partial":"success",finalStatus=status==="success"?"Successful":status==="partial"?"Successful with warnings":"Failed";
     await rest(`btv_opportunity_import_runs?id=eq.${parent.id}`,{method:"PATCH",body:{status,final_status:finalStatus,completed_at:new Date().toISOString(),duration_ms:Date.now()-start,records_fetched:found,records_found:found,records_created:created,records_updated:updated,records_unchanged:unchanged,records_expired:expired,records_failed:failed.length,error_summary:failed.map((x)=>`${x.provider}: ${x.body?.error}`).join(" | ")||null}});
-    return send(res,status==="failed"?502:200,{ok:status!=="failed",status:finalStatus,providers:results.map((x)=>({name:x.provider,status:x.status<300?"Successful":"Failed",metrics:x.body})),created,updated,unchanged,expired,duration_ms:Date.now()-start});
+    return send(res,status==="failed"?502:200,{ok:status!=="failed",status:finalStatus,providers:results.map((x)=>({name:x.provider,status:x.status<300?"Successful":"Failed",metrics:x.body})),created,updated,unchanged,duplicates,expired,duration_ms:Date.now()-start});
   } catch(error) {
     if(parent?.id) await rest(`btv_opportunity_import_runs?id=eq.${parent.id}`,{method:"PATCH",body:{status:"failed",final_status:"Failed",completed_at:new Date().toISOString(),duration_ms:Date.now()-start,records_failed:1,error_summary:String(error.message||error).slice(0,1000)}}).catch(()=>{});
     console.error("Global Jobs import failed",error); return send(res,error.status||500,{error:error.message||"Global Jobs import failed."});
