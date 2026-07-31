@@ -72,8 +72,8 @@ test("Jobs keeps its original page title, hero layout and account destination",(
   const ui=read("web/jobs-centre-v148.js"),html=read("web/index.html");
   assert.match(html,/PREMIUM CAREER TOOLS[\s\S]*Job search/);
   assert.match(ui,/nhsJobsHero148/);assert.match(ui,/Find your next role across the NHS/);assert.match(ui,/UPDATED DIRECTLY FROM NHS JOBS/);
-  assert.match(html,/jobs-centre-v148\.js\?v=176/);assert.match(html,/jobs-centre-v148\.css\?v=176/);
-  assert.match(html,/jobs-centre-v148\.js\?v=176[\s\S]*usa-jobs-v155\.js\?v=270[\s\S]*global-jobs-v168\.js\?v=252/);
+  assert.match(html,/jobs-centre-v148\.js\?v=271/);assert.match(html,/jobs-centre-v148\.css\?v=176/);
+  assert.match(html,/jobs-centre-v148\.js\?v=271[\s\S]*usa-jobs-v155\.js\?v=270[\s\S]*global-jobs-v168\.js\?v=252/);
   assert.match(read("web/global-jobs-v168.js"),/previousRenderJobs=window\.renderJobs/);
   assert.match(read("web/global-jobs-v168.js"),/if\(\["GB","US"\]\.includes\(code\)\)return previousRenderJobs\?\.\(\)/);
 });

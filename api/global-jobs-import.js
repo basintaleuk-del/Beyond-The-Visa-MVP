@@ -2,6 +2,7 @@ const nhsHandler = require("./opportunity-import.js");
 const usaHandler = require("./usa-jobs-import.js");
 const { withRetry, safeExternalUrl } = require("./_lib/global-jobs-core.cjs");
 const { SOURCES: liveInternationalSources, fetchLiveSource } = require("./_lib/international-jobs-live.cjs");
+const { fetchReedJobs, testConnection: testReedConnection } = require("./_lib/reed-core.cjs");
 
 const env = (name) => process.env[name] || "";
 const send = (res, status, body) => res.status(status).setHeader("cache-control", "private, no-store").setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
@@ -77,6 +78,28 @@ async function mirrorUsaJobs(now) {
   return { created, updated, unchanged, duplicates: 0 };
 }
 
+async function importReedJobs(now, { sample = false } = {}) {
+  const sourceRows = await rest("btv_approved_sources?on_conflict=name", {
+    method: "POST", prefer: "resolution=merge-duplicates,return=representation",
+    body: {
+      name: "REED", source_type: "job", base_url: "https://www.reed.co.uk", source_url: "https://www.reed.co.uk/jobs",
+      integration_type: "approved_api", enabled: true, permission_status: "approved", country_code: "GB",
+      attribution_requirements: "Display a Reed source badge and retain the Reed application URL.",
+      terms_notes: "Reed Jobseeker API version 1.0. Credentials remain server-side and applications continue on Reed.",
+      republication_permitted: true, import_status: "active", stale_after_hours: 48,
+      configuration: { api_version: "1.0", credential: "REED_API_KEY", schedule: "daily", sample_size: 10 }, updated_at: now.toISOString(),
+    },
+  });
+  const source = sourceRows?.[0]; if (!source?.id) return { status:503,body:{ error:"REED could not be registered." } };
+  const result = await fetchReedJobs({ apiKey:env("REED_API_KEY"),sample,now });
+  const existing = await rest("btv_jobs?select=id,external_id,content_hash,status,imported_at&source_name=eq.REED&limit=2000");
+  const byExternal = new Map((existing||[]).map((row)=>[row.external_id,row])); let created=0,updated=0,unchanged=0;
+  const payload=result.records.map((job)=>{ const old=byExternal.get(job.external_id); if(!old)created+=1; else if(old.content_hash!==job.content_hash||old.status==="expired")updated+=1; else unchanged+=1; return {...job,source_id:source.id,imported_at:old?.imported_at||job.imported_at}; });
+  for(let index=0;index<payload.length;index+=50) await rest("btv_jobs?on_conflict=source_name,external_id",{method:"POST",prefer:"resolution=merge-duplicates,return=minimal",body:payload.slice(index,index+50)});
+  await rest(`btv_approved_sources?id=eq.${source.id}`,{method:"PATCH",body:{last_successful_run_at:now.toISOString(),last_error:null,last_status:"success",import_status:"active",updated_at:now.toISOString()}});
+  return { status:200,body:{ok:true,provider:"REED",found:result.rawCount,imported:result.records.length,created,updated,unchanged,duplicates:result.duplicates,searches_run:result.searchesRun,details_fetched:result.detailsFetched} };
+}
+
 async function importInternationalSource(source, now) {
   const sourceRows = await rest("btv_approved_sources?on_conflict=name", {
     method: "POST",
@@ -140,6 +163,10 @@ module.exports = async function handler(req, res) {
   if (!caller) return send(res,401,{ error:"Administrator or scheduled-import authentication is required." });
   const now = new Date(), start = Date.now(); let parent;
   try {
+    if(String(req.query?.provider||"").toLowerCase()==="reed") {
+      if(String(req.query?.mode||"")==="connection-test") return send(res,200,await testReedConnection({apiKey:env("REED_API_KEY")}));
+      const result=await importReedJobs(now,{sample:String(req.query?.mode||"")==="sample-import"}); return send(res,result.status,result.body);
+    }
     await rest(`btv_opportunity_import_runs?run_scope=eq.global_daily&status=eq.running&started_at=lt.${encodeURIComponent(new Date(now.getTime()-3600000).toISOString())}`, { method:"PATCH", body:{ status:"failed",final_status:"Failed",completed_at:now.toISOString(),error_summary:"Stale global run released automatically." } });
     try {
       const rows = await rest("btv_opportunity_import_runs", { method:"POST",prefer:"return=representation",body:{ run_scope:"global_daily",triggered_by:caller.kind,status:"running",started_at:now.toISOString(),final_status:"Running" } }); parent=rows[0];
@@ -148,6 +175,7 @@ module.exports = async function handler(req, res) {
       { name:"NHS Jobs", run:()=>invoke(nhsHandler,req) },
       { name:"USAJOBS", run:()=>invoke(usaHandler,req) },
       { name:"ADZUNA", run:()=>invoke(usaHandler,req,"GET",{provider:"adzuna"}) },
+      { name:"REED", run:()=>importReedJobs(now) },
       ...liveInternationalSources.map((source) => ({ name: source.name, run: () => importInternationalSource(source, now) })),
     ];
     const results=[];
