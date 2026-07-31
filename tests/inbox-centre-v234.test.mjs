@@ -37,7 +37,7 @@ test("saved profile photos replace initials across account navigation", () => {
   assert.match(storage, /querySelectorAll\('\[data-btv-profile-photo\],\.btvMemberMenuHead82 img'\)/);
   assert.match(storage, /new CustomEvent\('btv:profile-photo-updated'/);
   assert.match(index, /profile-menu-v82\.js\?v=88/);
-  assert.match(index, /storage-v21\.js\?v=102/);
+  assert.match(index, /storage-v21\.js\?v=266/);
 });
 
 test("the inbox uses real owner-protected Supabase threads and messages", () => {

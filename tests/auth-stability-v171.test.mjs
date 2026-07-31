@@ -43,7 +43,8 @@ test('profile and destination hydration cannot block an authenticated user',()=>
 });
 
 test('switching accounts cannot reuse another users cached profile',()=>{
-  assert.match(html,/if\(!sameUser\)localStorage\.removeItem\('btv-profile'\)/);
+  assert.match(html,/if\(!sameUser\)\{[\s\S]*localStorage\.removeItem\('btv-profile'\)/);
+  assert.match(html,/localStorage\.removeItem\('btv-profile-extra'\)/);
   assert.match(html,/activeAuthUserId=null/);
 });
 

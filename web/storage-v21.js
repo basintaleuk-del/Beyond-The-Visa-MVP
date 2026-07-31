@@ -49,5 +49,6 @@
     const original=window.showPolicy;window.showPolicy=function(type,button){original(type,button);if(type==='privacy'){const body=$('#policyBody');if(body&&!body.querySelector('.storagePolicyUpdate'))body.insertAdjacentHTML('afterbegin','<div class="notice storagePolicyUpdate"><b>Storage update · 12 July 2026</b><br>Optional profile photos and documents now use a private Supabase bucket. Files stay in the user’s private folder until deleted in My documents or removed through a verified cloud-account request. <a href="privacy-policy.html">Read the updated full policy</a>.</div>') }};window.showPolicy.storageAware=true
   }
   function start(){build();entryPoints();updatePrivacyNotice();setTimeout(entryPoints,500);setTimeout(entryPoints,1800);setTimeout(loadAvatar,900);document.addEventListener('change',e=>{if(e.target?.id==='pfFile')uploadAvatar(e.target.files?.[0])},true);document.addEventListener('click',e=>{if(e.target.closest('#headerProfile,[data-edit-profile]'))setTimeout(()=>loadAvatar(true),150)},true);new MutationObserver(entryPoints).observe(document.body,{childList:true,subtree:true})}
+  window.addEventListener('btv:session-restored',event=>{user=null;avatarLoaded=false;if(event.detail?.state==='app')setTimeout(()=>loadAvatar(true),0)});
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start):start();
 })();

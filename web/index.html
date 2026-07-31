@@ -219,7 +219,12 @@ function authMessage(formId,text,isError=false){
 async function cacheSignedInUser(user){
   if(!user)return;
   const previousAccount=authAccount(),sameUser=previousAccount?.id===user.id;
-  if(!sameUser)localStorage.removeItem('btv-profile');
+  if(!sameUser){
+    const oldExtra=localStorage.getItem('btv-profile-extra');
+    if(previousAccount?.id&&oldExtra)localStorage.setItem(`btv-profile-extra:${previousAccount.id}`,oldExtra);
+    localStorage.removeItem('btv-profile');
+    localStorage.removeItem('btv-profile-extra');
+  }
   let profile=null;
   try{
     const {data,error}=await authDeadline(window.btvSupabase.from('profiles').select('full_name,profession,qualification_country,destination_country,destination,registration_stage,job_status,dependants,account_type,role').eq('id',user.id).maybeSingle(),8000,'Your profile is taking longer than expected.');
@@ -287,7 +292,7 @@ document.getElementById('loginForm').onsubmit=async e=>{
   finally{button.disabled=false;button.textContent='Sign in'}
 };
 
-document.getElementById('logout').onclick=async()=>{await window.btvSupabase.auth.signOut();window.__btvSession=null;activeAuthUserId=null;localStorage.removeItem('btv-account');showAuth();authTab(true)};
+document.getElementById('logout').onclick=async()=>{const account=authAccount(),extra=localStorage.getItem('btv-profile-extra');if(account?.id&&extra)localStorage.setItem(`btv-profile-extra:${account.id}`,extra);localStorage.removeItem('btv-profile-extra');await window.btvSupabase.auth.signOut();window.__btvSession=null;activeAuthUserId=null;localStorage.removeItem('btv-account');showAuth();authTab(true)};
 
 async function initialiseSupabaseAuth(){
   if(authSubscription)return;
@@ -669,7 +674,7 @@ buildLifeHub();buildAiStatus();document.addEventListener('change',e=>{if(e.targe
  if(window.__btvPendingShowApp||!document.getElementById('appShell')?.hidden)window.BTVHomeBoot();
 })();
 </script>
-<script src="storage-v21.js?v=102"></script><script src="edge-functions-v22.js?v=173"></script><script src="contact-safety-v176.js?v=176"></script><script src="cbt-launcher.js?v=1"></script><script src="nclex-launcher.js?v=1"></script><script src="admin-launcher.js?v=30.8"></script><script src="manager-inbox-v26.js?v=173"></script><script src="premium-v29.js?v=30.5"></script><script src="platform-config.js?v=173"></script><script src="platform-v30.js?v=41"></script><link rel="stylesheet" href="release-v33.css?v=33"><script src="release-v33.js?v=36"></script>
+<script src="storage-v21.js?v=266"></script><script src="edge-functions-v22.js?v=173"></script><script src="contact-safety-v176.js?v=176"></script><script src="cbt-launcher.js?v=1"></script><script src="nclex-launcher.js?v=1"></script><script src="admin-launcher.js?v=30.8"></script><script src="manager-inbox-v26.js?v=173"></script><script src="premium-v29.js?v=30.5"></script><script src="platform-config.js?v=173"></script><script src="platform-v30.js?v=41"></script><link rel="stylesheet" href="release-v33.css?v=33"><script src="release-v33.js?v=36"></script>
 <script>
 /* Paystack reliability bridge v25. Kept inline so stale external-script caches cannot restore preview booking. */
 (function(){
@@ -736,4 +741,4 @@ buildLifeHub();buildAiStatus();document.addEventListener('change',e=>{if(e.targe
 <script src="bookings-centre-v224.js?v=224"></script>
 <script src="security-hardening-v80.js?v=80"></script><script src="compatibility-v81.js?v=81"></script><script src="profile-menu-v82.js?v=88"></script><script src="welcome-video-v82.js?v=83"></script><link rel="stylesheet" href="header-experience-v83.css?v=83"><script src="header-experience-v83.js?v=255"></script><link rel="stylesheet" href="header-polish-v84.css?v=84"><script src="exam-eligibility-v84.js?v=84"></script><script src="header-polish-v84.js?v=84"></script><link rel="stylesheet" href="experience-v85.css?v=85"><script src="experience-v85-home.js?v=85"></script><script src="calculator-v85.js?v=85"></script><script src="experience-v85-detail.js?v=85"></script><link rel="stylesheet" href="experience-v86.css?v=86"><script src="experience-v86.js?v=174"></script><link rel="stylesheet" href="coin-access-v87.css?v=87"><script src="coin-access-v87.js?v=87"></script>  <script type="module" src="mobile-native.js?v=1"></script>
 <link rel="stylesheet" href="international-jobs-v251.css?v=251">
-<script src="australia-pathway-v139.js?v=139"></script><script src="qualifications-registration-v139.js?v=163"></script><script src="job-application-v174.js?v=174"></script><script src="jobs-centre-v148.js?v=176"></script><script src="opportunity-centre-v138.js?v=253"></script><link rel="stylesheet" href="usa-jobs-v155.css?v=158"><script src="usa-jobs-v155.js?v=240"></script><link rel="stylesheet" href="global-jobs-v168.css?v=240"><link rel="stylesheet" href="jobs-navigation-v169.css?v=240"><script src="global-jobs-v168.js?v=252"></script><link rel="stylesheet" href="job-title-containment-v196.css?v=196"><link rel="stylesheet" href="legal-centre-v196.css?v=256"><script src="legal-centre-v196.js?v=212"></script><link rel="stylesheet" href="zibur-professional-v199.css?v=207"><script src="zibur-professional-v199.js?v=207"></script><link rel="stylesheet" href="help-support-v210.css?v=261"><script src="help-support-v210.js?v=261"></script><link rel="stylesheet" href="profile-premium-v215.css?v=218"><script src="profile-premium-v215.js?v=217"></script><script id="btvCurrentUiReady">(()=>{const reveal=()=>window.__btvRevealCurrentUI?.();if(document.readyState==="complete")requestAnimationFrame(()=>requestAnimationFrame(reveal));else window.addEventListener("load",()=>requestAnimationFrame(()=>requestAnimationFrame(reveal)),{once:true})})();</script></body></html>
+<script src="australia-pathway-v139.js?v=139"></script><script src="qualifications-registration-v139.js?v=163"></script><script src="job-application-v174.js?v=174"></script><script src="jobs-centre-v148.js?v=176"></script><script src="opportunity-centre-v138.js?v=253"></script><link rel="stylesheet" href="usa-jobs-v155.css?v=158"><script src="usa-jobs-v155.js?v=240"></script><link rel="stylesheet" href="global-jobs-v168.css?v=240"><link rel="stylesheet" href="jobs-navigation-v169.css?v=240"><script src="global-jobs-v168.js?v=252"></script><link rel="stylesheet" href="job-title-containment-v196.css?v=196"><link rel="stylesheet" href="legal-centre-v196.css?v=256"><script src="legal-centre-v196.js?v=212"></script><link rel="stylesheet" href="zibur-professional-v199.css?v=207"><script src="zibur-professional-v199.js?v=207"></script><link rel="stylesheet" href="help-support-v210.css?v=261"><script src="help-support-v210.js?v=261"></script><link rel="stylesheet" href="profile-premium-v215.css?v=218"><script src="profile-premium-v215.js?v=266"></script><script src="profile-persistence-v266.js?v=266"></script><script id="btvCurrentUiReady">(()=>{const reveal=()=>window.__btvRevealCurrentUI?.();if(document.readyState==="complete")requestAnimationFrame(()=>requestAnimationFrame(reveal));else window.addEventListener("load",()=>requestAnimationFrame(()=>requestAnimationFrame(reveal)),{once:true})})();</script></body></html>
