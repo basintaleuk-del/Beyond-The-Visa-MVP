@@ -35,11 +35,11 @@ values
     '{"category":"Nursing and Midwifery","apply_mode":"external","maximum_records":40}'::jsonb
   ),
   (
-    'Emirates Health Services Careers','job','https://www.ehs.gov.ae',
-    'https://www.ehs.gov.ae/en/about-us/careers',
-    'approved_api',true,'approved','AE','Attribute Emirates Health Services and retain its official careers route.',
-    'Public EHS careers route for current clinical and nursing opportunities. The employer page controls current opening and application details.',true,'active',72,
-    '{"profession_filter":"clinical_nursing","apply_mode":"external","maximum_records":10}'::jsonb
+    'Mediclinic Middle East Careers','job','https://careers.mediclinic.com',
+    'https://careers.mediclinic.com/MiddleEast/search/?q=nurse&locationsearch=United%20Arab%20Emirates',
+    'approved_api',true,'approved','AE','Attribute Mediclinic Middle East and retain each original vacancy URL.',
+    'Public official employer listings for current UAE nursing vacancies; applications remain on the Mediclinic careers website.',true,'active',48,
+    '{"profession_filter":"nursing_midwifery","apply_mode":"external","maximum_records":40}'::jsonb
   ),
   (
     'King Faisal Specialist Hospital Careers','job','https://services.kfshrc.edu.sa',

@@ -81,7 +81,19 @@ test("USA list API checks the authenticated profile before querying vacancies", 
   assert.match(api, /destination_country !== "us"/);
   assert.match(api, /USA_DESTINATION_REQUIRED/);
   assert.match(api, /btv_usa_jobs\?select=\*/);
+  assert.match(api, /warmPublicUsaJobs/);
+  assert.match(api, /fetchPublicUsaNursingJobs/);
   assert.doesNotMatch(api, /btv_jobs\?select/);
+});
+
+test("USA public employer fallback produces real on-site cards with original apply URLs", () => {
+  const publicJobs = require(path.join(root, "api/_lib/usa-public-jobs.cjs"));
+  const rows = publicJobs.parseNypJobs(`<li><a href="/job/queens/registered-nurse-intensive-care/19715/98137699552">Registered Nurse - Intensive Care Unit - Full Time Nights</a><span>Queens, NY</span></li>`, new Date("2026-07-31T12:00:00Z"));
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].country_code, "US");
+  assert.equal(rows[0].source_name, "NewYork-Presbyterian Careers");
+  assert.match(rows[0].canonical_application_url, /^https:\/\/careers\.nyp\.org\/job\//);
+  assert.equal(rows[0].visa_sponsorship_status, "unclear");
 });
 
 test("USA importer is independent of the NHS opportunity importer", () => {

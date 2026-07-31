@@ -1,13 +1,25 @@
 const env = (name) => process.env[name] || "";
+const { fetchPublicUsaNursingJobs } = require("./_lib/usa-public-jobs.cjs");
 const json = (res, status, body) => res.status(status).setHeader("cache-control", "private, no-store").setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
 
-async function rest(path) {
+async function rest(path, { method = "GET", body, prefer } = {}) {
   const base = env("SUPABASE_URL"), secret = env("SUPABASE_SECRET_KEY") || env("SUPABASE_SERVICE_ROLE_KEY");
   if (!base || !secret) throw Object.assign(new Error("USA jobs database environment is not configured."), { status: 503 });
-  const response = await fetch(`${base}/rest/v1/${path}`, { headers: { apikey: secret, Authorization: `Bearer ${secret}` } });
+  const headers = { apikey: secret, Authorization: `Bearer ${secret}`, "content-type": "application/json" };
+  if (prefer) headers.Prefer = prefer;
+  const response = await fetch(`${base}/rest/v1/${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
   const text = await response.text();
   if (!response.ok) throw Object.assign(new Error(text.slice(0, 300) || "Database request failed."), { status: response.status });
   return text ? JSON.parse(text) : [];
+}
+
+async function warmPublicUsaJobs() {
+  try {
+    const jobs = await fetchPublicUsaNursingJobs(fetch, 10000);
+    await rest("btv_usa_jobs?on_conflict=source_name,external_id", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: jobs });
+  } catch (error) {
+    console.warn("Live US vacancy refresh deferred:", error.message);
+  }
 }
 
 async function userFor(req) {
@@ -35,7 +47,11 @@ module.exports = async function handler(req, res) {
       if (!rows?.[0] || rows[0].closing_date && new Date(rows[0].closing_date) < new Date()) return json(res, 404, { error: "This USA vacancy is no longer available." });
       return json(res, 200, { job: rows[0] });
     }
-    const rows = await rest("btv_usa_jobs?select=*&status=eq.active&order=featured.desc,date_posted.desc&limit=2000");
+    let rows = await rest("btv_usa_jobs?select=*&status=eq.active&order=featured.desc,date_posted.desc&limit=2000");
+    if (!rows.length) {
+      await warmPublicUsaJobs();
+      rows = await rest("btv_usa_jobs?select=*&status=eq.active&order=featured.desc,date_posted.desc&limit=2000");
+    }
     const q = String(req.query.q || "").trim().toLowerCase(), state = String(req.query.state || "").trim().toLowerCase(), city = String(req.query.city || "").trim().toLowerCase();
     const specialty = String(req.query.specialty || "").trim().toLowerCase(), employment = String(req.query.employment_type || "").trim().toLowerCase();
     const employer = String(req.query.employer || "").trim().toLowerCase(), sponsorship = String(req.query.sponsorship || "").trim().toLowerCase();

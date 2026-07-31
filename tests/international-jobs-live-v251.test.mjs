@@ -53,9 +53,9 @@ test("New Zealand, Canada and Ireland parsers preserve official details", () => 
 });
 
 test("Gulf providers publish only verified official careers routes", () => {
-  const ae = providers.parseEmirates("<h2>Explore Current Openings</h2><p>Doctors, Nurses, Allied Health Professionals</p><a>View All Job Vacancies</a>")[0];
+  const ae = providers.parseEmirates(`<a href="/MiddleEast/job/Mediclinic-City-Hospital-Registered-Nurse-ICU-Duba-505004/1418191233/">Registered Nurse - ICU</a><span>Dubai, United Arab Emirates</span>`)[0];
   assert.equal(ae.country_code, "AE");
-  assert.match(ae.application_url, /^https:\/\/www\.ehs\.gov\.ae\//);
+  assert.match(ae.application_url, /^https:\/\/careers\.mediclinic\.com\/MiddleEast\/job\//);
   assert.deepEqual(providers.parseEmirates("<p>No current recruitment information</p>"), []);
 
   const sa = providers.parseSaudi(`<table><tr><td><a href="/en/home/careers/vacancies/158433">STAFF NURSE I</a></td><td>Nursing Recruitment</td><td>Riyadh</td><td>16/06/2027</td></tr></table>`)[0];
@@ -76,7 +76,7 @@ test("international job cards display on site and Apply opens the original emplo
 
 test("source governance enables only the reviewed live adapters", () => {
   const sql = read("supabase/migrations/20260731020000_live_international_jobs_v251.sql");
-  for (const source of ["Queensland Health SmartJobs", "New Zealand Government Jobs", "Canada Job Bank", "HSE Job Search", "Emirates Health Services Careers", "King Faisal Specialist Hospital Careers"]) {
+  for (const source of ["Queensland Health SmartJobs", "New Zealand Government Jobs", "Canada Job Bank", "HSE Job Search", "Mediclinic Middle East Careers", "King Faisal Specialist Hospital Careers"]) {
     assert.match(sql, new RegExp(source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
   assert.match(sql, /approved_api/);

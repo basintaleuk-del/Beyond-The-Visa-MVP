@@ -39,12 +39,12 @@ const SOURCES = [
     parser: parseIreland,
   },
   {
-    name: "Emirates Health Services Careers",
+    name: "Mediclinic Middle East Careers",
     countryCode: "AE",
     country: "ae",
     countryName: "United Arab Emirates",
-    url: "https://www.ehs.gov.ae/en/about-us/careers",
-    base: "https://www.ehs.gov.ae",
+    url: "https://careers.mediclinic.com/MiddleEast/search/?q=nurse&locationsearch=United%20Arab%20Emirates",
+    base: "https://careers.mediclinic.com",
     parser: parseEmirates,
   },
   {
@@ -227,16 +227,24 @@ function parseIreland(html, source = SOURCES[3]) {
 }
 
 function parseEmirates(html, source = SOURCES[4]) {
-  if (!/(current vacancies|current openings|view all job vacancies)/i.test(text(html, 100000)) || !/(nurses|nursing)/i.test(text(html, 100000))) return [];
-  return [make(source, {
-    href: source.url,
-    title: "Clinical nursing opportunities",
-    employer: "Emirates Health Services",
-    location: "United Arab Emirates",
-    specialty: "Nursing",
-    summary: "Emirates Health Services welcomes nursing and other clinical professionals through its current official careers route. Review the employer page for current openings and application instructions.",
-    reference: "EHS-CLINICAL-CAREERS",
-  })].filter(Boolean);
+  const rows = [], seen = new Set();
+  for (const match of String(html || "").matchAll(/href=["']([^"']*\/MiddleEast\/job\/[^"']+\/\d+\/?)['"][^>]*>([\s\S]*?)<\/a>/gi)) {
+    const href = match[1], title = text(match[2], 300);
+    if (!title || !/\b(nurs|midwi)/i.test(title)) continue;
+    const application = absolute(source.base, href);
+    if (!application || seen.has(application)) continue;
+    seen.add(application);
+    const context = text(String(html).slice(Math.max(0, match.index - 500), match.index + match[0].length + 900), 2200);
+    rows.push(make(source, {
+      href: application, title, employer: "Mediclinic Middle East",
+      location: /Abu Dhabi/i.test(context) ? "Abu Dhabi, United Arab Emirates" : /Dubai/i.test(context) ? "Dubai, United Arab Emirates" : "United Arab Emirates",
+      city: /Abu Dhabi/i.test(context) ? "Abu Dhabi" : /Dubai/i.test(context) ? "Dubai" : null,
+      specialty: /midwi/i.test(title) ? "Midwifery" : "Nursing",
+      summary: "Current nursing vacancy published by Mediclinic Middle East. Open the official employer advert for responsibilities, requirements and application instructions.",
+      reference: application.match(/\/(\d+)\/?$/)?.[1],
+    }));
+  }
+  return rows.filter(Boolean).slice(0, 40);
 }
 
 function parseSaudi(html, source = SOURCES[5]) {

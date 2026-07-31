@@ -65,7 +65,7 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/global-jobs-v168.css"),html=read("web/index.html");
   for(const text of ["Job reference","Job overview","Main duties","About the employer","Person specification","Essential criteria","Desirable criteria","Professional registration requirements","Visa and sponsorship details","Last verified"])assert.match(ui,new RegExp(text));
   assert.match(ui,/Apply on employer website/);assert.match(ui,/Sponsorship not stated/);assert.doesNotMatch(ui,/visa_sponsorship.*relocation_support_available/);assert.doesNotMatch(ui,/Trac Jobs|trac\.jobs/i);
-  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=251/);
+  assert.match(css,/@media\(max-width:520px\)/);assert.match(css,/@media\(max-width:340px\)/);assert.match(css,/body\.dark/);assert.match(css,/prefers-reduced-motion/);assert.match(html,/global-jobs-v168\.js\?v=252/);
 });
 
 test("Jobs keeps its original page title, hero layout and account destination",()=>{
@@ -73,7 +73,7 @@ test("Jobs keeps its original page title, hero layout and account destination",(
   assert.match(html,/PREMIUM CAREER TOOLS[\s\S]*Job search/);
   assert.match(ui,/nhsJobsHero148/);assert.match(ui,/Find your next role across the NHS/);assert.match(ui,/UPDATED DIRECTLY FROM NHS JOBS/);
   assert.match(html,/jobs-centre-v148\.js\?v=176/);assert.match(html,/jobs-centre-v148\.css\?v=176/);
-  assert.match(html,/jobs-centre-v148\.js\?v=176[\s\S]*usa-jobs-v155\.js\?v=240[\s\S]*global-jobs-v168\.js\?v=251/);
+  assert.match(html,/jobs-centre-v148\.js\?v=176[\s\S]*usa-jobs-v155\.js\?v=240[\s\S]*global-jobs-v168\.js\?v=252/);
   assert.match(read("web/global-jobs-v168.js"),/previousRenderJobs=window\.renderJobs/);
   assert.match(read("web/global-jobs-v168.js"),/if\(\["GB","US"\]\.includes\(code\)\)return previousRenderJobs\?\.\(\)/);
 });
@@ -81,7 +81,7 @@ test("Jobs keeps its original page title, hero layout and account destination",(
 test("every destination exposes a current official vacancy search without inventing listings",()=>{
   const ui=read("web/global-jobs-v168.js"),css=read("web/jobs-navigation-v169.css");
   for(const code of ["GB","US","AU","NZ","CA","IE","AE","SA"])assert.match(ui,new RegExp(`${code}:\\{name:`));
-  for(const source of ["NHS Jobs","USAJOBS Nurse","NSW Health Careers","Health New Zealand Careers","Canada Job Bank","HSE Job Search","Emirates Health Services Careers","Saudi Ministry of Health Careers"])assert.match(ui,new RegExp(source));
+  for(const source of ["NHS Jobs","USAJOBS Nurse","NSW Health Careers","Health New Zealand Careers","Canada Job Bank","HSE Job Search","Mediclinic Middle East Careers","Saudi Ministry of Health Careers"])assert.match(ui,new RegExp(source));
   assert.match(ui,/VERIFIED ORIGINAL SOURCE/);assert.match(ui,/Current vacancies are displayed below on Beyond The Visa/);assert.match(ui,/Apply for job/);assert.match(ui,/target="_blank" rel="noopener noreferrer" data-track-apply/);assert.match(ui,/The verified vacancy feed is refreshing/);assert.doesNotMatch(ui,/>Search current vacancies/);assert.doesNotMatch(ui,/fake|sample vacancies/i);
   assert.match(css,/globalOfficialJobs170/);assert.match(css,/@media \(max-width: 360px\)/);assert.match(css,/body\.dark \.globalOfficialJobs170/);
 });
