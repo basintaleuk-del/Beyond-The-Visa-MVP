@@ -31,6 +31,7 @@ test("Australia vacancies become on-site records with original Apply URLs", () =
   assert.equal(job.country_code, "AU");
   assert.equal(job.title, "Registered Nurse - Critical Care");
   assert.match(job.application_url, /^https:\/\/smartjobs\.qld\.gov\.au\/jobtools\/jncustomsearch\.viewFullSingle/);
+  assert.equal(job.source_url, job.application_url);
   assert.equal(job.application_kind, "external");
   assert.equal(job.sponsorship_status, "not_stated");
 });

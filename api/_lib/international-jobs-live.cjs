@@ -99,7 +99,9 @@ function make(source, row) {
     external_id: externalId(application, row.title),
     source_name: source.name,
     source_type: "official_public_feed",
-    source_url: source.url,
+    // The live Jobs table has a unique source URL index. Store the individual
+    // official vacancy URL here; the source registry retains the search-feed URL.
+    source_url: application,
     canonical_url: application,
     application_url: application,
     application_kind: "external",
