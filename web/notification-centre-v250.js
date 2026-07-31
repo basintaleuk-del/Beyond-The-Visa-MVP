@@ -88,8 +88,18 @@
     const message=$("[data-device-status]");try{const current=await session(),registration=await navigator.serviceWorker.ready,subscription=await registration.pushManager.getSubscription();if(subscription){await fetch("/api/push-subscription",{method:"DELETE",headers:{"content-type":"application/json",Authorization:`Bearer ${current.access_token}`},body:JSON.stringify({endpoint:subscription.endpoint})});await subscription.unsubscribe()}await db().rpc("btv_notification_save_preferences",{p_preferences:{...state.prefs,push_enabled:false,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone}});message.textContent="Push notifications are disabled on this device.";await load();state.tab="devices";render()}catch{message.textContent="We could not disable notifications. Please review your browser settings."}
   }
   async function badge(){const count=state.notes.filter(n=>!n.read_at).length;let bell=$("#btvNotifyBell250");if(!bell){bell=document.createElement("button");bell.id="btvNotifyBell250";bell.className="btvNotifyBell250";bell.type="button";bell.setAttribute("aria-label","Open notifications");bell.innerHTML='<span aria-hidden="true">◉</span><b hidden>0</b>';document.body.append(bell);bell.onclick=()=>open("inbox")}const mark=$("b",bell);mark.hidden=!count;mark.textContent=count>99?"99+":String(count)}
+  function replaceLegacyEntries(){
+    document.querySelectorAll('[data-btv-pane="notify"]').forEach(button=>{button.textContent="Notification Centre"});
+    document.querySelectorAll('[data-btv-pane="prefs"]').forEach(button=>{button.hidden=true});
+  }
+  document.addEventListener("click",event=>{
+    const entry=event.target.closest('[data-open="notifications"],[data-go="notifications"],[data-hub="notifications"],[data-btv-pane="notify"],[data-btv-pane="prefs"]');
+    if(!entry)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    open(entry.matches('[data-btv-pane="prefs"]')?"preferences":"inbox");
+  },true);
   document.addEventListener("btv:auth-ready",async()=>{if(await session())load()});
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&state.user)load()});
-  addEventListener("DOMContentLoaded",async()=>{if(await session()){const clicked=new URLSearchParams(location.search).get("btv_notification");if(clicked){await db().rpc("btv_notification_mark_opened",{p_notification:clicked});const url=new URL(location.href);url.searchParams.delete("btv_notification");history.replaceState(history.state,"",url)}if(new URLSearchParams(location.search).get("open")==="notifications")open("inbox");else load()}},{once:true});
+  addEventListener("DOMContentLoaded",async()=>{replaceLegacyEntries();if(await session()){const clicked=new URLSearchParams(location.search).get("btv_notification");if(clicked){await db().rpc("btv_notification_mark_opened",{p_notification:clicked});const url=new URL(location.href);url.searchParams.delete("btv_notification");history.replaceState(history.state,"",url)}if(new URLSearchParams(location.search).get("open")==="notifications")open("inbox");else load()}},{once:true});
   window.BTVNotifications={open,close,refresh:load,supported};
 })();

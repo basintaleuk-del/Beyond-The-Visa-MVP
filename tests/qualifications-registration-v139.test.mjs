@@ -10,7 +10,7 @@ test('Account menu replaces only the duplicate destination entry',async()=>{
   assert.equal((menu.match(/Qualifications & Registration/g)||[]).length,2);
   assert.match(menu,/\["Qualifications & Registration", "qualifications-registration"\]/);
   assert.match(menu,/BTVQualificationsRegistration139\?\.open/);
-  for(const label of ['Profile','My Documents','Notifications','Beyond Coins','Privacy & legal'])assert.match(menu,new RegExp(label));
+  for(const label of ['Profile','My Documents','Notification Centre','Beyond Coins','Privacy & legal'])assert.match(menu,new RegExp(label));
 });
 
 test('professional hub ships every focused section and independent save form',async()=>{

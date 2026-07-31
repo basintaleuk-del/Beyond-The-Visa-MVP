@@ -39,7 +39,7 @@ test('premium hub is responsive and accessible without changing global navigatio
 
 test('Platform Hub 211 prevents stale phone and wallet layouts on learning progress',()=>{
   assert.match(index,/platform-upgrade-v72\.css\?v=219/);
-  assert.match(index,/platform-upgrade-v72\.js\?v=211/);
+  assert.match(index,/platform-upgrade-v72\.js\?v=255/);
   assert.match(js,/h\.dataset\.hubTab=tab/);
   assert.match(js,/sub\.innerHTML=''/);
   assert.match(js,/sub\.hidden=tab!=='wallet'/);

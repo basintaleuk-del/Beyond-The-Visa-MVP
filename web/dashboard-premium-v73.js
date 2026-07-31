@@ -1496,8 +1496,10 @@
       );
     }
     if (id === "wallet") return openCoinsCentre();
-    if (id === "inbox" || id === "notifications")
+    if (id === "inbox")
       return window.BTVInboxCentre?.open?.() || F()?.open("notifications");
+    if (id === "notifications")
+      return window.BTVNotifications?.open?.("inbox");
     if (id === "mentors" || id === "bookings") {
       if (id === "bookings")
         return window.BTVBookingsCentre?.open?.() || openStandalonePanel(id);
@@ -1536,7 +1538,7 @@
           ["Inbox", "inbox"],
           ["Qualifications & Registration", "qualifications-registration"],
           ["My Documents", "documents"],
-          ["Notifications", "notifications"],
+          ["Notification Centre", "notifications"],
           ["Beyond Coins", "wallet"],
           ["Privacy & legal", "legal"],
         ],
@@ -1718,7 +1720,7 @@
         [
           ["Ask Zibur", "assistant"],
           ["Community", "community"],
-          ["Notifications", "notifications"],
+          ["Notification Centre", "notifications"],
           ["Success stories", "stories"],
         ],
       ],
@@ -1968,7 +1970,7 @@
     const unread = state.notes?.filter((note) => !note.read_at).length || 0;
     const items = (state.notes || []).slice(0, 8);
     return `<div class="notificationWrap102">
-      <button class="icon73 notificationBell102" type="button" data-notification-toggle aria-label="Notifications${
+      <button class="icon73 notificationBell102" type="button" data-go="notifications" aria-label="Open Notification Centre${
         unread ? `, ${unread} unread` : ""
       }" aria-expanded="false" aria-controls="dashboard-notifications102">${iconSvg(
       "bell"
