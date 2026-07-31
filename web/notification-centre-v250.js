@@ -87,7 +87,7 @@
   async function disablePush(){
     const message=$("[data-device-status]");try{const current=await session(),registration=await navigator.serviceWorker.ready,subscription=await registration.pushManager.getSubscription();if(subscription){await fetch("/api/push-subscription",{method:"DELETE",headers:{"content-type":"application/json",Authorization:`Bearer ${current.access_token}`},body:JSON.stringify({endpoint:subscription.endpoint})});await subscription.unsubscribe()}await db().rpc("btv_notification_save_preferences",{p_preferences:{...state.prefs,push_enabled:false,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone}});message.textContent="Push notifications are disabled on this device.";await load();state.tab="devices";render()}catch{message.textContent="We could not disable notifications. Please review your browser settings."}
   }
-  async function badge(){const count=state.notes.filter(n=>!n.read_at).length;let bell=$("#btvNotifyBell250");if(!bell){bell=document.createElement("button");bell.id="btvNotifyBell250";bell.className="btvNotifyBell250";bell.type="button";bell.setAttribute("aria-label","Open notifications");bell.innerHTML='<span aria-hidden="true">◉</span><b hidden>0</b>';document.body.append(bell);bell.onclick=()=>open("inbox")}const mark=$("b",bell);mark.hidden=!count;mark.textContent=count>99?"99+":String(count)}
+  async function badge(){$("#btvNotifyBell250")?.remove()}
   function replaceLegacyEntries(){
     document.querySelectorAll('[data-btv-pane="notify"]').forEach(button=>{button.textContent="Notification Centre"});
     document.querySelectorAll('[data-btv-pane="prefs"]').forEach(button=>{button.hidden=true});

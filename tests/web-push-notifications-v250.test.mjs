@@ -95,7 +95,7 @@ test("scheduled processing uses cron authentication, locking and invalid endpoin
 
 test("member and admin interfaces are loaded, responsive and accessible",async()=>{
   const [index,admin,client,clientCss,adminJs,adminCss]=await Promise.all([read("web/index.html"),read("web/admin.html"),read("web/notification-centre-v250.js"),read("web/notification-centre-v250.css"),read("web/admin-notifications-v250.js"),read("web/admin-notifications-v250.css")]);
-  assert.match(index,/notification-centre-v250\.js\?v=255/);
+  assert.match(index,/notification-centre-v250\.js\?v=258/);
   assert.match(index,/notification-centre-v250\.css\?v=254/);
   assert.match(admin,/admin-notifications-v250\.js\?v=250/);
   assert.match(admin,/admin-notifications-v250\.css\?v=250/);
@@ -134,6 +134,8 @@ test("every member notification entry opens the one Notification Centre",async()
   assert.doesNotMatch(hub,/else if\(tab==='notifications'\)/);
   assert.match(client,/data-btv-pane="notify"/);
   assert.match(client,/stopImmediatePropagation/);
+  assert.doesNotMatch(client,/document\.body\.append\(bell\)/);
+  assert.match(client,/function badge\(\)\{\$\("#btvNotifyBell250"\)\?\.remove\(\)\}/);
 });
 
 test("PWA and environment documentation support browser and iOS deployment without secrets",async()=>{
