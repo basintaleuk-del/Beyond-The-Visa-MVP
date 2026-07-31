@@ -13,7 +13,6 @@
     {id:'ielts',label:'IELTS Academic',icon:'A',copy:'Reading, writing, listening and speaking preparation.',url:'ielts.html',meta:'Language preparation'},
     {id:'calculations',label:'CBT Numeracy',icon:'%',copy:'Practise safe medication and dosage calculations in the dedicated Numeracy Studio.',url:'numeracy.html',meta:'3,000 original calculations'},
     {id:'adult-nursing',label:'Clinical learning',icon:'CL',copy:'Core adult nursing topics and clinical resources.',url:'adult-nursing.html',meta:'Reference library'},
-    {id:'analytics',label:'Learning progress',icon:'UP',copy:'Review recorded practice, results and study activity.',route:'analytics',meta:'Your activity'},
   ];
 
   const destinations={
@@ -58,7 +57,6 @@
         if(item.id==='books')return {...item,copy:`Books and professional reading matched to your ${selected.name} pathway.`,meta:`${selected.name} reading`};
         if(item.id==='adult-nursing')return {...item,copy:`Clinical topics for ${pathway.clinical}.`,meta:`${selected.name} safe practice`};
         if(item.id==='ielts')return {...item,copy:pathway.language,meta:`${selected.name} language preparation`};
-        if(item.id==='analytics')return {...item,copy:`Review practice and study activity across your ${selected.name} learning pathway.`,meta:`${selected.name} progress`};
         return item;
       }),
       ...(registration?[registration]:[])
