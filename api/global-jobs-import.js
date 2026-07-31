@@ -83,7 +83,7 @@ async function importInternationalSource(source, now) {
     prefer: "resolution=merge-duplicates,return=representation",
     body: {
       name: source.name, source_type: "job", base_url: new URL(source.url).origin, source_url: source.url,
-      integration_type: "official_public_listing", enabled: true, permission_status: "approved",
+      integration_type: "approved_api", enabled: true, permission_status: "approved",
       country_code: source.countryCode, attribution_requirements: `Attribute ${source.name} and retain the original vacancy URL.`,
       terms_notes: "Public official vacancy listings are indexed factually; applications remain on the recruiting organisation's website.",
       republication_permitted: true, import_status: "active", stale_after_hours: 48,

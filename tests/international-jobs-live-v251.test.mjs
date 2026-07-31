@@ -18,7 +18,7 @@ test("live providers cover every non-UK destination without changing UK", () => 
   assert.match(importer, /liveInternationalSources/);
   assert.match(importer, /fetchLiveSource/);
   assert.match(importer, /btv_approved_sources\?on_conflict=name/);
-  assert.match(importer, /official_public_listing/);
+  assert.match(importer, /approved_api/);
   const jobsApi = read("api/jobs.js");
   assert.match(jobsApi, /warmInternationalJobs/);
   assert.match(jobsApi, /internationalSources\.some/);
@@ -78,7 +78,7 @@ test("source governance enables only the reviewed live adapters", () => {
   for (const source of ["Queensland Health SmartJobs", "New Zealand Government Jobs", "Canada Job Bank", "HSE Job Search", "Emirates Health Services Careers", "King Faisal Specialist Hospital Careers"]) {
     assert.match(sql, new RegExp(source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-  assert.match(sql, /official_public_listing/);
+  assert.match(sql, /approved_api/);
   assert.match(sql, /'approved'/);
   assert.doesNotMatch(sql, /delete from|drop table|truncate/i);
 });
