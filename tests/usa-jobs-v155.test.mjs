@@ -145,7 +145,7 @@ test("USA route provides filters, internal details and original-source apply", (
   assert.match(ui, /View and apply on USAJOBS/);
   assert.match(ui, /Who may apply/);
   assert.match(ui, /Sponsorship status not confirmed/);
-  assert.match(html, /usa-jobs-v155\.js\?v=269/);
+  assert.match(html, /usa-jobs-v155\.js\?v=270/);
   assert.match(ui, /LIVE OFFICIAL VACANCIES/);
   assert.match(ui, /https:\/\/nurse\.usajobs\.gov\/search\/results\//);
   assert.match(routes, /"\/jobs\/usa\/:id"/);
@@ -163,7 +163,7 @@ test("USA administration supports sources, logs, editing, featuring and sponsors
   assert.match(admin, /data-test-usa-connection/);
   assert.match(admin, /Sync USAJOBS now/);
   assert.match(admin, /duration_ms/);
-  assert.match(html, /admin-usa-jobs-v155\.js\?v=269/);
+  assert.match(html, /admin-usa-jobs-v155\.js\?v=270/);
 });
 
 test("production USAJOBS migration adds required official fields and indexes", () => {

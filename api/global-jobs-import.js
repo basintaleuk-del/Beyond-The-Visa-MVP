@@ -33,33 +33,33 @@ async function authenticate(req) {
   return adminResponse.ok && await adminResponse.json() === true ? { kind: "admin", authorization } : null;
 }
 
-function invoke(handler, req, method = "GET") {
+function invoke(handler, req, method = "GET", query = {}) {
   return new Promise((resolve, reject) => {
     let code = 200, settled = false;
     const finish = (payload) => { if (settled) return; settled = true; let body = payload; try { if (typeof payload === "string") body = JSON.parse(payload); } catch {} resolve({ status: code, body }); };
     const response = { status(value) { code = value; return this; }, setHeader() { return this; }, send: finish, json: finish };
-    const delegatedRequest = { ...req, method, headers: req.headers || {}, query: {}, body: {} };
+    const delegatedRequest = { ...req, method, headers: req.headers || {}, query, body: {} };
     Promise.resolve(handler(delegatedRequest, response)).then(() => { if (!settled) finish({}); }).catch(reject);
   });
 }
 
 async function mirrorUsaJobs(now) {
   const [sources, jobs] = await Promise.all([
-    rest("btv_approved_sources?select=id&name=eq.USAJOBS&limit=1"),
+    rest("btv_approved_sources?select=id,name&name=in.(USAJOBS,ADZUNA)"),
     rest("btv_usa_jobs?select=*&limit=2000"),
   ]);
-  const sourceId = sources?.[0]?.id;
-  if (!sourceId || !jobs?.length) return { created: 0, updated: 0, unchanged: 0, duplicates: 0 };
-  const existing = await rest("btv_jobs?select=id,canonical_url,content_hash,status,imported_at&source_name=eq.USAJOBS&limit=2000");
+  const sourceIds = new Map((sources || []).map((row) => [row.name, row.id]));
+  if (!sourceIds.size || !jobs?.length) return { created: 0, updated: 0, unchanged: 0, duplicates: 0 };
+  const existing = await rest("btv_jobs?select=id,canonical_url,content_hash,status,imported_at&source_name=in.(USAJOBS,ADZUNA)&limit=3000");
   const byUrl = new Map((existing || []).map((row) => [row.canonical_url, row]));
   let created = 0, updated = 0, unchanged = 0;
-  const payload = jobs.filter((row) => safeExternalUrl(row.canonical_application_url)).map((row) => {
+  const payload = jobs.filter((row) => sourceIds.has(row.source_name) && safeExternalUrl(row.canonical_application_url)).map((row) => {
     const old = byUrl.get(row.canonical_application_url);
     if (!old) created += 1;
     else if (old.content_hash !== row.content_fingerprint) updated += 1;
     else unchanged += 1;
     return {
-      external_id: row.external_id, source_id: sourceId, source_name: "USAJOBS", source_type: "official_api", source_url: row.source_job_url,
+      external_id: row.external_id, source_id: sourceIds.get(row.source_name), source_name: row.source_name, source_type: row.source_name === "ADZUNA" ? "aggregator_api" : "official_api", source_url: row.source_job_url,
       canonical_url: row.canonical_application_url, application_url: row.canonical_application_url, country: "us", country_code: "US", country_name: "United States",
       region: row.state, region_or_state: row.state, city: row.city, location: [row.city,row.state].filter(Boolean).join(", "), employer: row.employer_name,
       employer_name: row.employer_name, title: row.job_title, profession: "nurse", specialty: row.nursing_specialty, description: row.description,
@@ -70,7 +70,7 @@ async function mirrorUsaJobs(now) {
       published_at: row.date_posted, closing_at: row.closing_date, imported_at: old?.imported_at || row.imported_at, last_checked_at: row.last_checked_at,
       last_verified_at: row.last_checked_at, expires_at: row.expires_at, status: row.status === "active" ? "active" : row.status === "expired" ? "expired" : "archived",
       verification_status: row.visa_sponsorship_verified ? "verified" : "pending", import_status: "active", opportunity_type: "job", job_reference: row.external_id,
-      featured: row.featured, is_featured: row.featured, content_hash: row.content_fingerprint, raw_source_metadata: { legacy_usa_job_id: row.id, attribution: row.attribution_text, remote_status: row.remote_status }, updated_at: now.toISOString(),
+      featured: row.featured, is_featured: row.featured, content_hash: row.content_fingerprint, raw_source_metadata: { legacy_usa_job_id: row.id, attribution: row.attribution_text, remote_status: row.remote_status, source: row.source_name }, updated_at: now.toISOString(),
     };
   });
   for (let index = 0; index < payload.length; index += 100) await rest("btv_jobs?on_conflict=canonical_url", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: payload.slice(index,index+100) });
@@ -147,6 +147,7 @@ module.exports = async function handler(req, res) {
     const providers = [
       { name:"NHS Jobs", run:()=>invoke(nhsHandler,req) },
       { name:"USAJOBS", run:()=>invoke(usaHandler,req) },
+      { name:"ADZUNA", run:()=>invoke(usaHandler,req,"GET",{provider:"adzuna"}) },
       ...liveInternationalSources.map((source) => ({ name: source.name, run: () => importInternationalSource(source, now) })),
     ];
     const results=[];
@@ -154,7 +155,7 @@ module.exports = async function handler(req, res) {
       const result = await withRetry(async()=>{ const response=await provider.run(); if (response.status===429||response.status>=500) throw Object.assign(new Error(response.body?.error||`${provider.name} import failed`),{status:response.status}); return response; },{retries:2,delay:(ms)=>new Promise((resolve)=>setTimeout(resolve,Math.min(ms,2000)))}).catch((error)=>({status:error.status||500,body:{error:error.message}}));
       results.push({provider:provider.name,...result});
     }
-    const usaMirror = results.find((x)=>x.provider==="USAJOBS"&&x.status<300) ? await mirrorUsaJobs(now) : {created:0,updated:0,unchanged:0,duplicates:0};
+    const usaMirror = results.some((x)=>(x.provider==="USAJOBS"||x.provider==="ADZUNA")&&x.status<300) ? await mirrorUsaJobs(now) : {created:0,updated:0,unchanged:0,duplicates:0};
     const expired = await expireJobs(now); await updateFreshness(now);
     const failed=results.filter((x)=>x.status>=300);
     for(const item of failed) {

@@ -1,4 +1,5 @@
 const { fetchUsaJobs, testConnection } = require("./_lib/usajobs-core.cjs");
+const { fetchAdzunaJobs, testConnection: testAdzunaConnection } = require("./_lib/adzuna-core.cjs");
 
 const env = (name) => process.env[name] || "";
 const json = (res, status, body) => res.status(status).setHeader("content-type", "application/json; charset=utf-8").send(JSON.stringify(body));
@@ -34,7 +35,7 @@ function fallbackKey(row) {
   return `${row.employer_name}|${row.job_title}|${row.state || ""}|${row.city || ""}|${row.date_posted || ""}`.toLowerCase();
 }
 
-async function saveRecords(records) {
+async function saveRecords(records, strictSource = false) {
   const existing = await rest("btv_usa_jobs?select=id,external_id,source_name,canonical_application_url,content_fingerprint,employer_name,job_title,state,city,date_posted,imported_at,featured,status&limit=2000");
   const bySource = new Map(existing.map((row) => [`${row.source_name}:${row.external_id}`, row]));
   const byUrl = new Map(existing.map((row) => [row.canonical_application_url, row]));
@@ -44,7 +45,7 @@ async function saveRecords(records) {
   const payload = [];
   for (const record of records) {
     const exact = bySource.get(`${record.source_name}:${record.external_id}`);
-    const duplicate = exact || byUrl.get(record.canonical_application_url) || byFallback.get(fallbackKey(record)) || byHash.get(record.content_fingerprint);
+    const duplicate = exact || (strictSource ? null : byUrl.get(record.canonical_application_url) || byFallback.get(fallbackKey(record)) || byHash.get(record.content_fingerprint));
     if (duplicate) {
       if (!exact) duplicates += 1;
       record.external_id = duplicate.external_id;
@@ -72,38 +73,47 @@ async function expireClosed(now) {
 module.exports = async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) return json(res, 405, { error: "Method not allowed" });
   let run;
+  const provider = String(req.query?.provider || "usajobs").toLowerCase() === "adzuna" ? "adzuna" : "usajobs";
+  const sampleMode = provider === "adzuna" && String(req.query?.mode || "") === "sample-import";
+  const sourceName = provider === "adzuna" ? "Adzuna USA" : "USAJOBS";
+  const integrationType = provider === "adzuna" ? "adzuna_v1" : "usajobs_v1";
+  const runScope = provider === "adzuna" ? sampleMode ? "sample_adzuna" : "daily_adzuna" : "daily";
   try {
     const caller = await authenticate(req);
     if (!caller) return json(res, 401, { error: "Administrator or scheduled-import authentication is required." });
     if (String(req.query?.mode || "") === "connection-test") {
-      const result = await testConnection({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT") });
+      const result = provider === "adzuna"
+        ? await testAdzunaConnection({ appId: env("ADZUNA_APP_ID"), appKey: env("ADZUNA_APP_KEY") })
+        : await testConnection({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT") });
       return json(res, 200, result);
     }
     const now = new Date(), startedAt = Date.now(), stale = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
-    await rest(`btv_usa_job_import_runs?run_scope=eq.daily&status=eq.running&started_at=lt.${encodeURIComponent(stale)}`, { method: "PATCH", body: { status: "failed", completed_at: now.toISOString(), error_summary: "Stale run released automatically." } });
-    const sources = await rest("btv_usa_job_sources?select=*&name=eq.USAJOBS&limit=1");
+    await rest(`btv_usa_job_import_runs?run_scope=eq.${runScope}&status=eq.running&started_at=lt.${encodeURIComponent(stale)}`, { method: "PATCH", body: { status: "failed", completed_at: now.toISOString(), error_summary: "Stale run released automatically." } });
+    const sources = await rest(`btv_usa_job_sources?select=*&name=eq.${encodeURIComponent(sourceName)}&limit=1`);
     const source = sources?.[0];
-    if (!source?.enabled || source.permission_status !== "approved" || source.integration_type !== "usajobs_v1") return json(res, 503, { error: "The approved USAJOBS source is not enabled." });
+    if (!source?.enabled || source.permission_status !== "approved" || source.integration_type !== integrationType) return json(res, 503, { error: `The approved ${provider === "adzuna" ? "Adzuna" : "USAJOBS"} source is not enabled.` });
     try {
-      const rows = await rest("btv_usa_job_import_runs", { method: "POST", prefer: "return=representation", body: { source_id: source.id, run_scope: "daily", triggered_by: caller, status: "running", started_at: now.toISOString() } });
+      const rows = await rest("btv_usa_job_import_runs", { method: "POST", prefer: "return=representation", body: { source_id: source.id, run_scope: runScope, triggered_by: caller, status: "running", started_at: now.toISOString() } });
       run = rows[0];
     } catch (error) {
-      if (error.status === 409) return json(res, 409, { error: "A USA jobs import is already running." });
+      if (error.status === 409) return json(res, 409, { error: `A ${provider === "adzuna" ? "Adzuna" : "USAJOBS"} import is already running.` });
       throw error;
     }
-    const result = await fetchUsaJobs({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT"), maxPages: Number(source.configuration?.max_pages) || 5, now });
-    const counts = await saveRecords(result.records);
+    const result = provider === "adzuna"
+      ? await fetchAdzunaJobs({ appId: env("ADZUNA_APP_ID"), appKey: env("ADZUNA_APP_KEY"), pageBudget: sampleMode ? 1 : Number(source.configuration?.max_pages) || 8, sample: sampleMode, now })
+      : await fetchUsaJobs({ apiKey: env("USAJOBS_API_KEY"), userAgent: env("USAJOBS_USER_AGENT"), maxPages: Number(source.configuration?.max_pages) || 5, now });
+    const counts = await saveRecords(result.records, provider === "adzuna");
     const expired = await expireClosed(now);
     const alerts = await rest("rpc/btv_generate_usa_job_alerts", { method: "POST", body: { p_since: new Date(now.getTime() - 13 * 60 * 60 * 1000).toISOString() } });
     await rest(`btv_usa_job_sources?id=eq.${source.id}`, { method: "PATCH", body: { last_successful_run_at: now.toISOString(), last_error: null, updated_at: now.toISOString() } });
     const duration = Date.now() - startedAt;
     await rest(`btv_usa_job_import_runs?id=eq.${run.id}`, { method: "PATCH", body: { status: "success", completed_at: new Date().toISOString(), duration_ms: duration, searches_run: result.searchesRun, pages_fetched: result.pagesFetched, records_found: result.rawCount, records_created: counts.created, records_updated: counts.updated, records_expired: expired, duplicates_skipped: result.duplicates + counts.duplicates } });
-    return json(res, 200, { ok: true, found: result.rawCount, imported: result.records.length, ...counts, expired, searches_run: result.searchesRun, pages_fetched: result.pagesFetched, duration_ms: duration, alerts_created: Number(alerts || 0) });
+    return json(res, 200, { ok: true, provider: provider === "adzuna" ? "ADZUNA" : "USAJOBS", found: result.rawCount, imported: result.records.length, ...counts, expired, searches_run: result.searchesRun, pages_fetched: result.pagesFetched, duration_ms: duration, alerts_created: Number(alerts || 0) });
   } catch (error) {
     if (run?.id) await rest(`btv_usa_job_import_runs?id=eq.${run.id}`, { method: "PATCH", body: { status: "failed", completed_at: new Date().toISOString(), error_summary: String(error.message || error).slice(0, 500) } }).catch(() => {});
-    const sourceRows = await rest("btv_usa_job_sources?select=id&name=eq.USAJOBS&limit=1").catch(() => []);
+    const sourceRows = await rest(`btv_usa_job_sources?select=id&name=eq.${encodeURIComponent(sourceName)}&limit=1`).catch(() => []);
     if (sourceRows?.[0]) await rest(`btv_usa_job_sources?id=eq.${sourceRows[0].id}`, { method: "PATCH", body: { last_error: String(error.message || error).slice(0, 500), updated_at: new Date().toISOString() } }).catch(() => {});
-    console.error("USA jobs import failed", error);
+    console.error("USA jobs provider import failed", { provider, status: error.status, message: error.message });
     return json(res, error.status || 500, { error: error.message || "USA jobs import failed." });
   }
 };

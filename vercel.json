@@ -12,6 +12,9 @@
   ],
   "rewrites": [
     { "source": "/api/usa-jobs-connection-test", "destination": "/api/usa-jobs-import?mode=connection-test" },
+    { "source": "/api/adzuna-jobs-connection-test", "destination": "/api/usa-jobs-import?provider=adzuna&mode=connection-test" },
+    { "source": "/api/adzuna-jobs-import", "destination": "/api/usa-jobs-import?provider=adzuna" },
+    { "source": "/api/adzuna-jobs-sample", "destination": "/api/usa-jobs-import?provider=adzuna&mode=sample-import" },
     { "source": "/jobs/usa", "destination": "/index.html" },
     { "source": "/jobs/usa/:id", "destination": "/index.html" },
     { "source": "/jobs", "destination": "/index.html" },
