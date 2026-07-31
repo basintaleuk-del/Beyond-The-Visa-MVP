@@ -11,8 +11,8 @@ test('homepage restores the approved premium dashboard theme with guarded fallba
   assert.equal((html.match(/window\.renderDashboardInsights\s*=/g) || []).length, 1);
   assert.match(html, /window\.__btvHomeRendererInstalled/);
   assert.match(html, /window\.BTVHomeBoot/);
-  assert.match(html, /dashboard-premium-v73\.css\?v=262/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=262/);
+  assert.match(html, /dashboard-premium-v73\.css\?v=263/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=263/);
   assert.doesNotMatch(html, /experience-v30\.7\.js|recovery-v63\.js|dashboard-reference-v74\.js|mission-control-v76\.js/);
   assert.doesNotMatch(html, /setTimeout\s*\(\s*window\.renderDashboardInsights/);
 });
@@ -83,7 +83,9 @@ test('campaign placements contain the four compact social destinations', async (
   assert.match(dashboard, /@beyond_the_visa/);
   assert.match(dashboard, /@beyondthevisa_official/);
   assert.match(dashboard, /\+44 7723 126429/);
-  assert.match(css, /\.sidebarSocialStrip262\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.sidebarSocialStrip262\{position:static;inset:auto;z-index:auto;width:auto;display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(dashboard, /<div class="sidebarSocialStrip262" role="navigation"/);
+  assert.doesNotMatch(dashboard, /<nav class="sidebarSocialStrip262"/);
   assert.match(css, /\.sidebarSocialStrip262>a:focus-visible/);
   assert.match(css, /min-height:48px/);
 });
