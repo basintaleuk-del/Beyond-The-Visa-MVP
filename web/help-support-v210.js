@@ -534,16 +534,33 @@
     });
   }
 
-  function open() {
+  function revealSection(section) {
+    if (section !== "social") return false;
+    const social = $(".helpSocial259", root);
+    if (!social) return false;
+    social.setAttribute("tabindex", "-1");
+    requestAnimationFrame(() => {
+      social.scrollIntoView({ block: "start", behavior: "auto" });
+      social.focus({ preventScroll: true });
+    });
+    return true;
+  }
+
+  function open(section = "") {
     build();
-    if (!root.hidden) return;
+    if (!root.hidden) {
+      revealSection(section);
+      return;
+    }
     lastFocus = document.activeElement;
     previousOverflow = document.body.style.overflow;
     root.hidden = false;
     document.body.style.overflow = "hidden";
     root.scrollTop = 0;
-    requestAnimationFrame(() => root.classList.add("isOpen210"));
-    $("[data-help-close]", root).focus();
+    requestAnimationFrame(() => {
+      root.classList.add("isOpen210");
+      if (!revealSection(section)) $("[data-help-close]", root).focus();
+    });
     load();
   }
 
@@ -564,7 +581,7 @@
       if (!trigger) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      open();
+      open(trigger.closest("[data-home-ad-slot]") ? "social" : "");
     },
     true
   );

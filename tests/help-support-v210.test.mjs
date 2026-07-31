@@ -11,8 +11,8 @@ const profile = read("web/profile-menu-v82.js");
 const migration = read("supabase/migrations/20260730143000_help_support_centre.sql");
 
 test("Help Centre assets are loaded and primary entry points use the new route", () => {
-  assert.match(index, /help-support-v210\.css\?v=259/);
-  assert.match(index, /help-support-v210\.js\?v=259/);
+  assert.match(index, /help-support-v210\.css\?v=260/);
+  assert.match(index, /help-support-v210\.js\?v=260/);
   assert.match(dashboard, /\["Help and support", "help-support"\]/);
   assert.match(profile, /BTVHelpSupport\?\.open/);
 });
@@ -27,6 +27,9 @@ test("Advertisement surface includes secure, accessible social destinations", ()
   assert.equal((script.match(/target="_blank" rel="noopener noreferrer" aria-label=/g) || []).length, 4);
   for (const label of ["Visit Beyond the Visa on Facebook", "Visit Beyond the Visa on TikTok", "Visit Beyond the Visa on Instagram", "Contact Beyond the Visa on WhatsApp"]) assert.match(script, new RegExp(label));
   for (const account of ["@beyond_the_visa", "@beyondthevisa_official", "\\+44 7723 126429"]) assert.match(script, new RegExp(account));
+  assert.match(script, /trigger\.closest\("\[data-home-ad-slot\]"\) \? "social" : ""/);
+  assert.match(script, /social\.scrollIntoView\(\{ block: "start", behavior: "auto" \}\)/);
+  assert.match(script, /social\.focus\(\{ preventScroll: true \}\)/);
 });
 
 test("social cards are balanced and responsive in light and dark modes", () => {
