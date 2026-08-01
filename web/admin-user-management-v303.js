@@ -35,7 +35,7 @@
   function cleanNavigation(){
     const nav=$('#app .sidebar nav');if(!nav)return;
     const seen=new Set();$$('button[data-tab]',nav).forEach(button=>{const id=button.dataset.tab;if(seen.has(id)){button.remove();return}seen.add(id);const canonical=redundant[id],canHide=!!(canonical&&nav.querySelector(`[data-tab="${canonical}"]`)&&document.getElementById(canonical));button.hidden=canHide;button.setAttribute('aria-hidden',canHide?'true':'false');button.classList.toggle('adminNavRedundantV303',canHide);if(canHide)document.getElementById(id)?.setAttribute('hidden','')});
-    const users=nav.querySelector('[data-tab="cmsUsers"]');if(users){users.hidden=false;users.removeAttribute('aria-hidden');if(users.textContent!=='User management')users.textContent='User management';users.classList.add('adminNavPriorityV303')}
+    const users=nav.querySelector('[data-tab="cmsUsers"]');if(users){users.hidden=false;users.removeAttribute('aria-hidden');if(users.textContent!=='User management')users.textContent='User management';users.classList.add('adminNavPriorityV303');users.dataset.usersV303='1';users.onclick=openUserManagement}
   }
   function shell(){
     const section=$('#cmsUsers');if(!section)return false;
@@ -69,6 +69,7 @@
   }
   async function saveAccess(user,drawer){const reason=drawer.querySelector('[data-access-reason]').value.trim(),message=drawer.querySelector('[data-access-message]');if(!reason){message.textContent='Enter an audit reason before saving.';message.className='bad';return}message.className='';message.textContent='Saving audited access change…';const {error}=await rpcWithRetry('admin_set_user_access',{p_user:user.id,p_plan:drawer.querySelector('[data-access-plan]').value,p_status:drawer.querySelector('[data-access-status]').value,p_reason:reason},{attempts:1,timeoutMs:12000});if(error){message.className='bad';message.textContent=friendlyError(error);return}message.textContent='Access updated and recorded in the audit log.';setTimeout(()=>{drawer.hidden=true;load()},700)}
   function debounce(fn,wait){let timer;return(...args)=>{clearTimeout(timer);timer=setTimeout(()=>fn(...args),wait)}}
-  function install(){cleanNavigation();if(!shell())return;const button=$('[data-tab="cmsUsers"]');if(button&&!button.dataset.usersV303){button.dataset.usersV303='1';button.onclick=()=>{$$('main>.tab').forEach(tab=>tab.classList.toggle('active',tab.id==='cmsUsers'));$$('.sidebar nav [data-tab]').forEach(tab=>tab.classList.toggle('active',tab===button));$('#pageTitle').textContent='User management';load()}}addEventListener('online',()=>{if($('#cmsUsers')?.classList.contains('active'))load()});new MutationObserver(cleanNavigation).observe($('.sidebar nav'),{childList:true,subtree:true});}
+  function openUserManagement(){const button=$('[data-tab="cmsUsers"]');$$('main>.tab').forEach(tab=>tab.classList.toggle('active',tab.id==='cmsUsers'));$$('.sidebar nav [data-tab]').forEach(tab=>tab.classList.toggle('active',tab===button));$('#pageTitle').textContent='User management';load()}
+  function install(){cleanNavigation();if(!shell())return;cleanNavigation();addEventListener('online',()=>{if($('#cmsUsers')?.classList.contains('active'))load()});new MutationObserver(cleanNavigation).observe($('.sidebar nav'),{childList:true,subtree:true});}
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(install,80),{once:true}):setTimeout(install,80);
 })();

@@ -17,6 +17,8 @@ test('one final admin user console is loaded',()=>{
   assert.match(admin,/globalJobsAdmin168:'opportunityAdmin138'/);
   assert.match(admin,/seen\.has\(id\)/);
   assert.match(admin,/if\(users\.textContent!==\x27User management\x27\)users\.textContent=/);
+  assert.match(admin,/users\.onclick=openUserManagement/);
+  assert.match(html,/admin-user-management-v303\.js\?v=306/);
 });
 
 test('user management includes refresh, presence, time and activity drill-down',()=>{

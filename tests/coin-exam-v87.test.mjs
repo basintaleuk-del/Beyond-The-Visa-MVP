@@ -29,6 +29,7 @@ test('19 incomplete banks fail before a wallet deduction',()=>{has(/QUESTION_BAN
 test('20 admin refund is a separate idempotent credit ledger entry',()=>{has(/create or replace function public\.btv_admin_refund_exam/);has(/'exam_refund'/);has(/'exam-refund:'\|\|v_attempt\.id/)});
 test('shared service exposes all required wallet exam and payment methods',()=>{for(const name of ['getWallet','getWalletTransactions','getExamProduct','getActiveAttempt','startPaidExam','resumeExam','submitExam','createPayment','verifyPayment','getPaymentStatus'])assert.match(client,new RegExp(name))});
 test('admin manages products packages attempts and refunds',()=>{for(const x of ['Exam products','Coin packages','Attempts & refunds','btv_admin_refund_exam'])assert.match(admin,new RegExp(x))});
+test('admin purchaser metric cannot create a Supabase request loop',()=>{assert.match(admin,/purchaserMetric87/);assert.match(admin,/label&&label\.textContent!==/);assert.match(admin,/if\(!premium\.dataset\.purchaserMetric87\)/)});
 test('paid exam function is invoked through authenticated edge layer',()=>{assert.match(start,/btv_start_paid_exam/);assert.match(start,/Authorization/)});
 test('shared client preserves Edge Function error payloads',()=>{assert.match(client,/error\.context\?\.clone\?\.\(\)\.json/);assert.match(client,/payload\?\.code/)});
 test('standalone exam pages route coin purchases to the wallet',()=>{assert.match(client,/index\.html\?screen=wallet/);assert.match(client,/btv-pending-coin-resource/)});
