@@ -14,6 +14,7 @@ const redesignCss=read('web/success-stories-v279.css');
 const adminJs=read('web/admin-success-stories-v198.js');
 const adminCss=read('web/admin-success-stories-v198.css');
 const migration=read('supabase/migrations/20260730080000_success_stories_v198.sql');
+const auditFix=read('supabase/migrations/20260801205918_fix_admin_audit_actor_column.sql');
 
 test('success stories are integrated through the existing platform route',()=>{
   assert.match(platform,/window\.BTVSuccessStories\?\.render/);
@@ -83,6 +84,13 @@ test('database submission cannot self-publish and derives ownership from auth',(
   assert.match(migration,/v_timeline, 'review', false, v_user/);
   assert.match(migration,/revoke all on function public\.btv_submit_success_story/);
   assert.equal((migration.match(/set search_path = ''/g)||[]).length,2);
+});
+
+test('shared admin audit trigger matches the production audit table',()=>{
+  assert.match(auditFix,/admin_audit_logs\(admin_id, action, target_type, target_id, details\)/);
+  assert.doesNotMatch(auditFix,/actor_id/);
+  assert.match(auditFix,/set search_path = ''/);
+  assert.match(auditFix,/revoke execute on function public\.btv_audit_admin_change\(\) from public, anon, authenticated/);
 });
 
 test('admin moderation is protected and connected to the existing menu',()=>{
