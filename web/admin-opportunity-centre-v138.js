@@ -6,19 +6,26 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
   const db = () => window.btvSupabase;
+  const nextDailySync = () => { const now=new Date(),next=new Date(now);next.setUTCHours(3,15,0,0);if(next<=now)next.setUTCDate(next.getUTCDate()+1);return next.toLocaleString("en-GB",{timeZone:"UTC",dateStyle:"medium",timeStyle:"short"})+" UTC"; };
   let root, rows = [], employers = [], sources = [], runs = [], filter = { query: "", country: "", type: "", status: "" };
   const types = ["job", "scholarship", "event", "registration_update", "immigration_update", "employer_campaign", "learning", "journey_action"];
 
   function install() {
-    if (!$("#app") || $("#opportunityAdmin138")) return;
-    const button = document.createElement("button");
-    button.dataset.tab = "opportunityAdmin138";
-    button.textContent = "Opportunity Centre";
-    $(".sidebar nav")?.append(button);
-    root = document.createElement("section");
-    root.id = "opportunityAdmin138";
-    root.className = "tab";
-    $("#app main")?.append(root);
+    if (!$("#app")) return;
+    let button = $('[data-tab="opportunityAdmin138"]');
+    if (!button) {
+      button = document.createElement("button");
+      button.dataset.tab = "opportunityAdmin138";
+      button.textContent = "Opportunity Centre";
+      $(".sidebar nav")?.append(button);
+    }
+    root = $("#opportunityAdmin138");
+    if (!root) {
+      root = document.createElement("section");
+      root.id = "opportunityAdmin138";
+      root.className = "tab";
+      $("#app main")?.append(root);
+    }
     button.onclick = () => {
       $$('[data-tab]').forEach((item) => item.classList.toggle("active", item === button));
       $$(".tab").forEach((item) => item.classList.toggle("active", item === root));
@@ -35,8 +42,12 @@
       db().from("btv_approved_sources").select("*").order("name"),
       db().from("btv_opportunity_import_runs").select("*,btv_approved_sources(name)").order("started_at", { ascending: false }).limit(30),
     ]);
-    if (opportunities.error || employerRows.error || sourceRows.error || runRows.error) return error(opportunities.error || employerRows.error || sourceRows.error || runRows.error);
-    rows = opportunities.data || []; employers = employerRows.data || []; sources = sourceRows.data || []; runs = runRows.data || []; render();
+    // Source controls and import history remain usable even if the larger
+    // opportunity or employer listing has a transient read failure.
+    if (sourceRows.error || runRows.error) return error(sourceRows.error || runRows.error);
+    rows = opportunities.error ? [] : opportunities.data || [];
+    employers = employerRows.error ? [] : employerRows.data || [];
+    sources = sourceRows.data || []; runs = runRows.data || []; render();
   }
 
   function render() {
@@ -44,7 +55,9 @@
     const count = (predicate) => rows.filter(predicate).length;
     root.innerHTML = `<div class="opAdminHero138"><span>CONTENT & SOURCE GOVERNANCE</span><h2>Opportunity Centre</h2><p>Create, verify, feature, publish and archive opportunities without changing existing job saves.</p></div><div class="opAdminStats138">${[["Active", count((x) => x.status === "published")],["Jobs", count((x) => x.opportunity_type === "job")],["Sponsored", count((x) => x.sponsorship_status === "confirmed")],["Scholarships", count((x) => x.opportunity_type === "scholarship")],["Events", count((x) => x.opportunity_type === "event")],["Official updates", count((x) => /_update$/.test(x.opportunity_type))],["Employers", employers.length],["Unverified", count((x) => !x.verified)],["Archived", count((x) => x.status === "archived")]].map(([label, value]) => `<article><span>${label}</span><b>${value}</b></article>`).join("")}</div><div class="opAdminTabs138"><button data-admin-view="opportunities" class="active">Opportunities</button><button data-admin-view="employers">Employers</button></div><section data-admin-pane="opportunities"><div class="opAdminToolbar138"><input type="search" data-admin-search placeholder="Search title, employer or source" value="${esc(filter.query)}"><select data-admin-filter="country"><option value="">All countries</option>${[...new Set(rows.map((x) => x.country).filter(Boolean))].sort().map((value) => `<option ${filter.country === value ? "selected" : ""}>${esc(value)}</option>`).join("")}</select><select data-admin-filter="type"><option value="">All types</option>${types.map((value) => `<option ${filter.type === value ? "selected" : ""}>${value}</option>`).join("")}</select><select data-admin-filter="status"><option value="">All statuses</option>${["draft","review","published","expired","archived"].map((value) => `<option ${filter.status === value ? "selected" : ""}>${value}</option>`).join("")}</select><button data-create-opportunity>+ Create opportunity</button></div><div class="opAdminRows138">${visible.map(row).join("") || "<p>No opportunities match these filters.</p>"}</div></section><section data-admin-pane="employers" hidden><button data-create-employer>+ Create employer</button><div class="opAdminRows138">${employers.map(employer).join("") || "<p>No employers recorded.</p>"}</div></section>`;
     $(".opAdminTabs138", root)?.insertAdjacentHTML("beforeend", '<button data-admin-view="imports">Daily imports</button>');
-    root.insertAdjacentHTML("beforeend", `<section data-admin-pane="imports" hidden><div class="opAdminImportHead138"><div><span>AUTOMATION</span><h3>Daily import · 03:15 UTC</h3><p>Only approved structured feeds can be enabled. Disabled sources are never fetched.</p></div><button data-run-import>Run now</button></div><h3>Approved-source register</h3><div class="opAdminRows138">${sources.map(sourceRow).join("") || "<p>No sources registered.</p>"}</div><h3>Recent runs</h3><div class="opAdminRows138">${runs.map(runRow).join("") || "<p>No import runs yet.</p>"}</div></section>`);
+    const jooble = sources.find((item) => item.name === "jooble"), joobleRun = runs.find((item) => item.source_id === jooble?.id), joobleMetrics = joobleRun?.provider_summary || {};
+    const careerjet=sources.find((item)=>item.name==="careerjet"),careerjetRun=runs.find((item)=>item.source_id===careerjet?.id),careerjetMetrics=careerjetRun?.provider_summary||{};
+    root.insertAdjacentHTML("beforeend", `<section data-admin-pane="imports" hidden><div class="opAdminImportHead138"><div><span>AUTOMATION</span><h3>Daily import · 03:15 UTC</h3><p>Only approved structured feeds can be enabled. Disabled sources are never fetched.</p></div><button data-run-import>Run now</button></div>${jooble ? `<div class="opAdminImportHead138"><div><span>JOOBLE REST API · ${jooble.enabled ? "ENABLED" : "DISABLED"}</span><h3>Jooble healthcare vacancies</h3><p data-jooble-direct-status>Requests ${Number(joobleMetrics.requests_made || 0)} · received ${Number(joobleMetrics.jobs_received || 0)} · created ${Number(joobleMetrics.jobs_created || 0)} · updated ${Number(joobleMetrics.jobs_updated || 0)} · duplicates ${Number(joobleMetrics.duplicates_skipped || 0)} · inactive ${Number(joobleMetrics.jobs_marked_inactive || 0)}</p></div><div><button data-jooble-direct="test">Test Jooble</button><button data-jooble-direct="sample">Sample GB</button><button data-jooble-direct="sync">Sync Jooble now</button></div></div>` : ""}${careerjet?`<div class="opAdminImportHead138"><div><span>CAREERJET API · ${careerjet.enabled?"ENABLED":"DISABLED"}</span><h3>Careerjet healthcare vacancies</h3><p data-careerjet-direct-status>Last sync ${careerjet.last_successful_run_at?new Date(careerjet.last_successful_run_at).toLocaleString("en-GB"):"never"} · next ${nextDailySync()}</p><p>API calls ${Number(careerjetMetrics.requests_made||careerjetRun?.requests_made||0)} · imported ${Number(careerjetMetrics.jobs_imported||careerjetRun?.records_created||0)} · updated ${Number(careerjetMetrics.jobs_updated||careerjetRun?.records_updated||0)} · duplicates ${Number(careerjetMetrics.duplicates_skipped||careerjetRun?.duplicates_skipped||0)} · inactive ${Number(careerjetMetrics.jobs_marked_inactive||careerjetRun?.records_expired||0)} · failures ${Number(careerjetMetrics.sync_failures||careerjetRun?.records_failed||0)}</p></div><div><button data-careerjet-direct="test">Test Careerjet</button><button data-careerjet-direct="sample">Sample UK · 10 jobs</button><button data-careerjet-direct="sync">Sync Careerjet Now</button></div></div>`:""}<h3>Approved-source register</h3><div class="opAdminRows138">${sources.map(sourceRow).join("") || "<p>No sources registered.</p>"}</div><h3>Recent runs</h3><div class="opAdminRows138">${runs.map(runRow).join("") || "<p>No import runs yet.</p>"}</div></section>`);
     wire();
   }
 
@@ -56,7 +69,7 @@
   }
 
   function sourceRow(item) {
-    const canEnable = item.permission_status === "approved" && item.integration_type === "json_feed_v1";
+    const canEnable = item.permission_status === "approved" && ["json_feed_v1","nhs_jobs_xml_v1","usajobs_v1","approved_api"].includes(item.integration_type);
     return `<article><div><span>${esc(item.source_type)} · permission ${esc(item.permission_status)}</span><h3>${esc(item.name)}</h3><p>${esc(item.integration_type)} · ${item.last_successful_run_at ? `last success ${new Date(item.last_successful_run_at).toLocaleString("en-GB")}` : "never imported"}${item.last_error ? ` · ${esc(item.last_error)}` : ""}</p></div><button data-source-toggle="${item.id}" data-enabled="${item.enabled}" ${!item.enabled && !canEnable ? 'disabled title="Approval and a structured feed are required"' : ""}>${item.enabled ? "Disable" : "Enable"}</button></article>`;
   }
   function runRow(item) {
@@ -73,6 +86,15 @@
     $$('[data-edit-employer]', root).forEach((button) => button.onclick = () => employerForm(employers.find((item) => item.id === button.dataset.editEmployer)));
     $$('[data-source-toggle]', root).forEach((button) => button.onclick = async () => { const result = await db().from("btv_approved_sources").update({ enabled: button.dataset.enabled !== "true", updated_at: new Date().toISOString() }).eq("id", button.dataset.sourceToggle); if (result.error) alert(result.error.message); else load(); });
     $("[data-run-import]", root)?.addEventListener("click", async (event) => { event.currentTarget.disabled = true; event.currentTarget.textContent = "Running…"; const { data } = await db().auth.getSession(); const response = await fetch("/api/opportunity-import", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}` } }); const result = await response.json(); if (!response.ok) alert(result.error || "Import failed"); await load(); });
+    $$('[data-jooble-direct]', root).forEach((button) => button.addEventListener("click", async () => {
+      const output = $('[data-jooble-direct-status]', root), action = button.dataset.joobleDirect;
+      const path = action === "test" ? "/api/jooble-jobs-connection-test" : action === "sample" ? "/api/jooble-jobs-sample" : "/api/jooble-jobs-import";
+      button.disabled = true; output.textContent = "Workingâ€¦";
+      try { const { data } = await db().auth.getSession(); const response = await fetch(path, { method: action === "test" ? "GET" : "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}` } }); const result = await response.json(); if (!response.ok) throw new Error(result.error || "Jooble request failed."); output.textContent = result.authentication_succeeded ? `Connected Â· HTTP ${result.http_status} Â· ${Number(result.results_returned || 0)} sample result returned` : `Complete Â· ${Number(result.requests_made || 0)} requests Â· ${Number(result.jobs_received || 0)} received Â· ${Number(result.jobs_created || 0)} created Â· ${Number(result.jobs_updated || 0)} updated`; }
+      catch (requestError) { output.textContent = requestError.message; }
+      finally { button.disabled = false; }
+    }));
+    $$('[data-careerjet-direct]',root).forEach((button)=>button.addEventListener("click",async()=>{const output=$('[data-careerjet-direct-status]',root),action=button.dataset.careerjetDirect,path=action==="test"?"/api/careerjet-jobs-connection-test":action==="sample"?"/api/careerjet-jobs-sample":"/api/careerjet-jobs-import";button.disabled=true;output.textContent="Working…";try{const{data}=await db().auth.getSession();const response=await fetch(path,{method:action==="test"?"GET":"POST",headers:{Authorization:`Bearer ${data.session?.access_token||""}`}}),result=await response.json();if(!response.ok)throw Error(result.error||"Careerjet request failed.");output.textContent=result.authentication_succeeded?`Connected · HTTP ${result.http_status} · ${Number(result.results_returned||0)} sample result returned`:`Complete · ${Number(result.requests_made||0)} API calls · ${Number(result.jobs_created||0)} imported · ${Number(result.jobs_updated||0)} updated · ${Number(result.duplicates_skipped||0)} duplicates · ${Number(result.jobs_marked_inactive||0)} inactive`;}catch(requestError){output.textContent=requestError.message;}finally{button.disabled=false;}}));
     $$('[data-duplicate-opportunity]', root).forEach((button) => button.onclick = () => { const item = rows.find((x) => x.id === button.dataset.duplicateOpportunity); opportunityForm({ ...item, id: null, title: `${item.title} (copy)`, status: "draft", source_identifier: "", source_url: "" }); });
     $$('[data-state-opportunity]', root).forEach((button) => button.onclick = async () => { const patch = { status: button.dataset.status, updated_at: new Date().toISOString() }; if (button.dataset.status === "published") patch.published_at = new Date().toISOString(); if (button.dataset.status === "expired") patch.expired_at = new Date().toISOString(); const result = await db().from("btv_jobs").update(patch).eq("id", button.dataset.stateOpportunity); if (result.error) alert(result.error.message); else load(); });
   }
@@ -119,7 +141,23 @@
       if (result.error) throw result.error;
     });
   }
-  function error(value) { root.innerHTML = `<div class="opAdminError138"><b>Opportunity Centre could not load.</b><p>${esc(value.message)}</p><button data-retry>Try again</button></div>`; $("[data-retry]", root).onclick = load; }
+  function error(value) {
+    root.innerHTML = `<div class="opAdminError138"><b>Opportunity Centre could not load.</b><p>${esc(value.message)}</p><button data-retry>Try again</button><p data-jooble-fallback-status>Secure import controls remain available.</p><button data-jooble-fallback="test">Test Jooble</button><button data-jooble-fallback="sample">Sample GB</button><button data-jooble-fallback="sync">Sync Jooble now</button></div>`;
+    $("[data-retry]", root).onclick = load;
+    $$('[data-jooble-fallback]', root).forEach((button) => button.addEventListener("click", async () => {
+      const output = $('[data-jooble-fallback-status]', root), action = button.dataset.joobleFallback;
+      const path = action === "test" ? "/api/jooble-jobs-connection-test" : action === "sample" ? "/api/jooble-jobs-sample" : "/api/jooble-jobs-import";
+      button.disabled = true; output.textContent = "Workingâ€¦";
+      try {
+        const { data } = await db().auth.getSession();
+        const response = await fetch(path, { method: action === "test" ? "GET" : "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Jooble request failed.");
+        output.textContent = result.authentication_succeeded ? `Connected Â· HTTP ${result.http_status} Â· ${Number(result.results_returned || 0)} sample result returned` : `Complete Â· ${Number(result.requests_made || 0)} requests Â· ${Number(result.jobs_received || 0)} received Â· ${Number(result.jobs_created || 0)} created Â· ${Number(result.jobs_updated || 0)} updated`;
+      } catch (requestError) { output.textContent = requestError.message; }
+      finally { button.disabled = false; }
+    }));
+  }
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => setTimeout(install, 0), { once: true }) : setTimeout(install, 0);
   new MutationObserver(install).observe(document.documentElement, { childList: true, subtree: true });
 })();

@@ -47,12 +47,12 @@ test("Adzuna connection handles missing credentials, rejection, timeout and empt
 
 test("Adzuna importer searches every requested role and deduplicates by Adzuna job id", async () => {
   const calls = [];
-  const result = await core.fetchAdzunaJobs({ appId: "id", appKey: "key", pageBudget: 8, fetchImpl: async (url) => {
+  const result = await core.fetchAdzunaJobs({ appId: "id", appKey: "key", pageBudget: core.TERMS.length, fetchImpl: async (url) => {
     const parsed = new URL(String(url)); calls.push(parsed.searchParams.get("what"));
     return { ok: true, status: 200, json: async () => ({ results: [fixture] }) };
   } });
   for (const term of ["Registered Nurse", "Nurse Practitioner", "Licensed Practical Nurse", "Nursing Assistant", "ICU Nurse", "PACU Nurse", "Mental Health Nurse"]) assert.ok(calls.includes(term));
-  assert.equal(result.records.length, 1); assert.ok(result.duplicates > 0); assert.equal(result.pagesFetched, 8);
+  assert.equal(result.records.length, 1); assert.ok(result.duplicates > 0); assert.equal(result.pagesFetched, core.TERMS.length);
 });
 
 test("Adzuna sample import is limited to five Registered Nurse results", async () => {
@@ -70,8 +70,8 @@ test("Adzuna routes and migration preserve the existing USA jobs table", () => {
   assert.match(importer, /ADZUNA_APP_ID/); assert.match(importer, /ADZUNA_APP_KEY/); assert.doesNotMatch(importer, /NEXT_PUBLIC_ADZUNA/);
   assert.match(routes, /adzuna-jobs-connection-test/); assert.match(routes, /provider=adzuna/);
   assert.match(routes, /adzuna-jobs-sample/);
-  assert.match(orchestrator, /name:"ADZUNA"/); assert.match(orchestrator, /provider:"adzuna"/);
+  assert.match(orchestrator, /name:"ADZUNA"/); assert.match(orchestrator, /ADZUNA_COUNTRIES/);
   assert.match(admin, /Sync Adzuna now/); assert.match(admin, /data-run-adzuna-import/);
-  assert.match(ui, /Jobs by Adzuna/); assert.match(ui, /row\.source_name === "ADZUNA" \? "View and apply"/);
+  assert.match(ui, /Jobs by Adzuna/); assert.match(ui, /row\.source_name === "ADZUNA" \|\| \["jooble","careerjet"\]\.includes\(String\(row\.source_name\)\.toLowerCase\(\)\) \? "View and apply"/);
   assert.match(sql, /where name='Adzuna USA'/); assert.match(sql, /source_name='ADZUNA'/); assert.doesNotMatch(sql, /update public\.btv_jobs|delete from public\.btv_jobs/);
 });

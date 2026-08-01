@@ -32,7 +32,8 @@ async function authenticate(req) {
 }
 
 function fallbackKey(row) {
-  return `${row.employer_name}|${row.job_title}|${row.state || ""}|${row.city || ""}|${row.date_posted || ""}`.toLowerCase();
+  const posted = row.date_posted && Number.isFinite(Date.parse(row.date_posted)) ? new Date(row.date_posted).toISOString() : "";
+  return `${row.employer_name}|${row.job_title}|${row.state || ""}|${row.city || ""}|${posted}`.toLowerCase();
 }
 
 async function saveRecords(records, strictSource = false) {
@@ -42,18 +43,23 @@ async function saveRecords(records, strictSource = false) {
   const byFallback = new Map(existing.map((row) => [fallbackKey(row), row]));
   const byHash = new Map(existing.map((row) => [row.content_fingerprint, row]));
   let created = 0, updated = 0, duplicates = 0;
-  const payload = [];
+  const payload = [], pendingKeys = new Set();
   for (const record of records) {
     const exact = bySource.get(`${record.source_name}:${record.external_id}`);
     const duplicate = exact || (strictSource ? null : byUrl.get(record.canonical_application_url) || byFallback.get(fallbackKey(record)) || byHash.get(record.content_fingerprint));
     if (duplicate) {
       if (!exact) duplicates += 1;
+      if (!exact && duplicate.source_name !== record.source_name) continue;
       record.external_id = duplicate.external_id;
       record.imported_at = duplicate.imported_at;
       record.featured = duplicate.featured;
       if (duplicate.status === "hidden") record.status = "hidden";
       if (duplicate.content_fingerprint !== record.content_fingerprint || duplicate.status === "expired" && record.status === "active") updated += 1;
     } else created += 1;
+    const pendingKey = `${record.source_name}:${record.external_id}`;
+    if (pendingKeys.has(pendingKey)) { duplicates += 1; continue; }
+    pendingKeys.add(pendingKey);
+    bySource.set(pendingKey, record); byUrl.set(record.canonical_application_url, record); byFallback.set(fallbackKey(record), record); byHash.set(record.content_fingerprint, record);
     payload.push(record);
   }
   for (let start = 0; start < payload.length; start += 100) {

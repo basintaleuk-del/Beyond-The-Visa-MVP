@@ -27,14 +27,14 @@ test("the shared connector targets the gb endpoint without exposing credentials"
 test("UK Adzuna import reuses one source, credentials and daily provider",()=>{
   const importer=read("api/global-jobs-import.js");
   const routes=read("vercel.json");
-  assert.match(importer,/fetchAdzunaJobs\(\{ appId:env\("ADZUNA_APP_ID"\),appKey:env\("ADZUNA_APP_KEY"\),countryCode:"gb"/);
-  assert.match(importer,/source_name:"ADZUNA"/);assert.match(importer,/country_code:"GB"/);assert.match(importer,/salary_currency:"GBP"/);assert.match(importer,/syncAdzunaCountries/);
+  assert.match(importer,/fetchAdzunaJobs\(\{ appId:env\("ADZUNA_APP_ID"\),appKey:env\("ADZUNA_APP_KEY"\),countryCode:country\.key/);
+  assert.match(importer,/source_name:"ADZUNA"/);assert.match(importer,/code:"GB"/);assert.match(importer,/currency:"GBP"/);assert.match(importer,/syncAdzunaCountries/);
   assert.equal((importer.match(/name:"ADZUNA", run:/g)||[]).length,1);assert.doesNotMatch(importer,/ADZUNA_UK|ADZUNA_GB|ADZUNA_UK_APP/);
   assert.match(routes,/adzuna-jobs-import[^\n]+global-jobs-import\?provider=adzuna/);
 });
 
 test("UK display includes Adzuna and cross-source duplicate protection",()=>{
   const importer=read("api/global-jobs-import.js"),ui=read("web/jobs-centre-v272.js");
-  assert.match(ui,/\["NHS Jobs","REED","ADZUNA"\]/);assert.match(ui,/Jobs by Adzuna/);assert.match(ui,/View and apply/);
+  assert.match(ui,/\["NHS Jobs","REED","ADZUNA","jooble","careerjet"\]/);assert.match(ui,/Jobs by Adzuna/);assert.match(ui,/View and apply/);
   assert.match(importer,/deduplicateUkJobs/);assert.match(importer,/normalizedUrl/);assert.match(importer,/normalizedIdentity/);assert.match(importer,/"NHS Jobs":0,REED:1,ADZUNA:2/);assert.match(importer,/import_status:"duplicate"/);
 });

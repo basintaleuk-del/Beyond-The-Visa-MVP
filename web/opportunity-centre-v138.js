@@ -91,6 +91,7 @@
   const dateLabel = (value) => value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not stated";
   const notify = (message) => typeof window.toast === "function" ? window.toast(message) : alert(message);
   const db = () => window.btvSupabase;
+  const deadline = (promise, ms, message) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]);
   const OPPORTUNITY_ICONS = {
     target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m15 9 5-5m0 0v4m0-4h-4"/>',
     shield: '<path d="M12 3 5 6v5c0 4.8 2.8 8.2 7 10 4.2-1.8 7-5.2 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
@@ -228,9 +229,14 @@
   }
 
   async function destinationJobs(profile) {
-    const session = await db().auth.getSession();
-    const token = session?.data?.session?.access_token || "";
-    const response = await fetch("/api/jobs?sort=recent&limit=100", { headers: { Authorization: `Bearer ${token}` } });
+    const session = window.__btvSession ? { data: { session: window.__btvSession } } : await deadline(db().auth.getSession(), 6000, "Your session is taking too long to restore. Please try again.");
+    const token = session?.data?.session?.access_token || window.__btvSession?.access_token || "";
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 7000);
+    let response;
+    try { response = await fetch("/api/jobs?sort=recent&limit=100", { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }); }
+    catch (error) { throw new Error(error?.name === "AbortError" ? "Destination jobs are taking too long to load. Please try again." : "Destination jobs could not be reached. Please try again."); }
+    finally { clearTimeout(timer); }
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "Destination opportunities could not be loaded.");
     const destination = payload.destination;
@@ -270,10 +276,10 @@
     const body = $("[data-opportunity-body]");
     if (body && !state.loaded) body.innerHTML = skeleton();
     try {
-      const { data: auth } = await db().auth.getUser();
+      const { data: auth } = await deadline(db().auth.getUser(), 6000, "Your session is taking too long to restore. Please try again.");
       const user = auth?.user;
       if (!user) throw new Error("Sign in to view personalised opportunities.");
-      const profileResult = await db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle();
+      const profileResult = await deadline(db().from("profiles").select("profession,qualification_country,destination,destination_country,registration_stage,job_status").eq("id", user.id).maybeSingle(), 6000, "Your destination profile is taking too long to load. Please try again.");
       if (profileResult.error) throw profileResult.error;
       const selectedDestination = codeFor(profileResult.data?.destination_country || profileResult.data?.destination);
       if (selectedDestination && selectedDestination !== "uk") {
@@ -284,7 +290,7 @@
       if (reset) { state.page = 0; state.rows = []; }
       const from = state.page * 24;
       const weekEnd = new Date(); weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
-      const [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await Promise.all([
+      const [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers, newJobs, nhsNursing, nhsMidwifery, sponsors, possibleSponsors, closingWeek, employerCount] = await deadline(Promise.all([
         db().from("btv_jobs").select("*", { count: "exact" }).in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).order("featured", { ascending: false }).order("published_at", { ascending: false }).range(from, from + 23),
         db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("source_name", "NHS Jobs").eq("opportunity_type", "job").eq("verified", true).in("sponsorship_status", ["confirmed", "may_be_available"]).order("sponsorship_status", { ascending: true }).order("published_at", { ascending: false }).limit(12),
         db().from("btv_jobs").select("*").in("status", ACTIVE_OPPORTUNITY_STATUSES).is("expired_at", null).eq("opportunity_type", "scholarship").eq("verified", true).order("featured", { ascending: false }).order("published_at", { ascending: false }).limit(6),
@@ -300,7 +306,7 @@
         countRows((query) => query.eq("source_name", "NHS Jobs").eq("sponsorship_status", "may_be_available")),
         countRows((query) => query.eq("source_name", "NHS Jobs").gte("closing_at", new Date().toISOString()).lte("closing_at", weekEnd.toISOString())),
         countNhsEmployers(),
-      ]);
+      ]), 9000, "Opportunity data is taking too long to load. Please try again.");
       for (const result of [feed, sponsorshipFeed, fundingFeed, eventFeed, profile, saved, dismissed, employers]) if (result.error) throw result.error;
       state.rows = reset ? (feed.data || []) : [...state.rows, ...(feed.data || [])];
       state.sponsorshipRows = sponsorshipFeed.data || [];
@@ -670,6 +676,13 @@
 
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", install, { once: true }) : install();
   new MutationObserver(upgradeEntryPoints).observe(document.documentElement, { childList: true, subtree: true });
-  window.addEventListener("btv:session-restored", () => { if ($("#opportunities.active")) load(); });
+  window.addEventListener("btv:session-restored", (event) => {
+    if (event.detail?.state !== "app") return;
+    // Dashboard hydration can replace the initially active screen after this
+    // module first reads the semantic URL. Re-apply the deep link once the
+    // authenticated shell is visible so refreshes stay on Opportunities.
+    openInitialRoute();
+    if ($("#opportunities.active")) load();
+  });
   window.addEventListener("btv:destination-changed", () => { state.loaded = false; state.destination = null; state.rows = []; state.total = 0; if ($("#opportunities.active")) load(); });
 })();

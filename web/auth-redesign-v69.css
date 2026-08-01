@@ -156,6 +156,11 @@
 .btvAuthV69 .googleAuth:hover { border-color: #9fbdb8; background: #f7fbfa; }
 .btvAuthV69 .googleAuth:disabled { opacity: .6; cursor: wait; }
 .btvAuthV69 .googleMark { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; color: #4285f4; font: 800 20px Arial, sans-serif; }
+.btvAuthV69 .socialButtonsV274 { display: grid; gap: 10px; }
+.btvAuthV69 .facebookAuth { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 11px; border: 1px solid #dfe4e1; border-radius: 12px; background: #1877f2; color: #fff; font-weight: 800; }
+.btvAuthV69 .facebookAuth:hover { border-color: #1268d3; background: #126fdf; }
+.btvAuthV69 .facebookAuth:disabled { opacity: .6; cursor: wait; }
+.btvAuthV69 .facebookMark { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: #1877f2; font: 800 21px/1 Arial, sans-serif; }
 .btvAuthV69 .authNote { margin-top: 12px; font-size: 10px; }
 .btvAuthV69 .consent { font-size: 11px !important; }
 .btvAuthV69 .consent input { padding: 0 !important; }

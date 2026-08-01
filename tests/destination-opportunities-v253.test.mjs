@@ -27,5 +27,5 @@ test("international opportunity actions stay linked to Jobs and original employe
 
 test("the destination-aware Opportunity Centre release is cache busted", async () => {
   const page = await read("web/index.html");
-  assert.match(page, /opportunity-centre-v138\.js\?v=253/);
+  assert.match(page, /opportunity-centre-v138\.js\?v=290/);
 });

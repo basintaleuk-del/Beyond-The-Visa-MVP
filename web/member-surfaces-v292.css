@@ -1,0 +1,46 @@
+/* Scroll-safe Beyond Coins and premium USA vacancy tiles. */
+html body #btvCoins178.btvCoins178[open]{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100vh!important;height:100lvh!important;min-height:100vh!important;min-height:100lvh!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
+html body #btvCoins178.btvCoins178[open]>.coinApp178{width:100%!important;max-width:none!important;height:100vh!important;height:100lvh!important;min-height:100vh!important;min-height:100lvh!important;margin:0!important;padding:0!important;grid-template-rows:auto auto auto minmax(0,1fr)!important}
+html body #btvCoins178.btvCoins178[open]>.coinApp178>.coinBody178{align-self:stretch!important;height:auto!important;min-height:0!important;max-height:none!important;padding-bottom:max(40px,calc(24px + env(safe-area-inset-bottom)))!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scroll-padding-bottom:max(48px,calc(24px + env(safe-area-inset-bottom)));-webkit-overflow-scrolling:touch}
+#btvCoins178 .coinBody178:after{display:none!important;height:0!important}
+#btvCoins178 .coinBody178>:last-child{margin-bottom:0!important}
+@media(max-width:720px){#btvCoins178 .coinTabs178{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;min-height:0!important;height:auto!important;padding:8px 10px!important;gap:5px!important;overflow:visible!important}#btvCoins178 .coinTabs178>button{width:100%!important;min-width:0!important;min-height:44px!important;padding:8px 4px!important;border-radius:10px!important}#btvCoins178 .coinTabs178>button span{display:block!important;width:100%!important;overflow:visible!important;overflow-wrap:normal!important;white-space:normal!important;font-size:10px!important;line-height:1.2!important;text-align:center!important}#btvCoins178 .coinTabs178>button.active{border-radius:10px!important}}
+
+#jobsContent>.usaJobs155{--us292-navy:#062e3a;--us292-teal:#08756f;--us292-gold:#d9b858;gap:22px!important}
+#jobsContent .usaHero155{position:relative!important;min-height:300px!important;padding:clamp(30px,4vw,58px)!important;overflow:hidden!important;border:1px solid #ffffff29!important;border-radius:30px!important;background:radial-gradient(circle at 88% 12%,#d9b85840,transparent 24rem),linear-gradient(125deg,#052b39,#07505a 58%,#08756f)!important;box-shadow:0 28px 70px #052a3333!important}
+#jobsContent .usaHero155:after{content:"US";position:absolute;right:clamp(22px,4vw,54px);bottom:-32px;color:#ffffff0e;font:800 170px/1 Georgia,serif;letter-spacing:-.08em;pointer-events:none}
+#jobsContent .usaHero155>*{position:relative;z-index:1}
+#jobsContent .usaHero155 h2{max-width:720px!important;margin:12px 0 14px!important;color:#fff!important;font:700 clamp(38px,4.5vw,64px)/.98 Georgia,serif!important;letter-spacing:-.045em!important}
+#jobsContent .usaHero155 p{max-width:720px!important;font-size:15px!important;line-height:1.7!important}
+#jobsContent .usaStats155{align-self:stretch!important;gap:12px!important}
+#jobsContent .usaStats155 article{min-height:104px!important;padding:20px!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;border:1px solid #ffffff2e!important;border-radius:19px!important;background:#ffffff17!important;backdrop-filter:blur(12px)}
+#jobsContent .usaEligibility155,#jobsContent .usaOfficialJobs240{border-radius:20px!important;box-shadow:0 14px 36px #07303712!important}
+#jobsContent .usaLayout155{grid-template-columns:minmax(240px,280px) minmax(0,1fr)!important;gap:22px!important}
+#jobsContent .usaFilters155{position:sticky!important;top:18px!important;padding:22px!important;border-radius:22px!important;box-shadow:0 16px 42px #07303712!important}
+#jobsContent .usaMain155{min-width:0!important;padding:clamp(18px,2.3vw,30px)!important;border-radius:24px!important;background:linear-gradient(145deg,#fbfcfa,#f1f6f2)!important;box-shadow:0 18px 48px #07303714!important}
+#jobsContent .usaGrid155{display:grid!important;grid-template-columns:repeat(3,minmax(250px,1fr))!important;align-items:stretch!important;gap:18px!important}
+#jobsContent .usaJob155{position:relative!important;display:grid!important;grid-template-rows:auto auto auto auto minmax(82px,1fr) auto auto!important;align-content:start!important;height:100%!important;min-height:530px!important;padding:24px!important;overflow:hidden!important;border:1px solid #d8e4de!important;border-radius:22px!important;background:#fffffff5!important;box-shadow:0 14px 34px #07303713!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+#jobsContent .usaJob155:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--us292-gold),var(--us292-teal))}
+#jobsContent .usaJob155:hover{transform:translateY(-4px)!important;border-color:#b9d4c9!important;box-shadow:0 24px 52px #07303724!important}
+#jobsContent .usaJob155>span{width:fit-content!important;margin:3px 0 6px!important;padding:7px 10px!important;border-radius:999px!important;background:#e8f4ef!important;color:#08635e!important;line-height:1.25!important}
+#jobsContent .usaJob155 h3{margin:9px 0 8px!important;font:700 clamp(22px,1.8vw,28px)/1.16 Georgia,serif!important;letter-spacing:-.025em!important}
+#jobsContent .usaJob155 h3 a{color:#0b3538!important;text-decoration:none!important}
+#jobsContent .usaJob155 h3 a:hover{color:#08756f!important}
+#jobsContent .usaJob155>strong{color:#183f41!important;font-size:13px!important}
+#jobsContent .usaJob155>small{margin-top:3px!important;color:#71817e!important}
+#jobsContent .usaJob155>p{display:-webkit-box!important;margin:15px 0!important;overflow:hidden!important;color:#647774!important;line-height:1.55!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:4!important}
+#jobsContent .usaBadges155{margin:12px 0 0!important}
+#jobsContent .usaBadges155 b{padding:6px 9px!important;border:1px solid #d7e8e2!important;background:#f0f7f4!important}
+#jobsContent .usaFacts155{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:0 0 18px!important;padding-top:16px!important;border-top:1px solid #e3ebe7!important}
+#jobsContent .usaFacts155>div{padding:9px!important;border-radius:11px!important;background:#f6f9f7!important}
+#jobsContent .usaFacts155>.wide{grid-column:1/-1!important}
+#jobsContent .usaFacts155 dd{margin-top:5px!important;color:#153e40!important;line-height:1.35!important}
+#jobsContent .usaActions155{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:9px!important}
+#jobsContent .usaActions155 button,#jobsContent .usaActions155 a{min-height:44px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:12px!important}
+#jobsContent .usaActions155>a{grid-column:1/-1!important;grid-row:2!important;background:var(--us292-navy)!important;color:#fff!important}
+#jobsContent .usaActions155 [data-usa-detail]{background:#e7f3ee!important;color:#075c58!important}
+#jobsContent .usaActions155 [data-save-usa]{min-width:92px!important;border:1px solid #d8e4de!important;background:#fff!important;color:#6d5414!important}
+@media(max-width:1320px){#jobsContent .usaGrid155{grid-template-columns:repeat(2,minmax(260px,1fr))!important}}
+@media(max-width:900px){#jobsContent .usaHero155{grid-template-columns:1fr!important}#jobsContent .usaLayout155{grid-template-columns:1fr!important}#jobsContent .usaFilters155{position:static!important}#jobsContent .usaJob155{min-height:0!important}}
+@media(max-width:640px){html body #btvCoins178.btvCoins178[open]>.coinApp178>.coinBody178{padding-bottom:max(44px,calc(24px + env(safe-area-inset-bottom)))!important;scroll-padding-bottom:max(52px,calc(24px + env(safe-area-inset-bottom)))}#jobsContent .usaHero155{min-height:0!important;padding:28px 22px!important;border-radius:23px!important}#jobsContent .usaHero155:after{font-size:108px}#jobsContent .usaStats155{grid-template-columns:repeat(2,minmax(0,1fr))!important}#jobsContent .usaGrid155{grid-template-columns:1fr!important}#jobsContent .usaMain155{padding:15px!important}#jobsContent .usaJob155{padding:21px!important;border-radius:19px!important}}
+@media(prefers-reduced-motion:reduce){#jobsContent .usaJob155{transition:none!important}#jobsContent .usaJob155:hover{transform:none!important}}

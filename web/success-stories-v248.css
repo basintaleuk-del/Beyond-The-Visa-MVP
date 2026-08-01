@@ -193,3 +193,61 @@
 @media(prefers-reduced-motion:reduce){
   #successStoriesPage208 .storyCard198{transition:none}
 }
+
+/* v278: content-contained editorial layout; no decorative section overlaps. */
+#successStoriesPage208 .storyPageBar208>*{min-width:0}
+#successStoriesPage208 .storyHero198{min-height:auto!important;height:auto!important;overflow:hidden!important}
+#successStoriesPage208 .storyHeroCopy198,
+#successStoriesPage208 .storyHeroLedger198,
+#successStoriesPage208 .storyLead198>div,
+#successStoriesPage208 .storyArchive198>header>div,
+#successStoriesPage208 .storyCard198,
+#successStoriesPage208 .storyCardTop198>div,
+#successStoriesPage208 .storyCard198 footer>*{min-width:0!important}
+#successStoriesPage208 .storyHeroCopy198 h1,
+#successStoriesPage208 .storyHeroCopy198 p,
+#successStoriesPage208 .storyLead198 blockquote,
+#successStoriesPage208 .storyLead198 h2,
+#successStoriesPage208 .storyArchive198 h2,
+#successStoriesPage208 .storyCard198 blockquote,
+#successStoriesPage208 .storyCard198 h3,
+#successStoriesPage208 .storyInvitation198 h2,
+#successStoriesPage208 .storyInvitation198 p{position:static!important;overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important}
+#successStoriesPage208 .storySignals248{margin:24px auto 0!important;transform:none!important}
+#successStoriesPage208 .storySignals248 article{grid-template-rows:auto auto;align-content:center}
+#successStoriesPage208 .storySignals248 b,
+#successStoriesPage208 .storySignals248 span{position:static!important;min-width:0;overflow-wrap:break-word;white-space:normal}
+#successStoriesPage208 .storyLead198{height:auto!important;overflow:hidden!important}
+#successStoriesPage208 .storyCard198{display:flex!important;height:auto!important;contain:layout paint}
+#successStoriesPage208 .storyCardTop198>div{max-width:none!important;flex:1 1 auto}
+#successStoriesPage208 .storyFeatured198{flex:0 0 auto;white-space:nowrap}
+#successStoriesPage208 .storyCard198 footer{position:static!important;width:100%;margin-top:auto!important;flex-wrap:wrap!important}
+#successStoriesPage208 .storyCard198 footer>span{overflow-wrap:anywhere}
+#successStoriesPage208 .storyCard198 footer button{white-space:normal!important;text-align:right}
+#successStoriesPage208 .storyMine198>div>article>*{min-width:0;overflow-wrap:anywhere}
+#successStoriesPage208 .storyDetailDialog198,
+#successStoriesPage208 .storySubmitDialog198{max-width:calc(100vw - 24px);overflow:auto}
+
+@media(max-width:1180px) and (min-width:821px){
+  #successStoriesPage208 .storyPageBar208{grid-template-columns:auto minmax(180px,1fr) auto}
+  #successStoriesPage208 .storyPageTrust208{display:none}
+  #successStoriesPage208 .storyHero198{grid-template-columns:minmax(0,1fr)!important;gap:28px!important;padding:48px clamp(36px,7vw,76px)!important}
+  #successStoriesPage208 .storyHeroCopy198{max-width:760px!important}
+  #successStoriesPage208 .storyHeroLedger198{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:760px}
+  #successStoriesPage208 .storyHeroLedger198 div{padding:14px 16px!important}
+  #successStoriesPage208 .storyLead198{grid-template-columns:minmax(0,1fr) minmax(220px,280px)!important}
+}
+@media(max-width:820px){
+  #successStoriesPage208 .storySignals248{margin:18px auto 0!important}
+  #successStoriesPage208 .storyLead198{margin-top:30px!important}
+  #successStoriesPage208 .storyCard198{contain:layout paint}
+}
+@media(max-width:560px){
+  #successStoriesPage208 .storyHeroCopy198 h1{font-size:clamp(34px,10vw,42px)!important;line-height:1.03!important}
+  #successStoriesPage208 .storyHeroLedger198{grid-template-columns:1fr!important}
+  #successStoriesPage208 .storyHeroLedger198 div{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px}
+  #successStoriesPage208 .storyHeroLedger198 strong{font-size:22px!important}
+  #successStoriesPage208 .storyHeroLedger198 span{font-size:11px}
+  #successStoriesPage208 .storyCard198 footer{align-items:flex-start!important;flex-direction:column}
+  #successStoriesPage208 .storyCard198 footer button{text-align:left}
+}

@@ -10,7 +10,7 @@
  const savePrevious=id=>{if(!id||blocked.has(id))return;try{sessionStorage.setItem(PREVKEY,id)}catch{}}
  const active=()=>document.querySelector('#appShell .screen.active')?.id||'';
  const saveSubview=value=>{if(value)try{sessionStorage.setItem(SUBKEY,value)}catch{}};
- const requested=(()=>{try{return new URLSearchParams(location.search).get('screen')||''}catch{return''}})();
+ const requested=(()=>{try{const query=new URLSearchParams(location.search).get('screen')||'';if(query)return query;const path=location.pathname;if(path==='/opportunities')return'opportunities';if(path==='/journey/tools/cost-estimator')return'cost-estimator';if(/^\/jobs(?:\/|$)/.test(path))return'jobs';return''}catch{return''}})();
  desired=/^[A-Za-z][\w-]*$/.test(requested)&&!blocked.has(requested)?requested:read();
  if(requested&&desired===requested)save(desired);
 

@@ -2,28 +2,33 @@
   "use strict";
   if (window.__btvUsaJobs155) return;
   window.__btvUsaJobs155 = true;
-  const state = { destination: null, rows: [], total: 0, recent: 0, saved: new Set(), page: 1, filters: {}, loading: false, dashboardLoaded: false };
+  const state = { destination: null, rows: [], total: 0, recent: 0, saved: new Set(), page: 1, filters: {}, loading: false };
   const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
   const money = (row) => row.salary_min || row.salary_max ? `${row.salary_currency || "USD"} ${Number(row.salary_min || row.salary_max).toLocaleString("en-US")}${row.salary_max && row.salary_max !== row.salary_min ? ` – ${Number(row.salary_max).toLocaleString("en-US")}` : ""}${row.salary_period ? ` / ${row.salary_period.toLowerCase()}` : ""}` : "Not stated";
   const date = (value) => value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Not stated";
   const sponsorship = (value) => ({ confirmed: "Sponsorship confirmed", not_offered: "Sponsorship not offered", not_applicable: "Citizenship requirement applies", unclear: "Sponsorship status not confirmed" })[value] || "Sponsorship status not confirmed";
   const db = () => window.btvSupabase;
-  const sourceLabel = (row) => row.source_name === "ADZUNA" ? "Jobs by Adzuna" : "USAJOBS";
-  const applyLabel = (row) => row.source_name === "ADZUNA" ? "View and apply" : "View and apply on USAJOBS";
+  const deadline = (promise, ms, message) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]);
+  const sourceLabel = (row) => row.source_name === "ADZUNA" ? "Jobs by Adzuna" : String(row.source_name).toLowerCase() === "jooble" ? "Jooble" : String(row.source_name).toLowerCase() === "careerjet" ? "Careerjet" : "USAJOBS";
+  const applyLabel = (row) => row.source_name === "ADZUNA" || ["jooble","careerjet"].includes(String(row.source_name).toLowerCase()) ? "View and apply" : "View and apply on USAJOBS";
 
   async function destination(force = false) {
     if (state.destination && !force) return state.destination;
-    const auth = await db()?.auth.getUser();
+    const auth = await deadline(db()?.auth.getUser(), 6000, "Your session is taking too long to restore.");
     if (!auth?.data?.user) return null;
-    const result = await db().from("profiles").select("destination_country").eq("id", auth.data.user.id).maybeSingle();
+    const result = await deadline(db().from("profiles").select("destination_country").eq("id", auth.data.user.id).maybeSingle(), 6000, "Your destination profile is taking too long to load.");
     state.destination = result.data?.destination_country || null;
     return state.destination;
   }
 
   async function api(params = {}) {
-    const session = await db().auth.getSession(), token = session.data.session?.access_token || "";
+    const session = window.__btvSession ? { data: { session: window.__btvSession } } : await deadline(db().auth.getSession(), 6000, "Your session is taking too long to restore."), token = session.data.session?.access_token || window.__btvSession?.access_token || "";
     const query = new URLSearchParams(Object.entries(params).filter(([, value]) => value !== "" && value !== null && value !== undefined));
-    const response = await fetch(`/api/usa-jobs?${query}`, { headers: { Authorization: `Bearer ${token}` } });
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 7000);
+    let response;
+    try { response = await fetch(`/api/usa-jobs?${query}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal }); }
+    catch (error) { throw new Error(error?.name === "AbortError" ? "USA jobs are taking too long to load. Please try again." : "USA jobs could not be reached. Please try again."); }
+    finally { clearTimeout(timer); }
     const body = await response.json();
     if (!response.ok) throw Object.assign(new Error(body.error || "USA jobs could not be loaded."), { code: body.code, status: response.status });
     return body;
@@ -137,16 +142,17 @@
     await loadSaved(); const result = await api({ limit: 12 }); state.rows = result.jobs || []; state.total = result.total || 0; state.recent = result.recently_added || 0; drawListings(root); return true;
   }
 
-  async function dashboardRecommendations() {
-    if (state.dashboardLoaded || await destination() !== "us") return;
-    const dashboard = document.getElementById("dashboardV3"); if (!dashboard) return;
-    state.dashboardLoaded = true;
-    try {
-      const result = await api({ limit: 3 }); const rows = result.jobs || [];
-      let section = document.getElementById("usaDashboardJobs155"); if (!section) { section = document.createElement("section"); section.id = "usaDashboardJobs155"; section.className = "usaDashboard155"; dashboard.append(section); }
-      section.innerHTML = `<span>USA JOB RECOMMENDATIONS</span><h2>Recently added for your destination</h2><div class="usaDashboardGrid155">${rows.map((row) => `<button data-dashboard-usa="${row.id}"><b>${esc(row.job_title)}</b><small>${esc(row.employer_name)} · ${esc([row.city, row.state].filter(Boolean).join(", "))}</small></button>`).join("") || '<p>No USA vacancies have been imported yet.</p>'}</div>`;
-      section.querySelectorAll("[data-dashboard-usa]").forEach((button) => button.onclick = () => { window.openScreen?.("jobs"); renderJobs().then(() => openDetail(button.dataset.dashboardUsa)); });
-    } catch { state.dashboardLoaded = false; }
+  async function alertRecommendations() {
+    if (await destination() !== "us") return { country: state.destination, jobs: [] };
+    const result = await api({ limit: 3 });
+    return { country: "us", jobs: result.jobs || [] };
+  }
+
+  async function openAlertRecommendation(id) {
+    window.BTVNotifications?.close?.();
+    window.openScreen?.("jobs");
+    await renderJobs();
+    await openDetail(id);
   }
 
   function updateEntry() {
@@ -157,20 +163,28 @@
   const originalRenderJobs = window.renderJobs;
   window.renderJobs = async function usaAwareRenderJobs(...args) { return await destination() === "us" ? renderJobs() : originalRenderJobs?.apply(this, args); };
   const originalOpen = window.openScreen;
-  if (typeof originalOpen === "function") window.openScreen = function usaAwareOpen(id, ...args) { const result = originalOpen.call(this, id, ...args); setTimeout(async () => { if (await destination() !== "us") return; updateEntry(); if (id === "jobs") renderJobs(); if (id === "opportunities") renderOpportunity(); if (id === "home") dashboardRecommendations(); }, 0); return result; };
-  document.addEventListener("click", (event) => { const target = event.target.closest("[data-open]"); if (!target) return; setTimeout(async () => { if (await destination() !== "us") return; if (target.dataset.open === "jobs") renderJobs(); if (target.dataset.open === "opportunities") renderOpportunity(); }, 40); });
-  window.addEventListener("btv:destination-changed", async () => { state.destination = null; state.dashboardLoaded = false; await destination(true); updateEntry(); });
+  if (typeof originalOpen === "function") window.openScreen = function usaAwareOpen(id, ...args) { const result = originalOpen.call(this, id, ...args); setTimeout(async () => { if (await destination() !== "us") return; updateEntry(); if (id === "jobs") renderJobs(); }, 0); return result; };
+  document.addEventListener("click", (event) => { const target = event.target.closest("[data-open]"); if (!target) return; setTimeout(async () => { if (await destination() !== "us") return; if (target.dataset.open === "jobs") renderJobs(); }, 40); });
+  window.addEventListener("btv:destination-changed", async () => { state.destination = null; await destination(true); updateEntry(); window.BTVNotifications?.refreshJobAlerts?.(); });
   window.addEventListener("popstate", () => { if (!location.pathname.startsWith("/jobs/usa/")) { const element = document.querySelector("[data-usa-job-detail]"); if (element?.open) element.close(); } });
-  const refreshUsEntry = () => { if (state.destination === "us") { updateEntry(); dashboardRecommendations(); } };
+  const refreshUsEntry = () => { if (state.destination === "us") updateEntry(); };
   window.addEventListener("btv:app-content-ready", refreshUsEntry);
   window.addEventListener("btv:home-rendered", refreshUsEntry);
-  setTimeout(async () => {
+  async function openInitialUsRoute() {
+    if (!location.pathname.startsWith("/jobs/usa")) return;
     if (await destination() !== "us") {
-      if (location.pathname.startsWith("/jobs/usa")) location.replace("/jobs");
+      location.replace("/jobs");
       return;
     }
-    updateEntry(); dashboardRecommendations();
+    updateEntry();
     const detailId = location.pathname.match(/^\/jobs\/usa\/([0-9a-f-]{36})$/i)?.[1];
-    if (location.pathname.startsWith("/jobs/usa")) { window.openScreen?.("jobs"); await renderJobs(); if (detailId) openDetail(detailId, false); }
-  }, 0);
+    window.openScreen?.("jobs");
+    await renderJobs();
+    if (detailId) openDetail(detailId, false);
+  }
+  setTimeout(openInitialUsRoute, 0);
+  window.addEventListener("btv:session-restored", (event) => {
+    if (event.detail?.state === "app") setTimeout(openInitialUsRoute, 0);
+  });
+  window.BTVUSAJobs={alertRecommendations,openAlertRecommendation};
 })();

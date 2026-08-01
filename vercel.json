@@ -11,6 +11,7 @@
     { "source": "/web/:path*.html", "destination": "/:path*.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/auth/callback", "destination": "/auth-callback.html" },
     { "source": "/api/usa-jobs-connection-test", "destination": "/api/usa-jobs-import?mode=connection-test" },
     { "source": "/api/adzuna-jobs-connection-test", "destination": "/api/usa-jobs-import?provider=adzuna&mode=connection-test" },
     { "source": "/api/adzuna-jobs-import", "destination": "/api/global-jobs-import?provider=adzuna" },
@@ -18,6 +19,12 @@
     { "source": "/api/reed-jobs-connection-test", "destination": "/api/global-jobs-import?provider=reed&mode=connection-test" },
     { "source": "/api/reed-jobs-import", "destination": "/api/global-jobs-import?provider=reed" },
     { "source": "/api/reed-jobs-sample", "destination": "/api/global-jobs-import?provider=reed&mode=sample-import" },
+    { "source": "/api/jooble-jobs-connection-test", "destination": "/api/global-jobs-import?provider=jooble&mode=connection-test&country=gb" },
+    { "source": "/api/jooble-jobs-import", "destination": "/api/global-jobs-import?provider=jooble" },
+    { "source": "/api/jooble-jobs-sample", "destination": "/api/global-jobs-import?provider=jooble&mode=sample-import&country=gb" },
+    { "source": "/api/careerjet-jobs-connection-test", "destination": "/api/global-jobs-import?provider=careerjet&mode=connection-test&country=gb" },
+    { "source": "/api/careerjet-jobs-import", "destination": "/api/global-jobs-import?provider=careerjet" },
+    { "source": "/api/careerjet-jobs-sample", "destination": "/api/global-jobs-import?provider=careerjet&mode=sample-import&country=gb" },
     { "source": "/jobs/usa", "destination": "/index.html" },
     { "source": "/jobs/usa/:id", "destination": "/index.html" },
     { "source": "/jobs", "destination": "/index.html" },

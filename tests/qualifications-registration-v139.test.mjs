@@ -65,7 +65,7 @@ test('professional hub uses the premium illustration and live section progress',
   for(const label of ['Complete','In progress','Not started'])assert.match(feature,new RegExp(label));
   assert.match(css,/prefers-reduced-motion:reduce/);
   assert.match(css,/qrProgress139/);
-  assert.match(index,/premium-surfaces-v163\.css\?v=163/);
+  assert.match(index,/premium-surfaces-v163\.css\?v=275/);
   assert.match(menu,/Help & support/);
   assert.match(menu,/BTVHelpSupport\?\.open/);
   assert.match(inbox,/from\('manager_requests'\)\.insert/);

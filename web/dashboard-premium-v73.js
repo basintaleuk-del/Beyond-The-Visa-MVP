@@ -1060,7 +1060,7 @@
       const support = Array.isArray(mentor.areas_of_support) ? mentor.areas_of_support : [];
       const languages = Array.isArray(mentor.languages) ? mentor.languages : [];
       const title = mentor.specialty || "Healthcare career mentor";
-      return `<article class="mentorCard177" data-mentor-card data-search="${esc(`${title} ${support.join(" ")} ${languages.join(" ")} ${mentor.biography || ""}`.toLowerCase())}">
+      return `<article class="mentorCard177" data-mentor-card data-mentor-id="${esc(mentor.id || "")}" data-search="${esc(`${title} ${support.join(" ")} ${languages.join(" ")} ${mentor.biography || ""}`.toLowerCase())}">
         <div class="mentorCardTop177"><span class="mentorAvatar177">${esc(initialsForMentor(mentor, index))}</span><span class="mentorVerified177">&#10003; Approved</span></div>
         <div class="mentorCardTitle177"><h4>${esc(title)}</h4><span>${Number(mentor.experience_years || 0)}+ years experience</span></div>
         <div class="mentorRating177"><b>${Number(mentor.rating || 0) > 0 ? `&#9733; ${Number(mentor.rating).toFixed(1)}` : "New mentor"}</b><small>${Number(mentor.review_count || 0)} reviews</small></div>

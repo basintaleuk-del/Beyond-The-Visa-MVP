@@ -55,9 +55,9 @@ test("Reed accepts common qualified registered-nurse titles",()=>{
 
 test("Reed routes, database upsert and UI preserve established sources",()=>{
   const importer=read("api/global-jobs-import.js"),routes=read("vercel.json"),ui=read("web/jobs-centre-v272.js"),admin=read("web/admin-opportunity-imports-v142.js"),sql=read("supabase/migrations/20260731150000_reed_uk_nursing_v271.sql");
-  assert.match(importer,/REED_API_KEY/);assert.doesNotMatch(importer,/NEXT_PUBLIC_REED/);assert.match(importer,/on_conflict=source_name,external_id/);assert.match(importer,/name:"REED"/);
+  assert.match(importer,/REED_API_KEY/);assert.doesNotMatch(importer,/NEXT_PUBLIC_REED/);assert.match(importer,/on_conflict=source_name,country_code,external_id/);assert.match(importer,/name:"REED"/);
   assert.match(routes,/reed-jobs-connection-test/);assert.match(routes,/provider=reed/);assert.match(routes,/reed-jobs-sample/);
   assert.match(admin,/data-test-reed/);assert.match(admin,/data-sync-reed/);
-  assert.match(ui,/\["NHS Jobs","REED","ADZUNA"\]/);assert.match(ui,/isReed\?"REED":"NHS JOBS"/);assert.match(ui,/"View and apply"/);assert.match(ui,/Source: Reed/);
+  assert.match(ui,/\["NHS Jobs","REED","ADZUNA","jooble","careerjet"\]/);assert.match(ui,/row\.source_name==="REED"\?"Reed"/);assert.match(ui,/"View and apply"/);assert.match(ui,/Source: Reed/);
   assert.match(sql,/btv_jobs_source_external_id_full_uq/);assert.match(sql,/'REED','job'/);assert.doesNotMatch(sql,/update public\.btv_jobs|delete from public\.btv_jobs/);
 });

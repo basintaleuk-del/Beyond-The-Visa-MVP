@@ -4,6 +4,8 @@
 
   const names = { uk: "United Kingdom", us: "United States", au: "Australia", ca: "Canada", nz: "New Zealand", ie: "Ireland", ae: "United Arab Emirates", sa: "Saudi Arabia" };
   const aliases = { "united kingdom": "uk", uk: "uk", "united states": "us", usa: "us", us: "us", australia: "au", canada: "ca", "new zealand": "nz", ireland: "ie", "united arab emirates": "ae", uae: "ae", "saudi arabia": "sa" };
+  const voiceLocales = { uk: "en-GB", ie: "en-GB", us: "en-US", ca: "en-CA", au: "en-AU", nz: "en-NZ", ae: "en-GB", sa: "en-GB" };
+  const naturalVoiceNames = ["sonia online", "ryan online", "libby online", "jenny online", "aria online", "guy online", "natasha online", "william online", "google uk english", "google us english", "samantha", "daniel", "serena", "karen", "moira"];
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
   const date = (value) => value ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" }).format(new Date(value)) : "Recently";
 
@@ -27,9 +29,43 @@
   }
 
   function stopBriefing(dialog) {
-    clearInterval(dialog._newsTimer);
+    clearTimeout(dialog._newsTimer);
     dialog._newsTimer = null;
+    dialog._newsPlaying = false;
+    dialog._newsSpeechToken = (dialog._newsSpeechToken || 0) + 1;
     window.speechSynthesis?.cancel();
+  }
+
+  function availableVoices() {
+    return "speechSynthesis" in window ? window.speechSynthesis.getVoices() : [];
+  }
+
+  function preferredVoice(item) {
+    const locale = voiceLocales[item?.country_code] || "en-GB";
+    const language = locale.split("-")[0];
+    const voices = availableVoices().filter((voice) => String(voice.lang || "").toLowerCase().startsWith(language));
+    return voices.sort((a, b) => {
+      const score = (voice) => {
+        const name = String(voice.name || "").toLowerCase();
+        const exactLocale = String(voice.lang || "").toLowerCase() === locale.toLowerCase() ? 30 : 0;
+        const premium = naturalVoiceNames.some((candidate, index) => name.includes(candidate)) ? 80 - naturalVoiceNames.findIndex((candidate) => name.includes(candidate)) : 0;
+        const robotic = /compact|espeak|festival/.test(name) ? -80 : 0;
+        return exactLocale + premium + robotic + (voice.default ? 5 : 0);
+      };
+      return score(b) - score(a);
+    })[0] || null;
+  }
+
+  function spokenHeadline(item) {
+    const publisher = item.publisher || names[item.country_code] || "the Immigration Newsroom";
+    const title = String(item.title || "").replace(/\bUK\b/g, "U K").replace(/\bUS\b/g, "U S").replace(/\bUSA\b/g, "U S A").replace(/\bNHS\b/g, "N H S");
+    return `Here is your next update. ${title}. This report comes from ${publisher}.`;
+  }
+
+  function updateVoiceLabel(dialog, voice) {
+    const label = dialog.querySelector("[data-news-voice]");
+    if (!label) return;
+    label.textContent = voice ? `Natural voice · ${voice.name.replace(/Microsoft|Google|Online|\(Natural\)/gi, "").replace(/\s+/g, " ").trim()}` : "Best available device voice";
   }
 
   function showBriefingItem(dialog, index, speak = false) {
@@ -44,33 +80,53 @@
     if (title) title.textContent = item.title;
     if (source) source.textContent = item.publisher || "Immigration newsroom";
     if (count) count.textContent = `${dialog._newsIndex + 1} / ${items.length}`;
-    if (progress) { progress.style.animation = "none"; progress.offsetHeight; progress.style.animation = "newsBriefingProgress228 8s linear"; }
+    const duration = Math.max(9, Math.min(22, Math.ceil(spokenHeadline(item).split(/\s+/).length / 2.25) + 2));
+    if (progress) { progress.style.animation = "none"; progress.offsetHeight; progress.style.animation = `newsBriefingProgress228 ${duration}s linear`; }
     if (speak && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      const speech = new SpeechSynthesisUtterance(`${item.title}. Source: ${item.publisher || names[item.country_code] || "Immigration news"}.`);
-      speech.rate = 0.92;
+      const token = ++dialog._newsSpeechToken;
+      const speech = new SpeechSynthesisUtterance(spokenHeadline(item));
+      const voice = preferredVoice(item);
+      if (voice) speech.voice = voice;
+      speech.lang = voice?.lang || voiceLocales[item.country_code] || "en-GB";
+      speech.rate = 0.96;
+      speech.pitch = 1.02;
+      speech.volume = 1;
+      updateVoiceLabel(dialog, voice);
+      const continueBriefing = () => {
+        if (!dialog._newsPlaying || token !== dialog._newsSpeechToken) return;
+        clearTimeout(dialog._newsTimer);
+        dialog._newsTimer = setTimeout(() => showBriefingItem(dialog, (dialog._newsIndex || 0) + 1, true), 900);
+      };
+      speech.onend = continueBriefing;
+      speech.onerror = continueBriefing;
       window.speechSynthesis.speak(speech);
+    } else if (speak && dialog._newsPlaying) {
+      clearTimeout(dialog._newsTimer);
+      dialog._newsTimer = setTimeout(() => showBriefingItem(dialog, (dialog._newsIndex || 0) + 1, true), duration * 1000);
     }
   }
 
   function toggleBriefing(dialog) {
     const button = dialog.querySelector("[data-news-video-play]");
-    if (dialog._newsTimer) {
+    if (dialog._newsPlaying) {
       stopBriefing(dialog);
       button.innerHTML = "<span>&#9654;</span> Play briefing";
       button.setAttribute("aria-pressed", "false");
       return;
     }
+    dialog._newsPlaying = true;
     showBriefingItem(dialog, dialog._newsIndex || 0, true);
-    dialog._newsTimer = setInterval(() => showBriefingItem(dialog, (dialog._newsIndex || 0) + 1, true), 8000);
     button.innerHTML = "<span>&#10074;&#10074;</span> Pause briefing";
     button.setAttribute("aria-pressed", "true");
   }
 
   function wireBriefing(dialog) {
     dialog.querySelector("[data-news-video-play]").onclick = () => toggleBriefing(dialog);
-    dialog.querySelector("[data-news-video-prev]").onclick = () => showBriefingItem(dialog, (dialog._newsIndex || 0) - 1, Boolean(dialog._newsTimer));
-    dialog.querySelector("[data-news-video-next]").onclick = () => showBriefingItem(dialog, (dialog._newsIndex || 0) + 1, Boolean(dialog._newsTimer));
+    dialog.querySelector("[data-news-video-prev]").onclick = () => showBriefingItem(dialog, (dialog._newsIndex || 0) - 1, Boolean(dialog._newsPlaying));
+    dialog.querySelector("[data-news-video-next]").onclick = () => showBriefingItem(dialog, (dialog._newsIndex || 0) + 1, Boolean(dialog._newsPlaying));
+    updateVoiceLabel(dialog, preferredVoice(dialog._newsItems?.[0]));
+    if ("speechSynthesis" in window) window.speechSynthesis.addEventListener?.("voiceschanged", () => updateVoiceLabel(dialog, preferredVoice(dialog._newsItems?.[dialog._newsIndex || 0])), { once: true });
   }
 
   function closeArticle(dialog) {
@@ -181,7 +237,7 @@
           <section class="newsEditorial228"><header><div><small>LATEST REPORTING</small><h2>News desk</h2></div><span>${esc(names[selected])}</span></header><div class="newsGrid228">
             ${items.map((item, index) => `<button type="button" class="newsCard228 ${index === 0 ? "featured" : ""}" data-news-article="${index}" aria-label="Open article: ${esc(item.title)}"><span class="newsCardImage228" aria-hidden="true"></span><small>${esc(item.publisher || names[item.country_code] || "Immigration news")} &middot; ${date(item.published_at)}</small><h3>${esc(item.title)}</h3><p>${esc(item.summary || "Open this report for available details.")}</p><span>Open article</span></button>`).join("") || '<div class="newsEmpty228"><b>No current headlines found.</b><p>Please check again after the next daily update.</p></div>'}
           </div></section>
-          <aside class="newsVideoDesk228"><div class="newsVideoStage228"><div class="newsVideoTop228"><span><i></i> DAILY BRIEFING</span><b data-news-video-count>${items.length ? `1 / ${Math.min(items.length, 12)}` : "0 / 0"}</b></div><div class="newsVideoMark228">BV<span>NEWS</span></div><div class="newsVideoCopy228" aria-live="polite"><small data-news-video-source>${esc(first.publisher || "Immigration newsroom")}</small><h2 data-news-video-title>${esc(first.title || "Your daily immigration briefing")}</h2></div><div class="newsVideoProgressTrack228"><i data-news-video-progress></i></div><div class="newsVideoControls228"><button type="button" data-news-video-prev aria-label="Previous headline">&larr;</button><button type="button" data-news-video-play aria-pressed="false"><span>&#9654;</span> Play briefing</button><button type="button" data-news-video-next aria-label="Next headline">&rarr;</button></div></div><p>Play a hands-free visual and spoken briefing generated on your device from today's current headlines.</p><div class="newsVideoTrust228"><span>&#10003;</span><div><b>Source-led reporting</b><small>Every briefing item links to its original publisher.</small></div></div></aside>
+          <aside class="newsVideoDesk228"><div class="newsVideoStage228"><div class="newsVideoTop228"><span><i></i> DAILY BRIEFING</span><b data-news-video-count>${items.length ? `1 / ${Math.min(items.length, 12)}` : "0 / 0"}</b></div><div class="newsVoiceQuality228"><span aria-hidden="true">◉</span><b data-news-voice>Preparing natural voice</b></div><div class="newsVideoMark228">BV<span>NEWS</span></div><div class="newsVideoCopy228" aria-live="polite"><small data-news-video-source>${esc(first.publisher || "Immigration newsroom")}</small><h2 data-news-video-title>${esc(first.title || "Your daily immigration briefing")}</h2></div><div class="newsVideoProgressTrack228"><i data-news-video-progress></i></div><div class="newsVideoControls228"><button type="button" data-news-video-prev aria-label="Previous headline">&larr;</button><button type="button" data-news-video-play aria-pressed="false"><span>&#9654;</span> Play briefing</button><button type="button" data-news-video-next aria-label="Next headline">&rarr;</button></div></div><p>Play a calm, naturally paced briefing generated securely on your device from today's current headlines.</p><div class="newsVideoTrust228"><span>&#10003;</span><div><b>Source-led reporting</b><small>Every briefing item links to its original publisher.</small></div></div></aside>
         </div>
         <footer>${esc(data.source_notice || "Verify immigration decisions with the official authority.")}</footer>
         <section class="newsArticleModal228" data-news-article-modal role="dialog" aria-modal="true" aria-label="Immigration news article" hidden></section>`;

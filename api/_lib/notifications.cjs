@@ -1,4 +1,5 @@
 const webpush = require("web-push");
+const { countryCode, qualifiesForJob } = require("./job-alert-matching.cjs");
 
 const base = () => String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
 const anon = () => process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -168,32 +169,40 @@ async function deliverCampaign(campaign) {
 }
 async function generateJobAlerts(limit = 100) {
   const since = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
-  const jobs = await rest(`btv_jobs?select=id,title,employer,country,specialty,band,location,visa_sponsorship,closing_date,status,created_at&status=eq.published&created_at=gte.${encodeURIComponent(since)}&order=created_at.desc&limit=${Math.min(limit, 250)}`);
+  const jobs = await rest(`btv_jobs?select=id,title,employer,country,country_code,profession,specialty,band,location,city,region_or_state,visa_sponsorship,sponsorship_status,employment_type,contract_type,registration_required,registration_status,registration_body,experience_level,closing_date,closing_at,status,created_at&status=in.(published,active,closing_soon)&created_at=gte.${encodeURIComponent(since)}&order=created_at.desc&limit=${Math.min(limit, 250)}`);
   if (!jobs?.length) return { matched: 0 };
-  const [profiles, prefs, previous] = await Promise.all([
-    rest("profiles?select=id,destination_country,destination,profession&limit=10000"),
+  const [profiles, professionalRows, registrations, practice, alertRows, prefs, previous] = await Promise.all([
+    rest("profiles?select=id,destination_country,destination,profession,registration_stage&limit=10000"),
+    rest("btv_professional_profiles?select=user_id,profession,qualification_title,nursing_field,clinical_specialty,experience_level&limit=10000"),
+    rest("btv_professional_registrations?select=user_id,country,status&status=eq.Active&limit=10000"),
+    rest("btv_professional_practice_history?select=user_id,clinical_area&limit=10000"),
+    rest("btv_job_alerts?select=user_id,country_code,profession,specialties,locations,sponsorship_preference,employment_types&is_active=eq.true&limit=10000"),
     rest("notification_preferences?select=*&job_alerts_enabled=eq.true&limit=10000"),
     rest(`notification_job_matches?select=user_id,job_id&job_id=in.(${jobs.map(job => job.id).join(",")})`),
   ]);
+  const professionalMap=new Map((professionalRows||[]).map(row=>[row.user_id,row])),registrationMap=new Map(),practiceMap=new Map(),alertMap=new Map();
+  for(const row of registrations||[])registrationMap.set(row.user_id,[...(registrationMap.get(row.user_id)||[]),row]);
+  for(const row of practice||[])practiceMap.set(row.user_id,[...(practiceMap.get(row.user_id)||[]),row]);
+  for(const row of alertRows||[])alertMap.set(row.user_id,[...(alertMap.get(row.user_id)||[]),row]);
   const prefMap = new Map((prefs || []).map(row => [row.user_id, row]));
   const seen = new Set((previous || []).map(row => `${row.user_id}:${row.job_id}`));
   let matched = 0;
   for (const profile of profiles || []) {
     const pref = prefMap.get(profile.id); if (!pref || !allowed(pref, "jobs", "in_app")) continue;
-    const destination = clean(profile.destination_country || profile.destination, 80).toLowerCase();
+    let userMatches=0;
     for (const job of jobs) {
+      if(userMatches>=3)break;
       if (seen.has(`${profile.id}:${job.id}`)) continue;
-      if (job.closing_date && new Date(job.closing_date) < new Date()) continue;
-      if (clean(job.country, 80).toLowerCase() !== destination) continue;
-      if (job.specialty && profile.profession && !clean(`${job.title} ${job.specialty}`, 300).toLowerCase().includes(clean(profile.profession, 100).toLowerCase().split(" ")[0])) continue;
-      const inserted = await rest("notifications?on_conflict=user_id,dedupe_key", { method: "POST", prefer: "resolution=ignore-duplicates,return=representation", body: JSON.stringify({ user_id: profile.id, category: "jobs", title: clean(job.title, 120), body: clean(`${job.employer}${job.location ? ` · ${job.location}` : ""}${job.visa_sponsorship ? " · sponsorship confirmed" : ""}`, 240), action_url: `/jobs/${job.id}`, priority: "normal", notification_tag: `job:${job.id}`, dedupe_key: `job:${job.id}`, delivery_status: "queued" }) });
+      const closing=job.closing_at||job.closing_date;if(closing&&new Date(closing)<new Date())continue;
+      if(!qualifiesForJob(profile,job,{professional:professionalMap.get(profile.id),registrations:registrationMap.get(profile.id)||[],practice:practiceMap.get(profile.id)||[],alerts:alertMap.get(profile.id)||[]}))continue;
+      const inserted = await rest("notifications?on_conflict=user_id,dedupe_key", { method: "POST", prefer: "resolution=ignore-duplicates,return=representation", body: JSON.stringify({ user_id: profile.id, category: "jobs", title: clean(job.title, 120), body: clean(`${job.employer}${job.location ? ` · ${job.location}` : ""}${job.visa_sponsorship ? " · sponsorship confirmed" : ""}`, 240), action_url: `/jobs/${job.id}`, data:{job_id:job.id,country_code:countryCode(job.country_code||job.country)}, priority: "normal", notification_tag: `job:${job.id}`, dedupe_key: `job:${job.id}`, delivery_status: "queued" }) });
       const notification = inserted?.[0]; if (!notification) continue;
       await rest("notification_job_matches", { method: "POST", body: JSON.stringify({ user_id: profile.id, job_id: job.id, notification_id: notification.id }), prefer: "return=minimal" });
       const digestFrequency=["daily","weekly"].includes(pref.frequency)?pref.frequency:null,quiet=inQuietHours(pref);
       if(allowed(pref,"jobs","push")&&(digestFrequency||quiet))await queueDigest(profile.id,notification.id,digestFrequency||"quiet_hours");
       const devices = allowed(pref, "jobs", "push") && !digestFrequency && !quiet ? await rest(`push_subscriptions?select=*&user_id=eq.${profile.id}&enabled=eq.true&is_active=eq.true`) : [];
       await Promise.all((devices || []).map(sub => sendPush(notification, sub, profile.id)));
-      matched++;
+      matched++;userMatches++;
     }
   }
   return { matched };
@@ -214,4 +223,4 @@ async function deliverDigests(limit=500) {
   return {delivered,failed,users:grouped.size};
 }
 
-module.exports = { rest, clean, safeTarget, safeImage, userFromRequest, requireAdmin, audience, deliverCampaign, generateJobAlerts, deliverDigests, configured, vapidReady };
+module.exports = { rest, clean, safeTarget, safeImage, userFromRequest, requireAdmin, audience, deliverCampaign, generateJobAlerts, deliverDigests, qualifiesForJob, countryCode, configured, vapidReady };

@@ -32,22 +32,54 @@
     $('.authCard')?.scrollIntoView({ block: 'center' });
   }
 
-  async function googleSignIn(button) {
+  const oauthReturnKey = 'btv-oauth-return-v274';
+  const oauthMessageKey = 'btv-oauth-message-v274';
+
+  function oauthReturnPath() {
+    const path = `${location.pathname}${location.search}${location.hash}`;
+    return path.startsWith('/auth/callback') ? '/?mode=login' : path;
+  }
+
+  async function socialSignIn(provider, button) {
     try {
       if (!window.btvSupabase?.auth) throw new Error('The secure sign-in service is still loading. Please try again.');
       button.disabled = true;
       button.setAttribute('aria-busy', 'true');
-      const redirectTo = `${location.origin}${location.pathname}${location.search}`;
+      const isFacebook = provider === 'facebook';
+      if (isFacebook) {
+        sessionStorage.setItem(oauthReturnKey, oauthReturnPath());
+        sessionStorage.removeItem(oauthMessageKey);
+      }
+      const redirectTo = isFacebook
+        ? `${window.location.origin}/auth/callback`
+        : `${location.origin}${location.pathname}${location.search}`;
       const { error } = await window.btvSupabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo, queryParams: { access_type: 'offline', prompt: 'consent' } }
+        provider,
+        options: {
+          redirectTo,
+          ...(provider === 'google' ? { queryParams: { access_type: 'offline', prompt: 'consent' } } : {})
+        }
       });
       if (error) throw error;
     } catch (error) {
       button.disabled = false;
       button.removeAttribute('aria-busy');
-      toast(error?.message || 'Google sign-in could not be started.');
+      toast(error?.message || `${provider === 'facebook' ? 'Facebook' : 'Google'} sign-in could not be started.`);
     }
+  }
+
+  function showOauthMessage() {
+    let message = '';
+    try {
+      message = sessionStorage.getItem(oauthMessageKey) || '';
+      sessionStorage.removeItem(oauthMessageKey);
+    } catch {}
+    if (!message) return;
+    const error = $('#loginError');
+    if (error) {
+      error.setAttribute('role', 'alert');
+      error.textContent = message;
+    } else toast(message);
   }
 
   async function resetPassword(button) {
@@ -133,7 +165,10 @@
     social.className = 'authSocialV69';
     social.innerHTML = `
       <div class="socialDivider"><span>or continue with</span></div>
-      <button class="googleAuth" type="button" id="googleAuthV69" aria-label="Continue with Google"><span class="googleMark" aria-hidden="true">G</span><span>Continue with Google</span></button>`;
+      <div class="socialButtonsV274">
+        <button class="googleAuth" type="button" id="googleAuthV69" aria-label="Continue with Google"><span class="googleMark" aria-hidden="true">G</span><span>Continue with Google</span></button>
+        <button class="facebookAuth" type="button" id="facebookAuthV274" aria-label="Continue with Facebook"><span class="facebookMark" aria-hidden="true">f</span><span>Continue with Facebook</span></button>
+      </div>`;
     card.append(social);
 
     const prompt = document.createElement('button');
@@ -159,11 +194,12 @@
 
     $('#showLogin')?.addEventListener('click', () => updateAuthCopy(true));
     prompt.addEventListener('click', () => showTab(false));
-    $('#googleAuthV69')?.addEventListener('click', event => googleSignIn(event.currentTarget));
+    $('#googleAuthV69')?.addEventListener('click', event => socialSignIn('google', event.currentTarget));
+    $('#facebookAuthV274')?.addEventListener('click', event => socialSignIn('facebook', event.currentTarget));
     $('#forgotPasswordV69')?.addEventListener('click', event => resetPassword(event.currentTarget));
 
     const requestedSignup = new URLSearchParams(location.search).get('mode') === 'signup';
-    setTimeout(() => showTab(!requestedSignup), 0);
+    setTimeout(() => { showTab(!requestedSignup); showOauthMessage(); }, 0);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance, { once: true });

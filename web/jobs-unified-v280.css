@@ -1,0 +1,206 @@
+/* Jobs Unified v280 — the UK Jobs and Opportunity Centre layout for every destination. */
+#appShell>main{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;overflow:visible!important}
+body>main{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;overflow:visible!important}
+#jobs.screen,#opportunities.screen{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobs.screen.active,#opportunities.screen.active{display:block!important}
+#jobs>#jobsContent,#jobsContent{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobs>.pageTitle{position:relative!important;inset:auto!important;z-index:auto!important;display:flex!important;box-sizing:border-box!important;width:min(100%,1500px)!important;max-width:none!important;min-width:0!important;height:auto!important;min-height:78px!important;align-items:center!important;gap:14px!important;margin:0 auto!important;padding:18px clamp(20px,4vw,60px)!important;overflow:visible!important;border:0!important;border-bottom:1px solid var(--line)!important;background:var(--card)!important;transform:none!important}
+#jobs>.pageTitle>div{position:static!important;min-width:0!important;transform:none!important}
+#jobs>.pageTitle span,#jobs>.pageTitle h1{position:static!important;display:block!important;max-width:100%!important;height:auto!important;overflow:visible!important;overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important;transform:none!important}
+#jobs>.pageTitle h1{margin:4px 0 0!important;font:700 clamp(28px,3vw,40px)/1.08 Georgia,serif!important}
+#jobs>.pageTitle .back{position:static!important;display:grid!important;width:46px!important;height:46px!important;flex:0 0 auto!important;place-items:center!important;margin:0!important;transform:none!important}
+
+/* One bounded desktop canvas for all country feeds. */
+#jobsContent>.nhsJobs148,#jobsContent>.usaJobs155,#jobsContent>.globalJobs168{box-sizing:border-box!important;display:block!important;width:min(100%,1500px)!important;max-width:1500px!important;min-width:0!important;height:auto!important;margin:0 auto!important;padding:28px clamp(20px,4vw,60px) 124px!important;overflow:visible!important;color:var(--ink)!important;transform:none!important}
+#jobsContent>.usaJobs155{--usa-navy:var(--brand)!important;--usa-blue:var(--teal)!important;--usa-red:#a84f4f!important}
+#jobsContent>.nhsJobs148 *,#jobsContent>.usaJobs155 *,#jobsContent>.globalJobs168 *{box-sizing:border-box;min-width:0}
+
+/* Shared editorial hero treatment. */
+#jobsContent .nhsJobsHero148,#jobsContent .usaHero155,#jobsContent .globalJobsHero168{position:relative!important;isolation:isolate!important;display:grid!important;width:100%!important;max-width:none!important;min-height:430px!important;height:auto!important;grid-template-columns:minmax(0,1fr)!important;align-content:end!important;align-items:end!important;gap:24px!important;margin:0 0 18px!important;padding:34px!important;overflow:hidden!important;border:1px solid rgba(183,224,218,.28)!important;border-radius:28px!important;background:#0b3437!important;color:#fff!important;box-shadow:0 18px 42px rgba(6,29,34,.2)!important;transform:none!important}
+#jobsContent .usaHero155:before,#jobsContent .globalJobsHero168:before{content:""!important;position:absolute!important;inset:0!important;z-index:-1!important;background:linear-gradient(90deg,rgba(5,40,42,.98) 0%,rgba(6,47,49,.94) 43%,rgba(7,50,52,.7) 67%,rgba(5,31,34,.28) 100%),url("assets/jobs/nhs-jobs-hero.webp") right center/cover no-repeat!important;pointer-events:none!important}
+#jobsContent .usaHero155>div:first-child,#jobsContent .globalJobsHero168>div:first-child{position:relative!important;z-index:1!important;max-width:680px!important}
+#jobsContent .nhsJobsHero148 h2,#jobsContent .usaHero155 h2,#jobsContent .globalJobsHero168 h2{position:static!important;display:block!important;max-width:760px!important;height:auto!important;margin:14px 0 12px!important;color:#fff!important;font:700 clamp(34px,4.2vw,52px)/1.06 Georgia,serif!important;letter-spacing:-.025em!important;overflow:visible!important;overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important;text-wrap:balance!important;transform:none!important}
+#jobsContent .nhsJobsHero148 p,#jobsContent .usaHero155 p,#jobsContent .globalJobsHero168 p{position:static!important;max-width:700px!important;margin:0!important;color:#dcebea!important;font-size:14px!important;line-height:1.65!important;overflow-wrap:break-word!important;white-space:normal!important;transform:none!important}
+#jobsContent .usaHero155>div:first-child>span,#jobsContent .globalJobsEyebrow168{position:static!important;display:inline-flex!important;width:max-content!important;max-width:100%!important;min-height:31px!important;align-items:center!important;margin:0!important;padding:7px 11px!important;border:1px solid rgba(214,166,75,.4)!important;border-radius:999px!important;background:rgba(91,70,21,.42)!important;color:#f4c861!important;font-size:9px!important;font-weight:900!important;letter-spacing:.12em!important;line-height:1.2!important;overflow-wrap:break-word!important;white-space:normal!important;transform:none!important}
+#jobsContent .usaStats155{position:relative!important;z-index:1!important;display:grid!important;width:100%!important;max-width:920px!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin-top:4px!important}
+#jobsContent .usaStats155 article{position:static!important;display:flex!important;min-width:0!important;min-height:126px!important;flex-direction:column!important;justify-content:flex-end!important;margin:0!important;padding:16px!important;border:1px solid rgba(222,244,240,.24)!important;border-radius:18px!important;background:rgba(5,35,39,.68)!important;box-shadow:0 10px 26px rgba(2,22,25,.14)!important;backdrop-filter:blur(12px)!important;transform:none!important}
+#jobsContent .usaStats155 b{color:#fff!important;font:700 30px/1 Georgia,serif!important}
+#jobsContent .usaStats155 small{margin-top:6px!important;color:#d8e8e6!important;font-size:11px!important;line-height:1.35!important;overflow-wrap:break-word!important}
+#jobsContent .globalDestination168{position:relative!important;z-index:1!important;width:min(100%,390px)!important;margin-left:auto!important}
+#jobsContent .globalJobsStats168{position:relative!important;z-index:1!important}
+
+/* Shared two-column filter and results workspace. */
+#jobsContent .nhsJobsLayout148,#jobsContent .usaLayout155,#jobsContent .globalJobsLayout168{position:relative!important;display:grid!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;grid-template-columns:300px minmax(0,1fr)!important;align-items:start!important;gap:20px!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobsContent .nhsJobsFilters148,#jobsContent .usaFilters155,#jobsContent .globalJobsFilters168{position:sticky!important;inset:16px auto auto!important;z-index:2!important;display:block!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;margin:0!important;padding:18px!important;overflow:hidden!important;border:1px solid var(--line)!important;border-radius:22px!important;background:var(--card)!important;box-shadow:var(--shadow)!important;transform:none!important}
+#jobsContent .globalJobsFilters168 summary{padding:0 0 16px!important}
+#jobsContent .globalJobsFilters168 form{padding:0!important}
+#jobsContent .nhsJobsMain148,#jobsContent .usaMain155,#jobsContent .globalJobsMain168{position:static!important;display:block!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important}
+#jobsContent .nhsJobsToolbar148,#jobsContent .usaToolbar155,#jobsContent .globalJobsToolbar168{position:static!important;display:flex!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;align-items:flex-end!important;justify-content:space-between!important;gap:14px!important;margin:0 0 12px!important;padding:16px 18px!important;overflow:visible!important;border:1px solid var(--line)!important;border-radius:18px!important;background:var(--card)!important;box-shadow:none!important;transform:none!important}
+#jobsContent .nhsJobsToolbar148>div,#jobsContent .usaToolbar155>div,#jobsContent .globalJobsToolbar168>div{min-width:0!important}
+#jobsContent .nhsJobsToolbar148 h2,#jobsContent .usaToolbar155 h2,#jobsContent .globalJobsToolbar168 h2{position:static!important;display:block!important;max-width:100%!important;height:auto!important;margin:4px 0 0!important;font:700 clamp(23px,2.5vw,31px)/1.15 Georgia,serif!important;overflow:visible!important;overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important;transform:none!important}
+
+/* USA and global records now use the same full-width list rhythm as UK records. */
+#jobsContent .nhsJobList148,#jobsContent .usaGrid155,#jobsContent .globalJobsList168{position:static!important;display:grid!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobsContent .nhsJob148,#jobsContent .usaJob155,#jobsContent .globalJobCard168{position:relative!important;display:block!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;min-height:0!important;margin:0!important;padding:20px!important;overflow:hidden!important;border:1px solid var(--line)!important;border-radius:20px!important;background:var(--card)!important;box-shadow:var(--shadow)!important;color:var(--ink)!important;transform:none!important}
+#jobsContent .globalJobCard168{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(220px,270px)!important;padding:0!important}
+#jobsContent .globalJobPrimary168,#jobsContent .globalJobSide168{min-width:0!important;padding:20px!important}
+#jobsContent .usaJob155>span,#jobsContent .nhsJobTop148 span,#jobsContent .globalJobTop168 span{position:static!important;display:block!important;max-width:100%!important;color:var(--teal)!important;font-size:9px!important;font-weight:900!important;letter-spacing:.1em!important;text-transform:uppercase!important;overflow-wrap:break-word!important;white-space:normal!important;transform:none!important}
+#jobsContent .nhsJob148 h3,#jobsContent .usaJob155 h3,#jobsContent .globalJobTop168 h3{position:static!important;display:block!important;width:auto!important;max-width:100%!important;height:auto!important;margin:7px 0 5px!important;padding:0!important;overflow:visible!important;font:700 clamp(20px,2.1vw,27px)/1.2 Georgia,serif!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important;hyphens:auto!important;transform:none!important}
+#jobsContent .nhsJob148 h3 a,#jobsContent .usaJob155 h3 a{display:block!important;max-width:100%!important;color:var(--ink)!important;overflow-wrap:anywhere!important;white-space:normal!important}
+#jobsContent .usaJob155>p,#jobsContent .nhsJobSummary148,#jobsContent .globalJobSummary168{position:static!important;display:block!important;max-width:100%!important;height:auto!important;margin:13px 0!important;color:var(--muted)!important;font-size:12px!important;line-height:1.55!important;overflow:visible!important;overflow-wrap:break-word!important;white-space:normal!important;-webkit-line-clamp:unset!important;transform:none!important}
+#jobsContent .nhsJobFacts148,#jobsContent .usaFacts155,#jobsContent .globalJobMeta168{position:static!important;display:grid!important;width:100%!important;min-width:0!important;height:auto!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;margin:14px 0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobsContent .usaFacts155 .wide{grid-column:auto!important}
+#jobsContent .nhsJobFacts148 div,#jobsContent .usaFacts155 div,#jobsContent .globalJobMeta168 div{min-width:0!important;border-top:1px solid var(--line)!important;padding-top:8px!important}
+#jobsContent .nhsJobFacts148 dd,#jobsContent .usaFacts155 dd,#jobsContent .globalJobMeta168 dd{max-width:100%!important;margin:4px 0 0!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important}
+#jobsContent .nhsJobActions148,#jobsContent .usaActions155,#jobsContent .globalJobActions168{position:static!important;display:flex!important;min-width:0!important;height:auto!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+#jobsContent .nhsJobActions148 a,#jobsContent .nhsJobActions148 button,#jobsContent .usaActions155 a,#jobsContent .usaActions155 button,#jobsContent .globalJobActions168 a,#jobsContent .globalJobActions168 button{position:static!important;display:inline-flex!important;min-height:43px!important;width:auto!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:10px 13px!important;border:0!important;border-radius:11px!important;background:var(--mint)!important;color:var(--teal)!important;text-decoration:none!important;font-size:11px!important;font-weight:900!important;white-space:normal!important;transform:none!important}
+#jobsContent .nhsJobActions148 a:first-child,#jobsContent .usaActions155 [data-usa-detail],#jobsContent .globalJobActions168 a,#jobsContent .globalJobActions168 button:first-child{background:var(--brand)!important;color:#fff!important}
+
+/* Shared safety and source notes. */
+#jobsContent .usaEligibility155,#jobsContent .globalOfficialJobs170,#jobsContent .nhsJobsSource148,#jobsContent .usaSource155{position:relative!important;inset:auto!important;display:block!important;width:100%!important;max-width:none!important;height:auto!important;margin:0 0 18px!important;overflow:visible!important;overflow-wrap:break-word!important;white-space:normal!important;transform:none!important}
+#jobsContent .usaEligibility155,#jobsContent .globalOfficialJobs170{padding:17px 19px!important;border:1px solid var(--line)!important;border-radius:18px!important;background:var(--card)!important}
+
+/* UK Opportunity Centre is authoritative for every country, including USA. */
+#opportunities.opportunityCentre138{box-sizing:border-box!important;width:min(100%,1500px)!important;max-width:1500px!important;min-width:0!important;height:auto!important;margin:0 auto!important;padding:28px clamp(20px,4vw,60px) 124px!important;overflow:visible!important;transform:none!important}
+#opportunities [data-opportunity-body],#opportunities .opportunitySection138,#opportunities .opportunityGrid138,#opportunities .opportunityCard138{min-width:0!important;max-width:100%!important}
+#opportunities .opportunityHeading138,#opportunities .opportunityHeading138>div{position:static!important;min-width:0!important;height:auto!important;overflow:visible!important;transform:none!important}
+#opportunities .opportunityHeading138 h2,#opportunities .opportunityCard138 h3,#opportunities .opportunityHeroCopy138 h1{position:static!important;display:block!important;max-width:100%!important;height:auto!important;overflow:visible!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important;transform:none!important}
+#opportunities .opportunityCard138{overflow:hidden!important}
+
+@media(max-width:980px){
+  #jobsContent .nhsJobsLayout148,#jobsContent .usaLayout155,#jobsContent .globalJobsLayout168{grid-template-columns:1fr!important}
+  #jobsContent .nhsJobsFilters148,#jobsContent .usaFilters155,#jobsContent .globalJobsFilters168{position:static!important}
+  #jobsContent .globalJobCard168{grid-template-columns:1fr!important}
+  #jobsContent .globalJobSide168{border-left:0!important;border-top:1px solid var(--line)!important}
+}
+@media(max-width:700px){
+  #jobs>.pageTitle{min-height:66px!important;padding:12px 14px!important}
+  #jobsContent>.nhsJobs148,#jobsContent>.usaJobs155,#jobsContent>.globalJobs168,#opportunities.opportunityCentre138{padding:16px 12px 104px!important}
+  #jobsContent .nhsJobsHero148,#jobsContent .usaHero155,#jobsContent .globalJobsHero168{min-height:0!important;padding:24px 19px!important;border-radius:24px!important}
+  #jobsContent .usaHero155:before,#jobsContent .globalJobsHero168:before{background:linear-gradient(180deg,rgba(5,40,42,.98),rgba(6,47,49,.88)),url("assets/jobs/nhs-jobs-hero-mobile.webp") 70% center/cover no-repeat!important}
+  #jobsContent .usaStats155{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #jobsContent .nhsJobsToolbar148,#jobsContent .usaToolbar155,#jobsContent .globalJobsToolbar168{display:block!important}
+  #jobsContent .nhsJobTop148,#jobsContent .globalJobTop168{display:block!important}
+  #jobsContent .nhsJobBadges148{justify-content:flex-start!important;margin-top:9px!important}
+  #jobsContent .nhsJobFacts148,#jobsContent .usaFacts155,#jobsContent .globalJobMeta168{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:430px){
+  #jobsContent .usaStats155,#jobsContent .nhsJobFacts148,#jobsContent .usaFacts155,#jobsContent .globalJobMeta168{grid-template-columns:1fr!important}
+  #jobsContent .nhsJob148,#jobsContent .usaJob155{padding:18px!important}
+  #jobsContent .globalJobPrimary168,#jobsContent .globalJobSide168{padding:18px!important}
+  #jobsContent .nhsJobActions148 a,#jobsContent .nhsJobActions148 button,#jobsContent .usaActions155 a,#jobsContent .usaActions155 button,#jobsContent .globalJobActions168 a,#jobsContent .globalJobActions168 button{width:100%!important}
+}
+@media(prefers-reduced-motion:reduce){#jobs *,#opportunities *{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+
+/* USA premium tile release v292. */
+#jobsContent .usaJobs155 .usaMain155{padding:clamp(18px,2.3vw,30px)!important;border:1px solid #d8e4de!important;border-radius:24px!important;background:linear-gradient(145deg,#fbfcfa,#f1f6f2)!important;box-shadow:0 18px 48px #07303714!important}
+#jobsContent .usaJobs155 .usaGrid155{grid-template-columns:repeat(3,minmax(250px,1fr))!important;align-items:stretch!important;gap:18px!important}
+#jobsContent .usaJobs155 .usaJob155{display:grid!important;grid-template-rows:auto auto auto auto minmax(82px,1fr) auto auto!important;align-content:start!important;height:100%!important;min-height:530px!important;padding:24px!important;border-color:#d8e4de!important;border-radius:22px!important;background:#fffffff5!important;box-shadow:0 14px 34px #07303713!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+#jobsContent .usaJobs155 .usaJob155:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,#d9b858,#08756f)}
+#jobsContent .usaJobs155 .usaJob155:hover{transform:translateY(-4px)!important;border-color:#b9d4c9!important;box-shadow:0 24px 52px #07303724!important}
+#jobsContent .usaJobs155 .usaJob155>span{width:fit-content!important;margin:3px 0 6px!important;padding:7px 10px!important;border-radius:999px!important;background:#e8f4ef!important;color:#08635e!important}
+#jobsContent .usaJobs155 .usaJob155>p{display:-webkit-box!important;min-height:82px!important;overflow:hidden!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:4!important}
+#jobsContent .usaJobs155 .usaFacts155{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin:0 0 18px!important;padding-top:16px!important;border-top:1px solid #e3ebe7!important}
+#jobsContent .usaJobs155 .usaFacts155 div{padding:9px!important;border:0!important;border-radius:11px!important;background:#f6f9f7!important}
+#jobsContent .usaJobs155 .usaFacts155 .wide{grid-column:1/-1!important}
+#jobsContent .usaJobs155 .usaActions155{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:9px!important}
+#jobsContent .usaJobs155 .usaActions155>a{grid-column:1/-1!important;grid-row:2!important;width:100%!important;background:#062e3a!important;color:#fff!important}
+#jobsContent .usaJobs155 .usaActions155 [data-usa-detail]{background:#e7f3ee!important;color:#075c58!important}
+#jobsContent .usaJobs155 .usaActions155 [data-save-usa]{min-width:92px!important;border:1px solid #d8e4de!important;background:#fff!important;color:#6d5414!important}
+@media(max-width:1320px){#jobsContent .usaJobs155 .usaGrid155{grid-template-columns:repeat(2,minmax(260px,1fr))!important}}
+@media(max-width:900px){#jobsContent .usaJobs155 .usaJob155{min-height:0!important}}
+@media(max-width:640px){#jobsContent .usaJobs155 .usaGrid155{grid-template-columns:1fr!important}#jobsContent .usaJobs155 .usaMain155{padding:15px!important}#jobsContent .usaJobs155 .usaJob155{padding:21px!important;border-radius:19px!important}}
+
+/* Premium vacancy tile system v299 — one polished card language for every country. */
+#jobsContent .nhsJobsMain148,
+#jobsContent .globalJobsMain168{padding:clamp(18px,2.3vw,30px)!important;border:1px solid #d8e4de!important;border-radius:24px!important;background:linear-gradient(145deg,#fbfcfa 0%,#f1f6f2 100%)!important;box-shadow:0 18px 48px rgba(7,48,55,.08)!important}
+
+#jobsContent .nhsJobList148,
+#jobsContent .globalJobsList168{grid-template-columns:repeat(2,minmax(300px,1fr))!important;align-items:stretch!important;gap:18px!important}
+
+#jobsContent .nhsJob148,
+#jobsContent .globalJobCard168{height:100%!important;min-height:510px!important;border-color:#d8e4de!important;border-radius:22px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 14px 34px rgba(7,48,55,.075)!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+
+#jobsContent .nhsJob148{display:grid!important;grid-template-rows:auto minmax(76px,1fr) auto auto!important;align-content:start!important;padding:24px!important}
+#jobsContent .globalJobCard168{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:1fr auto!important;padding:0!important}
+
+#jobsContent .nhsJob148:before,
+#jobsContent .globalJobCard168:before{content:""!important;position:absolute!important;inset:0 0 auto!important;z-index:1!important;height:5px!important;background:linear-gradient(90deg,#d9b858 0%,#08756f 76%,#063b49 100%)!important}
+#jobsContent .nhsJob148:hover,
+#jobsContent .globalJobCard168:hover{transform:translateY(-4px)!important;border-color:#b9d4c9!important;box-shadow:0 24px 52px rgba(7,48,55,.14)!important}
+
+#jobsContent .nhsJobTop148,
+#jobsContent .globalJobTop168{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important}
+#jobsContent .nhsJobTop148 span,
+#jobsContent .globalJobTop168 span{display:inline-flex!important;width:fit-content!important;max-width:100%!important;margin:3px 0 6px!important;padding:7px 10px!important;border-radius:999px!important;background:#e8f4ef!important;color:#08635e!important;line-height:1.25!important}
+#jobsContent .nhsJobEmployer148,
+#jobsContent .globalJobTop168 p{margin:0!important;color:#536b69!important;font-size:12px!important;font-weight:700!important;line-height:1.45!important}
+#jobsContent .nhsJobBadges148,
+#jobsContent .globalJobSourceBadge168{flex:0 0 auto!important;margin:3px 0 0!important}
+#jobsContent .globalJobSourceBadge168{display:inline-flex!important;align-items:center!important;padding:7px 10px!important;border:1px solid #ead9a7!important;border-radius:999px!important;background:#fff9e8!important;color:#715718!important;font-size:9px!important;font-weight:900!important;letter-spacing:.06em!important;text-transform:uppercase!important}
+
+#jobsContent .nhsJobSummary148,
+#jobsContent .globalJobSummary168{display:-webkit-box!important;min-height:76px!important;max-height:76px!important;margin:16px 0!important;overflow:hidden!important;color:#5a6c6a!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important}
+#jobsContent .nhsJobFacts148,
+#jobsContent .globalJobMeta168{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin:0 0 18px!important;padding-top:16px!important;border-top:1px solid #e3ebe7!important}
+#jobsContent .nhsJobFacts148 div,
+#jobsContent .globalJobMeta168 div{min-height:68px!important;padding:10px!important;border:0!important;border-radius:11px!important;background:#f6f9f7!important}
+#jobsContent .nhsJobFacts148 dt,
+#jobsContent .globalJobMeta168 dt,
+#jobsContent .globalJobSide168 dt{color:#71817f!important;font-size:8px!important;font-weight:900!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+#jobsContent .nhsJobFacts148 dd,
+#jobsContent .globalJobMeta168 dd,
+#jobsContent .globalJobSide168 dd{color:#173f40!important;font-size:11px!important;font-weight:800!important;line-height:1.4!important}
+
+#jobsContent .nhsJobActions148{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-self:end!important;gap:9px!important}
+#jobsContent .nhsJobActions148 a,
+#jobsContent .nhsJobActions148 button{width:100%!important;min-height:46px!important}
+#jobsContent .nhsJobActions148 small{grid-column:1/-1!important;color:#758482!important;font-size:9px!important;line-height:1.4!important}
+
+#jobsContent .globalJobPrimary168{display:flex!important;flex-direction:column!important;padding:24px 24px 18px!important}
+#jobsContent .globalJobMeta168{margin-top:auto!important}
+#jobsContent .globalJobSource168{margin:0!important;color:#758482!important;font-size:9px!important;line-height:1.45!important}
+#jobsContent .globalJobSide168{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:end!important;gap:14px!important;padding:18px 24px 22px!important;border-top:1px solid #dce9e4!important;background:linear-gradient(135deg,#edf7f3,#f7faf8)!important}
+#jobsContent .globalJobSide168>dl{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;margin:0!important}
+#jobsContent .globalJobSide168>dl dt,
+#jobsContent .globalJobSide168>dl dd{margin:0!important}
+#jobsContent .globalJobSide168>dl dd{margin-top:4px!important}
+#jobsContent .globalJobSide168>dl dt:nth-of-type(1){grid-column:1!important;grid-row:1!important}
+#jobsContent .globalJobSide168>dl dd:nth-of-type(1){grid-column:1!important;grid-row:2!important}
+#jobsContent .globalJobSide168>dl dt:nth-of-type(2){grid-column:2!important;grid-row:1!important}
+#jobsContent .globalJobSide168>dl dd:nth-of-type(2){grid-column:2!important;grid-row:2!important}
+#jobsContent .globalJobSide168>dl dt:nth-of-type(3){grid-column:3!important;grid-row:1!important}
+#jobsContent .globalJobSide168>dl dd:nth-of-type(3){grid-column:3!important;grid-row:2!important}
+#jobsContent .globalJobActions168{display:grid!important;grid-template-columns:repeat(2,minmax(100px,1fr))!important;gap:8px!important}
+#jobsContent .globalJobActions168 a,
+#jobsContent .globalJobActions168 button{width:100%!important;min-height:46px!important}
+#jobsContent .globalJobActions168 button:first-child{grid-column:1!important;grid-row:1!important}
+#jobsContent .globalJobActions168 button:last-child{grid-column:2!important;grid-row:1!important}
+#jobsContent .globalJobActions168 a{grid-column:1/-1!important;grid-row:2!important}
+
+@media(max-width:1220px){
+  #jobsContent .nhsJobList148,#jobsContent .globalJobsList168{grid-template-columns:1fr!important}
+  #jobsContent .nhsJob148,#jobsContent .globalJobCard168{min-height:0!important}
+}
+@media(min-width:981px) and (max-width:1220px){
+  #jobsContent .nhsJobsLayout148,#jobsContent .globalJobsLayout168{grid-template-columns:270px minmax(0,1fr)!important}
+}
+@media(max-width:760px){
+  #jobsContent .nhsJobsMain148,#jobsContent .globalJobsMain168{padding:15px!important}
+  #jobsContent .nhsJob148{padding:21px!important}
+  #jobsContent .globalJobPrimary168{padding:21px 21px 17px!important}
+  #jobsContent .globalJobSide168{grid-template-columns:1fr!important;padding:17px 21px 21px!important}
+  #jobsContent .globalJobActions168{width:100%!important}
+}
+@media(max-width:480px){
+  #jobsContent .nhsJobTop148,#jobsContent .globalJobTop168{display:block!important}
+  #jobsContent .nhsJobBadges148,#jobsContent .globalJobSourceBadge168{display:inline-flex!important;margin-top:9px!important}
+  #jobsContent .nhsJobFacts148,#jobsContent .globalJobMeta168{grid-template-columns:1fr!important}
+  #jobsContent .globalJobSide168>dl{grid-template-columns:1fr!important}
+  #jobsContent .globalJobActions168,#jobsContent .nhsJobActions148{grid-template-columns:1fr!important}
+  #jobsContent .globalJobSide168>dl dt:nth-of-type(n),#jobsContent .globalJobSide168>dl dd:nth-of-type(n){grid-column:1!important;grid-row:auto!important}
+  #jobsContent .globalJobActions168 button:first-child{grid-column:1!important;grid-row:1!important}
+  #jobsContent .globalJobActions168 a{grid-column:1!important;grid-row:2!important}
+  #jobsContent .globalJobActions168 button:last-child{grid-column:1!important;grid-row:3!important}
+  #jobsContent .nhsJobActions148 small{grid-column:1!important}
+}

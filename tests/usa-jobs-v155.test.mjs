@@ -145,10 +145,16 @@ test("USA route provides filters, internal details and original-source apply", (
   assert.match(ui, /View and apply on USAJOBS/);
   assert.match(ui, /Who may apply/);
   assert.match(ui, /Sponsorship status not confirmed/);
-  assert.match(html, /usa-jobs-v155\.js\?v=270/);
+  assert.match(html, /usa-jobs-v155\.js\?v=290/);
+  assert.match(ui, /btv:session-restored[\s\S]*openInitialUsRoute/);
+  assert.match(ui, /AbortController/);
+  assert.match(ui, /USA jobs are taking too long to load/);
+  assert.match(ui, /window\.__btvSession/);
   assert.match(ui, /LIVE OFFICIAL VACANCIES/);
   assert.match(ui, /https:\/\/nurse\.usajobs\.gov\/search\/results\//);
   assert.match(routes, /"\/jobs\/usa\/:id"/);
+  assert.match(html, /<base href="\/">/);
+  assert.ok(html.indexOf('<base href="/">') < html.indexOf('src="mobile-jobs-nav-v157.js'));
 });
 
 test("USA administration supports sources, logs, editing, featuring and sponsorship review", () => {
@@ -164,6 +170,26 @@ test("USA administration supports sources, logs, editing, featuring and sponsors
   assert.match(admin, /Sync USAJOBS now/);
   assert.match(admin, /duration_ms/);
   assert.match(html, /admin-usa-jobs-v155\.js\?v=270/);
+});
+
+test("USA recommendations live only in compact Notification Centre job alerts", () => {
+  const ui = read("web/usa-jobs-v155.js"), notifications = read("web/notification-centre-v250.js"), css = read("web/notification-centre-v250.css"), html = read("web/index.html");
+  assert.doesNotMatch(ui, /usaDashboardJobs155|dashboardRecommendations|USA JOB RECOMMENDATIONS/);
+  assert.match(ui, /alertRecommendations/);
+  assert.match(ui, /openAlertRecommendation/);
+  assert.match(notifications, /data-notify-tab="jobs"[\s\S]*Job alerts/);
+  assert.match(notifications, /data-notify-usa-job/);
+  assert.match(css, /\.notifyJobsPanel276\{width:min\(880px,100%\)/);
+  assert.match(css, /\.notifyJobRow276\{[^}]*min-height:62px/);
+  assert.match(html, /notification-centre-v250\.js\?v=277/);
+  assert.match(html, /notification-centre-v250\.css\?v=276/);
+});
+
+test("USA importer removes same-batch fallback duplicates before upsert",()=>{
+  const importer=read("api/usa-jobs-import.js");
+  assert.match(importer,/pendingKeys\.has\(pendingKey\)/);
+  assert.match(importer,/duplicate\.source_name !== record\.source_name/);
+  assert.match(importer,/new Date\(row\.date_posted\)\.toISOString\(\)/);
 });
 
 test("production USAJOBS migration adds required official fields and indexes", () => {

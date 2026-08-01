@@ -39,9 +39,9 @@ test("marketplace is responsive and honours reduced motion", () => {
 });
 
 test("v205 mentor commands and filters work before the network request completes", () => {
-  assert.match(index, /mentor-marketplace-v205\.css\?v=213/);
-  assert.match(index, /mentor-marketplace-v205\.js\?v=213/);
-  assert.match(index, /dashboard-premium-v73\.js\?v=265/);
+  assert.match(index, /mentor-marketplace-v205\.css\?v=278/);
+  assert.match(index, /mentor-marketplace-v205\.js\?v=278/);
+  assert.match(index, /dashboard-premium-v73\.js\?v=278/);
   for (const command of ["discover", "match", "sessions", "standards"]) assert.match(upgrade, new RegExp(`data-mentor-command205=\\"${command}\\"`));
   assert.match(upgrade, /dialog\.addEventListener\('click'/);
   assert.match(upgrade, /dialog\.addEventListener\('input'/);
@@ -50,6 +50,28 @@ test("v205 mentor commands and filters work before the network request completes
   assert.match(upgrade, /mentor205Observed/);
   assert.match(upgradeCss, /\.mentorCommandNav205/);
   assert.match(upgradeCss, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+});
+
+test("Get matched opens every Supabase-approved mentor in an accessible overlay", () => {
+  assert.match(upgrade, /openMatchOverlay/);
+  assert.match(upgrade, /rpc\('btv_list_approved_mentors'/);
+  assert.match(upgrade, /p_category: 'all'/);
+  assert.match(upgrade, /\.eq\('status', 'approved'\)/);
+  assert.match(upgrade, /data-approved-mentor-list205/);
+  assert.match(upgrade, /role="dialog" aria-modal="true"/);
+  assert.match(upgrade, /event\.key === 'Escape'/);
+  assert.match(upgradeCss, /\.mentorApprovedGrid205/);
+});
+
+test("Safety and standards opens interaction rules instead of scrolling", () => {
+  assert.match(upgrade, /openStandardsOverlay/);
+  assert.match(upgrade, /Stay on the platform/);
+  assert.match(upgrade, /Protect private information/);
+  assert.match(upgrade, /No guaranteed outcomes/);
+  assert.match(upgrade, /Respect professional boundaries/);
+  assert.match(upgrade, /Report concerns promptly/);
+  assert.doesNotMatch(upgrade, /command === 'standards'[^\n]*scrollIntoView/);
+  assert.match(upgradeCss, /\.mentorStandardsGrid205/);
 });
 
 test("mentor categories are approved-only and filtered by Supabase", () => {

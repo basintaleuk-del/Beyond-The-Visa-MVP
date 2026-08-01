@@ -30,9 +30,19 @@ test('the deferred app content loader supplies non-visual legacy brand targets w
 });
 
 test('password login and initial session lookup have bounded recovery',()=>{
+  assert.match(html,/authDeadline\(window\.btvSupabase\.auth\.signUp/);
   assert.match(html,/authDeadline\(window\.btvSupabase\.auth\.signInWithPassword/);
   assert.match(html,/authDeadline\(window\.btvSupabase\.auth\.getSession/);
+  assert.match(html,/Account creation is taking longer than expected/);
+  assert.match(html,/authMessage\('signupForm',window\.btvSupabaseError/);
   assert.match(html,/finally\{button\.disabled=false;button\.textContent='Sign in'\}/);
+});
+
+test('signup bootstrap records the required wallet transaction source',()=>{
+  const migration=fs.readFileSync(path.join(root,'supabase/migrations/20260801143000_repair_signup_wallet_bootstrap.sql'),'utf8');
+  assert.match(migration,/transaction_type,\s*source_type,/);
+  assert.match(migration,/'welcome',\s*'welcome_bonus'/);
+  assert.match(migration,/on conflict \(user_id, idempotency_key\) do nothing/);
 });
 
 test('profile and destination hydration cannot block an authenticated user',()=>{

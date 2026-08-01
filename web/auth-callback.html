@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Completing sign in | Beyond The Visa</title>
+  <style>
+    :root{color-scheme:light}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:#f7f8f6;color:#17383a;font:15px/1.55 Inter,system-ui,sans-serif}.callbackCard{width:min(100%,460px);padding:30px;border:1px solid #e1e6e2;border-radius:20px;background:#fff;text-align:center;box-shadow:0 18px 48px rgba(15,52,55,.11)}.mark{width:54px;height:54px;margin:0 auto 17px;display:grid;place-items:center;border-radius:17px;background:#133e43;color:#fff;font:30px Georgia,serif}.spinner{width:28px;height:28px;margin:20px auto;border:3px solid #dfe9e6;border-top-color:#247c7c;border-radius:50%;animation:spin .8s linear infinite}.error .spinner{display:none}h1{margin:0 0 8px;font:600 28px Georgia,serif}p{margin:0;color:#677879}.actions{display:none;margin-top:20px}.error .actions{display:block}.actions a{display:inline-block;padding:11px 16px;border-radius:11px;background:#133e43;color:#fff;text-decoration:none;font-weight:800}@keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <main class="callbackCard" id="callbackCard" aria-live="polite">
+    <div class="mark">B</div>
+    <h1>Completing your sign in</h1>
+    <p id="callbackStatus">Please wait while we securely return you to Beyond The Visa.</p>
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="actions"><a href="/?mode=login">Return to sign in</a></div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+  (()=>{
+    'use strict';
+    const returnKey='btv-oauth-return-v274',messageKey='btv-oauth-message-v274';
+    const card=document.getElementById('callbackCard'),status=document.getElementById('callbackStatus');
+    const params=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.replace(/^#/,''));
+    const oauthError=params.get('error_description')||hash.get('error_description')||params.get('error')||hash.get('error');
+    const safeReturn=()=>{let value='/?mode=login';try{value=sessionStorage.getItem(returnKey)||value;sessionStorage.removeItem(returnKey);const url=new URL(value,location.origin);if(url.origin!==location.origin||url.pathname.startsWith('/auth/callback'))return '/?mode=login';return `${url.pathname}${url.search}${url.hash}`}catch{return '/?mode=login'}};
+    const fail=(message)=>{try{sessionStorage.setItem(messageKey,message)}catch{}card.classList.add('error');status.textContent=message;setTimeout(()=>location.replace(safeReturn()),1200)};
+    const complete=async()=>{
+      if(oauthError){const cancelled=/cancel|access_denied/i.test(oauthError);fail(cancelled?'Facebook sign-in was cancelled. No changes were made.':'Facebook sign-in could not be completed. Please try again.');return}
+      if(!window.btvSupabase?.auth){fail('The secure sign-in service is unavailable. Please return and try again.');return}
+      try{
+        const code=params.get('code');
+        let result=await window.btvSupabase.auth.getSession();
+        if(!result.data?.session&&code)result=await window.btvSupabase.auth.exchangeCodeForSession(code);
+        if(result.error)throw result.error;
+        if(!result.data?.session)throw new Error('Your Facebook sign-in session has expired. Please try again.');
+        const user=result.data.session.user,fullName=user.user_metadata?.full_name||user.user_metadata?.name||'',picture=user.user_metadata?.avatar_url||user.user_metadata?.picture||'';
+        if(fullName){const existing=await window.btvSupabase.from('profiles').select('full_name').eq('id',user.id).maybeSingle();if(!existing.error&&!existing.data?.full_name)await window.btvSupabase.from('profiles').update({full_name:fullName,updated_at:new Date().toISOString()}).eq('id',user.id)}
+        if(picture){const key=`btv-profile-extra:${user.id}`,saved=JSON.parse(localStorage.getItem(key)||'{}');if(!saved.photo){saved.photo=picture;localStorage.setItem(key,JSON.stringify(saved));localStorage.setItem('btv-profile-extra',JSON.stringify(saved))}}
+        location.replace(safeReturn());
+      }catch(error){fail(/expired|session/i.test(error?.message||'')?'Your Facebook sign-in session has expired. Please try again.':(error?.message||'Facebook sign-in could not be completed. Please try again.'))}
+    };
+    complete();
+  })();
+  </script>
+</body>
+</html>

@@ -18,7 +18,7 @@ test('Opportunity Centre is available from the Career and Journey side menu',asy
   const [dashboard,page]=await Promise.all([read('web/dashboard-premium-v73.js'),read('web/index.html')]);
   assert.match(dashboard,/\["Opportunities", "opportunities"\]/);
   assert.match(dashboard,/if \(id === "opportunities"\) return window\.openScreen\?\.\("opportunities"\)/);
-  assert.match(page,/dashboard-premium-v73\.js\?v=265/);
+  assert.match(page,/dashboard-premium-v73\.js\?v=278/);
 });
 
 test('semantic routes preserve old links and the relocation estimator',async()=>{
@@ -28,6 +28,11 @@ test('semantic routes preserve old links and the relocation estimator',async()=>
   assert.ok(config.rewrites.some(x=>x.source==='/journey/tools/cost-estimator'&&x.destination.includes('cost-estimator')));
   const feature=await read('web/opportunity-centre-v138.js');
   assert.match(feature,/function showScreen\(id\)/);assert.match(feature,/return showScreen\("cost-estimator"\)/);
+  assert.match(feature,/btv:session-restored[\s\S]*openInitialRoute\(\)/);
+  assert.match(await read('web/index.html'),/opportunity-centre-v138\.js\?v=290/);
+  assert.match(feature,/AbortController/);
+  assert.match(feature,/Destination jobs are taking too long to load/);
+  assert.match(feature,/window\.__btvSession/);
 });
 
 test('Opportunity Centre uses live records, deterministic recommendations and reusable saves',async()=>{

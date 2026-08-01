@@ -5,24 +5,41 @@ const ENDPOINT = "https://api.adzuna.com/v1/api/jobs";
 const COUNTRIES = Object.freeze({
   us: Object.freeze({ code: "US", name: "United States", destination: "United States of America", currency: "USD" }),
   gb: Object.freeze({ code: "GB", name: "United Kingdom", destination: "United Kingdom", currency: "GBP" }),
+  ca: Object.freeze({ code: "CA", name: "Canada", destination: "Canada", currency: "CAD" }),
+  au: Object.freeze({ code: "AU", name: "Australia", destination: "Australia", currency: "AUD" }),
+  nz: Object.freeze({ code: "NZ", name: "New Zealand", destination: "New Zealand", currency: "NZD" }),
 });
 const TERMS = Object.freeze([
-  { keyword: "Registered Nurse", pages: 2 },
+  { keyword: "Registered Nurse", pages: 1 },
+  { keyword: "Staff Nurse", pages: 1 },
+  { keyword: "Clinical Nurse", pages: 1 },
   { keyword: "Nurse Practitioner", pages: 1 },
   { keyword: "Licensed Practical Nurse", pages: 1 },
   { keyword: "Nursing Assistant", pages: 1 },
-  { keyword: "ICU Nurse", pages: 1 },
+  { keyword: "Theatre Nurse", pages: 1 },
+  { keyword: "Operating Room Nurse", pages: 1 },
   { keyword: "PACU Nurse", pages: 1 },
+  { keyword: "Recovery Nurse", pages: 1 },
+  { keyword: "ICU Nurse", pages: 1 },
+  { keyword: "Critical Care Nurse", pages: 1 },
+  { keyword: "Emergency Nurse", pages: 1 },
   { keyword: "Mental Health Nurse", pages: 1 },
+  { keyword: "Public Health Nurse", pages: 1 },
+  { keyword: "Nurse Educator", pages: 1 },
 ]);
-const LIMITS = Object.freeze({ pageBudget: 8, resultsPerPage: 50, retries: 3, timeoutMs: 12000 });
-const NURSING_TITLE = /\b(?:registered(?:\s+\w+){0,3}\s+nurse|nurse practitioner|licensed practical nurse|nursing assistant|icu nurse|intensive care nurse|pacu nurse|post.?anesthesia nurse|mental health nurse|psychiatric nurse|staff nurse|clinical nurse|rn|lpn)\b/i;
+const COUNTRY_TERMS = Object.freeze({
+  ca: Object.freeze([{ keyword: "Registered Psychiatric Nurse", pages: 1 }, ...TERMS]),
+  au: Object.freeze([{ keyword: "Enrolled Nurse", pages: 1 }, ...TERMS]),
+  nz: Object.freeze([{ keyword: "Enrolled Nurse", pages: 1 }, ...TERMS]),
+});
+const LIMITS = Object.freeze({ pageBudget: 18, resultsPerPage: 10, recordLimit: 100, retries: 3, timeoutMs: 12000 });
+const NURSING_TITLE = /\b(?:registered(?:\s+\w+){0,3}\s+nurse|nurse practitioner|licensed practical nurse|nursing assistant|theatre nurse|operating room nurse|perioperative nurse|pacu nurse|post.?anesthesia nurse|recovery nurse|icu nurse|intensive care nurse|critical care nurse|emergency nurse|mental health nurse|psychiatric nurse|public health nurse|nurse educator|staff nurse|clinical nurse|enrolled nurse|rn|lpn)\b/i;
 
 function credentialError(appId, appKey) { return !appId || !appKey ? "ADZUNA_APP_ID and ADZUNA_APP_KEY are required." : ""; }
 function safeAdzunaUrl(value) {
   try {
     const url = new URL(String(value || ""));
-    const trustedHost = ["adzuna.com","adzuna.co.uk"].some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`));
+    const trustedHost = ["adzuna.com","adzuna.co.uk","adzuna.ca","adzuna.com.au","adzuna.co.nz"].some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`));
     if (!/^https?:$/.test(url.protocol) || url.username || url.password || !trustedHost) return null;
     url.protocol = "https:"; url.hash = ""; return url.href;
   } catch { return null; }
@@ -33,7 +50,7 @@ function fingerprint(row) { return createHash("sha256").update(JSON.stringify([r
 
 function countryConfig(countryCode = "us") {
   const key = String(countryCode || "us").toLowerCase();
-  if (!COUNTRIES[key]) throw new Error("Adzuna country code must be us or gb.");
+  if (!COUNTRIES[key]) throw new Error("Adzuna country code must be one of us, gb, ca, au or nz.");
   return { key, ...COUNTRIES[key] };
 }
 
@@ -92,10 +109,10 @@ async function testConnection({ appId, appKey, countryCode = "us", fetchImpl = f
     return { authentication_succeeded: response.ok, http_status: response.status, jobs_found: Number(payload?.count || results.length || 0), sample_titles: results.slice(0, 3).map((item) => clean(item?.title, 240)).filter(Boolean), ...(response.ok ? {} : { error: response.status === 401 || response.status === 403 ? "Adzuna rejected the configured credentials." : `Adzuna returned HTTP ${response.status}.` }) };
   } catch (error) { return { authentication_succeeded: false, http_status: null, jobs_found: 0, sample_titles: [], error: error?.name === "TimeoutError" ? "Adzuna connection timed out." : "Adzuna could not be reached safely." }; }
 }
-async function fetchAdzunaJobs({ appId, appKey, countryCode = "us", pageBudget = LIMITS.pageBudget, sample = false, fetchImpl = fetch, now = new Date() }) {
+async function fetchAdzunaJobs({ appId, appKey, countryCode = "us", pageBudget = LIMITS.pageBudget, recordLimit = LIMITS.recordLimit, sample = false, fetchImpl = fetch, now = new Date() }) {
   const configurationError = credentialError(appId, appKey); if (configurationError) throw new Error(configurationError);
   const raw = []; let pagesFetched = 0, searchesRun = 0;
-  const searchPlan = sample ? [TERMS[0]] : TERMS;
+  const searchPlan = sample ? [TERMS[0]] : COUNTRY_TERMS[String(countryCode).toLowerCase()] || TERMS;
   for (const term of searchPlan) {
     if (pagesFetched >= Math.min(pageBudget, LIMITS.pageBudget)) break; searchesRun += 1;
     for (let page = 1; page <= term.pages && pagesFetched < Math.min(pageBudget, LIMITS.pageBudget); page += 1) {
@@ -104,7 +121,8 @@ async function fetchAdzunaJobs({ appId, appKey, countryCode = "us", pageBudget =
     }
   }
   const byId = new Map(); for (const item of raw) { const row = normalizeItem(item, now, countryCode); if (row) byId.set(row.external_id, row); }
-  return { rawCount: raw.length, records: [...byId.values()], duplicates: raw.length - byId.size, pagesFetched, searchesRun };
+  const records = [...byId.values()].slice(0, Math.max(1, Number(recordLimit) || LIMITS.recordLimit));
+  return { rawCount: raw.length, records, duplicates: raw.length - byId.size, pagesFetched, searchesRun };
 }
 
-module.exports = { ENDPOINT, COUNTRIES, TERMS, LIMITS, credentialError, safeAdzunaUrl, normalizeItem, requestUrl, requestPage, testConnection, fetchAdzunaJobs };
+module.exports = { ENDPOINT, COUNTRIES, TERMS, COUNTRY_TERMS, LIMITS, credentialError, safeAdzunaUrl, normalizeItem, requestUrl, requestPage, testConnection, fetchAdzunaJobs };

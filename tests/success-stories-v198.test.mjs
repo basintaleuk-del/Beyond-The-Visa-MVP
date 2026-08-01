@@ -10,6 +10,7 @@ const dashboard=read('web/dashboard-premium-v73.js');
 const client=read('web/success-stories-v198.js');
 const clientCss=read('web/success-stories-v198.css');
 const premiumCss=read('web/success-stories-v248.css');
+const redesignCss=read('web/success-stories-v279.css');
 const adminJs=read('web/admin-success-stories-v198.js');
 const adminCss=read('web/admin-success-stories-v198.css');
 const migration=read('supabase/migrations/20260730080000_success_stories_v198.sql');
@@ -20,11 +21,36 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.ok(index.indexOf('success-stories-v198.js')<index.indexOf('platform-upgrade-v72.js'));
   assert.match(index,/success-stories-v198\.css\?v=223/);
   assert.match(index,/success-stories-v198\.js\?v=248/);
-  assert.match(index,/success-stories-v248\.css\?v=248/);
+  assert.match(index,/success-stories-v248\.css\?v=278/);
+  assert.match(index,/success-stories-v279\.css\?v=279/);
+  assert.ok(index.lastIndexOf('success-stories-v279.css')>index.lastIndexOf('profile-premium-v215.css'));
   assert.match(index,/platform-upgrade-v72\.js\?v=255/);
-  assert.match(index,/dashboard-premium-v73\.js\?v=265/);
+  assert.match(index,/dashboard-premium-v73\.js\?v=278/);
   assert.match(dashboard,/if \(type === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
   assert.match(dashboard,/if \(id === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
+});
+
+test('v279 rebuilds the desktop archive as a final isolated editorial layer',()=>{
+  assert.match(client,/THE BEYOND THE VISA JOURNAL/);
+  assert.match(client,/Stories to help you see what comes next/);
+  assert.doesNotMatch(client,/Proof that the next chapter is possible/);
+  assert.match(redesignCss,/#successStoriesPage208 \.storyArchive198\{position:relative!important/);
+  assert.match(redesignCss,/grid-template-columns:minmax\(0,1fr\) minmax\(290px,390px\)!important/);
+  assert.match(redesignCss,/\.storyArchive198 h2\{position:static!important/);
+  assert.match(redesignCss,/overflow-wrap:break-word!important/);
+  assert.match(redesignCss,/\.storyGrid198\{position:static!important/);
+  assert.match(redesignCss,/@media\(max-width:1180px\)/);
+  assert.match(redesignCss,/@media\(max-width:820px\)/);
+  assert.match(redesignCss,/@media\(max-width:560px\)/);
+});
+
+test('v278 keeps story copy and sections contained without decorative overlap',()=>{
+  assert.match(premiumCss,/margin:24px auto 0!important/);
+  assert.match(premiumCss,/min-height:auto!important;height:auto!important/);
+  assert.match(premiumCss,/overflow-wrap:break-word!important/);
+  assert.match(premiumCss,/\.storyCard198 footer\{position:static!important/);
+  assert.match(premiumCss,/@media\(max-width:1180px\) and \(min-width:821px\)/);
+  assert.match(premiumCss,/grid-template-columns:minmax\(0,1fr\)!important;gap:28px!important/);
 });
 
 test('v248 isolates the premium archive from conflicting global and legacy layouts',()=>{

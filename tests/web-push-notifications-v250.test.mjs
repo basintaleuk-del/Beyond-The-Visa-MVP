@@ -70,10 +70,11 @@ test("campaign dispatch is admin protected, targeted, preference aware and idemp
 });
 
 test("job notifications match destinations and suppress expired or duplicate jobs",async()=>{
-  const [lib,sql]=await Promise.all([read("api/_lib/notifications.cjs"),read("supabase/migrations/20260731010000_web_push_notifications_v250.sql")]);
+  const [lib,matching,sql]=await Promise.all([read("api/_lib/notifications.cjs"),read("api/_lib/job-alert-matching.cjs"),read("supabase/migrations/20260731010000_web_push_notifications_v250.sql")]);
   assert.match(lib,/generateJobAlerts/);
   assert.match(lib,/job\.closing_date/);
-  assert.match(lib,/job\.country[\s\S]*destination/);
+  assert.match(matching,/destination_country[\s\S]*job\.country_code/);
+  assert.match(lib,/qualifiesForJob/);
   assert.match(lib,/job_alerts_enabled=eq\.true/);
   assert.match(lib,/notification_job_matches/);
   assert.match(lib,/notification_job_matches\?select=user_id,job_id/);
@@ -95,8 +96,8 @@ test("scheduled processing uses cron authentication, locking and invalid endpoin
 
 test("member and admin interfaces are loaded, responsive and accessible",async()=>{
   const [index,admin,client,clientCss,adminJs,adminCss]=await Promise.all([read("web/index.html"),read("web/admin.html"),read("web/notification-centre-v250.js"),read("web/notification-centre-v250.css"),read("web/admin-notifications-v250.js"),read("web/admin-notifications-v250.css")]);
-  assert.match(index,/notification-centre-v250\.js\?v=258/);
-  assert.match(index,/notification-centre-v250\.css\?v=254/);
+  assert.match(index,/notification-centre-v250\.js\?v=277/);
+  assert.match(index,/notification-centre-v250\.css\?v=276/);
   assert.match(admin,/admin-notifications-v250\.js\?v=250/);
   assert.match(admin,/admin-notifications-v250\.css\?v=250/);
   for(const marker of ["aria-modal","aria-live","aria-label","role=\"status\""])assert.match(client,new RegExp(marker));

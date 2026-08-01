@@ -3,25 +3,25 @@
   if(window.__btvNotifications250)return;window.__btvNotifications250=true;
   const db=()=>window.btvSupabase,$=(s,r=document)=>r.querySelector(s),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const categories={all:"All",jobs:"Jobs",visa:"Visa",mentor_message:"Mentors",booking:"Bookings",learning:"Learning",course:"Courses",mock:"Mocks",application:"Applications",account:"Account",billing:"Billing",coins:"Beyond Coins",announcement:"Announcements",administrative:"Admin"};
-  const state={user:null,notes:[],prefs:{},filter:"all",tab:"inbox",loading:false};
+  const state={user:null,notes:[],prefs:{},filter:"all",tab:"inbox",loading:false,jobRows:[],jobCountry:null,jobLoading:false,jobError:""};
   const safe=value=>{try{const u=new URL(value||"/",location.origin);return u.origin===location.origin&&u.pathname.startsWith("/")?`${u.pathname}${u.search}${u.hash}`:"/"}catch{return"/"}};
   const ios=()=>/iPad|iPhone|iPod/.test(navigator.userAgent),standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   const supported=()=>("serviceWorker"in navigator)&&("PushManager"in window)&&("Notification"in window);
   function shell(){
     let root=$("#btvNotifications250");if(root)return root;
     root=document.createElement("section");root.id="btvNotifications250";root.className="btvNotifications250";root.hidden=true;
-    root.innerHTML=`<div class="notifyShell250" role="dialog" aria-modal="true" aria-labelledby="notifyTitle250"><aside class="notifyRail250"><div class="notifyBrand250"><b>BV</b><div><small>BEYOND THE VISA</small><strong>Notification Centre</strong></div></div><nav aria-label="Notification centre"><button data-notify-tab="inbox" class="active"><i>◉</i><span>My notifications</span></button><button data-notify-tab="preferences"><i>⌁</i><span>Preferences</span></button><button data-notify-tab="devices"><i>◇</i><span>Devices & push</span></button></nav><div class="notifyTrust250"><b>Private by design</b><span>Sensitive details are never shown in lock-screen alerts.</span></div></aside><main class="notifyMain250"><header><div><small>PERSONAL UPDATE CENTRE</small><h1 id="notifyTitle250">Notifications</h1></div><button type="button" data-notify-close aria-label="Close notification centre">×</button></header><div class="notifyBody250" aria-live="polite"></div></main></div>`;
+    root.innerHTML=`<div class="notifyShell250" role="dialog" aria-modal="true" aria-labelledby="notifyTitle250"><aside class="notifyRail250"><div class="notifyBrand250"><b>BV</b><div><small>BEYOND THE VISA</small><strong>Notification Centre</strong></div></div><nav aria-label="Notification centre"><button data-notify-tab="inbox" class="active"><i>◉</i><span>My notifications</span></button><button data-notify-tab="jobs"><i>▣</i><span>Job alerts</span></button><button data-notify-tab="preferences"><i>⌁</i><span>Preferences</span></button><button data-notify-tab="devices"><i>◇</i><span>Devices & push</span></button></nav><div class="notifyTrust250"><b>Private by design</b><span>Sensitive details are never shown in lock-screen alerts.</span></div></aside><main class="notifyMain250"><header><div><small>PERSONAL UPDATE CENTRE</small><h1 id="notifyTitle250">Notifications</h1></div><button type="button" data-notify-close aria-label="Close notification centre">×</button></header><div class="notifyBody250" aria-live="polite"></div></main></div>`;
     document.body.append(root);root.onclick=e=>{if(e.target===root)close()};$("[data-notify-close]",root).onclick=close;
-    root.querySelectorAll("[data-notify-tab]").forEach(button=>button.onclick=()=>{state.tab=button.dataset.notifyTab;render()});
+    root.querySelectorAll("[data-notify-tab]").forEach(button=>button.onclick=async()=>{state.tab=button.dataset.notifyTab;render();if(state.tab==="jobs")await loadJobAlerts()});
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!root.hidden)close()});return root;
   }
   function close(){const root=$("#btvNotifications250");if(root)root.hidden=true;document.body.classList.remove("notifyOpen250")}
   async function session(){const result=await db()?.auth?.getSession();state.user=result?.data?.session?.user||null;return result?.data?.session||null}
-  async function open(tab="inbox"){state.tab=["inbox","preferences","devices"].includes(tab)?tab:"inbox";const current=await session();if(!current){window.toast?.("Please sign in to manage notifications.");return}const root=shell();root.hidden=false;document.body.classList.add("notifyOpen250");await load();$("[data-notify-close]",root).focus()}
+  async function open(tab="inbox"){state.tab=["inbox","jobs","preferences","devices"].includes(tab)?tab:"inbox";const current=await session();if(!current){window.toast?.("Please sign in to manage notifications.");return}const root=shell();root.hidden=false;document.body.classList.add("notifyOpen250");await load();if(state.tab==="jobs")await loadJobAlerts();$("[data-notify-close]",root).focus()}
   async function load(){
     if(state.loading)return;state.loading=true;renderLoading();
     const [notes,prefs]=await Promise.all([
-      db().from("notifications").select("id,title,body,category,priority,action_url,image_url,read_at,opened_at,dismissed_at,expires_at,created_at").is("dismissed_at",null).order("created_at",{ascending:false}).limit(100),
+      db().from("notifications").select("id,title,body,category,priority,action_url,data,image_url,read_at,opened_at,dismissed_at,expires_at,created_at").is("dismissed_at",null).order("created_at",{ascending:false}).limit(100),
       db().from("notification_preferences").select("*").eq("user_id",state.user.id).maybeSingle()
     ]);
     state.notes=(notes.data||[]).filter(item=>!item.expires_at||new Date(item.expires_at)>new Date());state.prefs=prefs.data||{};state.loading=false;render();badge();
@@ -29,14 +29,27 @@
   function renderLoading(){const root=shell();$(".notifyBody250",root).innerHTML='<div class="notifyLoading250"><i></i><b>Loading your private updates…</b></div>'}
   function render(){
     const root=shell();root.querySelectorAll("[data-notify-tab]").forEach(b=>b.classList.toggle("active",b.dataset.notifyTab===state.tab));
-    const titles={inbox:"Notifications",preferences:"Notification preferences",devices:"Devices & browser push"};$("#notifyTitle250",root).textContent=titles[state.tab];
-    $(".notifyBody250",root).innerHTML=state.tab==="inbox"?inbox():state.tab==="preferences"?preferences():devices();wire(root);
+    const titles={inbox:"Notifications",jobs:"Job alerts",preferences:"Notification preferences",devices:"Devices & browser push"};$("#notifyTitle250",root).textContent=titles[state.tab];
+    $(".notifyBody250",root).innerHTML=state.tab==="inbox"?inbox():state.tab==="jobs"?jobAlerts():state.tab==="preferences"?preferences():devices();wire(root);
   }
   function inbox(){
     const unread=state.notes.filter(n=>!n.read_at).length,list=state.notes.filter(n=>state.filter==="all"||n.category===state.filter);
     return `<section class="notifyHero250"><div><span>YOUR LIVE UPDATE LEDGER</span><h2>Stay informed, without the noise.</h2><p>Job matches, pathway updates, learning reminders and private account activity—controlled by you.</p></div><div><strong>${unread}</strong><span>unread</span><button type="button" data-read-all ${unread?"":"disabled"}>Mark all read</button></div></section><div class="notifyToolbar250"><div class="notifyFilters250">${Object.entries(categories).map(([key,label])=>`<button type="button" data-filter="${key}" class="${state.filter===key?"active":""}">${label}</button>`).join("")}</div><button type="button" data-refresh-notes aria-label="Refresh notifications">↻ Refresh</button></div><div class="notifyList250">${list.map(note=>card(note)).join("")||'<div class="notifyEmpty250"><i>✓</i><h3>You are all caught up.</h3><p>Relevant updates will appear here when there is something useful to act on.</p></div>'}</div>`;
   }
   function card(note){return `<article class="notifyCard250 ${note.read_at?"":"unread"}" data-note="${note.id}"><i aria-hidden="true">${({jobs:"▣",visa:"⌁",mentor_message:"◎",booking:"◷",learning:"↗",account:"◇",coins:"B"})[note.category]||"◉"}</i><div><small>${esc(categories[note.category]||note.category)} · ${new Date(note.created_at).toLocaleString("en-GB")}</small><h3>${esc(note.title)}</h3><p>${esc(note.body)}</p><footer>${note.action_url?'<button type="button" data-open-note>Open update <span>→</span></button>':""}<button type="button" class="quiet" data-dismiss-note>Dismiss</button></footer></div>${note.priority==="urgent"?'<b class="notifyPriority250">Urgent</b>':""}</article>`}
+  async function loadJobAlerts(){
+    if(state.jobLoading)return;state.jobLoading=true;state.jobError="";render();
+    try{const result=await window.BTVUSAJobs?.alertRecommendations?.();state.jobRows=result?.jobs||[];state.jobCountry=result?.country||null}
+    catch(error){state.jobRows=[];state.jobError=error?.message||"Job recommendations could not be loaded."}
+    finally{state.jobLoading=false;render()}
+  }
+  function jobAlerts(){
+    if(state.jobLoading)return'<div class="notifyLoading250"><i></i><b>Loading matching jobs…</b></div>';
+    const jobNotes=state.notes.filter(note=>note.category==="jobs");
+    const recommendations=state.jobRows.map(row=>`<button type="button" class="notifyJobRow276" data-notify-usa-job="${esc(row.id)}"><span><b>${esc(row.job_title)}</b><small>${esc(row.employer_name)} · ${esc([row.city,row.state].filter(Boolean).join(", ")||"United States")}</small></span><i aria-hidden="true">→</i></button>`).join("");
+    const empty=state.jobError?`<p class="notifyJobMessage276">${esc(state.jobError)}</p>`:'<p class="notifyJobMessage276">No new matching jobs are available right now.</p>';
+    return `<section class="notifyJobsPanel276"><header><div><span>MATCHING YOUR DESTINATION</span><h2>${state.jobCountry==="us"?"USA job recommendations":"Job alerts"}</h2><p>Recent matching roles are kept here so they do not take over your home screen.</p></div><button type="button" data-refresh-job-alerts aria-label="Refresh job alerts">↻</button></header><div class="notifyJobRows276">${recommendations||empty}</div>${jobNotes.length?`<div class="notifyJobHistory276"><h3>Recent job notifications</h3>${jobNotes.slice(0,5).map(note=>card(note)).join("")}</div>`:""}</section>`;
+  }
   function preferences(){
     const p=state.prefs,check=(key,fallback=true)=>p[key]??fallback;
     const toggle=(key,label,help,mandatory=false)=>`<label class="notifyToggle250"><span><b>${label}</b><small>${help}</small></span><input type="checkbox" name="${key}" ${check(key)?'checked':""} ${mandatory?"checked disabled":""}><i aria-hidden="true"></i></label>`;
@@ -53,7 +66,9 @@
     root.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;render()});
     $("[data-refresh-notes]",root)?.addEventListener("click",load);
     $("[data-read-all]",root)?.addEventListener("click",async()=>{await db().rpc("mark_all_notifications_read");await load()});
-    root.querySelectorAll("[data-note]").forEach(card=>{const id=card.dataset.note,note=state.notes.find(n=>n.id===id);$("[data-open-note]",card)?.addEventListener("click",async()=>{await db().rpc("btv_notification_mark_opened",{p_notification:id});location.assign(safe(note?.action_url))});$("[data-dismiss-note]",card)?.addEventListener("click",async()=>{await db().rpc("btv_notification_dismiss",{p_notification:id});await load()})});
+    root.querySelectorAll("[data-note]").forEach(card=>{const id=card.dataset.note,note=state.notes.find(n=>n.id===id);$("[data-open-note]",card)?.addEventListener("click",async()=>{await db().rpc("btv_notification_mark_opened",{p_notification:id});const target=safe(note?.action_url);if(note?.category==="jobs"&&await window.BTVJobs?.openNotification?.(target,note?.data))return;location.assign(target)});$("[data-dismiss-note]",card)?.addEventListener("click",async()=>{await db().rpc("btv_notification_dismiss",{p_notification:id});await load()})});
+    root.querySelectorAll("[data-notify-usa-job]").forEach(button=>button.onclick=()=>window.BTVUSAJobs?.openAlertRecommendation?.(button.dataset.notifyUsaJob));
+    $("[data-refresh-job-alerts]",root)?.addEventListener("click",loadJobAlerts);
     const form=$("[data-notify-prefs]",root);if(form){form.frequency.value=state.prefs.frequency||"immediate";form.onsubmit=savePreferences}
     $("[data-enable-push]",root)?.addEventListener("click",enablePush);$("[data-disable-push]",root)?.addEventListener("click",disablePush);
     $("[data-open-prefs]",root)?.addEventListener("click",()=>{state.tab="preferences";render()});
@@ -101,5 +116,5 @@
   document.addEventListener("btv:auth-ready",async()=>{if(await session())load()});
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&state.user)load()});
   addEventListener("DOMContentLoaded",async()=>{replaceLegacyEntries();if(await session()){const clicked=new URLSearchParams(location.search).get("btv_notification");if(clicked){await db().rpc("btv_notification_mark_opened",{p_notification:clicked});const url=new URL(location.href);url.searchParams.delete("btv_notification");history.replaceState(history.state,"",url)}if(new URLSearchParams(location.search).get("open")==="notifications")open("inbox");else load()}},{once:true});
-  window.BTVNotifications={open,close,refresh:load,supported};
+  window.BTVNotifications={open,close,refresh:load,refreshJobAlerts:loadJobAlerts,supported};
 })();
