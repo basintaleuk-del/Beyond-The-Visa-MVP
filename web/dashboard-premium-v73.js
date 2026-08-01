@@ -9,6 +9,12 @@
   let lastFocus = null;
   let carouselIndex = 0;
   let carouselTimer = null;
+  let hiringScoreFetch = {
+    userId: null,
+    value: null,
+    promise: null,
+    lastAttempt: 0,
+  };
   const carouselSlides = [
     {
       category: "Motivation",
@@ -268,6 +274,44 @@
     };
   }
 
+  function updateHiringScoreTile() {
+    const current = document.querySelector(".hiringScore303");
+    if (!current) return;
+    const template = document.createElement("template");
+    template.innerHTML = hiringScoreMarkup().trim();
+    const replacement = template.content.firstElementChild;
+    if (!replacement) return;
+    current.replaceWith(replacement);
+    wire(replacement);
+  }
+
+  function requestHiringScore(userId) {
+    if (!userId || userId === "local-account" || !db()?.rpc) return;
+    const now = Date.now();
+    if (hiringScoreFetch.userId !== userId) {
+      hiringScoreFetch = { userId, value: null, promise: null, lastAttempt: 0 };
+    }
+    if (hiringScoreFetch.promise || now - hiringScoreFetch.lastAttempt < 30000)
+      return;
+    hiringScoreFetch.lastAttempt = now;
+    hiringScoreFetch.promise = withDeadline(
+      db().rpc("btv_refresh_hiring_score"),
+      3500
+    )
+      .then((hiringSummary) => {
+        if (hiringSummary.error) throw hiringSummary.error;
+        const value = normalizeHiringScore(hiringSummary.data);
+        if (!value || state.u?.id !== userId) return;
+        hiringScoreFetch.value = value;
+        state.hiringScore = value;
+        updateHiringScoreTile();
+      })
+      .catch((error) => console.warn("v303 hiring score fallback", error))
+      .finally(() => {
+        hiringScoreFetch.promise = null;
+      });
+  }
+
   async function load() {
     let session = null;
     try {
@@ -383,7 +427,8 @@
         steps: steps.data || [],
         activity: activity.data || [],
         streak: null,
-        hiringScore: null,
+        hiringScore:
+          hiringScoreFetch.userId === u.id ? hiringScoreFetch.value : null,
       };
       try {
         const streakSummary = await db().rpc("btv_learning_streak_summary");
@@ -391,16 +436,6 @@
         platform.streak = streakSummary.data || null;
       } catch (e) {
         console.warn("v73 streak standings fallback", e);
-      }
-      try {
-        const hiringSummary = await withDeadline(
-          db().rpc("btv_refresh_hiring_score"),
-          3500
-        );
-        if (hiringSummary.error) throw hiringSummary.error;
-        platform.hiringScore = normalizeHiringScore(hiringSummary.data);
-      } catch (e) {
-        console.warn("v303 hiring score fallback", e);
       }
     } catch (e) {
       console.warn("v73 data fallback", e);
@@ -415,10 +450,12 @@
         steps: [],
         activity: [],
         streak: null,
-        hiringScore: null,
+        hiringScore:
+          hiringScoreFetch.userId === u.id ? hiringScoreFetch.value : null,
       };
     }
     state = { u, ...platform };
+    requestHiringScore(u.id);
     return state;
   }
 

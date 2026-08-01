@@ -41,7 +41,7 @@ test("marketplace is responsive and honours reduced motion", () => {
 test("v205 mentor commands and filters work before the network request completes", () => {
   assert.match(index, /mentor-marketplace-v205\.css\?v=278/);
   assert.match(index, /mentor-marketplace-v205\.js\?v=278/);
-  assert.match(index, /dashboard-premium-v73\.js\?v=278/);
+  assert.match(index, /dashboard-premium-v73\.js\?v=304/);
   for (const command of ["discover", "match", "sessions", "standards"]) assert.match(upgrade, new RegExp(`data-mentor-command205=\\"${command}\\"`));
   assert.match(upgrade, /dialog\.addEventListener\('click'/);
   assert.match(upgrade, /dialog\.addEventListener\('input'/);

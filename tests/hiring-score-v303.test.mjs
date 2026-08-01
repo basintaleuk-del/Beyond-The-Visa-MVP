@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("homepage loads the isolated Hiring Score tile styles", async () => {
   const index = await read("web/index.html");
   assert.match(index, /hiring-score-v303\.css\?v=303/);
-  assert.match(index, /dashboard-premium-v73\.js\?v=278/);
+  assert.match(index, /dashboard-premium-v73\.js\?v=304/);
 });
 
 test("dashboard renders an accessible dynamic Hiring Score without removing existing panels", async () => {
@@ -19,6 +19,8 @@ test("dashboard renders an accessible dynamic Hiring Score without removing exis
   assert.match(dashboard, /class="journeyPanel73"/);
   assert.match(dashboard, /class="quickPanel73"/);
   assert.match(dashboard, /console\.warn\("v303 hiring score fallback"/);
+  assert.match(dashboard, /state = \{ u, \.\.\.platform \};\s+requestHiringScore\(u\.id\);\s+return state/);
+  assert.doesNotMatch(dashboard, /await withDeadline\(\s*db\(\)\.rpc\("btv_refresh_hiring_score"\)/);
 });
 
 test("Hiring Score database objects are private, owner-scoped and evidence-backed", async () => {
