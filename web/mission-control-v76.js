@@ -10,7 +10,7 @@
     const header = document.getElementById('btvTop73');
     if (!header) return;
     const mark = header.querySelector('.brandSymbol');
-    if (mark && !mark.querySelector('img')) mark.innerHTML = '<img src="login-logo-v72.png" alt="">';
+    if (mark && !mark.querySelector('img')) mark.innerHTML = '<img src="favicon-192-v281.png" width="44" height="44" alt="Beyond The Visa">';
     const notify = header.querySelector('.notificationHead73');
     if (notify && !notify.querySelector('svg')) notify.innerHTML = svg.bell;
     const menu = header.querySelector('[data-mobile-open]');

@@ -2227,7 +2227,7 @@
     root.innerHTML = `<div class="dashboardLayout73">
       <aside class="sidebar73">
         <div class="sidebarBrand73">
-          <div class="brandLogo73"><img src="login-logo-v72.png" alt="Beyond The Visa logo"></div>
+          <div class="brandLogo73"><img src="favicon-192-v281.png" width="64" height="64" alt="Beyond The Visa logo"></div>
           <div><b>Beyond The Visa</b><small>NURSING PLATFORM</small></div>
         </div>
         <button type="button" class="profileCard73 profileAction73" data-go="profile" aria-label="Open profile for ${esc(

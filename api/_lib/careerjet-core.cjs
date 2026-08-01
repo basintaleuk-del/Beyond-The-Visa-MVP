@@ -1,4 +1,3 @@
-"use strict";
 const { normalizeJob, plainText } = require("./global-jobs-core.cjs");
 const API_ENDPOINT = "https://search.api.careerjet.net/v4/query";
 const DEFAULT_REFERER = "https://beyondthevisa.uk/jobs";

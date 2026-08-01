@@ -113,7 +113,7 @@
     story.setAttribute('aria-label', 'Beyond The Visa introduction');
     story.innerHTML = `
       <div class="storyInner">
-        <img class="storyLogo" src="login-logo-v72.png?v=72.1" alt="Beyond The Visa">
+        <img class="storyLogo" src="favicon-192-v281.png?v=281" width="192" height="192" alt="Beyond The Visa">
         <h1>Your Nursing <em>Journey.</em><br>Our Guidance.<br><em>Your Future.</em></h1>
         <div class="goldRule"></div>
         <p>Your all-in-one platform for international registration, exam preparation, career readiness and confident relocation.</p>
@@ -133,7 +133,7 @@
         <label class="languageSelect"><span aria-hidden="true">◎</span><span class="sr">Language</span><select aria-label="Language"><option>English</option></select></label>
       </div>
       <div class="authMain">
-        <img class="authBrandLogoV69" src="login-logo-v72.png?v=72.1" alt="Beyond The Visa">
+        <img class="authBrandLogoV69" src="favicon-512-v281.png?v=281" width="512" height="512" alt="Beyond The Visa">
         <div class="authWelcome"><h2>Welcome back!</h2><p>Sign in to continue your journey towards your goals.</p></div>
       </div>`;
 

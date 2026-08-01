@@ -13,10 +13,10 @@ const pngSize = (path) => {
 test("the supplied Beyond The Visa logo is the site favicon", () => {
   const html = text("web/index.html");
   const runtime = text("web/release-v68.js");
-  assert.match(html, /rel="icon" type="image\/png" href="\/login-logo-v72\.png\?v=281"/);
+  assert.match(html, /rel="icon" type="image\/png" href="\/favicon-192-v281\.png\?v=281"/);
   assert.match(html, /rel="apple-touch-icon" href="\/favicon-192-v281\.png\?v=281"/);
   assert.match(html, /rel="manifest" href="\/manifest\.json\?v=281"/);
-  assert.match(runtime, /login-logo-v72\.png\?v=281/);
+  assert.match(runtime, /favicon-192-v281\.png\?v=281/);
   assert.doesNotMatch(runtime, /brand-emblem-v68\.png/);
 });
 

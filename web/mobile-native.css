@@ -116,3 +116,15 @@ html.capacitor-native [data-view].active {
     transition-duration: .01ms !important;
   }
 }
+/* Pre-trial release accessibility guardrails for compact generated controls. */
+.journeyHead73 > button,
+.recommendedHead73 button,
+.panelHead73 button,
+.cookieNotice [data-cookie-policy] {
+  min-height: 44px !important;
+  min-width: 44px;
+}
+
+.cookieNotice [data-cookie-policy] {
+  padding: 10px 4px;
+}

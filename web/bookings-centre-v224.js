@@ -21,7 +21,7 @@
     page.innerHTML=`<div class="bookingsShell224">
       <header class="bookingsTop224">
         <button type="button" class="bookingsBack224" data-bookings-close>${icon('back')}<span>Back</span></button>
-        <a class="bookingsBrand224" href="./" aria-label="Beyond The Visa home"><span>BV</span><b>Beyond The Visa</b><small>Booking concierge</small></a>
+        <a class="bookingsBrand224" href="./" aria-label="Beyond The Visa home"><span><img src="favicon-192-v281.png" width="42" height="42" alt=""></span><b>Beyond The Visa</b><small>Booking concierge</small></a>
         <button type="button" class="bookingsRefresh224" data-bookings-refresh aria-label="Refresh bookings">${icon('refresh')}</button>
       </header>
       <main class="bookingsMain224" id="bookingsMain224" tabindex="-1"></main>

@@ -29,6 +29,11 @@ test('saved jobs support both safe save and remove operations',()=>{
   assert.doesNotMatch(js,/from\('btv_wallets'\)\.update/);
 });
 
+test('latest mock session uses the production timestamp column',()=>{
+  assert.match(js,/from\('btv_mock_sessions'\)\.select\('\*'\)\.eq\('user_id',u\.id\)\.order\('started_at',\{ascending:false\}\)/);
+  assert.doesNotMatch(js,/from\('btv_mock_sessions'\)\.select\('\*'\)\.eq\('user_id',u\.id\)\.order\('created_at'/);
+});
+
 test('premium hub is responsive and accessible without changing global navigation',()=>{
   assert.match(css,/grid-template-columns:260px minmax\(0,1fr\)/);
   assert.match(css,/@media\(max-width:720px\)/);
@@ -39,7 +44,7 @@ test('premium hub is responsive and accessible without changing global navigatio
 
 test('Platform Hub 211 prevents stale phone and wallet layouts on learning progress',()=>{
   assert.match(index,/platform-upgrade-v72\.css\?v=219/);
-  assert.match(index,/platform-upgrade-v72\.js\?v=255/);
+  assert.match(index,/platform-upgrade-v72\.js\?v=301/);
   assert.match(js,/h\.dataset\.hubTab=tab/);
   assert.match(js,/sub\.innerHTML=''/);
   assert.match(js,/sub\.hidden=tab!=='wallet'/);

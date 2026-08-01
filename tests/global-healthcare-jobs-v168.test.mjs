@@ -71,9 +71,9 @@ test("Trac-style information hierarchy keeps Beyond The Visa identity",()=>{
 test("Jobs keeps its original page title, hero layout and account destination",()=>{
   const ui=read("web/jobs-centre-v272.js"),html=read("web/index.html");
   assert.match(html,/PREMIUM CAREER TOOLS[\s\S]*Job search/);
-  assert.match(ui,/nhsJobsHero148/);assert.match(ui,/Find your next role across the NHS/);assert.match(ui,/UPDATED DIRECTLY FROM NHS JOBS/);
+  assert.match(ui,/nhsJobsHero148/);assert.match(ui,/Find your next healthcare role/);assert.match(ui,/MULTI-SOURCE HEALTHCARE JOBS/);
   assert.match(html,/jobs-centre-v272\.js/);assert.match(html,/jobs-centre-v148\.css\?v=176/);
-  assert.match(html,/jobs-centre-v272\.js\?v=286[\s\S]*usa-jobs-v155\.js\?v=290[\s\S]*global-jobs-v168\.js\?v=286/);
+  assert.match(html,/jobs-centre-v272\.js\?v=300[\s\S]*usa-jobs-v155\.js\?v=290[\s\S]*global-jobs-v168\.js\?v=286/);
   assert.match(read("web/global-jobs-v168.js"),/previousRenderJobs=window\.renderJobs/);
   assert.match(read("web/global-jobs-v168.js"),/if\(\["GB","US"\]\.includes\(code\)\)return previousRenderJobs\?\.\(\)/);
 });
