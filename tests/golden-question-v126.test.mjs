@@ -58,6 +58,25 @@ test('public preview never includes an answer',async()=>{
   const [page,preview]=await Promise.all([read('web/golden-question.html'),read('web/golden-question-preview-v126.js')]);
   assert.match(page,/Public previews never reveal the correct answer/);assert.match(page,/og:title/);
   assert.doesNotMatch(preview,/correct_answer|acceptable_answers|explanation/);
+  assert.match(page,/Golden Question — Coming Soon/);
+  assert.match(preview,/Coming soon/);
+  assert.doesNotMatch(preview,/functions\.invoke|daily_question_id/);
+});
+
+test('learner Golden Question entry points are launch-gated',async()=>{
+  const [home,client,dashboard,sql]=await Promise.all([
+    read('web/index.html'),
+    read('web/golden-question-v126.js'),
+    read('web/dashboard-premium-v73.js'),
+    read('supabase/migrations/20260801214532_pause_golden_question_until_launch.sql')
+  ]);
+  assert.match(home,/golden-question-v126\.js\?v=144/);
+  assert.match(client,/const COMING_SOON = true/);
+  assert.match(client,/Golden Question — Coming soon/);
+  assert.match(dashboard,/Coming soon — daily clinical challenge/);
+  assert.match(sql,/feature_paused = true/);
+  assert.match(sql,/sharing_enabled = false/);
+  assert.match(sql,/commenting_enabled = false/);
 });
 
 test('Europe London calendar handling survives both daylight-saving boundaries',()=>{

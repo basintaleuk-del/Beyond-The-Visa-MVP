@@ -2188,8 +2188,8 @@
     ];
     const quickActions = [
       {
-        title: "Today’s Golden Question",
-        copy: "Open today’s challenge, leaderboard, history and rules",
+        title: "Golden Question",
+        copy: "Coming soon — daily clinical challenge, leaderboard and prizes",
         id: "golden-question",
         icon: "♛",
         image: "assets/quick-actions/quick-action-golden-question.webp",

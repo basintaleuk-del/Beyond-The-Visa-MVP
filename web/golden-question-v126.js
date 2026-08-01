@@ -19,6 +19,7 @@
   let data = null,
     started = 0,
     timer = null;
+  const COMING_SOON = true;
   const db = () => window.btvSupabase;
   const call = async (body) => {
     const { data, error } = await db().functions.invoke("golden-question", {
@@ -84,7 +85,8 @@
     const tile = document.createElement("button");
     tile.type = "button";
     tile.dataset.gqHomeTile = "true";
-    tile.innerHTML = '<i>♛</i><span>Today’s Golden Question</span><small>Challenge, leaderboard, history and rules</small>';
+    tile.setAttribute("aria-label", "Golden Question, coming soon");
+    tile.innerHTML = '<i>♛</i><span>Golden Question</span><small>Coming soon — daily clinical challenge</small>';
     tile.addEventListener("click", openToday);
     quick.append(tile);
   }
@@ -242,6 +244,16 @@
     }</div></article>`;
   }
   async function openToday() {
+    if (COMING_SOON) {
+      modal(
+        "Golden Question — Coming soon",
+        `<div class="gqExperience">${state(
+          "Coming soon",
+          "Today’s Golden Question is being prepared for launch. The daily challenge, leaderboard and prizes will open soon."
+        )}</div>`
+      );
+      return;
+    }
     const dialog = modal("Today’s Golden Question", '<div class="gqExperience"><p class="gqNotice">Loading today’s challenge…</p></div>');
     await load($(".gqExperience", dialog));
   }
