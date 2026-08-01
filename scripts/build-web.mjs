@@ -54,7 +54,7 @@ if (!html.includes('mobile-native.js')) {
 }
 html = html.replace(
   /<meta name="viewport"[^>]*>/i,
-  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">',
+  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
 );
 await writeFile(indexPath, html, 'utf8');
 

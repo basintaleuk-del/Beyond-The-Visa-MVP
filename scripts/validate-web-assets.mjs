@@ -1,5 +1,5 @@
 import { access, readFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 
 const root = resolve(process.cwd(), 'web');
 const entries = ['index.html', 'admin.html', 'cbt.html', 'nclex.html'];
@@ -12,8 +12,9 @@ for (const entry of entries) {
     .map((match) => match[1])
     .filter((ref) => !/^(?:https?:|data:|mailto:|tel:|\/\/)/i.test(ref));
   for (const ref of new Set(refs)) {
-    const target = resolve(dirname(file), ref);
-    if (!target.startsWith(root)) {
+    if (ref.includes('$')) continue;
+    const target = ref.startsWith('/') ? resolve(root, ref.slice(1)) : resolve(dirname(file), ref);
+    if (target !== root && !target.startsWith(`${root}${sep}`)) {
       missing.push(`${entry}: unsafe reference ${ref}`);
       continue;
     }

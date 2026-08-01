@@ -166,8 +166,8 @@
     social.innerHTML = `
       <div class="socialDivider"><span>or continue with</span></div>
       <div class="socialButtonsV274">
-        <button class="googleAuth" type="button" id="googleAuthV69" aria-label="Continue with Google"><span class="googleMark" aria-hidden="true">G</span><span>Continue with Google</span></button>
-        <button class="facebookAuth" type="button" id="facebookAuthV274" aria-label="Continue with Facebook"><span class="facebookMark" aria-hidden="true">f</span><span>Continue with Facebook</span></button>
+        <button class="googleAuth" type="button" id="googleAuthV69"><span class="googleMark" aria-hidden="true">G</span><span>Continue with Google</span></button>
+        <button class="facebookAuth" type="button" id="facebookAuthV274"><span class="facebookMark" aria-hidden="true">f</span><span>Continue with Facebook</span></button>
       </div>`;
     card.append(social);
 

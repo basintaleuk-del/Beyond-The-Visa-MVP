@@ -7,11 +7,12 @@ Source commit before checkpoint: `0fb4b0263b8c8a81c9505bd8badb7f8dabbbe712`
 
 ## Executive decision
 
-The codebase is locally release-verifiable, but production deployment is **not yet recommended**. The code, build, tests, responsive layout, accessibility guardrails, SEO, and core security contracts pass. Three operational blockers remain:
+The codebase is locally release-verifiable, but production deployment is **not yet recommended**. The code, build, tests, responsive layout, accessibility guardrails, SEO, and core security contracts pass. Two operational blockers remain:
 
-1. `beyondthevisa.co.uk` and `www.beyondthevisa.co.uk` return an unrelated Hostinger-served `200` page instead of redirecting to the canonical `.org` site.
-2. The linked Supabase production database has material migration-history drift: 50 remote migrations versus 83 local files, with 11 local migrations newer than the latest remote version.
-3. The staged Supabase hardening migration has deliberately not been applied. It must be tested on a Supabase branch/preview database after migration reconciliation.
+1. The linked Supabase production database has material migration-history drift: 50 remote migrations versus 83 local files, with 11 local migrations newer than the latest remote version.
+2. The staged Supabase hardening migration has deliberately not been applied. It must be tested on a Supabase branch/preview database after migration reconciliation.
+
+Correction added 2026-08-01: domains ending in `beyondthevisa.co.uk` are not owned by Beyond The Visa. They are outside project scope and are not launch blockers, redirect targets, monitoring targets, or configuration candidates. The owned domains are `beyondthevisa.org`, `www.beyondthevisa.org`, `beyondthevisa.uk`, and `www.beyondthevisa.uk`.
 
 No deployment, production DDL, production data mutation, DNS update, environment-value change, provider import, payment, notification dispatch, or destructive cleanup was performed.
 
@@ -155,7 +156,7 @@ Live headers on 2026-08-01:
 
 - `https://beyondthevisa.org/` → permanent 308 to `https://www.beyondthevisa.org/`
 - `https://www.beyondthevisa.org/` → 200 from Vercel with HSTS, nosniff, SAMEORIGIN, referrer, and permissions policies
-- both `.co.uk` hostnames → 200 from Hostinger, no canonical redirect — launch blocker
+- The owned `.uk` apex and `www` hostnames require second-stage validation.
 
 Vercel production has Supabase URL/publishable/service-role values, cron secret, VAPID values, and all five job-provider credential groups. Preview has job-provider and VAPID values but no Supabase core or cron variables. Development only lists VAPID variables. Preview environment parity is required for meaningful pre-production testing.
 
@@ -212,18 +213,18 @@ Deployment is intentionally not performed.
 
 Recommended order:
 
-1. Fix `.co.uk` DNS/registrar ownership and add both domains to Vercel as redirects to `https://www.beyondthevisa.org`; verify HTTP and HTTPS without loops.
+1. Validate all four owned `.org` and `.uk` hostnames and document the existing canonical behaviour without changing it.
 2. Add Supabase core and cron variables to Vercel Preview, using separate preview credentials.
 3. Reconcile Supabase migrations on a preview branch and test the staged hardening migration.
 4. Run `npm ci`, `npm run verify`, and `npm run seo:audit` on Node 22 or newer.
 5. Deploy this branch to Vercel Preview only.
 6. Run real test-account journeys for password login, Google/Facebook callback, logout/session expiry, jobs/save/apply, notifications, mentor booking, mock purchase/refund, Golden Question, and admin denial/allow paths.
 7. Promote the verified immutable deployment to production; do not rebuild between approval and promotion.
-8. Recheck domains, redirects, headers, cron responses, Supabase advisors/logs, sitemap/robots, and payment/webhook health.
+8. Recheck owned domains, redirects, headers, cron responses, Supabase advisors/logs, sitemap/robots, and payment/webhook health.
 
 Rollback:
 
 - Vercel: instant rollback/promote the previously known-good immutable deployment.
 - Code: revert the final audit commit; retain checkpoint `0c8df18` as the exact pre-audit source state.
 - Database: no rollback is currently required because the audit migration was not applied. If later approved, capture pre-change ACLs/policies first and prepare a reviewed inverse migration before production application.
-- DNS: retain prior DNS records and TTL values before changing `.co.uk`; restore them if certificate issuance or redirects fail.
+- Domains: do not change canonical or owned-domain configuration without approval; if an approved change later fails, restore the recorded prior Vercel/DNS state.

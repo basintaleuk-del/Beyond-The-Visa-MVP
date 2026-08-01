@@ -68,14 +68,20 @@ test('navigation retries before showing a self-recovering offline screen',()=>{
 
 test('the login document no longer parses the megabyte application block inline',()=>{
   assert.ok(Buffer.byteLength(html)<350_000);
-  assert.ok(Buffer.byteLength(appContent)>1_000_000);
-  assert.match(html,/app-content-v171\.js\?v=172/);
+  assert.ok(Buffer.byteLength(appContent)<100_000);
+  assert.match(html,/app-content-v171\.js\?v=301/);
   assert.match(html,/btvAppContentLoader172/);
   assert.match(html,/addEventListener\('btv:session-restored',loadForApp\)/);
   assert.match(html,/event\?\.detail\?\.state==='app'/);
   assert.doesNotMatch(html,/setTimeout\(load,5000\)/);
   assert.match(html,/script\.async=true/);
   assert.match(appContent,/const legalUpdated='30 July 2026'/);
+});
+
+test('deferred app content does not embed a duplicate megabyte logo',()=>{
+  assert.doesNotMatch(appContent,/data:image\/png;base64/);
+  assert.ok(Buffer.byteLength(appContent,'utf8')<100_000);
+  assert.match(appContent,/favicon-512-v281\.png/);
 });
 
 test('visible authentication controls remain above full-page application overlays',()=>{

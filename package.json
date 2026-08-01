@@ -11,6 +11,9 @@
     "seo:audit": "node scripts/seo-audit.mjs",
     "seo:report": "node scripts/indexing-report.mjs",
     "seo:indexnow": "node scripts/ping-indexnow.mjs",
+    "links": "node scripts/validate-web-assets-v2.mjs",
+    "load:local": "node scripts/local-load-smoke-v301.mjs",
+    "serve:validation": "node scripts/serve-validation-v301.mjs",
     "seo:prepare": "npm run seo:pages && npm run seo:sitemap",
     "build:careerjet": "node scripts/build-careerjet.mjs",
     "build:web": "npm run build:careerjet && npm run seo:prepare && node scripts/build-web.mjs",
@@ -23,7 +26,7 @@
     "android:bundle": "npm run sync && cd android && gradlew.bat bundleRelease",
     "test": "node --test tests/*.test.mjs",
     "qa": "node scripts/qa-release-audit.mjs && node scripts/validate-contracts.mjs",
-    "verify": "npm run build:web && npm run test && npm run qa && npx tsc --noEmit"
+    "verify": "npm run build:web && npm run test && npm run qa && npm run links && npx tsc --noEmit"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
