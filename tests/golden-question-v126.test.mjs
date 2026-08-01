@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 
 const read=file=>readFile(new URL(`../${file}`,import.meta.url),'utf8');
 
@@ -96,6 +96,23 @@ test('Golden Question images are migrated from embedded SVG data to private stor
   assert.match(script,/Unsafe SVG rejected/);
   assert.match(script,/golden-question-images\/\$\{objectPath\}/);
   assert.doesNotMatch(script,/SUPABASE_SERVICE_ROLE_KEY\s*=/);
+});
+
+test('Golden Question equipment artwork is visual, versioned and never reveals the answer',async()=>{
+  const [sql,builder,files]=await Promise.all([
+    read('supabase/migrations/20260801213643_replace_golden_answer_cards_with_equipment_art.sql'),
+    read('scripts/build-golden-equipment-v2.mjs'),
+    readdir(new URL('../assets/golden-question-equipment-v2/',import.meta.url))
+  ]);
+  assert.equal(files.filter(file=>file.endsWith('.svg')).length,20);
+  assert.equal((sql.match(/questions\/equipment\/v2\//g)||[]).length,20);
+  assert.match(sql,/Older clinical equipment presented for identification/);
+  assert.match(builder,/Unsafe or answer-bearing SVG/);
+  const artwork=await Promise.all(files.filter(file=>file.endsWith('.svg')).map(file=>read(`assets/golden-question-equipment-v2/${file}`)));
+  for(const svg of artwork){
+    assert.match(svg,/^<svg\b/);
+    assert.doesNotMatch(svg,/<text\b|<script\b|<foreignObject\b/i);
+  }
 });
 
 test('monthly freeze preserves history and wallet award is idempotent',async()=>{
