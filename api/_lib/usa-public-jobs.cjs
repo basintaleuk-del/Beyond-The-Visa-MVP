@@ -44,7 +44,7 @@ function parseNypJobs(html, now = new Date()) {
 
 async function fetchPublicUsaNursingJobs(fetchImpl = fetch, timeoutMs = 10000) {
   const response = await fetchImpl(SOURCE_URL, {
-    headers: { accept: "text/html,application/xhtml+xml", "user-agent": "BeyondTheVisa-Jobs/2.1 (+https://www.beyondthevisa.org)" },
+    headers: { accept: "text/html,application/xhtml+xml", "user-agent": "BeyondTheVisa-Jobs/2.1 (+https://beyondthevisa.org)" },
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!response.ok) throw new Error(`NewYork-Presbyterian Careers returned ${response.status}`);

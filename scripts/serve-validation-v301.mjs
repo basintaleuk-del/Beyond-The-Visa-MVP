@@ -16,6 +16,13 @@ createServer(async (request, response) => {
     try {
       if (!(await stat(target)).isFile()) throw new Error('Not a file');
     } catch {
+      const acceptsHtml = String(request.headers.accept || '').includes('text/html');
+      const navigation = request.method === 'GET' && acceptsHtml && !extname(pathname) && !pathname.startsWith('/api/');
+      if (!navigation) {
+        response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+        response.end('Not found');
+        return;
+      }
       target = join(root, 'index.html');
     }
     response.writeHead(200, { 'Content-Type': types[extname(target)] || 'application/octet-stream', 'Cache-Control': 'no-store' });

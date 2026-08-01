@@ -275,7 +275,7 @@ function parseSaudi(html, source = SOURCES[5]) {
 
 async function fetchLiveSource(source, fetcher = fetch, timeoutMs = 18000) {
   const response = await fetcher(source.url, {
-    headers: { accept: "text/html,application/xhtml+xml", "user-agent": "BeyondTheVisa-Jobs/2.0 (+https://www.beyondthevisa.org)" },
+    headers: { accept: "text/html,application/xhtml+xml", "user-agent": "BeyondTheVisa-Jobs/2.0 (+https://beyondthevisa.org)" },
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!response.ok) throw Object.assign(new Error(`${source.name} returned ${response.status}`), { status: response.status });

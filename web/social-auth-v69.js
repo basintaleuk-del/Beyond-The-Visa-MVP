@@ -28,6 +28,16 @@
 
   function showTab(login) {
     if (typeof window.authTab === 'function') window.authTab(login);
+    else {
+      const signup = $('#signupForm');
+      const signin = $('#loginForm');
+      const signupButton = $('#showSignup');
+      const loginButton = $('#showLogin');
+      if (signup) signup.hidden = login;
+      if (signin) signin.hidden = !login;
+      signupButton?.classList.toggle('active', !login);
+      loginButton?.classList.toggle('active', login);
+    }
     updateAuthCopy(login);
     $('.authCard')?.scrollIntoView({ block: 'center' });
   }
@@ -133,7 +143,7 @@
         <label class="languageSelect"><span aria-hidden="true">◎</span><span class="sr">Language</span><select aria-label="Language"><option>English</option></select></label>
       </div>
       <div class="authMain">
-        <img class="authBrandLogoV69" src="favicon-512-v281.png?v=281" width="512" height="512" alt="Beyond The Visa">
+        <img class="authBrandLogoV69" src="favicon-512-v281.webp?v=302" width="512" height="512" alt="Beyond The Visa">
         <div class="authWelcome"><h2>Welcome back!</h2><p>Sign in to continue your journey towards your goals.</p></div>
       </div>`;
 
@@ -199,9 +209,10 @@
     $('#forgotPasswordV69')?.addEventListener('click', event => resetPassword(event.currentTarget));
 
     const requestedSignup = new URLSearchParams(location.search).get('mode') === 'signup';
-    setTimeout(() => { showTab(!requestedSignup); showOauthMessage(); }, 0);
+    showTab(!requestedSignup);
+    showOauthMessage();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance, { once: true });
-  else enhance();
+  if ($('#auth')) enhance();
+  else document.addEventListener('DOMContentLoaded', enhance, { once: true });
 })();

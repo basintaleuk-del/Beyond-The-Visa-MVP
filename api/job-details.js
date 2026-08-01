@@ -6,7 +6,7 @@ module.exports = async function handler(req, res) {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$/.test(id)) return res.status(400).json({ error: "Invalid NHS Jobs vacancy reference." });
   const sourceUrl = `https://www.jobs.nhs.uk/candidate/jobadvert/${encodeURIComponent(id)}`;
   try {
-    const response = await fetch(sourceUrl, { headers: { accept: "text/html", "user-agent": "BeyondTheVisa/1.0 (+https://www.beyondthevisa.org)" }, signal: AbortSignal.timeout(10000) });
+    const response = await fetch(sourceUrl, { headers: { accept: "text/html", "user-agent": "BeyondTheVisa/1.0 (+https://beyondthevisa.org)" }, signal: AbortSignal.timeout(10000) });
     if (!response.ok) return res.status(response.status === 404 ? 404 : 502).json({ error: response.status === 404 ? "This vacancy is no longer available." : "NHS Jobs could not be reached." });
     const details = parseNhsJobDetail(await response.text(), sourceUrl);
     if (!details.title) return res.status(502).json({ error: "The NHS Jobs advert could not be read." });

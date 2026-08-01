@@ -1,7 +1,7 @@
 const { normalizeJob, plainText } = require("./global-jobs-core.cjs");
 const API_ENDPOINT = "https://search.api.careerjet.net/v4/query";
-const DEFAULT_REFERER = "https://beyondthevisa.uk/jobs";
-const SERVICE_USER_AGENT = "BeyondTheVisa-JobsSync/1.0 (+https://beyondthevisa.uk/)";
+const DEFAULT_REFERER = "https://beyondthevisa.org/jobs";
+const SERVICE_USER_AGENT = "BeyondTheVisa-JobsSync/1.0 (+https://beyondthevisa.org/)";
 const COUNTRIES = Object.freeze({
   gb: Object.freeze({ key: "gb", code: "GB", name: "United Kingdom", locale: "en_GB", currency: "GBP", site: "careerjet.co.uk" }),
   us: Object.freeze({ key: "us", code: "US", name: "United States", locale: "en_US", currency: "USD", site: "careerjet.com" }),

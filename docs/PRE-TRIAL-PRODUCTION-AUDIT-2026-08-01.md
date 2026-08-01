@@ -12,7 +12,7 @@ The codebase is locally release-verifiable, but production deployment is **not y
 1. The linked Supabase production database has material migration-history drift: 50 remote migrations versus 83 local files, with 11 local migrations newer than the latest remote version.
 2. The staged Supabase hardening migration has deliberately not been applied. It must be tested on a Supabase branch/preview database after migration reconciliation.
 
-Correction added 2026-08-01: domains ending in `beyondthevisa.co.uk` are not owned by Beyond The Visa. They are outside project scope and are not launch blockers, redirect targets, monitoring targets, or configuration candidates. The owned domains are `beyondthevisa.org`, `www.beyondthevisa.org`, `beyondthevisa.uk`, and `www.beyondthevisa.uk`.
+Correction added 2026-08-01: non-owned domains cited by an earlier draft are outside project scope and are not launch blockers, redirect targets, monitoring targets, or configuration candidates. The owned domains are `beyondthevisa.org`, `www.beyondthevisa.org`, `beyondthevisa.uk`, and `www.beyondthevisa.uk`.
 
 No deployment, production DDL, production data mutation, DNS update, environment-value change, provider import, payment, notification dispatch, or destructive cleanup was performed.
 

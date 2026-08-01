@@ -85,7 +85,11 @@ test('deferred app content does not embed a duplicate megabyte logo',()=>{
 });
 
 test('visible authentication controls remain above full-page application overlays',()=>{
-  assert.match(html,/auth-redesign-v69\.css\?v=172/);
+  assert.match(html,/auth-redesign-v69\.css\?v=302/);
+  assert.ok(
+    html.indexOf('social-auth-v69.js?v=302') < html.indexOf('storage-v21.js'),
+    'the signed-out auth upgrade must run before authenticated feature assets',
+  );
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);

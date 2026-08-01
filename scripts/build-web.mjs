@@ -44,6 +44,10 @@ await build({
 });
 await cp(join(root, 'src', 'mobile-native.css'), join(output, 'mobile-native.css'));
 
+for (const asset of ['edge-functions-v22.css', 'platform-v30.css', 'premium-v29.css']) {
+  await cp(join(root, asset), join(output, asset));
+}
+
 const indexPath = join(output, 'index.html');
 let html = await readFile(indexPath, 'utf8');
 if (!html.includes('mobile-native.css')) {

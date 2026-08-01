@@ -15,8 +15,11 @@ function safeTarget(value) {
 function safeImage(value) {
   if (!value) return null;
   try {
-    const url = new URL(String(value), "https://www.beyondthevisa.org");
-    return url.protocol === "https:" && ["www.beyondthevisa.org","beyondthevisa.org"].includes(url.hostname) ? url.href : null;
+    const url = new URL(String(value), "https://beyondthevisa.org");
+    const ownedHosts = new Set(["beyondthevisa.org", "www.beyondthevisa.org", "beyondthevisa.uk", "www.beyondthevisa.uk"]);
+    if (url.protocol !== "https:" || !ownedHosts.has(url.hostname)) return null;
+    url.hostname = "beyondthevisa.org";
+    return url.href;
   } catch { return null; }
 }
 function configured() {

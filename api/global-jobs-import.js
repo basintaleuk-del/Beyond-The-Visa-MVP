@@ -231,7 +231,7 @@ async function careerjetSource(now) {
 
 function requestContext(req) {
   const forwarded=String(req.headers?.["x-forwarded-for"]||"").split(",")[0].trim();
-  return {userIp:forwarded||String(req.headers?.["x-real-ip"]||"127.0.0.1"),userAgent:String(req.headers?.["user-agent"]||"BeyondTheVisa-JobsSync/1.0 (+https://beyondthevisa.uk/)")};
+  return {userIp:forwarded||String(req.headers?.["x-real-ip"]||"127.0.0.1"),userAgent:String(req.headers?.["user-agent"]||"BeyondTheVisa-JobsSync/1.0 (+https://beyondthevisa.org/)")};
 }
 
 async function markMissingCareerjetJobs(existing,seenExternalIds,now) {

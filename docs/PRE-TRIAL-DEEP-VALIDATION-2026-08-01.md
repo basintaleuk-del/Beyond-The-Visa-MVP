@@ -13,7 +13,7 @@ This is a read-only production assessment plus local, reversible fixes. No produ
 
 ## 1. Domain-scope correction
 
-The two previously cited `.co.uk` names are not owned by Beyond The Visa. They are not launch blockers and were not accessed, claimed, configured, monitored, or included in DNS, Vercel, certificate, environment, deployment, or rollback actions. The original audit has been corrected. The owned scope is the two `.org` and two `.uk` origins below.
+The non-owned domains cited by the earlier audit draft are outside project scope. They were not accessed, claimed, configured, monitored, or included in DNS, Vercel, certificate, environment, deployment, or rollback actions. The original audit has been corrected. The owned scope is the two `.org` and two `.uk` origins below.
 
 ## 2. Owned-domain results
 

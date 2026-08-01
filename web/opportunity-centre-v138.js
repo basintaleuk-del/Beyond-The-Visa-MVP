@@ -597,7 +597,7 @@
 
   function addToCalendar(row) {
     const stamp = (value) => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-    const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Beyond The Visa//Opportunity Centre//EN","BEGIN:VEVENT",`UID:${row.id}@beyondthevisa.org`,`DTSTART:${stamp(row.event_start_at)}`,`DTEND:${stamp(row.event_end_at || new Date(new Date(row.event_start_at).getTime() + 3600000))}`,`SUMMARY:${String(row.title).replace(/[\n,;]/g, " ")}`,`DESCRIPTION:${String(row.summary || "").replace(/[\n,;]/g, " ")}`,`URL:${row.registration_url || row.source_url || "https://www.beyondthevisa.org/opportunities"}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");
+    const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Beyond The Visa//Opportunity Centre//EN","BEGIN:VEVENT",`UID:${row.id}@beyondthevisa.org`,`DTSTART:${stamp(row.event_start_at)}`,`DTEND:${stamp(row.event_end_at || new Date(new Date(row.event_start_at).getTime() + 3600000))}`,`SUMMARY:${String(row.title).replace(/[\n,;]/g, " ")}`,`DESCRIPTION:${String(row.summary || "").replace(/[\n,;]/g, " ")}`,`URL:${row.registration_url || row.source_url || "https://beyondthevisa.org/opportunities"}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");
     const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })); link.download = "opportunity-event.ics"; link.click(); URL.revokeObjectURL(link.href); track("opportunity_event_calendar", { opportunity_id: row.id });
   }
 

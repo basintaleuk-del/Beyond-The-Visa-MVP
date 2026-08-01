@@ -1,5 +1,23 @@
 {
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.beyondthevisa.org" }],
+      "destination": "https://beyondthevisa.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "beyondthevisa.uk" }],
+      "destination": "https://beyondthevisa.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.beyondthevisa.uk" }],
+      "destination": "https://beyondthevisa.org/:path*",
+      "permanent": true
+    },
     { "source": "/costs", "destination": "/opportunities", "permanent": true },
     { "source": "/cost-planner", "destination": "/opportunities", "permanent": true },
     { "source": "/admin", "destination": "/admin.html", "permanent": false },

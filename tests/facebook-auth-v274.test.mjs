@@ -19,8 +19,8 @@ test('Facebook is added beside Google without replacing existing auth methods',(
   assert.match(index,/signInWithPassword/);
   assert.match(index,/auth\.signUp/);
   assert.match(css,/\.facebookAuth/);
-  assert.match(index,/auth-redesign-v69\.css\?v=274/);
-  assert.match(index,/social-auth-v69\.js\?v=274/);
+  assert.match(index,/auth-redesign-v69\.css\?v=302/);
+  assert.match(index,/social-auth-v69\.js\?v=302/);
 });
 
 test('Facebook OAuth uses the shared Supabase client and dedicated callback',()=>{
