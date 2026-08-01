@@ -1,4 +1,5 @@
 .btvAuthV69[hidden], #onboarding[hidden], #appShell[hidden] { display: none !important; }
+#auth form[hidden] { display: none !important; }
 
 /* Keep signed-out controls above late-loading dashboard overlays and decorations. */
 #auth.btvAuthV69:not([hidden]) {

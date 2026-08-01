@@ -208,8 +208,8 @@
     $('#facebookAuthV274')?.addEventListener('click', event => socialSignIn('facebook', event.currentTarget));
     $('#forgotPasswordV69')?.addEventListener('click', event => resetPassword(event.currentTarget));
 
-    const requestedSignup = new URLSearchParams(location.search).get('mode') === 'signup';
-    showTab(!requestedSignup);
+    /* Always enter through sign-in. Account creation is revealed only by the prompt above. */
+    showTab(true);
     showOauthMessage();
   }
 

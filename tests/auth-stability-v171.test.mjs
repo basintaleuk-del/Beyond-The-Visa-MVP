@@ -85,15 +85,27 @@ test('deferred app content does not embed a duplicate megabyte logo',()=>{
 });
 
 test('visible authentication controls remain above full-page application overlays',()=>{
-  assert.match(html,/auth-redesign-v69\.css\?v=302/);
+  assert.match(html,/auth-redesign-v69\.css\?v=303/);
   assert.ok(
-    html.indexOf('social-auth-v69.js?v=302') < html.indexOf('storage-v21.js'),
+    html.indexOf('social-auth-v69.js?v=303') < html.indexOf('storage-v21.js'),
     'the signed-out auth upgrade must run before authenticated feature assets',
   );
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
   assert.match(worker,/beyond-the-visa-assets-v250/);
+});
+
+test('authentication starts on sign-in without flashing the signup form',()=>{
+  const socialAuth=fs.readFileSync(path.join(root,'web/social-auth-v69.js'),'utf8');
+  assert.match(authStyles,/#auth form\[hidden\]\s*\{\s*display:\s*none\s*!important/);
+  assert.match(html,/<form id="signupForm" hidden aria-hidden="true">/);
+  assert.match(html,/<form id="loginForm" aria-hidden="false">/);
+  assert.match(html,/signup\.setAttribute\('aria-hidden',String\(login\)\)/);
+  assert.match(html,/loginTab\.setAttribute\('aria-selected',String\(login\)\)/);
+  assert.match(socialAuth,/prompt\.addEventListener\('click', \(\) => showTab\(false\)\)/);
+  assert.match(socialAuth,/showTab\(true\);/);
+  assert.doesNotMatch(socialAuth,/requestedSignup/);
 });
 
 test('global feature installers do not poll or observe every page mutation',()=>{

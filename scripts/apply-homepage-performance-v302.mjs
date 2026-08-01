@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 
 const files = [new URL('../index.html', import.meta.url), new URL('../web/index.html', import.meta.url)];
 const earlyMarker = '</small></div></section><div id="appShell"';
-const earlyReplacement = '</small></div></section><script src="social-auth-v69.js?v=302"></script><div id="appShell"';
+const earlyReplacement = '</small></div></section><script src="social-auth-v69.js?v=303"></script><div id="appShell"';
 
 for (const file of files) {
   let html = await readFile(file, 'utf8');
@@ -30,13 +30,13 @@ for (const file of files) {
   html = html.replace(/<form id="loginForm"(?: hidden)?>/, '<form id="loginForm">');
 
   if (!html.includes(earlyMarker)) throw new Error(`Auth insertion marker missing in ${file.pathname}`);
-  html = html.replace('</head>', '<link rel="stylesheet" href="auth-redesign-v69.css?v=302"></head>');
+  html = html.replace('</head>', '<link rel="stylesheet" href="auth-redesign-v69.css?v=303"></head>');
   html = html.replace(earlyMarker, earlyReplacement);
 
-  if ((html.match(/auth-redesign-v69\.css\?v=302/g) || []).length !== 1) {
+  if ((html.match(/auth-redesign-v69\.css\?v=303/g) || []).length !== 1) {
     throw new Error(`Expected one auth stylesheet in ${file.pathname}`);
   }
-  if ((html.match(/social-auth-v69\.js\?v=302/g) || []).length !== 1) {
+  if ((html.match(/social-auth-v69\.js\?v=303/g) || []).length !== 1) {
     throw new Error(`Expected one early auth script in ${file.pathname}`);
   }
   if (/<link rel="stylesheet" href="(?!(?:auth-redesign-v69|release-v71|v71-feature-merge-v82)\.css)[^"]+">/.test(html)) {
@@ -47,7 +47,7 @@ for (const file of files) {
   }
   html = html.replace(/\r\r\n/g, '\r\n').split('\n').map((line) => {
     const changedLine = line.includes('media="print" onload=')
-      || line.includes('auth-redesign-v69.css?v=302')
+      || line.includes('auth-redesign-v69.css?v=303')
       || line.includes('forgotPasswordV69');
     return changedLine ? line.replace(/\r$/, '') : line;
   }).join('\n');
