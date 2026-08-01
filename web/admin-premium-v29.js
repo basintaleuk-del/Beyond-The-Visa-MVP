@@ -1,4 +1,5 @@
 (function(){
+if(window.__btvAdminPremiumV29)return;window.__btvAdminPremiumV29=true;
 const sb=window.btvSupabase;
 const esc=v=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
 let subscriptions=[],payments=[],prices=[],profiles=[],started=false;
@@ -15,10 +16,10 @@ function render(){
   document.querySelector('#premiumPaymentRows').innerHTML=payments.slice(0,50).map(x=>{const p=profile(x.user_id);return `<tr><td>${esc(p.full_name||p.email||'Member')}</td><td>${esc(x.provider_reference||'—')}</td><td>${esc(x.currency||'')} ${(Number(x.amount_total||0)/100).toLocaleString('en-GB')}</td><td><span class="pill ${x.status==='paid'?'':'off'}">${esc(x.status)}</span></td><td>${date(x.created_at)}</td></tr>`}).join('')||'<tr><td colspan="5">No Paystack payments yet.</td></tr>';
   document.querySelectorAll('[data-revoke-member]').forEach(b=>b.onclick=()=>revoke(b.dataset.revokeMember));document.querySelectorAll('[data-save-price]').forEach(b=>b.onclick=()=>savePrice(b.dataset.savePrice))
 }
-async function load(){const [s,p,r,u]=await Promise.all([sb.from('subscriptions').select('*').order('created_at',{ascending:false}),sb.from('payments').select('*').eq('provider','paystack').order('created_at',{ascending:false}),sb.from('premium_prices').select('*').order('market'),sb.from('profiles').select('id,full_name,account_type')]);const bad=[s,p,r,u].find(x=>x.error);if(bad){document.querySelector('#membershipRows').innerHTML=`<div class="inboxSetup"><b>Premium database setup required</b><p>${esc(bad.error.code==='42P01'?'Run PREMIUM-MEMBERSHIP-SETUP.sql in Supabase.':bad.error.message)}</p></div>`;return}subscriptions=s.data||[];payments=p.data||[];prices=r.data||[];profiles=u.data||[];render()}
+async function load(){if(!document.querySelector('#memberships'))return;const [s,p,r,u]=await Promise.all([sb.from('subscriptions').select('*').order('created_at',{ascending:false}),sb.from('payments').select('*').eq('provider','paystack').order('created_at',{ascending:false}),sb.from('premium_prices').select('*').order('market'),sb.from('profiles').select('id,full_name,account_type')]);const bad=[s,p,r,u].find(x=>x.error);if(bad){document.querySelector('#membershipRows').innerHTML=`<div class="inboxSetup"><b>Premium database setup required</b><p>${esc(bad.error.code==='42P01'?'Run PREMIUM-MEMBERSHIP-SETUP.sql in Supabase.':bad.error.message)}</p></div>`;return}subscriptions=s.data||[];payments=p.data||[];prices=r.data||[];profiles=u.data||[];render()}
 async function revoke(userId){if(!confirm('End this member’s Premium access?'))return;const sub=subscriptions.find(s=>s.user_id===userId);if(sub)await sb.from('subscriptions').update({status:'expired',current_period_end:new Date().toISOString(),cancel_at_period_end:true}).eq('id',sub.id);await sb.from('profiles').update({account_type:'free'}).eq('id',userId);load()}
 async function savePrice(code){const amount=Number(document.querySelector(`[data-price-amount="${code}"]`).value),active=document.querySelector(`[data-price-active="${code}"]`).checked;if(!amount||amount<0.01)return alert('Enter a valid monthly amount.');const {error}=await sb.from('premium_prices').update({amount,active,paystack_plan_code:null}).eq('code',code);if(error)return alert(error.message);alert('Price saved. A new Paystack plan will be created at the next checkout.');load()}
-function bind(){document.querySelector('#refreshMemberships').onclick=load;document.querySelector('#membershipSearch').oninput=render}
-function start(){if(started)return;started=true;bind();load();setInterval(load,60000)}
+function bind(){const refresh=document.querySelector('#refreshMemberships'),search=document.querySelector('#membershipSearch');if(!refresh||!search)return false;refresh.onclick=load;search.oninput=render;return true}
+function start(){if(started||!bind())return;started=true;load();setInterval(load,60000)}
 build();window.BTVAdminPremium={start,load};
 })();

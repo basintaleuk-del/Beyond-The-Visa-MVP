@@ -5,6 +5,8 @@ import fs from 'node:fs';
 const read=path=>fs.readFileSync(path,'utf8');
 const html=read('web/admin.html');
 const admin=read('web/admin-user-management-v303.js');
+const adminCore=read('web/admin.js');
+const legacyPremium=read('web/admin-premium-v29.js');
 const tracker=read('web/user-activity-v303.js');
 const css=read('web/admin-user-management-v303.css');
 const sql=read('supabase/migrations/20260801190924_admin_user_engagement_analytics.sql');
@@ -61,4 +63,11 @@ test('premium console is responsive and motion-safe',()=>{
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
   assert.match(css,/adminUserDrawerV303/);
   assert.match(css,/adminPresenceV303\.online/);
+});
+
+test('retired premium panel cannot stop the consolidated admin portal',()=>{
+  assert.match(adminCore,/if\(document\.querySelector\('#memberships'\)\)window\.BTVAdminPremium/);
+  assert.match(legacyPremium,/if\(started\|\|!bind\(\)\)return/);
+  assert.match(legacyPremium,/if\(!refresh\|\|!search\)return false/);
+  assert.match(legacyPremium,/__btvAdminPremiumV29/);
 });

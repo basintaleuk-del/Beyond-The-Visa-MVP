@@ -12,7 +12,7 @@ async function loadAdminTools(){
 
 function startAdminTools(){
   window.BTVAdminInbox?.start?.();
-  window.BTVAdminPremium?.start?.();
+  if(document.querySelector('#memberships'))window.BTVAdminPremium?.start?.();
 }
 
 async function init(){
