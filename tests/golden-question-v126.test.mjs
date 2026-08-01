@@ -83,6 +83,21 @@ test('RLS, admin authorization, protected images and moderation are enforced',as
   assert.match(fn,/RATE_LIMITED/);assert.match(fn,/unrealistic_speed/);
 });
 
+test('Golden Question images are migrated from embedded SVG data to private storage paths',async()=>{
+  const [sql,fn,script]=await Promise.all([
+    read('supabase/migrations/20260801212038_migrate_golden_question_images_to_storage.sql'),
+    read('supabase/functions/golden-question/index.ts'),
+    read('scripts/migrate-golden-question-images.mjs')
+  ]);
+  assert.match(sql,/'image\/svg\+xml'/);
+  assert.match(sql,/'questions\/equipment\/'\s*\|\|\s*md5\(question_image_url\)\s*\|\|\s*'\.svg'/);
+  assert.match(sql,/where question_image_url like 'data:image\/svg\+xml;utf8,%'/);
+  assert.match(fn,/createSignedUrl\(path,\s*900\)/);
+  assert.match(script,/Unsafe SVG rejected/);
+  assert.match(script,/golden-question-images\/\$\{objectPath\}/);
+  assert.doesNotMatch(script,/SUPABASE_SERVICE_ROLE_KEY\s*=/);
+});
+
 test('monthly freeze preserves history and wallet award is idempotent',async()=>{
   const sql=await read('supabase/migrations/202607250002_golden_question_v126.sql');
   assert.match(sql,/golden_question_leaderboard_snapshots/);assert.match(sql,/btv_freeze_golden_month/);
