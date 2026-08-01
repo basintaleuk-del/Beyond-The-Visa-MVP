@@ -140,6 +140,13 @@ test('service worker never serves a cached obsolete HTML shell', async () => {
   assert.match(config, /updateViaCache:\s*['"]none['"]/);
 });
 
+test('homepage defaults to light mode unless the member explicitly selects dark', async () => {
+  const html = await read('web/index.html');
+  assert.match(html, /const override=localStorage\.getItem\('btv-theme-override'\),night=override==='dark'/);
+  assert.match(html, /else\{document\.body\.classList\.remove\('dark'\)/);
+  assert.doesNotMatch(html, /automaticNight=hour<7\|\|hour>=19/);
+});
+
 test('deployable source is free of common mojibake sequences', async () => {
   const files = ['web/index.html', 'web/admin.html', 'web/cbt.html', 'web/cbt.js', 'web/nclex.html', 'web/nclex.js', 'web/sw.js'];
   const bad = /â€|â†|âœ|ðŸ|Ã|Â|ï¿½|�/;
