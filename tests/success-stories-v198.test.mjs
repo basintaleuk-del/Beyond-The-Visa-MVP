@@ -76,12 +76,13 @@ test('every authenticated member receives a complete moderated submission flow',
 });
 
 test('database submission cannot self-publish and derives ownership from auth',()=>{
-  assert.match(migration,/submitted_by = auth\.uid\(\)/);
+  assert.match(migration,/submitted_by = \(select auth\.uid\(\)\)/);
   assert.match(migration,/and status = 'review'/);
   assert.match(migration,/and featured = false/);
   assert.match(migration,/v_user uuid := auth\.uid\(\)/);
   assert.match(migration,/v_timeline, 'review', false, v_user/);
   assert.match(migration,/revoke all on function public\.btv_submit_success_story/);
+  assert.equal((migration.match(/set search_path = ''/g)||[]).length,2);
 });
 
 test('admin moderation is protected and connected to the existing menu',()=>{

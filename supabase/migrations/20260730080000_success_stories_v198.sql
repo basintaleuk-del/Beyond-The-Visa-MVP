@@ -11,7 +11,7 @@ on public.btv_success_stories
 for insert
 to authenticated
 with check (
-  submitted_by = auth.uid()
+  submitted_by = (select auth.uid())
   and status = 'review'
   and featured = false
   and approved_by is null
@@ -30,7 +30,7 @@ create or replace function public.btv_submit_success_story(
 ) returns uuid
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   v_user uuid := auth.uid();
@@ -96,7 +96,7 @@ create or replace function public.btv_admin_review_success_story(
 ) returns uuid
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   v_admin uuid := auth.uid();
