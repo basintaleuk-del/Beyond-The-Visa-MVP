@@ -1,0 +1,25 @@
+/* Final Journey step tile layout shared by the Journey page and member hub. */
+#appShell .jgTiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important;gap:16px!important}
+#appShell .jgTile{position:relative!important;display:flex!important;flex-direction:column!important;min-width:0!important;min-height:310px!important;padding:22px!important;overflow:hidden!important;border:1px solid #d7e5df!important;border-radius:22px!important;background:var(--card,#fff)!important;box-shadow:0 12px 30px rgba(13,57,46,.08)!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}
+#appShell .jgTile:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,#d9b858,#08756f)}
+#appShell .jgTile:hover,#appShell .jgTile:focus-visible{transform:translateY(-3px);border-color:#8bbfae!important;box-shadow:0 20px 42px rgba(13,57,46,.14)!important}
+#appShell .jgTile.is-complete{border-color:#82b9a9!important;background:linear-gradient(145deg,#f6fbf8,#e8f5ef)!important}
+#appShell .jgStepNumber{flex:0 0 auto;width:48px!important;height:48px!important;margin:3px 0 18px;border-radius:15px!important;background:#e4f2ec!important;color:#09685f!important;font-size:16px;box-shadow:inset 0 0 0 1px rgba(9,104,95,.08)}
+#appShell .jgTile.is-complete .jgStepNumber{background:#08756f!important;color:#fff!important}
+#appShell .jgTileBody{display:flex;flex:1;min-width:0;flex-direction:column}
+#appShell .jgTileTop{display:block!important}
+#appShell .jgTileTop small{display:block;margin-bottom:5px;color:#7c672d!important;font-size:10px;letter-spacing:.12em!important}
+#appShell .jgTile h3{margin:0!important;color:var(--ink,#15383b);font:750 clamp(19px,1.7vw,23px)/1.25 Georgia,serif!important;overflow-wrap:anywhere}
+#appShell .jgTile .jgStatus{width:fit-content;max-width:100%;margin-top:12px;white-space:normal}
+#appShell .jgTile p{margin:15px 0!important;display:-webkit-box;overflow:hidden;line-height:1.55!important;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+#appShell .jgTile .jgMeta{margin-top:auto;padding-top:14px;border-top:1px solid var(--line,#dce6e2)}
+#appShell .jgTile .jgMeta span{max-width:100%;overflow-wrap:anywhere}
+#appShell .jgTile button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;margin-top:16px!important;padding:0 13px!important;border-radius:12px!important;background:#0a625d!important;color:#fff!important;text-align:left}
+body.dark #appShell .jgTile{border-color:#315052!important;background:#163033!important;box-shadow:none!important}
+body.dark #appShell .jgTile.is-complete{border-color:#4d7c70!important;background:linear-gradient(145deg,#173734,#1a4039)!important}
+body.dark #appShell .jgStepNumber{background:#204840!important;color:#9ee3d2!important}
+body.dark #appShell .jgTile h3{color:#f5fbfa!important}
+body.dark #appShell .jgTile .jgMeta{border-color:#315052}
+@media(max-width:1100px){#appShell .jgTiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:680px){#appShell .jgTiles{grid-template-columns:1fr!important;gap:12px!important}#appShell .jgTile{min-height:0!important;padding:18px!important}#appShell .jgStepNumber{margin-bottom:14px}}
+@media(prefers-reduced-motion:reduce){#appShell .jgTile{transition:none!important}#appShell .jgTile:hover,#appShell .jgTile:focus-visible{transform:none}}

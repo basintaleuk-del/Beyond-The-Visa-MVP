@@ -26,3 +26,16 @@ test('My Journey uses responsive card columns without reserving a sidebar',()=>{
   assert.match(css,/@media \(max-width: 760px\)[\s\S]*grid-template-columns: 1fr/);
   assert.doesNotMatch(css,/overflow-x:\s*hidden|#checklist\s*\{[^}]*transform|#checklist\s*\{[^}]*width:\s*(?:4\d|5\d)%/);
 });
+
+test('Journey steps render as responsive standalone tiles everywhere',()=>{
+  const html=read('web/index.html');
+  const css=read('web/journey-tiles-v301.css');
+  assert.match(html,/journey-tiles-v301\.css\?v=301/);
+  assert.match(css,/#appShell \.jgTiles\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
+  assert.match(css,/#appShell \.jgTile\{[^}]*display:flex!important;[^}]*flex-direction:column!important;[^}]*min-height:310px!important/);
+  assert.match(css,/#appShell \.jgTileBody\{[^}]*display:flex;[^}]*flex-direction:column/);
+  assert.match(css,/#appShell \.jgTile \.jgMeta\{[^}]*margin-top:auto/);
+  assert.match(css,/@media\(max-width:1100px\)\{#appShell \.jgTiles\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
+  assert.match(css,/@media\(max-width:680px\)\{#appShell \.jgTiles\{grid-template-columns:1fr!important/);
+  assert.match(css,/body\.dark #appShell \.jgTile\{[^}]*background:#163033!important/);
+});
