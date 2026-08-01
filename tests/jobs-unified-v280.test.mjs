@@ -5,6 +5,7 @@ import fs from "node:fs";
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const html = read("web/index.html");
 const css = read("web/jobs-unified-v280.css");
+const nightCss = read("web/jobs-night-v300.css");
 const usa = read("web/usa-jobs-v155.js");
 const globalJobs = read("web/global-jobs-v168.js");
 const opportunities = read("web/opportunity-centre-v138.js");
@@ -29,6 +30,13 @@ test("UK USA and international Jobs share one responsive visual system", () => {
   assert.match(css, /@media\(max-width:700px\)/);
   assert.match(css, /@media\(max-width:430px\)/);
   assert.match(globalJobs, /if\(\["GB","US"\]\.includes\(code\)\)return previousRenderJobs/);
+});
+
+test("night mode keeps every job name readable on its vacancy card", () => {
+  assert.match(html, /jobs-night-v300\.css\?v=300/);
+  assert.match(nightCss, /html body\.dark #appShell #jobsContent \.usaJobs155 \.usaJob155,[\s\S]*html body\.dark #appShell #jobsContent \.globalJobCard168\{[^}]*background:#172526!important/);
+  assert.match(nightCss, /html body\.dark #appShell #jobsContent \.nhsJob148 h3 a,[\s\S]*html body\.dark #appShell #jobsContent \.usaJob155 h3 a,[\s\S]*html body\.dark #appShell #jobsContent \.globalJobTop168 h3\{color:#f4faf8!important/);
+  assert.match(nightCss, /html body\.dark #appShell #jobsContent \.globalJobSide168\{[^}]*background:linear-gradient\(135deg,#132a2b,#172526\)!important/);
 });
 
 test("all destination feeds render as premium responsive vacancy tiles", () => {

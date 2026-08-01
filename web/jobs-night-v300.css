@@ -1,0 +1,29 @@
+/* Final night-mode contrast layer for UK, USA and international vacancy cards. */
+html body.dark #appShell #jobsContent .usaJobs155 .usaMain155,
+html body.dark #appShell #jobsContent .nhsJobsMain148,
+html body.dark #appShell #jobsContent .globalJobsMain168{border-color:#304849!important;background:linear-gradient(145deg,#101d1e,#132526)!important;box-shadow:none!important}
+html body.dark #appShell #jobsContent .usaJobs155 .usaJob155,
+html body.dark #appShell #jobsContent .nhsJob148,
+html body.dark #appShell #jobsContent .globalJobCard168{border-color:#385152!important;background:#172526!important;box-shadow:none!important;color:#eef7f5!important}
+html body.dark #appShell #jobsContent .nhsJob148 h3,
+html body.dark #appShell #jobsContent .nhsJob148 h3 a,
+html body.dark #appShell #jobsContent .usaJob155 h3,
+html body.dark #appShell #jobsContent .usaJob155 h3 a,
+html body.dark #appShell #jobsContent .globalJobTop168 h3{color:#f4faf8!important}
+html body.dark #appShell #jobsContent .nhsJob148 h3 a:hover,
+html body.dark #appShell #jobsContent .usaJob155 h3 a:hover{color:#8bd9d0!important}
+html body.dark #appShell #jobsContent .usaJob155>strong,
+html body.dark #appShell #jobsContent .usaJob155>small,
+html body.dark #appShell #jobsContent .usaJob155>p,
+html body.dark #appShell #jobsContent .nhsJobEmployer148,
+html body.dark #appShell #jobsContent .nhsJobSummary148,
+html body.dark #appShell #jobsContent .globalJobTop168 p,
+html body.dark #appShell #jobsContent .globalJobSummary168{color:#c5d7d4!important}
+html body.dark #appShell #jobsContent .usaJobs155 .usaFacts155 div,
+html body.dark #appShell #jobsContent .nhsJobFacts148 div,
+html body.dark #appShell #jobsContent .globalJobMeta168 div{background:#102021!important}
+html body.dark #appShell #jobsContent .usaFacts155 dd,
+html body.dark #appShell #jobsContent .nhsJobFacts148 dd,
+html body.dark #appShell #jobsContent .globalJobMeta168 dd,
+html body.dark #appShell #jobsContent .globalJobSide168 dd{color:#edf7f5!important}
+html body.dark #appShell #jobsContent .globalJobSide168{border-color:#385152!important;background:linear-gradient(135deg,#132a2b,#172526)!important}
