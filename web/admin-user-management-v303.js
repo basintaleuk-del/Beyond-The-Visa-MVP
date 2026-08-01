@@ -35,7 +35,7 @@
   function cleanNavigation(){
     const nav=$('#app .sidebar nav');if(!nav)return;
     const seen=new Set();$$('button[data-tab]',nav).forEach(button=>{const id=button.dataset.tab;if(seen.has(id)){button.remove();return}seen.add(id);const canonical=redundant[id],canHide=!!(canonical&&nav.querySelector(`[data-tab="${canonical}"]`)&&document.getElementById(canonical));button.hidden=canHide;button.setAttribute('aria-hidden',canHide?'true':'false');button.classList.toggle('adminNavRedundantV303',canHide);if(canHide)document.getElementById(id)?.setAttribute('hidden','')});
-    const users=nav.querySelector('[data-tab="cmsUsers"]');if(users){users.hidden=false;users.removeAttribute('aria-hidden');users.textContent='User management';users.classList.add('adminNavPriorityV303')}
+    const users=nav.querySelector('[data-tab="cmsUsers"]');if(users){users.hidden=false;users.removeAttribute('aria-hidden');if(users.textContent!=='User management')users.textContent='User management';users.classList.add('adminNavPriorityV303')}
   }
   function shell(){
     const section=$('#cmsUsers');if(!section)return false;

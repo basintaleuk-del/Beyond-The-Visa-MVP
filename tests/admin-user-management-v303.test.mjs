@@ -16,6 +16,7 @@ test('one final admin user console is loaded',()=>{
   assert.match(admin,/coinsV86:'coinsCentre112'/);
   assert.match(admin,/globalJobsAdmin168:'opportunityAdmin138'/);
   assert.match(admin,/seen\.has\(id\)/);
+  assert.match(admin,/if\(users\.textContent!==\x27User management\x27\)users\.textContent=/);
 });
 
 test('user management includes refresh, presence, time and activity drill-down',()=>{
