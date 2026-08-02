@@ -54,10 +54,9 @@ test('profile and destination hydration cannot block an authenticated user',()=>
   assert.match(html,/if\(canResumeImmediately\)\{[\s\S]*showApp\(\)\.catch/);
 });
 
-test('cold desktop startup displays sign in instead of an empty page',()=>{
+test('cold desktop startup waits for the current sign-in experience',()=>{
   assert.doesNotMatch(html,/btvBootSplash/);
-  assert.match(html,/\.btv-boot body\{display:block!important\}/);
-  assert.match(html,/\.btv-boot #auth:not\(\.btvAuthReady\)\{display:grid!important\}/);
+  assert.doesNotMatch(html,/btvBootRecovery/);
   assert.match(html,/auth\.classList\.add\('btvAuthReady'\)/);
 });
 
@@ -96,15 +95,15 @@ test('deferred app content does not embed a duplicate megabyte logo',()=>{
 test('visible authentication controls remain above full-page application overlays',()=>{
   assert.match(html,/auth-redesign-v69\.css\?v=303/);
   assert.ok(
-    html.indexOf('social-auth-v69.js?v=303') < html.indexOf('storage-v21.js'),
+    html.indexOf('social-auth-v69.js?v=304') < html.indexOf('storage-v21.js'),
     'the signed-out auth upgrade must run before authenticated feature assets',
   );
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v253/);
+  assert.match(worker,/beyond-the-visa-assets-v254/);
   assert.match(platformConfig,/controllerchange/);
-  assert.match(platformConfig,/btv-sw-v253-reloaded/);
+  assert.match(platformConfig,/btv-sw-v254-reloaded/);
 });
 
 test('authentication starts on sign-in without flashing the signup form',()=>{
@@ -117,6 +116,9 @@ test('authentication starts on sign-in without flashing the signup form',()=>{
   assert.match(socialAuth,/prompt\.addEventListener\('click', \(\) => showTab\(false\)\)/);
   assert.match(socialAuth,/showTab\(true\);/);
   assert.doesNotMatch(socialAuth,/requestedSignup/);
+  assert.match(socialAuth,/installEarlyPasswordSignIn\(login\)/);
+  assert.match(socialAuth,/if \(typeof login\.onsubmit === 'function'\) return/);
+  assert.match(socialAuth,/await waitForSupabase\(\)/);
 });
 
 test('global feature installers do not poll or observe every page mutation',()=>{

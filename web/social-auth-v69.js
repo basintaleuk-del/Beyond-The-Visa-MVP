@@ -92,6 +92,61 @@
     } else toast(message);
   }
 
+  function waitForSupabase(timeout = 20000) {
+    if (window.btvSupabase?.auth) return Promise.resolve(window.btvSupabase);
+    return new Promise((resolve, reject) => {
+      let timer;
+      const cleanup = () => {
+        clearTimeout(timer);
+        window.removeEventListener('btv:supabase-ready', ready);
+        window.removeEventListener('btv:supabase-error', failed);
+      };
+      const ready = () => {
+        cleanup();
+        window.btvSupabase?.auth
+          ? resolve(window.btvSupabase)
+          : reject(new Error('The secure sign-in service could not be started.'));
+      };
+      const failed = event => {
+        cleanup();
+        reject(new Error(event?.detail?.message || 'The secure sign-in service could not be loaded.'));
+      };
+      window.addEventListener('btv:supabase-ready', ready, { once: true });
+      window.addEventListener('btv:supabase-error', failed, { once: true });
+      timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('The secure sign-in service took too long to load. Refresh and try again.'));
+      }, timeout);
+    });
+  }
+
+  function installEarlyPasswordSignIn(login) {
+    login?.addEventListener('submit', async event => {
+      /* The canonical handler takes over once the full document has parsed. */
+      if (typeof login.onsubmit === 'function') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const button = login.querySelector('.authSubmit');
+      const errorBox = $('#loginError', login);
+      button.disabled = true;
+      button.textContent = 'Signing in…';
+      if (errorBox) errorBox.textContent = '';
+      try {
+        const client = await waitForSupabase();
+        const email = $('#loginEmail', login)?.value.trim().toLowerCase();
+        const password = $('#loginPassword', login)?.value || '';
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        if (!data?.session) throw new Error('Sign-in was not completed. Please try again.');
+        location.reload();
+      } catch (error) {
+        if (errorBox) errorBox.textContent = error?.message || 'Email or password not recognised.';
+        button.disabled = false;
+        button.textContent = 'Sign in';
+      }
+    });
+  }
+
   async function resetPassword(button) {
     const email = $('#loginEmail')?.value.trim().toLowerCase();
     if (!email) {
@@ -160,6 +215,7 @@
 
     const login = $('#loginForm', card);
     const loginError = $('#loginError', login);
+    installEarlyPasswordSignIn(login);
     if (login && loginError) {
       /* Replace the legacy recovery link with the aligned v69 control. */
       $('#forgotPassword', login)?.remove();

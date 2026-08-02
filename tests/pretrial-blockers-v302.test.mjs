@@ -35,9 +35,9 @@ test('canonical metadata, sitemap and robots agree on the apex origin', () => {
 
 test('signed-out auth renders before authenticated assets and videos do not preload', () => {
   const html = read('web/index.html');
-  assert.ok(html.indexOf('social-auth-v69.js?v=303') < html.indexOf('storage-v21.js'));
+  assert.ok(html.indexOf('social-auth-v69.js?v=304') < html.indexOf('storage-v21.js'));
   assert.equal((html.match(/auth-redesign-v69\.css\?v=303/g) || []).length, 1);
-  assert.equal((html.match(/social-auth-v69\.js\?v=303/g) || []).length, 1);
+  assert.equal((html.match(/social-auth-v69\.js\?v=304/g) || []).length, 1);
   assert.doesNotMatch(html, /<link rel="stylesheet" href="(?!(?:auth-redesign-v69|release-v71|v71-feature-merge-v82)\.css)[^"]+">/);
   assert.match(html, /forgotPassword'\)\|\|document\.getElementById\('forgotPasswordV69/);
   assert.match(read('web/welcome-video-v82.js'), /preload="none"/);
