@@ -54,11 +54,11 @@ test('profile and destination hydration cannot block an authenticated user',()=>
   assert.match(html,/if\(canResumeImmediately\)\{[\s\S]*showApp\(\)\.catch/);
 });
 
-test('cold startup displays a branded loading state instead of an empty page',()=>{
-  assert.match(html,/id='btvBootSplash'/);
-  assert.match(html,/Preparing your dashboard…/);
+test('cold desktop startup displays sign in instead of an empty page',()=>{
+  assert.doesNotMatch(html,/btvBootSplash/);
   assert.match(html,/\.btv-boot body\{display:block!important\}/);
-  assert.match(html,/\.btv-boot #btvBootSplash\{[^}]*display:grid/);
+  assert.match(html,/\.btv-boot #auth:not\(\.btvAuthReady\)\{display:grid!important\}/);
+  assert.match(html,/auth\.classList\.add\('btvAuthReady'\)/);
 });
 
 test('switching accounts cannot reuse another users cached profile',()=>{
@@ -102,9 +102,9 @@ test('visible authentication controls remain above full-page application overlay
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v252/);
+  assert.match(worker,/beyond-the-visa-assets-v253/);
   assert.match(platformConfig,/controllerchange/);
-  assert.match(platformConfig,/btv-sw-v252-reloaded/);
+  assert.match(platformConfig,/btv-sw-v253-reloaded/);
 });
 
 test('authentication starts on sign-in without flashing the signup form',()=>{

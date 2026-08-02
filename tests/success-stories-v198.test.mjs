@@ -26,7 +26,7 @@ test('success stories are integrated through the existing platform route',()=>{
   assert.match(index,/success-stories-v279\.css\?v=279/);
   assert.ok(index.lastIndexOf('success-stories-v279.css')>index.lastIndexOf('profile-premium-v215.css'));
   assert.match(index,/platform-upgrade-v72\.js\?v=301/);
-  assert.match(index,/dashboard-premium-v73\.js\?v=304/);
+  assert.match(index,/dashboard-premium-v73\.js\?v=278/);
   assert.match(dashboard,/if \(type === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
   assert.match(dashboard,/if \(id === "stories"\)[\s\S]{0,180}window\.BTVSuccessStories\.open\(\)/);
 });

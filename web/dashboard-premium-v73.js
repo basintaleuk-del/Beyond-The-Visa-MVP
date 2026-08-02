@@ -9,12 +9,6 @@
   let lastFocus = null;
   let carouselIndex = 0;
   let carouselTimer = null;
-  let hiringScoreFetch = {
-    userId: null,
-    value: null,
-    promise: null,
-    lastAttempt: 0,
-  };
   const carouselSlides = [
     {
       category: "Motivation",
@@ -240,78 +234,6 @@
     return `${weekday} ${day} ${month}`;
   }
 
-  async function withDeadline(promise, milliseconds) {
-    let timer;
-    try {
-      return await Promise.race([
-        promise,
-        new Promise((_, reject) => {
-          timer = setTimeout(() => reject(new Error("Hiring score request timed out")), milliseconds);
-        }),
-      ]);
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  function normalizeHiringScore(value) {
-    if (!value || typeof value !== "object") return null;
-    const score = Math.max(0, Math.min(100, Number(value.score)));
-    const percentile = Math.max(1, Math.min(99, Number(value.percentile)));
-    if (!Number.isFinite(score) || !Number.isFinite(percentile)) return null;
-    const recommendations = Array.isArray(value.recommendations)
-      ? value.recommendations
-          .filter((item) => item && typeof item.label === "string")
-          .slice(0, 3)
-      : [];
-    return {
-      score: Math.round(score),
-      percentile: Math.round(percentile),
-      stars: Math.max(1, Math.min(5, Number(value.stars) || Math.ceil(score / 20))),
-      recommendations,
-      benchmarkLabel: String(value.benchmark_label || "UK nurse applicant benchmark"),
-      computedAt: value.computed_at || null,
-    };
-  }
-
-  function updateHiringScoreTile() {
-    const current = document.querySelector(".hiringScore303");
-    if (!current) return;
-    const template = document.createElement("template");
-    template.innerHTML = hiringScoreMarkup().trim();
-    const replacement = template.content.firstElementChild;
-    if (!replacement) return;
-    current.replaceWith(replacement);
-    wire(replacement);
-  }
-
-  function requestHiringScore(userId) {
-    if (!userId || userId === "local-account" || !db()?.rpc) return;
-    const now = Date.now();
-    if (hiringScoreFetch.userId !== userId) {
-      hiringScoreFetch = { userId, value: null, promise: null, lastAttempt: 0 };
-    }
-    if (hiringScoreFetch.promise || now - hiringScoreFetch.lastAttempt < 30000)
-      return;
-    hiringScoreFetch.lastAttempt = now;
-    hiringScoreFetch.promise = withDeadline(
-      db().rpc("btv_refresh_hiring_score"),
-      3500
-    )
-      .then((hiringSummary) => {
-        if (hiringSummary.error) throw hiringSummary.error;
-        const value = normalizeHiringScore(hiringSummary.data);
-        if (!value || state.u?.id !== userId) return;
-        hiringScoreFetch.value = value;
-        state.hiringScore = value;
-        updateHiringScoreTile();
-      })
-      .catch((error) => console.warn("v303 hiring score fallback", error))
-      .finally(() => {
-        hiringScoreFetch.promise = null;
-      });
-  }
-
   async function load() {
     let session = null;
     try {
@@ -347,7 +269,6 @@
         steps: [],
         activity: [],
         streak: null,
-        hiringScore: null,
       };
       return state;
     }
@@ -427,8 +348,6 @@
         steps: steps.data || [],
         activity: activity.data || [],
         streak: null,
-        hiringScore:
-          hiringScoreFetch.userId === u.id ? hiringScoreFetch.value : null,
       };
       try {
         const streakSummary = await db().rpc("btv_learning_streak_summary");
@@ -450,12 +369,9 @@
         steps: [],
         activity: [],
         streak: null,
-        hiringScore:
-          hiringScoreFetch.userId === u.id ? hiringScoreFetch.value : null,
       };
     }
     state = { u, ...platform };
-    requestHiringScore(u.id);
     return state;
   }
 
@@ -2224,40 +2140,6 @@
     });
   }
 
-  function hiringScoreMarkup() {
-    const summary = state.hiringScore;
-    const signedIn = state.u?.id && state.u.id !== "local-account";
-    if (!summary) {
-      return `<section class="hiringScore303 hiringScoreUnavailable303" aria-labelledby="hiring-score-title303">
-        <div class="hiringScoreIntro303"><p>CAREER READINESS</p><h3 id="hiring-score-title303">Hiring Score</h3><strong>${signedIn ? "Updating" : "Sign in"}</strong><span>${signedIn ? "Your evidence-backed score will appear here shortly." : "Sign in to calculate your personalised UK nurse hiring score."}</span></div>
-        <button type="button" data-go="${signedIn ? "qualifications-registration" : "profile"}">${signedIn ? "Complete profile" : "Sign in to continue"}</button>
-      </section>`;
-    }
-
-    const stars = Math.round(summary.stars);
-    const recommendations = summary.recommendations.length
-      ? summary.recommendations
-      : [{ label: "Keep your profile current", route: "qualifications-registration" }];
-    const primaryRoute = recommendations[0]?.route || "qualifications-registration";
-    return `<section class="hiringScore303" aria-labelledby="hiring-score-title303">
-      <div class="hiringScoreIntro303">
-        <p>CAREER READINESS</p>
-        <h3 id="hiring-score-title303">Hiring Score</h3>
-        <div class="hiringScoreValue303"><strong>${summary.score}<small> / 100</small></strong><span class="hiringStars303" aria-label="${stars} out of 5 stars">${Array.from({ length: 5 }, (_, index) => index < stars ? "&#9733;" : "&#9734;").join("")}</span></div>
-      </div>
-      <div class="hiringBenchmark303">
-        <span class="hiringPercentile303">Top ${100 - summary.percentile}%</span>
-        <p>Your profile is stronger than <b>${summary.percentile}%</b> of the UK nurse applicant benchmark.</p>
-        <small>Advisory estimate based on the career evidence saved to your profile, not an employer decision.</small>
-      </div>
-      <div class="hiringImprove303">
-        <p>Improve your score</p>
-        <ul>${recommendations.map((item) => `<li><span aria-hidden="true">+</span>${esc(item.label)}</li>`).join("")}</ul>
-        <button type="button" data-go="${esc(primaryRoute)}">Improve Score ${iconSvg("arrowRight")}</button>
-      </div>
-    </section>`;
-  }
-
   async function render() {
     const home = document.getElementById("home");
     if (!home || !(await load())) return;
@@ -2495,8 +2377,6 @@
                 : `<div class="journeyEmpty73"><b>Your journey is ready to begin</b><p>Open My Journey to load the milestones matched to your profile.</p><button type="button" data-go="journey">Open My Journey</button></div>`
             }
           </section>
-
-          ${hiringScoreMarkup()}
 
           <section class="secondaryGrid73">
             <article class="panel73 recommendedPanel73">
