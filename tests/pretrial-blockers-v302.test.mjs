@@ -10,24 +10,23 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const config = JSON.parse(read('vercel.json'));
 const canonical = 'https://beyondthevisa.org';
-const redirectHosts = ['www.beyondthevisa.org', 'beyondthevisa.uk', 'www.beyondthevisa.uk'];
+const approvedHosts = ['beyondthevisa.org', 'www.beyondthevisa.org', 'beyondthevisa.uk', 'www.beyondthevisa.uk'];
 
-test('every non-canonical owned hostname permanently redirects to the apex and preserves the path shape', () => {
-  for (const host of redirectHosts) {
-    const redirect = config.redirects.find((item) => item.source === '/:path*' && item.has?.some((condition) => condition.type === 'host' && condition.value === host));
-    assert.ok(redirect, `missing redirect for ${host}`);
-    assert.equal(redirect.permanent, true);
-    assert.equal(redirect.source, '/:path*');
-    assert.equal(redirect.destination, `${canonical}/:path*`);
-    assert.ok(!redirect.destination.includes('?'), 'incoming OAuth, reset, job and campaign query values must not be replaced');
+test('every approved hostname serves the same deployment without a cross-domain redirect', () => {
+  for (const host of approvedHosts) {
+    assert.equal(
+      config.redirects.some((item) => item.has?.some((condition) => condition.type === 'host' && condition.value === host)),
+      false,
+      `${host} must keep its own origin so first-party assets remain CSP self`,
+    );
   }
-  for (const host of ['beyondthevisa.uk', 'www.beyondthevisa.uk']) {
-    const rootRedirect = config.redirects.find((item) => item.source === '/' && item.has?.some((condition) => condition.type === 'host' && condition.value === host));
-    assert.ok(rootRedirect, `missing root redirect for ${host}`);
-    assert.equal(rootRedirect.permanent, true);
-    assert.equal(rootRedirect.destination, `${canonical}/`);
-  }
-  assert.equal(config.redirects.some((item) => item.has?.some((condition) => condition.type === 'host' && condition.value === 'beyondthevisa.org')), false);
+});
+
+test('application shell assets remain local to the active origin', () => {
+  const html = read('web/index.html');
+  const assets = ['supabase-client.js', 'platform-config.js', 'platform-v30.js', 'navigation-state-v63.js', 'login-brand-v64.js', 'profile-persistence-v266.js', 'mobile-jobs-nav-v157.js', 'social-auth-v69.js', 'storage-v21.js', 'edge-functions-v22.js', 'contact-safety-v176.js', 'manager-inbox-v26.js', 'premium-v29.js', 'release-v33.js', 'admin-launcher.js', 'zibur-professional-v199.js', 'help-support-v210.js'];
+  assert.doesNotMatch(html, /(?:src|href)=["']https:\/\/(?:www\.)?beyondthevisa\.(?:org|uk)\//);
+  for (const asset of assets) assert.match(html, new RegExp(`(?:src|href)=["']\\/?${asset.replaceAll('.', '\\.')}(?:\\?[^"']*)?["']`));
 });
 
 test('canonical metadata, sitemap and robots agree on the apex origin', () => {
