@@ -93,7 +93,11 @@ test('visible authentication controls remain above full-page application overlay
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v250/);
+  assert.match(worker,/beyond-the-visa-assets-v251/);
+  assert.match(platformConfig,/serviceWorker\.addEventListener\('controllerchange'/);
+  assert.match(html,/id="btvDesktopAppBoundary"/);
+  assert.match(html,/Authenticated desktop application recovered with the standard layout/);
+  assert.match(html,/html:not\(\.btv-boot\) body:has\(#auth:not\(\.btvAuthReady\)\):has\(#appShell\[hidden\]\)::before/);
 });
 
 test('authentication starts on sign-in without flashing the signup form',()=>{
