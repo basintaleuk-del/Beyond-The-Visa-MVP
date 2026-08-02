@@ -14,12 +14,18 @@ const redirectHosts = ['www.beyondthevisa.org', 'beyondthevisa.uk', 'www.beyondt
 
 test('every non-canonical owned hostname permanently redirects to the apex and preserves the path shape', () => {
   for (const host of redirectHosts) {
-    const redirect = config.redirects.find((item) => item.has?.some((condition) => condition.type === 'host' && condition.value === host));
+    const redirect = config.redirects.find((item) => item.source === '/:path*' && item.has?.some((condition) => condition.type === 'host' && condition.value === host));
     assert.ok(redirect, `missing redirect for ${host}`);
     assert.equal(redirect.permanent, true);
     assert.equal(redirect.source, '/:path*');
     assert.equal(redirect.destination, `${canonical}/:path*`);
     assert.ok(!redirect.destination.includes('?'), 'incoming OAuth, reset, job and campaign query values must not be replaced');
+  }
+  for (const host of ['beyondthevisa.uk', 'www.beyondthevisa.uk']) {
+    const rootRedirect = config.redirects.find((item) => item.source === '/' && item.has?.some((condition) => condition.type === 'host' && condition.value === host));
+    assert.ok(rootRedirect, `missing root redirect for ${host}`);
+    assert.equal(rootRedirect.permanent, true);
+    assert.equal(rootRedirect.destination, `${canonical}/`);
   }
   assert.equal(config.redirects.some((item) => item.has?.some((condition) => condition.type === 'host' && condition.value === 'beyondthevisa.org')), false);
 });
