@@ -50,6 +50,15 @@ test('profile and destination hydration cannot block an authenticated user',()=>
   assert.match(html,/Destination hydration continued in the background/);
   assert.match(html,/setVisible\(document\.getElementById\('appShell'\),true\)[\s\S]*await destinationHydration/);
   assert.match(html,/resumeAuthenticatedSession/);
+  assert.match(html,/canResumeImmediately=cachedAccount\?\.id===userId&&Boolean\(userProfile\(\)\)/);
+  assert.match(html,/if\(canResumeImmediately\)\{[\s\S]*showApp\(\)\.catch/);
+});
+
+test('cold startup displays a branded loading state instead of an empty page',()=>{
+  assert.match(html,/id='btvBootSplash'/);
+  assert.match(html,/Preparing your dashboard…/);
+  assert.match(html,/\.btv-boot body\{display:block!important\}/);
+  assert.match(html,/\.btv-boot #btvBootSplash\{[^}]*display:grid/);
 });
 
 test('switching accounts cannot reuse another users cached profile',()=>{
@@ -93,7 +102,9 @@ test('visible authentication controls remain above full-page application overlay
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*z-index:\s*2147483000/);
   assert.match(authStyles,/#auth\.btvAuthV69:not\(\[hidden\]\)[\s\S]*input[\s\S]*pointer-events:\s*auto\s*!important/);
   assert.match(authStyles,/\.authStory::after[\s\S]*pointer-events:\s*none\s*!important/);
-  assert.match(worker,/beyond-the-visa-assets-v251/);
+  assert.match(worker,/beyond-the-visa-assets-v252/);
+  assert.match(platformConfig,/controllerchange/);
+  assert.match(platformConfig,/btv-sw-v252-reloaded/);
 });
 
 test('authentication starts on sign-in without flashing the signup form',()=>{
@@ -155,7 +166,7 @@ test('session restoration performs one profile hydration without redirecting the
   const end=html.indexOf("document.getElementById('signupForm')",start);
   const restoration=html.slice(start,end);
   assert.equal((restoration.match(/from\('profiles'\)/g)||[]).length,1);
-  assert.equal((restoration.match(/showApp\(\)/g)||[]).length,1);
+  assert.equal((restoration.match(/showApp\(\)/g)||[]).length,2);
   assert.doesNotMatch(restoration,/router\.(?:push|replace|refresh)|location\.(?:assign|replace)|window\.location/);
   assert.match(html,/SIGNED_OUT'[\s\S]{0,80}showAuth\(\)/);
   assert.match(html,/signInWithPassword[\s\S]{0,500}resumeAuthenticatedSession\(data\.session\)/);
