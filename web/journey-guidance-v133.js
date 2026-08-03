@@ -46,7 +46,7 @@
     const key=celebrationKey(step);
     try{if(localStorage.getItem(key)==='1')return false}catch{}
     if(celebrationLoading)return celebrationLoading;
-    celebrationLoading=import('./journey-celebration-v137.js?v=137').then(module=>{
+    celebrationLoading=import('./journey-celebration-v137.js?v=138').then(module=>{
       try{localStorage.setItem(key,'1')}catch{}
       module.showJourneyCelebration();return true;
     }).catch(error=>{console.warn('Journey celebration unavailable',error);return false}).finally(()=>{celebrationLoading=null});

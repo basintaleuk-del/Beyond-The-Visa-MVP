@@ -13,8 +13,8 @@ test('celebration is lazy-loaded only after a journey step is saved as completed
   assert.ok(save.indexOf("upsert(row")<save.indexOf('const totals=summary()'));
   assert.ok(save.indexOf('if(error)throw error')<save.indexOf('await celebrateStepCompletion(step,before,data)'));
   assert.match(client,/isCompleted\(before\)\|\|!isCompleted\(after\)/);
-  assert.match(client,/import\('\.\/journey-celebration-v137\.js\?v=137'\)/);
-  assert.match(html,/journey-guidance-v133\.js\?v=172/);
+  assert.match(client,/import\('\.\/journey-celebration-v137\.js\?v=138'\)/);
+  assert.match(html,/journey-guidance-v133\.js\?v=173/);
   assert.match(client,/if\(celebrated\)closeModal\(\);await refreshSurfaces\(\);if\(!celebrated\)openModal\(step\.code\)/);
 });
 
@@ -48,4 +48,7 @@ test('reduced motion and accessibility contracts are present',async()=>{
   assert.match(module,/document\.hidden/);
   assert.match(module,/is-paused/);
   assert.match(module,/Amazing\. Keep it up\./);
+  assert.match(module,/favicon-192-v281\.png\?v=281/);
+  assert.match(module,/logo\.alt='Beyond The Visa'/);
+  assert.doesNotMatch(module,/createElementNS\('http:\/\/www\.w3\.org\/2000\/svg','svg'\)/);
 });
