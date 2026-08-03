@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 const read=file=>readFile(new URL(`../${file}`,import.meta.url),'utf8');
 
 test('celebration is lazy-loaded only after a journey step is saved as completed',async()=>{
-  const client=await read('web/journey-guidance-v133.js');
+  const [client,html]=await Promise.all([read('web/journey-guidance-v133.js'),read('web/index.html')]);
   const saveStart=client.indexOf('async function saveProgress');
   const saveEnd=client.indexOf('async function saveChecklist',saveStart);
   const save=client.slice(saveStart,saveEnd);
@@ -14,6 +14,7 @@ test('celebration is lazy-loaded only after a journey step is saved as completed
   assert.ok(save.indexOf('if(error)throw error')<save.indexOf('celebrateStepCompletion(step,before,data)'));
   assert.match(client,/isCompleted\(before\)\|\|!isCompleted\(after\)/);
   assert.match(client,/import\('\.\/journey-celebration-v137\.js\?v=137'\)/);
+  assert.match(html,/journey-guidance-v133\.js\?v=171/);
 });
 
 test('a user, destination and step-specific marker prevents repeat celebrations',async()=>{
