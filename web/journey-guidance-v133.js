@@ -10,6 +10,7 @@
     awaiting_decision:'Awaiting decision',action_required:'Action required',completed:'Completed',not_applicable:'Not applicable'
   };
   const state={user:null,profile:null,steps:[],resources:[],progress:[],checklist:[],loaded:false,loading:null,activeCode:null,returnFocus:null};
+  let celebrationLoading=null;
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const arr=value=>Array.isArray(value)?value:[];
   const profession=value=>String(value||'').toLowerCase().includes('midwi')?'midwife':'nurse';
@@ -34,6 +35,22 @@
     const required=visibleSteps().filter(step=>step.is_required!==false);
     const completed=required.filter(step=>progressFor(step.code).status==='completed'||progressFor(step.code).completed===true);
     return {required,completed,total:required.length,done:completed.length,pct:required.length?Math.round(completed.length*100/required.length):0};
+  }
+  function celebrationKey(totals){
+    const destination=state.profile?.destination_country||state.profile?.destination||'unknown';
+    const journey=totals.required.map(step=>step.code).sort().join('|');
+    return `btv:journey-celebrated:${state.user?.id||'anonymous'}:${destination}:${journey}`;
+  }
+  async function celebrateCompletion(before,after){
+    if(before.pct===100||after.pct!==100||!after.total)return;
+    const key=celebrationKey(after);
+    try{if(localStorage.getItem(key)==='1')return}catch{}
+    if(celebrationLoading)return celebrationLoading;
+    celebrationLoading=import('./journey-celebration-v137.js?v=137').then(module=>{
+      try{localStorage.setItem(key,'1')}catch{}
+      return module.showJourneyCelebration();
+    }).catch(error=>console.warn('Journey celebration unavailable',error)).finally(()=>{celebrationLoading=null});
+    return celebrationLoading;
   }
   function upcoming(){
     const now=Date.now(),limit=now+45*86400000;
@@ -209,11 +226,14 @@
   function closeModal(){const dialog=ensureDialog();if(dialog.open)dialog.close();const focus=state.returnFocus;state.returnFocus=null;setTimeout(()=>focus?.isConnected&&focus.focus(),0)}
   function value(dialog,name){const input=dialog.querySelector(`[data-progress="${name}"]`);if(!input?.value)return null;return input.type==='datetime-local'?new Date(input.value).toISOString():input.value.trim()}
   async function saveProgress(dialog,step,statusOverride){
+    const before=summary();
     const status=statusOverride||value(dialog,'status')||'not_started';
     const row={user_id:state.user.id,step_code:step.code,status,application_reference:value(dialog,'application_reference'),submission_date:value(dialog,'submission_date'),expected_decision_date:value(dialog,'expected_decision_date'),exam_date:value(dialog,'exam_date'),expiry_date:value(dialog,'expiry_date'),reminder_at:value(dialog,'reminder_at'),reminder_kind:value(dialog,'reminder_kind'),supporting_document_reference:value(dialog,'supporting_document_reference'),notes:value(dialog,'notes'),updated_at:new Date().toISOString()};
     const {data,error}=await db().from('btv_user_journey_progress').upsert(row,{onConflict:'user_id,step_code'}).select().single();
     if(error)throw error;const index=state.progress.findIndex(item=>item.step_code===step.code);if(index>=0)state.progress[index]=data;else state.progress.push(data);
-    window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:{source:'guidance-v133',summary:summary()}}));message('Journey progress saved');return data;
+    const after=summary();
+    window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:{source:'guidance-v133',summary:after}}));message('Journey progress saved');
+    celebrateCompletion(before,after);return data;
   }
   async function saveChecklist(step,input){
     const item=arr(step.personal_checklist).find(row=>(row.code||'')===input.dataset.checkCode);if(!item)return;
