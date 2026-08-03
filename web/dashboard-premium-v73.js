@@ -418,7 +418,7 @@
     const useSynced = syncedSteps.length > 0;
     const usePlatformSteps = !useSynced && scopedSteps.length > 0;
     const scopedCodes = new Set(scopedSteps.map((step) => step.code));
-    const done = useSynced
+    const rawDone = useSynced
       ? synced?.done || 0
       : usePlatformSteps
       ? state.progress?.filter(
@@ -432,7 +432,8 @@
       : usePlatformSteps
       ? scopedSteps.length
       : legacyTotal || 7;
-    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+    const done = Math.min(Math.max(Number(rawDone) || 0, 0), total);
+    return { done, total, pct: total ? Math.min(100, Math.round((done / total) * 100)) : 0 };
   }
 
   function recommendation(j) {
