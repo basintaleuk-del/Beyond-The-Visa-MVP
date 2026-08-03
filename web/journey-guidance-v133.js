@@ -36,14 +36,14 @@
     const completed=required.filter(step=>progressFor(step.code).status==='completed'||progressFor(step.code).completed===true);
     return {required,completed,total:required.length,done:completed.length,pct:required.length?Math.round(completed.length*100/required.length):0};
   }
-  function celebrationKey(totals){
+  const isCompleted=item=>item?.status==='completed'||item?.completed===true;
+  function celebrationKey(step){
     const destination=state.profile?.destination_country||state.profile?.destination||'unknown';
-    const journey=totals.required.map(step=>step.code).sort().join('|');
-    return `btv:journey-celebrated:${state.user?.id||'anonymous'}:${destination}:${journey}`;
+    return `btv:journey-step-celebrated:${state.user?.id||'anonymous'}:${destination}:${step.code}`;
   }
-  async function celebrateCompletion(before,after){
-    if(before.pct===100||after.pct!==100||!after.total)return;
-    const key=celebrationKey(after);
+  async function celebrateStepCompletion(step,before,after){
+    if(isCompleted(before)||!isCompleted(after))return;
+    const key=celebrationKey(step);
     try{if(localStorage.getItem(key)==='1')return}catch{}
     if(celebrationLoading)return celebrationLoading;
     celebrationLoading=import('./journey-celebration-v137.js?v=137').then(module=>{
@@ -226,14 +226,14 @@
   function closeModal(){const dialog=ensureDialog();if(dialog.open)dialog.close();const focus=state.returnFocus;state.returnFocus=null;setTimeout(()=>focus?.isConnected&&focus.focus(),0)}
   function value(dialog,name){const input=dialog.querySelector(`[data-progress="${name}"]`);if(!input?.value)return null;return input.type==='datetime-local'?new Date(input.value).toISOString():input.value.trim()}
   async function saveProgress(dialog,step,statusOverride){
-    const before=summary();
+    const before=progressFor(step.code);
     const status=statusOverride||value(dialog,'status')||'not_started';
     const row={user_id:state.user.id,step_code:step.code,status,application_reference:value(dialog,'application_reference'),submission_date:value(dialog,'submission_date'),expected_decision_date:value(dialog,'expected_decision_date'),exam_date:value(dialog,'exam_date'),expiry_date:value(dialog,'expiry_date'),reminder_at:value(dialog,'reminder_at'),reminder_kind:value(dialog,'reminder_kind'),supporting_document_reference:value(dialog,'supporting_document_reference'),notes:value(dialog,'notes'),updated_at:new Date().toISOString()};
     const {data,error}=await db().from('btv_user_journey_progress').upsert(row,{onConflict:'user_id,step_code'}).select().single();
     if(error)throw error;const index=state.progress.findIndex(item=>item.step_code===step.code);if(index>=0)state.progress[index]=data;else state.progress.push(data);
-    const after=summary();
-    window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:{source:'guidance-v133',summary:after}}));message('Journey progress saved');
-    celebrateCompletion(before,after);return data;
+    const totals=summary();
+    window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:{source:'guidance-v133',summary:totals}}));message('Journey progress saved');
+    celebrateStepCompletion(step,before,data);return data;
   }
   async function saveChecklist(step,input){
     const item=arr(step.personal_checklist).find(row=>(row.code||'')===input.dataset.checkCode);if(!item)return;

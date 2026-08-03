@@ -42,8 +42,8 @@ export function showJourneyCelebration({duration=5200}={}){
   const root=document.createElement('section');root.className='btvCelebration137';root.setAttribute('aria-label','Journey completion celebration');
   const card=document.createElement('div');card.className='btvCelebrationCard137';card.setAttribute('role','status');card.setAttribute('aria-live','polite');card.setAttribute('aria-atomic','true');
   const copy=document.createElement('div');copy.className='btvCelebrationCopy137';
-  const heading=document.createElement('strong');heading.textContent='Congratulations! You completed your journey.';
-  const detail=document.createElement('span');detail.textContent='A remarkable milestone in your Beyond The Visa journey.';
+  const heading=document.createElement('strong');heading.textContent='Amazing. Keep it up.';
+  const detail=document.createElement('span');detail.textContent='You completed another step in your Beyond The Visa journey.';
   const close=document.createElement('button');close.type='button';close.className='btvCelebrationClose137';close.setAttribute('aria-label','Dismiss celebration');close.textContent='×';
   copy.append(heading,detail);card.append(brandMark(),copy,close);root.append(card);
   if(!reduced){

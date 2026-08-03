@@ -4,22 +4,22 @@ import {readFile} from 'node:fs/promises';
 
 const read=file=>readFile(new URL(`../${file}`,import.meta.url),'utf8');
 
-test('celebration is lazy-loaded only after a saved transition to full completion',async()=>{
+test('celebration is lazy-loaded only after a journey step is saved as completed',async()=>{
   const client=await read('web/journey-guidance-v133.js');
   const saveStart=client.indexOf('async function saveProgress');
   const saveEnd=client.indexOf('async function saveChecklist',saveStart);
   const save=client.slice(saveStart,saveEnd);
-  assert.match(save,/const before=summary\(\)/);
-  assert.ok(save.indexOf("upsert(row")<save.indexOf('const after=summary()'));
-  assert.ok(save.indexOf('if(error)throw error')<save.indexOf('celebrateCompletion(before,after)'));
-  assert.match(client,/before\.pct===100\|\|after\.pct!==100\|\|!after\.total/);
+  assert.match(save,/const before=progressFor\(step\.code\)/);
+  assert.ok(save.indexOf("upsert(row")<save.indexOf('const totals=summary()'));
+  assert.ok(save.indexOf('if(error)throw error')<save.indexOf('celebrateStepCompletion(step,before,data)'));
+  assert.match(client,/isCompleted\(before\)\|\|!isCompleted\(after\)/);
   assert.match(client,/import\('\.\/journey-celebration-v137\.js\?v=137'\)/);
 });
 
-test('a user and journey-specific marker prevents repeat celebrations',async()=>{
+test('a user, destination and step-specific marker prevents repeat celebrations',async()=>{
   const client=await read('web/journey-guidance-v133.js');
-  assert.match(client,/btv:journey-celebrated:/);
-  assert.match(client,/totals\.required\.map\(step=>step\.code\)\.sort\(\)\.join/);
+  assert.match(client,/btv:journey-step-celebrated:/);
+  assert.match(client,/destination.*step\.code/s);
   assert.match(client,/localStorage\.getItem\(key\)==='1'/);
   assert.match(client,/localStorage\.setItem\(key,'1'\)/);
   assert.match(client,/if\(celebrationLoading\)return celebrationLoading/);
@@ -45,4 +45,5 @@ test('reduced motion and accessibility contracts are present',async()=>{
   assert.match(module,/aria-label','Dismiss celebration/);
   assert.match(module,/document\.hidden/);
   assert.match(module,/is-paused/);
+  assert.match(module,/Amazing\. Keep it up\./);
 });
