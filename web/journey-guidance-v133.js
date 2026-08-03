@@ -42,14 +42,14 @@
     return `btv:journey-step-celebrated:${state.user?.id||'anonymous'}:${destination}:${step.code}`;
   }
   async function celebrateStepCompletion(step,before,after){
-    if(isCompleted(before)||!isCompleted(after))return;
+    if(isCompleted(before)||!isCompleted(after))return false;
     const key=celebrationKey(step);
-    try{if(localStorage.getItem(key)==='1')return}catch{}
+    try{if(localStorage.getItem(key)==='1')return false}catch{}
     if(celebrationLoading)return celebrationLoading;
     celebrationLoading=import('./journey-celebration-v137.js?v=137').then(module=>{
       try{localStorage.setItem(key,'1')}catch{}
-      return module.showJourneyCelebration();
-    }).catch(error=>console.warn('Journey celebration unavailable',error)).finally(()=>{celebrationLoading=null});
+      module.showJourneyCelebration();return true;
+    }).catch(error=>{console.warn('Journey celebration unavailable',error);return false}).finally(()=>{celebrationLoading=null});
     return celebrationLoading;
   }
   function upcoming(){
@@ -233,7 +233,7 @@
     if(error)throw error;const index=state.progress.findIndex(item=>item.step_code===step.code);if(index>=0)state.progress[index]=data;else state.progress.push(data);
     const totals=summary();
     window.dispatchEvent(new CustomEvent('btv:journey-changed',{detail:{source:'guidance-v133',summary:totals}}));message('Journey progress saved');
-    celebrateStepCompletion(step,before,data);return data;
+    const celebrated=await celebrateStepCompletion(step,before,data);return {data,celebrated};
   }
   async function saveChecklist(step,input){
     const item=arr(step.personal_checklist).find(row=>(row.code||'')===input.dataset.checkCode);if(!item)return;
@@ -244,8 +244,8 @@
   function bindModal(dialog,step){
     dialog.querySelector('[data-close-guidance]').onclick=closeModal;
     dialog.querySelectorAll('[data-check-code]').forEach(input=>input.onchange=async()=>{input.disabled=true;try{await saveChecklist(step,input)}catch(error){input.checked=!input.checked;message('Checklist update failed. Please try again.');console.warn(error)}finally{input.disabled=false}});
-    dialog.querySelector('[data-save-progress]').onclick=async event=>{event.currentTarget.disabled=true;try{await saveProgress(dialog,step);await refreshSurfaces();openModal(step.code)}catch(error){message('Progress update failed. Please try again.');console.warn(error)}finally{event.currentTarget.disabled=false}};
-    dialog.querySelector('[data-toggle-complete]').onclick=async event=>{event.currentTarget.disabled=true;try{const current=progressFor(step.code),next=current.status==='completed'?'in_progress':'completed';await saveProgress(dialog,step,next);await refreshSurfaces();openModal(step.code)}catch(error){message('Progress update failed. Please try again.');console.warn(error)}finally{event.currentTarget.disabled=false}};
+    dialog.querySelector('[data-save-progress]').onclick=async event=>{event.currentTarget.disabled=true;try{const {celebrated}=await saveProgress(dialog,step);if(celebrated)closeModal();await refreshSurfaces();if(!celebrated)openModal(step.code)}catch(error){message('Progress update failed. Please try again.');console.warn(error)}finally{event.currentTarget.disabled=false}};
+    dialog.querySelector('[data-toggle-complete]').onclick=async event=>{event.currentTarget.disabled=true;try{const current=progressFor(step.code),next=current.status==='completed'?'in_progress':'completed';const {celebrated}=await saveProgress(dialog,step,next);if(celebrated)closeModal();await refreshSurfaces();if(!celebrated)openModal(step.code)}catch(error){message('Progress update failed. Please try again.');console.warn(error)}finally{event.currentTarget.disabled=false}};
     const steps=visibleSteps(),index=steps.findIndex(item=>item.code===step.code);
     dialog.querySelector('[data-modal-prev]').onclick=()=>openModal(steps[index-1]?.code);
     dialog.querySelector('[data-modal-next]').onclick=()=>openModal(steps[index+1]?.code);

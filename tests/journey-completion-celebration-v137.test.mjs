@@ -11,10 +11,11 @@ test('celebration is lazy-loaded only after a journey step is saved as completed
   const save=client.slice(saveStart,saveEnd);
   assert.match(save,/const before=progressFor\(step\.code\)/);
   assert.ok(save.indexOf("upsert(row")<save.indexOf('const totals=summary()'));
-  assert.ok(save.indexOf('if(error)throw error')<save.indexOf('celebrateStepCompletion(step,before,data)'));
+  assert.ok(save.indexOf('if(error)throw error')<save.indexOf('await celebrateStepCompletion(step,before,data)'));
   assert.match(client,/isCompleted\(before\)\|\|!isCompleted\(after\)/);
   assert.match(client,/import\('\.\/journey-celebration-v137\.js\?v=137'\)/);
-  assert.match(html,/journey-guidance-v133\.js\?v=171/);
+  assert.match(html,/journey-guidance-v133\.js\?v=172/);
+  assert.match(client,/if\(celebrated\)closeModal\(\);await refreshSurfaces\(\);if\(!celebrated\)openModal\(step\.code\)/);
 });
 
 test('a user, destination and step-specific marker prevents repeat celebrations',async()=>{
