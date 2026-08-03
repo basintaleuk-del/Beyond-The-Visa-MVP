@@ -10,11 +10,14 @@ test('home journey summary uses destination-scoped or synced steps', () => {
   assert.match(js, /const synced\s*=\s*window\.destinationSync\?\.snapshot\?\.\(\)\s*\|\|\s*null/);
   assert.match(js, /const scopedSteps\s*=\s*\(state\.steps \|\| \[\]\)\.filter/);
   assert.match(js, /applicable_professions/);
-  assert.match(js, /const total\s*=\s*useSynced[\s\S]*syncedSteps\.length[\s\S]*scopedSteps\.length/);
+  assert.match(js, /synced\?\.country === destinationKey[\s\S]*syncedSteps\.length >= scopedSteps\.length/);
+  assert.match(js, /const calculatedTotal\s*=\s*useSynced[\s\S]*syncedSteps\.length[\s\S]*scopedSteps\.length/);
+  assert.match(js, /destinationKey === "uk" \? Math\.max\(calculatedTotal, 15\) : calculatedTotal/);
+  assert.match(js, /syncedSteps\.length >= platformSteps\.length/);
   assert.match(js, /const done = Math\.min\(Math\.max\(Number\(rawDone\) \|\| 0, 0\), total\)/);
   assert.match(js, /Math\.min\(100, Math\.round\(\(done \/ total\) \* 100\)\)/);
   assert.match(html, /function completed\(\)\{const steps=country\(\)\?\.steps\?\.length\|\|0,done=Object\.values\(state\.done\[state\.country\]\|\|\{\}\)\.filter\(Boolean\)\.length;return Math\.min\(done,steps\)\}/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=279/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=280/);
 });
 
 test('recommended next step tile uses professional CTA structure', () => {

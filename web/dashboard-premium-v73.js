@@ -415,7 +415,10 @@
       typeof window.country === "function"
         ? window.country()?.steps?.length || 0
         : 0;
-    const useSynced = syncedSteps.length > 0;
+    const useSynced =
+      synced?.country === destinationKey &&
+      syncedSteps.length > 0 &&
+      syncedSteps.length >= scopedSteps.length;
     const usePlatformSteps = !useSynced && scopedSteps.length > 0;
     const scopedCodes = new Set(scopedSteps.map((step) => step.code));
     const rawDone = useSynced
@@ -427,11 +430,12 @@
             (x.completed === true || Boolean(x.completed_at))
         ).length || 0
       : legacy;
-    const total = useSynced
+    const calculatedTotal = useSynced
       ? syncedSteps.length
       : usePlatformSteps
       ? scopedSteps.length
       : legacyTotal || 7;
+    const total = destinationKey === "uk" ? Math.max(calculatedTotal, 15) : calculatedTotal;
     const done = Math.min(Math.max(Number(rawDone) || 0, 0), total);
     return { done, total, pct: total ? Math.min(100, Math.round((done / total) * 100)) : 0 };
   }
@@ -1638,7 +1642,10 @@
     const platformSteps = (state.steps || []).filter(
       (step) => !step?.destination || step.destination === destinationKey
     );
-    const useSynced = syncedSteps.length > 0;
+    const useSynced =
+      synced?.country === destinationKey &&
+      syncedSteps.length > 0 &&
+      syncedSteps.length >= platformSteps.length;
     const usePlatformSteps = !useSynced && platformSteps.length > 0;
     const useChecklist =
       !useSynced && !usePlatformSteps && legacySteps.length > 0;
