@@ -283,7 +283,10 @@
       if (profileResult.error) throw profileResult.error;
       const selectedDestination = codeFor(profileResult.data?.destination_country || profileResult.data?.destination);
       if (selectedDestination && selectedDestination !== "uk") {
-        if (selectedDestination !== "us") await destinationJobs(profileResult.data || {});
+        if (selectedDestination === "us") {
+          const rendered = await window.BTVUSAJobs?.renderOpportunity?.();
+          if (!rendered) throw new Error("USA opportunities could not be prepared. Please try again.");
+        } else await destinationJobs(profileResult.data || {});
         return;
       }
       state.destination = null;

@@ -1731,6 +1731,7 @@
         "CAREER AND MIGRATION",
         [
           ["Journey Planner", "journey"],
+          ["Opportunities", "opportunities"],
           ["Visa Hub", "resources"],
           ["Jobs", "jobs"],
           ["Interview preparation", "interview"],

@@ -10,7 +10,8 @@ test("international opportunities use the same authenticated destination feed as
   assert.match(feature, /Authorization: `Bearer \$\{token\}`/);
   assert.match(feature, /profileResult\.data\?\.destination_country/);
   assert.match(feature, /selectedDestination !== "uk"/);
-  assert.match(feature, /selectedDestination !== "us"/);
+  assert.match(feature, /selectedDestination === "us"/);
+  assert.match(feature, /BTVUSAJobs\?\.renderOpportunity/);
   for (const [code, name] of [["ie", "Ireland"], ["ae", "United Arab Emirates"], ["sa", "Saudi Arabia"]]) {
     assert.match(feature, new RegExp(`${code}: "${name}"`));
   }
@@ -27,5 +28,6 @@ test("international opportunity actions stay linked to Jobs and original employe
 
 test("the destination-aware Opportunity Centre release is cache busted", async () => {
   const page = await read("web/index.html");
-  assert.match(page, /opportunity-centre-v138\.js\?v=290/);
+  assert.match(page, /opportunity-centre-v138\.js\?v=291/);
+  assert.match(page, /usa-jobs-v155\.js\?v=291/);
 });

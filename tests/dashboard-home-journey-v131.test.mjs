@@ -17,7 +17,7 @@ test('home journey summary uses destination-scoped or synced steps', () => {
   assert.match(js, /const done = Math\.min\(Math\.max\(Number\(rawDone\) \|\| 0, 0\), total\)/);
   assert.match(js, /Math\.min\(100, Math\.round\(\(done \/ total\) \* 100\)\)/);
   assert.match(html, /function completed\(\)\{const steps=country\(\)\?\.steps\?\.length\|\|0,done=Object\.values\(state\.done\[state\.country\]\|\|\{\}\)\.filter\(Boolean\)\.length;return Math\.min\(done,steps\)\}/);
-  assert.match(html, /dashboard-premium-v73\.js\?v=280/);
+  assert.match(html, /dashboard-premium-v73\.js\?v=281/);
 });
 
 test('recommended next step tile uses professional CTA structure', () => {

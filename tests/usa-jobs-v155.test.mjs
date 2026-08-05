@@ -145,7 +145,7 @@ test("USA route provides filters, internal details and original-source apply", (
   assert.match(ui, /View and apply on USAJOBS/);
   assert.match(ui, /Who may apply/);
   assert.match(ui, /Sponsorship status not confirmed/);
-  assert.match(html, /usa-jobs-v155\.js\?v=290/);
+  assert.match(html, /usa-jobs-v155\.js\?v=291/);
   assert.match(ui, /btv:session-restored[\s\S]*openInitialUsRoute/);
   assert.match(ui, /AbortController/);
   assert.match(ui, /USA jobs are taking too long to load/);

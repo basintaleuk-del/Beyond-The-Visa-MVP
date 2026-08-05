@@ -186,5 +186,5 @@
   window.addEventListener("btv:session-restored", (event) => {
     if (event.detail?.state === "app") setTimeout(openInitialUsRoute, 0);
   });
-  window.BTVUSAJobs={alertRecommendations,openAlertRecommendation};
+  window.BTVUSAJobs={alertRecommendations,openAlertRecommendation,renderOpportunity};
 })();

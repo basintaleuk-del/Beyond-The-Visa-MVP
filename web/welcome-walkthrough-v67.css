@@ -1,0 +1,17 @@
+.btvModalHead button{color:inherit}
+.btvWelcomeIntro>span,.btvWelcomeStart h3{font-weight:900}
+.btvWelcomeIntro>span{display:block;color:var(--teal,#187c80);font-size:11px;letter-spacing:.12em}
+.btvWelcomeIntro p,.btvWelcomeStart>p{color:var(--muted,#647678);line-height:1.55}
+.btvWelcomeStart{margin-top:18px;padding:16px;border:1px solid var(--line,#dde5e2);border-radius:16px;background:var(--bg,#f7f8f5)}
+.btvWelcomeStart h3{margin:0 0 12px}
+.btvWelcomeStart ol{display:grid;gap:10px;margin:0;padding-left:22px}
+.btvWelcomeStart li{padding-left:4px}
+.btvWelcomeStart li b,.btvWelcomeStart li span{display:block}
+.btvWelcomeStart li span{margin-top:2px;color:var(--muted,#647678);line-height:1.45}
+.btvTourCard{box-sizing:border-box;max-width:520px;max-height:calc(100vh - 120px);overflow:auto;background:var(--card,#fff);color:var(--ink,#123);border:1px solid var(--line,#dde5e2);padding:20px}
+.btvTourProgress{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--teal,#187c80);font-size:11px;letter-spacing:.1em}
+.btvTourCard h3{margin:10px 0 8px;font-family:Georgia,serif;font-size:24px}
+.btvTourCard>p{margin:0;color:var(--muted,#647678);line-height:1.55}
+.btvTourCard>ul{display:grid;gap:7px;margin:13px 0 0;padding-left:20px;line-height:1.45}
+.btvTourActions button:not(.btvPrimary){background:var(--bg,#f1f4f1);color:inherit}
+@media(max-width:560px){.btvWelcomeActions,.btvTourActions{flex-wrap:wrap}.btvWelcomeActions button{flex:1}.btvTourCard{bottom:76px;padding:16px}.btvTourActions button{flex:1;padding-inline:10px}}
